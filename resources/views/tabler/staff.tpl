@@ -5,7 +5,8 @@
     <div class="container-tight my-auto">
         <div class="empty">
             <p class="empty-title">MIT License</p>
-            <p class="empty-subtitle">&copy;2019 SSPanel UIM</p>
+            <p class="empty-subtitle">&copy; DPanel / dzone-source</p>
+            <p>Based on <a href="https://github.com/Anankke/SSPanel-UIM">SSPanel-UIM</a> (MIT License).</p>
             <p>Permission is hereby granted, free of charge, to any person obtaining a copy
                 of this software and associated documentation files (the "Software"), to deal
                 in the Software without restriction, including without limitation the rights
@@ -24,22 +25,17 @@
                 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
                 SOFTWARE.</p>
             <br>
-            <p class="empty-title"><a href="https://github.com/Anankke/SSPanel-UIM/graphs/contributors">贡献者清单</a></p>
+            <p class="empty-title"><a href="https://github.com/dzone-source/dpanel">DPanel Repository</a></p>
             <br>
-            <p class="empty-title"><a href="https://github.com/Anankke/SSPanel-Uim">GitHub Repo</a></p>
+            <p class="empty-title"><a href="https://github.com/Anankke/SSPanel-UIM/graphs/contributors">SSPanel-UIM Contributors</a></p>
             <br>
-            <p class="empty-title"><a href="https://github.com/sspanel-uim">GitHub Org</a></p>
-            <br>
-            <p class="empty-title">SSPanel-UIM 的存在离不开以下开源项目</p>
+            <p class="empty-title">DPanel is built on these open-source projects</p>
             <p><a href="https://github.com/slimphp/Slim">Slim Framework</a></p>
             <p><a href="https://github.com/tabler/tabler">Tabler</a></p>
             <p><a href="https://github.com/twigphp/Twig">Twig</a></p>
             <br>
             <p>This product includes GeoLite2 data created by MaxMind, available from
                 <a href="https://www.maxmind.com">https://www.maxmind.com</a>.</p>
-            <br>
-            <p class="empty-title">鸣谢</p>
-            <p>所有被引用过代码的开发者，以及所有提交过 PR 的贡献者。当然，还有在使用这份程序的你我Ta。</p>
         </div>
     </div>
 </div>

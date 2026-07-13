@@ -7,7 +7,7 @@
     <div class="container-tight my-auto">
         <div class="text-center mb-4">
             <a href="#" class="navbar-brand navbar-brand-autodark">
-                <img src="/images/uim-logo-round_96x96.png" height="64" alt="SSPanel-UIM Logo">
+                <img src="/images/uim-logo-round_96x96.png" height="64" alt="DPanel Logo">
             </a>
         </div>
         <div class="card card-md">
