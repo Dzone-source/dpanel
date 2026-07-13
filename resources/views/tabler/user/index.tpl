@@ -141,28 +141,20 @@
                     <div class="row row-cards">
                         {foreach $info_cards as $card}
                         <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
+                            <div class="card gopass-stat-card">
                                 <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-{$card.color} text-white avatar">
-                                                <i class="ti {$card.icon} icon"></i>
-                                            </span>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="gopass-stat-icon {$card.gradient}">
+                                            <i class="ti {$card.icon}"></i>
                                         </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium">
-                                                {$card.title}
-                                            </div>
-                                            <div class="text-secondary">
-                                                {$card.value}
-                                            </div>
+                                        <div class="flex-fill">
+                                            <div class="gopass-stat-label">{$card.title}</div>
+                                            <div class="gopass-stat-value">{$card.value}</div>
                                         </div>
                                         {if isset($card.action_url)}
-                                        <div class="col-auto">
-                                            <a href="{$card.action_url}" class="btn btn-primary btn-icon">
-                                                <i class="ti ti-plus icon"></i>
-                                            </a>
-                                        </div>
+                                        <a href="{$card.action_url}" class="btn btn-primary btn-icon btn-sm">
+                                            <i class="ti ti-arrow-right"></i>
+                                        </a>
                                         {/if}
                                     </div>
                                 </div>

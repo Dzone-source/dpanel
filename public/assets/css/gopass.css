@@ -1,0 +1,373 @@
+/* DPanel GoPass-inspired reskin */
+
+:root {
+    --gopass-primary: #7c3aed;
+    --gopass-primary-dark: #5b21b6;
+    --gopass-primary-light: #a78bfa;
+    --gopass-accent: #ec4899;
+    --gopass-sidebar-bg: #1e1b4b;
+    --gopass-sidebar-hover: rgba(255, 255, 255, 0.08);
+    --gopass-sidebar-active: linear-gradient(90deg, #7c3aed 0%, #a855f7 100%);
+    --gopass-surface: #f4f3ff;
+    --gopass-card-shadow: 0 4px 24px rgba(124, 58, 237, 0.08);
+    --tblr-primary: #7c3aed;
+    --tblr-primary-rgb: 124, 58, 237;
+    --tblr-primary-fg: #fff;
+}
+
+[data-bs-theme="dark"] {
+    --gopass-surface: #0f0a1e;
+    --gopass-card-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* ---- Auth pages ---- */
+body.gopass-auth {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 45%, #7c3aed 100%);
+}
+
+body.gopass-auth .page-center .card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+body.gopass-auth .btn-primary {
+    background: linear-gradient(90deg, #7c3aed, #a855f7);
+    border: none;
+}
+
+/* ---- App shell ---- */
+body.gopass-theme {
+    background: var(--gopass-surface);
+}
+
+.gopass-app {
+    display: flex;
+    min-height: 100vh;
+}
+
+.gopass-sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--gopass-sidebar-bg);
+    color: #e9e5ff;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1030;
+    overflow-y: auto;
+    transition: transform 0.25s ease;
+}
+
+.gopass-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.25rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gopass-sidebar-brand span {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+}
+
+.gopass-sidebar-user {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.gopass-sidebar-user .user-name {
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.gopass-sidebar-user .user-email {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.55);
+    word-break: break-all;
+}
+
+.gopass-nav {
+    flex: 1;
+    padding: 0.75rem 0;
+}
+
+.gopass-nav-section {
+    padding: 0.5rem 1.25rem 0.25rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.gopass-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.6rem 1.25rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-left: 3px solid transparent;
+    transition: all 0.15s ease;
+}
+
+.gopass-nav-link:hover {
+    background: var(--gopass-sidebar-hover);
+    color: #fff;
+}
+
+.gopass-nav-link.active {
+    background: var(--gopass-sidebar-hover);
+    color: #fff;
+    border-left-color: var(--gopass-primary-light);
+    background: linear-gradient(90deg, rgba(124, 58, 237, 0.35) 0%, transparent 100%);
+}
+
+.gopass-nav-link .ti {
+    font-size: 1.15rem;
+    opacity: 0.85;
+}
+
+.gopass-nav-badge {
+    margin-left: auto;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    background: var(--gopass-accent);
+    color: #fff;
+    font-weight: 700;
+}
+
+.gopass-content {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.gopass-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1020;
+}
+
+[data-bs-theme="dark"] .gopass-topbar {
+    background: rgba(15, 10, 30, 0.9);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.gopass-main {
+    flex: 1;
+    padding: 0;
+}
+
+.gopass-sidebar-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--gopass-primary);
+    font-size: 1.5rem;
+    padding: 0.25rem;
+    cursor: pointer;
+}
+
+/* ---- Page header banner ---- */
+.gopass-theme .page-wrapper {
+    padding: 0;
+}
+
+.gopass-theme .page-header {
+    background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 50%, #a855f7 100%);
+    border-radius: 0;
+    padding: 1.75rem 0;
+    margin-bottom: 0;
+}
+
+.gopass-theme .page-header .page-title,
+.gopass-theme .page-header .home-title {
+    color: #fff !important;
+    font-weight: 700;
+}
+
+.gopass-theme .page-header .page-pretitle,
+.gopass-theme .page-header .home-subtitle {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.gopass-theme .page-body {
+    padding: 1.5rem 0 2rem;
+}
+
+.gopass-theme .page-body > .container-xl {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* ---- Stat cards (GoPass dashboard) ---- */
+.gopass-stat-card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--gopass-card-shadow);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+}
+
+.gopass-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(124, 58, 237, 0.15);
+}
+
+.gopass-stat-card .card-body {
+    padding: 1.25rem;
+}
+
+.gopass-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: #fff;
+}
+
+.gopass-gradient-1 { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.gopass-gradient-2 { background: linear-gradient(135deg, #ec4899, #f472b6); }
+.gopass-gradient-3 { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+.gopass-gradient-4 { background: linear-gradient(135deg, #10b981, #34d399); }
+
+.gopass-stat-label {
+    font-size: 0.8rem;
+    color: var(--tblr-secondary);
+    margin-bottom: 0.15rem;
+}
+
+.gopass-stat-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--tblr-body-color);
+}
+
+/* ---- Cards general ---- */
+.gopass-theme .card {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--gopass-card-shadow);
+}
+
+.gopass-theme .card-header {
+    border-bottom: 1px solid rgba(124, 58, 237, 0.08);
+    background: transparent;
+    font-weight: 600;
+}
+
+.gopass-theme .btn-primary {
+    background: linear-gradient(90deg, #7c3aed, #9333ea);
+    border: none;
+}
+
+.gopass-theme .btn-primary:hover {
+    background: linear-gradient(90deg, #6d28d9, #7c3aed);
+}
+
+.gopass-theme .recommended-section {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(168, 85, 247, 0.05)) !important;
+    border: 1px solid rgba(124, 58, 237, 0.15) !important;
+    border-radius: 0.75rem !important;
+}
+
+.gopass-theme .progress-bar.bg-primary {
+    background: linear-gradient(90deg, #7c3aed, #a855f7) !important;
+}
+
+/* ---- Import buttons ---- */
+.gopass-import-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    text-align: left;
+    padding: 0.65rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    background: #fff;
+    color: var(--tblr-body-color);
+    transition: all 0.15s;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+[data-bs-theme="dark"] .gopass-import-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.gopass-import-btn:hover {
+    border-color: var(--gopass-primary);
+    background: rgba(124, 58, 237, 0.06);
+    color: var(--gopass-primary);
+}
+
+/* ---- Footer ---- */
+.gopass-footer {
+    padding: 1rem 1.5rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--tblr-secondary);
+    border-top: 1px solid rgba(124, 58, 237, 0.08);
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 991.98px) {
+    .gopass-sidebar {
+        transform: translateX(-100%);
+    }
+
+    .gopass-sidebar.open {
+        transform: translateX(0);
+    }
+
+    .gopass-content {
+        margin-left: 0;
+    }
+
+    .gopass-sidebar-toggle {
+        display: block;
+    }
+
+    .gopass-sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1025;
+    }
+
+    .gopass-sidebar-overlay.show {
+        display: block;
+    }
+}
+
+/* ---- Navbar override (hide old) ---- */
+.gopass-theme .navbar-overlap {
+    display: none !important;
+}

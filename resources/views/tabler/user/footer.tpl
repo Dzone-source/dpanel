@@ -1,3 +1,12 @@
+        </main>
+
+        <div class="gopass-footer">
+            Powered by <a href="/staff" class="link-secondary">DPanel</a>
+            &nbsp;·&nbsp; GoPass Style
+        </div>
+    </div>
+</div>
+
 <div class="modal modal-blur fade" id="success-dialog" role="dialog">
     <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -46,30 +55,8 @@
     </div>
 </div>
 
-<footer class="footer footer-transparent d-print-none">
-    <div class="container-xl">
-        <div class="row text-center align-items-center flex-row-reverse">
-            <div class="col-lg-auto ms-lg-auto">
-                <ul class="list-inline list-inline-dots mb-0">
-                    <li class="list-inline-item">
-                        Powered by <a href="/staff" class="link-secondary">DPanel</a>
-<!-- Không xóa trang staff — đó là sự tôn trọng với các nhà phát triển -->
-                    </li>
-                </ul>
-            </div>
-            <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                <ul class="list-inline list-inline-dots mb-0">
-                    <li class="list-inline-item">
-                        Theme by <a href="https://tabler.io/" class="link-secondary">Tabler</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</footer>
-</div>
-</div>
 <script src="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+<script src="/assets/js/gopass.js"></script>
 <script>
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
@@ -90,43 +77,22 @@
         }
     });
 
-    // Initialize clipboard functionality
     if (typeof ClipboardJS !== 'undefined' && document.querySelector('.copy')) {
         let clipboard = new ClipboardJS('.copy');
         clipboard.on('success', function(e) {
             showToast('Đã sao chép vào clipboard');
             e.clearSelection();
         });
-        
+
         clipboard.on('error', function(e) {
-            console.error('Sao chép thất bại:', e);
             const text = e.trigger.getAttribute('data-clipboard-text');
-            if (text) {
-                // Try native API first, fallback to prompt
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(text).then(function() {
-                        showToast('Đã sao chép vào clipboard');
-                    }).catch(function(err) {
-                        console.error('API gốc cũng thất bại:', err);
-                        prompt('Sao chép thất bại, vui lòng sao chép nội dung sau:', text);
-                    });
-                } else {
-                    prompt('Sao chép thất bại, vui lòng sao chép nội dung sau:', text);
-                }
-            } else {
-                showToast('Sao chép thất bại, vui lòng thử lại', 'danger');
+            if (text && navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                    showToast('Đã sao chép vào clipboard');
+                }).catch(function() {
+                    prompt('Vui lòng sao chép:', text);
+                });
             }
-        });
-    } else if (typeof ClipboardJS === 'undefined') {
-        console.error('ClipboardJS library not loaded');
-        document.querySelectorAll('.copy').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                const text = this.getAttribute('data-clipboard-text');
-                if (text) {
-                    prompt('Vui lòng sao chép nội dung sau:', text);
-                }
-            });
         });
     }
 
@@ -141,39 +107,36 @@
             let res = JSON.parse(evt.detail.xhr.response);
 
             if (typeof res.data !== 'undefined') {
-                // Update DOM elements with response data
                 for (let key in res.data) {
-                    if (res.data.hasOwnProperty(key)) {
-                        if (key === "ga-url" && typeof qrcode !== 'undefined') {
-                            qrcode.clear();
-                            qrcode.makeCode(res.data[key]);
-                            continue;
-                        }
-
-                        if (key === "last-checkin-time") {
-                            const checkInBtn = document.getElementById("check-in");
+                    if (!res.data.hasOwnProperty(key)) continue;
+                    if (key === "ga-url" && typeof qrcode !== 'undefined') {
+                        qrcode.clear();
+                        qrcode.makeCode(res.data[key]);
+                        continue;
+                    }
+                    if (key === "last-checkin-time") {
+                        const checkInBtn = document.getElementById("check-in");
+                        if (checkInBtn) {
                             checkInBtn.textContent = "Đã điểm danh";
                             checkInBtn.disabled = true;
-                            continue;
                         }
-
-                        const element = document.getElementById(key);
-                        if (element) {
-                            if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
-                                element.value = res.data[key];
-                            } else {
-                                element.textContent = res.data[key];
-                            }
+                        continue;
+                    }
+                    const element = document.getElementById(key);
+                    if (element) {
+                        if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") {
+                            element.value = res.data[key];
+                        } else {
+                            element.textContent = res.data[key];
                         }
                     }
                 }
             }
 
-            // Show success or error message
             const isSuccess = res.ret === 1;
             const messageId = isSuccess ? "success-message" : "fail-message";
             const dialog = isSuccess ? window.successDialog : window.failDialog;
-            
+
             document.getElementById(messageId).textContent = res.msg;
             if (dialog) {
                 dialog.show();
@@ -182,16 +145,12 @@
             }
         } catch (e) {
             console.error("Failed to parse HTMX response:", e);
-            showToast('Đã xảy ra lỗi không mong muốn', 'danger');
         }
     });
 </script>
-<script>console.table([['Truy vấn cơ sở dữ liệu', 'Thời gian thực thi'], ['{count($queryLog)} lần', '{$optTime} ms']])</script>
 
 {include file='live_chat.tpl'}
-
 {include file='telemetry.tpl'}
 
 </body>
-
 </html>

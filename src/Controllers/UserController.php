@@ -60,6 +60,43 @@ final class UserController extends BaseController
             $r2Enabled
         );
 
+        $class_value = $this->user->class > 0
+            ? 'LV. ' . $this->user->class . ' · còn ' . $class_expire_days . ' ngày'
+            : 'Chưa kích hoạt';
+
+        $info_cards = [
+            [
+                'title' => 'Gói dịch vụ',
+                'value' => $class_value,
+                'icon' => 'ti-crown',
+                'gradient' => 'gopass-gradient-1',
+                'action_url' => '/user/product',
+            ],
+            [
+                'title' => 'Số dư ví',
+                'value' => $this->user->money . ' VND',
+                'icon' => 'ti-wallet',
+                'gradient' => 'gopass-gradient-2',
+                'action_url' => '/user/money',
+            ],
+            [
+                'title' => 'Thiết bị đồng thời',
+                'value' => $this->user->node_iplimit > 0
+                    ? $this->user->node_iplimit . ' thiết bị'
+                    : 'Không giới hạn',
+                'icon' => 'ti-devices',
+                'gradient' => 'gopass-gradient-3',
+            ],
+            [
+                'title' => 'Tốc độ cổng',
+                'value' => $this->user->node_speedlimit > 0
+                    ? $this->user->node_speedlimit . ' Mbps'
+                    : 'Không giới hạn',
+                'icon' => 'ti-bolt',
+                'gradient' => 'gopass-gradient-4',
+            ],
+        ];
+
         return $response->write(
             $this->view()
                 ->assign('ann', $ann)
@@ -73,6 +110,7 @@ final class UserController extends BaseController
                 ->assign('user_money', $this->user->money)
                 ->assign('ip_limit', $this->user->node_iplimit)
                 ->assign('speed_limit', $this->user->node_speedlimit)
+                ->assign('info_cards', $info_cards)
                 ->fetch('user/index.tpl')
         );
     }

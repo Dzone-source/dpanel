@@ -2,7 +2,7 @@
 
 <script src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
 
-<body class="border-top-wide border-primary d-flex flex-column">
+<body class="gopass-auth border-top-wide border-primary d-flex flex-column">
 <div class="page page-center">
     <div class="container-tight my-auto">
         <div class="card card-md">

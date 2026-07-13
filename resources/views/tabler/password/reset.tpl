@@ -1,6 +1,6 @@
 {include file='header.tpl'}
 
-<body class="border-top-wide border-primary d-flex flex-column">
+<body class="gopass-auth border-top-wide border-primary d-flex flex-column">
 <div class="page page-center">
     <div class="container-tight my-auto">
         <div class="text-center mb-4">

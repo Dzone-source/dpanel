@@ -8,228 +8,138 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="referrer" content="never">
     <title>{$config['appName']}</title>
-    <!-- CSS files -->
     <link href="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="//{$config['jsdelivr_url']}/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
-    <!-- JS files -->
+    <link href="/assets/css/gopass.css" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
     <script src="//{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="//{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
     <script src="//{$config['jsdelivr_url']}/npm/htmx.org@latest/dist/htmx.min.js"></script>
-    <style>
-        .home-subtitle {
-            font-size: 14px;
-        }
-
-        .home-title {
-            font-size: 36px;
-        }
-    </style>
 </head>
 
 {if $user->is_dark_mode}
-<body data-bs-theme="dark">
+<body class="gopass-theme" data-bs-theme="dark">
 {else}
-<body>
+<body class="gopass-theme" data-bs-theme="light">
 {/if}
-<div class="page">
-    <header class="navbar navbar-expand-md navbar-overlap d-print-none" data-bs-theme="dark">
-        <div class="container-xl" style="background-image: none;">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                <img src="/images/uim-logo-round_48x48.png" height="32" alt="DPanel Logo"
-                     class="navbar-brand-image" style="filter: none;">
-            </h1>
-            <div class="navbar-nav flex-row order-md-last">
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
-                       aria-label="Open user menu">
-                            <span class="avatar avatar-sm"
-                                  style="background-image: url({$user->dice_bear})"></span>
-                        <div class="d-none d-xl-block ps-2">
-                            <div>{$user->email}</div>
-                            <div class="mt-1 small text-secondary">{$user->user_name}</div>
-                        </div>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        {if $user->is_dark_mode}
-                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none">
-                                Chế độ sáng
-                            </a>
-                        {else}
-                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none">
-                                Chế độ tối
-                            </a>
-                        {/if}
-                        <a href="/user/logout" class="dropdown-item">Đăng xuất</a>
-                    </div>
-                </div>
-            </div>
-            <div class="collapse navbar-collapse" id="navbar-menu">
-                <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
-                    <ul class="navbar-nav">
-                        <li class="nav-item">
-                            <a class="nav-link" href="/user">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-home icon"></i>
-                                    </span>
-                                <span class="nav-link-title">
-                                        Trang chủ
-                                    </span>
-                            </a>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown"
-                               data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-user icon"></i>
-                                    </span>
-                                <span class="nav-link-title">
-                                        Của tôi
-                                    </span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-menu-columns">
-                                    <div class="dropdown-menu-column">
-                                        <a class="dropdown-item" href="/user/profile">
-                                            <i class="ti ti-info-square"></i>&nbsp;
-                                            Tài khoản
-                                        </a>
-                                        <a class="dropdown-item" href="/user/edit">
-                                            <i class="ti ti-edit"></i>&nbsp;
-                                            Hồ sơ
-                                        </a>
-                                        <a class="dropdown-item" href="/user/invite">
-                                            <i class="ti ti-friends"></i>&nbsp;
-                                            Mời bạn
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#navbar-extra" data-bs-toggle="dropdown"
-                               data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-brand-telegram icon"></i>
-                                    </span>
-                                <span class="nav-link-title">
-                                        Sử dụng
-                                    </span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="/user/server">
-                                    <i class="ti ti-server"></i>&nbsp;
-                                    Máy chủ
-                                </a>
-                                <a class="dropdown-item" href="/user/rate">
-                                    <i class="ti ti-chart-bar"></i>&nbsp;
-                                    Hệ số lưu lượng
-                                </a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#navbar-extra" data-bs-toggle="dropdown"
-                               data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-dots-circle-horizontal icon"></i>
-                                    </span>
-                                <span class="nav-link-title">
-                                        Hỗ trợ
-                                    </span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="/user/announcement">
-                                    <i class="ti ti-speakerphone"></i>&nbsp;
-                                    Thông báo
-                                </a>
-                                {if $public_setting['enable_ticket']}
-                                    <a class="dropdown-item" href="/user/ticket">
-                                        <i class="ti ti-ticket"></i>&nbsp;
-                                        Phiếu hỗ trợ
-                                    </a>
-                                {/if}
-                                {if $public_setting['display_docs'] &&
-                                (! $public_setting['display_docs_only_for_paid_user'] || $user->class !== 0)}
-                                    <a class="dropdown-item" href="/user/docs">
-                                        <i class="ti ti-notes"></i>&nbsp;
-                                        Tài liệu
-                                    </a>
-                                {/if}
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#navbar-extra" data-bs-toggle="dropdown"
-                               data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-shield-check icon"></i>
-                                    </span>
-                                <span class="nav-link-title">
-                                        Kiểm duyệt
-                                    </span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="/user/detect">
-                                    <i class="ti ti-barrier-block"></i>&nbsp;
-                                    Quy tắc
-                                </a>
-                                {if $public_setting['display_detect_log']}
-                                    <a class="dropdown-item" href="/user/detect/log">
-                                        <i class="ti ti-notes"></i>&nbsp;
-                                        Nhật ký
-                                    </a>
-                                {/if}
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#navbar-layout" data-bs-toggle="dropdown"
-                               data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-building-store icon"></i>
-                                    </span>
-                                <span class="nav-link-title">
-                                        Cửa hàng
-                                    </span>
-                            </a>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-menu-columns">
-                                    <div class="dropdown-menu-column">
-                                        <a class="dropdown-item" href="/user/product">
-                                            <i class="ti ti-list"></i>&nbsp;
-                                            Sản phẩm
-                                        </a>
-                                        <a class="dropdown-item" href="/user/order">
-                                            <i class="ti ti-file-invoice"></i>&nbsp;
-                                            Đơn hàng
-                                        </a>
-                                        <a class="dropdown-item" href="/user/invoice">
-                                            <i class="ti ti-file-dollar"></i>&nbsp;
-                                            Hóa đơn
-                                        </a>
-                                        <a class="dropdown-item" href="/user/money">
-                                            <i class="ti ti-home-dollar"></i>&nbsp;
-                                            Số dư
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        {if $user->is_admin}
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin">
-                                    <span class="nav-link-icon d-md-none d-lg-inline-block">
-                                        <i class="ti ti-settings icon"></i>
-                                    </span>
-                                    <span class="nav-link-title">
-                                        Quản trị
-                                    </span>
-                                </a>
-                            </li>
-                        {/if}
-                    </ul>
+
+<div id="gopass-sidebar-overlay" class="gopass-sidebar-overlay"></div>
+
+<div class="gopass-app">
+    <aside id="gopass-sidebar" class="gopass-sidebar">
+        <div class="gopass-sidebar-brand">
+            <img src="/images/uim-logo-round_48x48.png" height="36" width="36" alt="{$config['appName']}">
+            <span>{$config['appName']}</span>
+        </div>
+
+        <div class="gopass-sidebar-user">
+            <div class="d-flex align-items-center gap-2">
+                <span class="avatar avatar-sm" style="background-image: url({$user->dice_bear})"></span>
+                <div>
+                    <div class="user-name">{$user->user_name}</div>
+                    <div class="user-email">{$user->email}</div>
                 </div>
             </div>
         </div>
-    </header>
+
+        <nav class="gopass-nav">
+            <div class="gopass-nav-section">Trang chính</div>
+            <a class="gopass-nav-link" href="/user">
+                <i class="ti ti-home"></i> Trang chủ
+            </a>
+            <a class="gopass-nav-link" href="/user/server">
+                <i class="ti ti-server"></i> Máy chủ
+                <span class="gopass-nav-badge">Hot</span>
+            </a>
+
+            <div class="gopass-nav-section">Tài khoản</div>
+            <a class="gopass-nav-link" href="/user/profile">
+                <i class="ti ti-user"></i> Thông tin
+            </a>
+            <a class="gopass-nav-link" href="/user/edit">
+                <i class="ti ti-settings"></i> Hồ sơ
+            </a>
+            <a class="gopass-nav-link" href="/user/money">
+                <i class="ti ti-wallet"></i> Ví tiền
+            </a>
+            <a class="gopass-nav-link" href="/user/invite">
+                <i class="ti ti-friends"></i> Mời bạn
+            </a>
+
+            <div class="gopass-nav-section">Cửa hàng</div>
+            <a class="gopass-nav-link" href="/user/product">
+                <i class="ti ti-shopping-cart"></i> Sản phẩm
+            </a>
+            <a class="gopass-nav-link" href="/user/order">
+                <i class="ti ti-file-invoice"></i> Đơn hàng
+            </a>
+            <a class="gopass-nav-link" href="/user/invoice">
+                <i class="ti ti-receipt"></i> Hóa đơn
+            </a>
+
+            <div class="gopass-nav-section">Hỗ trợ</div>
+            <a class="gopass-nav-link" href="/user/announcement">
+                <i class="ti ti-speakerphone"></i> Thông báo
+            </a>
+            {if $public_setting['enable_ticket']}
+            <a class="gopass-nav-link" href="/user/ticket">
+                <i class="ti ti-ticket"></i> Phiếu hỗ trợ
+            </a>
+            {/if}
+            {if $public_setting['display_docs'] &&
+            (! $public_setting['display_docs_only_for_paid_user'] || $user->class !== 0)}
+            <a class="gopass-nav-link" href="/user/docs">
+                <i class="ti ti-book"></i> Tài liệu
+            </a>
+            {/if}
+            <a class="gopass-nav-link" href="/user/rate">
+                <i class="ti ti-chart-bar"></i> Hệ số lưu lượng
+            </a>
+
+            <div class="gopass-nav-section">Kiểm duyệt</div>
+            <a class="gopass-nav-link" href="/user/detect">
+                <i class="ti ti-shield-check"></i> Quy tắc
+            </a>
+            {if $public_setting['display_detect_log']}
+            <a class="gopass-nav-link" href="/user/detect/log">
+                <i class="ti ti-list"></i> Nhật ký
+            </a>
+            {/if}
+
+            {if $user->is_admin}
+            <div class="gopass-nav-section">Quản trị</div>
+            <a class="gopass-nav-link" href="/admin">
+                <i class="ti ti-dashboard"></i> Bảng quản trị
+            </a>
+            {/if}
+        </nav>
+    </aside>
+
+    <div class="gopass-content">
+        <header class="gopass-topbar">
+            <div class="d-flex align-items-center gap-2">
+                <button id="gopass-sidebar-toggle" class="gopass-sidebar-toggle" type="button" aria-label="Menu">
+                    <i class="ti ti-menu-2"></i>
+                </button>
+                <span class="text-secondary d-none d-md-inline" style="font-size:0.85rem">
+                    Xin chào, <strong>{$user->user_name}</strong>
+                </span>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                {if $user->is_dark_mode}
+                <button class="btn btn-ghost-secondary btn-sm" hx-post="/user/switch_theme_mode" hx-swap="none" title="Chế độ sáng">
+                    <i class="ti ti-sun"></i>
+                </button>
+                {else}
+                <button class="btn btn-ghost-secondary btn-sm" hx-post="/user/switch_theme_mode" hx-swap="none" title="Chế độ tối">
+                    <i class="ti ti-moon"></i>
+                </button>
+                {/if}
+                <a href="/user/logout" class="btn btn-ghost-danger btn-sm">
+                    <i class="ti ti-logout"></i>
+                    <span class="d-none d-md-inline ms-1">Đăng xuất</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="gopass-main">
