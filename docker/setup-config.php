@@ -47,6 +47,7 @@ $replacements = [
     "/^\$_ENV\['redis_db'\] = .*/m" => "\$_ENV['redis_db'] = " . (int) ($env['REDIS_DB'] ?? 0) . ";",
     "/^\$_ENV\['redis_password'\] = '.*';/m" => "\$_ENV['redis_password'] = '" . addslashes($env['REDIS_PASSWORD'] ?? '') . "';",
     "/^\$_ENV\['timeZone'\] = '.*';/m" => "\$_ENV['timeZone'] = '" . addslashes($env['TZ'] ?? 'Asia/Ho_Chi_Minh') . "';",
+    "/^\$_ENV\['locale'\] = '.*';/m" => "\$_ENV['locale'] = '" . addslashes($env['APP_LOCALE'] ?? 'vi_VN') . "';",
 ];
 
 foreach ($replacements as $pattern => $replacement) {

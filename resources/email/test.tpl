@@ -9,14 +9,14 @@
                         <div border="0" cellpadding="0" cellspacing="0" width="100%">
                             <div align="center" valign="middle" style="padding-top:60px;padding-bottom:60px">
                                 <h2 class="bigTitle">
-                                    邮件发送测试
+                                    Kiểm tra gửi email
                                 </h2>
                             </div>
                         </div>
                         <div border="0" cellpadding="0" cellspacing="0" style="background-color:#FFFFFF" width="100%">
                             <div align="center" valign="top" style="padding-bottom:60px; padding-left:20px; padding-right:20px;">
                                 <p class="midText">
-                                    这是一封测试邮件。如果你能收到，说明邮件发送配置有效，可以正常工作。
+                                    Đây là email kiểm tra. Nếu bạn nhận được, cấu hình gửi email đã hoạt động bình thường.
                                 </p>
                             </div>
                         </div>

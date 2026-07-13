@@ -97,6 +97,16 @@ Container Nginx chỉ lắng nghe HTTP (cổng 80). Đặt reverse proxy phía t
 | `config/.config.php` | Cấu hình ứng dụng (tự sinh từ `.env`) |
 | `config/appprofile.php` | Profile client (Clash, Sing-box, ...) |
 
+## Ngôn ngữ
+
+Giao diện mặc định là **Tiếng Việt** (`vi_VN`). Có thể đổi trong `config/.config.php`:
+
+```php
+$_ENV['locale'] = 'vi_VN';
+```
+
+Các ngôn ngữ hỗ trợ: `vi_VN`, `en_US`, `zh_CN`, `zh_TW`, `ja_JP`.
+
 ## Giấy phép
 
 MIT — dựa trên SSPanel-UIM. Xem [LICENSE](LICENSE).

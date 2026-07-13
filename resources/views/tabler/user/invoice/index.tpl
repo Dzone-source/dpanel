@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title my-3">账单列表</span>
+                        <span class="home-title my-3">Danh sách hóa đơn</span>
                     </h2>
                     <div class="page-pretitle">
-                        <span class="home-subtitle">在这里查看账单列表</span>
+                        <span class="home-subtitle">Xem danh sách hóa đơn tại đây</span>
                     </div>
                 </div>
             </div>

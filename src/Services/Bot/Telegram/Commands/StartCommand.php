@@ -22,7 +22,7 @@ final class StartCommand extends Command
     /**
      * @var string Command Description
      */
-    protected string $description = '[群组/私聊] Bot 初始命令';
+    protected string $description = '[Nhóm/Chat riêng] Lệnh khởi động Bot';
 
     public function handle(): void
     {
@@ -35,7 +35,7 @@ final class StartCommand extends Command
             // 回送信息
             $this->replyWithMessage(
                 [
-                    'text' => '发送 /help 获取帮助',
+                    'text' => 'Gửi /help để xem trợ giúp',
                     'parse_mode' => 'Markdown',
                 ]
             );

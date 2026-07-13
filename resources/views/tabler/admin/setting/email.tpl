@@ -6,17 +6,17 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">邮件设置</span>
+                        <span class="home-title">Cài đặt email</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">设置站点的邮件系统</span>
+                        <span class="home-subtitle">Cấu hình hệ thống email của trang web</span>
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <a id="save-setting" href="#" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
-                            保存
+                            Lưu
                         </a>
                     </div>
                 </div>
@@ -31,10 +31,10 @@
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
                                 <li class="nav-item">
-                                    <a href="#email" class="nav-link active" data-bs-toggle="tab">邮件设置</a>
+                                    <a href="#email" class="nav-link active" data-bs-toggle="tab">Cài đặt email</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#limit" class="nav-link" data-bs-toggle="tab">发送限制</a>
+                                    <a href="#limit" class="nav-link" data-bs-toggle="tab">Giới hạn gửi</a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#smtp" class="nav-link" data-bs-toggle="tab">SMTP</a>
@@ -70,7 +70,7 @@
                                 <div class="tab-pane active show" id="email">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">邮件服务提供商</label>
+                                            <label class="form-label col-3 col-form-label">Nhà cung cấp dịch vụ email</label>
                                             <div class="col">
                                                 <select id="email_driver" class="col form-select"
                                                         value="{$settings['email_driver']}">
@@ -118,11 +118,11 @@
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">测试邮件接收地址</label>
+                                            <label class="form-label col-3 col-form-label">Địa chỉ nhận email thử nghiệm</label>
                                             <input type="text" class="form-control" id="recipient" value="">
                                             <div class="row my-3">
                                                 <div class="col">
-                                                    <button id="test-email" class="btn btn-primary">发送测试邮件
+                                                    <button id="test-email" class="btn btn-primary">Gửi email thử nghiệm
                                                     </button>
                                                 </div>
                                             </div>
@@ -132,28 +132,28 @@
                                 <div class="tab-pane" id="limit">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">邮箱验证码有效期（秒）</label>
+                                            <label class="form-label col-3 col-form-label">Thời hạn mã xác minh email (giây)</label>
                                             <div class="col">
                                                 <input id="email_verify_code_ttl" type="text" class="form-control"
                                                        value="{$settings['email_verify_code_ttl']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">邮箱重设密码链接有效期（秒）</label>
+                                            <label class="form-label col-3 col-form-label">Thời hạn liên kết đặt lại mật khẩu (giây)</label>
                                             <div class="col">
                                                 <input id="email_password_reset_ttl" type="text" class="form-control"
                                                        value="{$settings['email_password_reset_ttl']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">单个IP每小时可请求的发信次数</label>
+                                            <label class="form-label col-3 col-form-label">Số lần gửi tối đa mỗi giờ theo IP</label>
                                             <div class="col">
                                                 <input id="email_request_ip_limit" type="text" class="form-control"
                                                        value="{$settings['email_request_ip_limit']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">单个邮箱地址每小时可请求的发信次数</label>
+                                            <label class="form-label col-3 col-form-label">Số lần gửi tối đa mỗi giờ theo địa chỉ email</label>
                                             <div class="col">
                                                 <input id="email_request_address_limit" type="text" class="form-control"
                                                        value="{$settings['email_request_address_limit']}">
@@ -440,7 +440,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">发件人</label>
+                                            <label class="form-label col-3 col-form-label">Người gửi</label>
                                             <div class="col">
                                                 <input id="postmark_sender" type="text" class="form-control"
                                                        value="{$settings['postmark_sender']}">

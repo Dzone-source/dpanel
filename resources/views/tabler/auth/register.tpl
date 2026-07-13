@@ -11,39 +11,39 @@
         <div class="card card-md">
             {if $public_setting['reg_mode'] !== 'close'}
                 <div class="card-body">
-                    <h2 class="card-title text-center mb-4">注册账户</h2>
+                    <h2 class="card-title text-center mb-4">Đăng ký tài khoản</h2>
                     <div class="mb-3">
-                        <input id="name" type="text" class="form-control" placeholder="昵称">
+                        <input id="name" type="text" class="form-control" placeholder="Biệt danh">
                     </div>
                     <div class="mb-3">
-                        <input id="email" type="email" class="form-control" placeholder="电子邮箱">
+                        <input id="email" type="email" class="form-control" placeholder="Email">
                     </div>
                     {if $public_setting['reg_email_verify']}
                     <div class="mb-3">
                         <div class="input-group mb-2">
-                            <input id="emailcode" type="text" class="form-control" placeholder="邮箱验证码">
+                            <input id="emailcode" type="text" class="form-control" placeholder="Mã xác minh email">
                             <button id="send-verify-email" class="btn text-blue" type="button"
                                     hx-post="/auth/send" hx-swap="none" hx-disabled-elt="this"
                                     hx-vals='js:{ email: document.getElementById("email").value }'>
-                                获取
+                                Lấy mã
                             </button>
                         </div>
                     </div>
                     {/if}
                     <div class="mb-3">
                         <div class="input-group input-group-flat">
-                            <input id="password" type="password" class="form-control" placeholder="登录密码">
+                            <input id="password" type="password" class="form-control" placeholder="Mật khẩu đăng nhập">
                         </div>
                     </div>
                     <div class="mb-3">
                         <div class="input-group input-group-flat">
-                            <input id="confirm_password" type="password" class="form-control" placeholder="重复登录密码">
+                            <input id="confirm_password" type="password" class="form-control" placeholder="Nhập lại mật khẩu đăng nhập">
                         </div>
                     </div>
                     <div class="mb-3">
                         <div class="input-group input-group-flat">
                             <input id="invite_code" type="text" class="form-control"
-                                   placeholder="注册邀请码{if $public_setting['reg_mode'] === 'open'}（可选）{else}（必填）{/if}"
+                                   placeholder="Mã mời đăng ký{if $public_setting['reg_mode'] === 'open'}（tùy chọn）{else}（bắt buộc）{/if}"
                                    value="{$invite_code}">
                         </div>
                     </div>
@@ -51,7 +51,7 @@
                         <label class="form-check">
                             <input id="tos" type="checkbox" class="form-check-input"/>
                             <span class="form-check-label">
-                                    我已阅读并同意 <a href="/tos" tabindex="-1"> 服务条款与隐私政策 </a>
+                                    Tôi đã đọc và đồng ý <a href="/tos" tabindex="-1"> Điều khoản dịch vụ và Chính sách bảo mật </a>
                                 </span>
                         </label>
                     </div>
@@ -78,18 +78,18 @@
                                     invite_code: document.getElementById("invite_code").value,
                                     tos: document.getElementById("tos").checked,
                                  }'>
-                            注册新账户
+                            Đăng ký tài khoản mới
                         </button>
                     </div>
                 </div>
             {else}
                 <div class="card-body">
-                    <p>还没有开放注册，过两天再来看看吧</p>
+                    <p>Chưa mở đăng ký, hãy quay lại sau vài ngày</p>
                 </div>
             {/if}
         </div>
         <div class="text-center text-secondary mt-3">
-            已有账户？ <a href="/auth/login" tabindex="-1">点击登录</a>
+            Đã có tài khoản? <a href="/auth/login" tabindex="-1">Nhấn để đăng nhập</a>
         </div>
     </div>
 </div>

@@ -6,17 +6,17 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title my-3">工单列表</span>
+                        <span class="home-title my-3">Danh sách phiếu hỗ trợ</span>
                     </h2>
                     <div class="page-pretitle">
-                        <span class="home-subtitle">你可以在这里联系管理员获取支持</span>
+                        <span class="home-subtitle">Liên hệ quản trị viên để được hỗ trợ tại đây</span>
                     </div>
                 </div>
                 <div class="col-auto">
                     <div class="btn-list">
                         <button href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#create-ticket">
                             <i class="icon ti ti-plus"></i>
-                            创建工单
+                            Tạo phiếu hỗ trợ
                         </button>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                                             <span class="status status-grey">{$ticket->status}</span>
                                             <span class="status status-grey">{$ticket->type}</span>
                                             <a href="/user/ticket/{$ticket->id}/view"
-                                               class="btn btn-primary ms-auto">查看</a>
+                                               class="btn btn-primary ms-auto">Xem</a>
                                         </div>
                                     </div>
                                 </div>
@@ -65,9 +65,9 @@
                         {else}
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">没有任何工单</h3>
+                                <h3 class="card-title">Chưa có phiếu hỗ trợ nào</h3>
                             </div>
-                            <div class="card-body">如需帮助，请点击右上角按钮开启新工单</div>
+                            <div class="card-body">Nếu cần trợ giúp, nhấn nút góc trên bên phải để tạo phiếu mới</div>
                         </div>
                         {/if}
                     </div>
@@ -80,35 +80,35 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">创建工单</h5>
+                    <h5 class="modal-title">Tạo phiếu hỗ trợ</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <select id="ticket-type" class="form-select">
-                            <option value="0">请选择工单类型</option>
-                            <option value="howto">使用</option>
-                            <option value="billing">财务</option>
-                            <option value="account">账户</option>
-                            <option value="other">其他</option>
+                            <option value="0">Chọn loại phiếu hỗ trợ</option>
+                            <option value="howto">Sử dụng</option>
+                            <option value="billing">Tài chính</option>
+                            <option value="account">Tài khoản</option>
+                            <option value="other">Khác</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <input id="ticket-title" type="text" class="form-control" placeholder="请输入工单主题">
+                        <input id="ticket-title" type="text" class="form-control" placeholder="Nhập tiêu đề phiếu hỗ trợ">
                     </div>
                     <div class="mb-3">
-                        <textarea id="ticket-comment" class="form-control" rows="12" placeholder="请输入工单内容"></textarea>
+                        <textarea id="ticket-comment" class="form-control" rows="12" placeholder="Nhập nội dung phiếu hỗ trợ"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
                     <button id="create-ticket-button" class="btn btn-primary" data-bs-dismiss="modal"
                             hx-post="/user/ticket" hx-swap="none"
                             hx-vals='js:{
                             title: document.getElementById("ticket-title").value,
                             comment: document.getElementById("ticket-comment").value,
                             type: document.getElementById("ticket-type").value }'>
-                        创建
+                        Tạo
                     </button>
                 </div>
             </div>

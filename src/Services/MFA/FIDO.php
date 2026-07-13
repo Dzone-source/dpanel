@@ -55,7 +55,7 @@ final class FIDO
             return ['ret' => 0, 'msg' => $e->getMessage()];
         }
         if (! isset($publicKeyCredential->response) || ! $publicKeyCredential->response instanceof AuthenticatorAttestationResponse) {
-            return ['ret' => 0, 'msg' => '密钥类型错误'];
+            return ['ret' => 0, 'msg' => 'Loại khóa không đúng'];
         }
         $redis = (new Cache())->initRedis();
         $publicKeyCredentialCreationOptions = $serializer->deserialize(
@@ -72,7 +72,7 @@ final class FIDO
                 Tools::getSiteDomain()
             );
         } catch (Exception) {
-            return ['ret' => 0, 'msg' => '验证失败'];
+            return ['ret' => 0, 'msg' => 'Xác minh thất bại'];
         }
         $jsonStr = WebAuthn::getSerializer()->serialize($publicKeyCredentialSource, 'json');
         $jsonObject = json_decode($jsonStr);
@@ -86,7 +86,7 @@ final class FIDO
         $mfaCredential->type = 'fido';
         $mfaCredential->save();
         $redis->del('fido_register_' . session_id());
-        return ['ret' => 1, 'msg' => '注册成功'];
+        return ['ret' => 1, 'msg' => 'Đăng ký thành công'];
     }
 
     public static function assertRequest(User $user): array
@@ -119,7 +119,7 @@ final class FIDO
             $redis->setex('fido_assertion_' . session_id(), 300, $jsonObject);
             return json_decode($jsonObject, true);
         } catch (Exception $e) {
-            return ['ret' => 0, 'msg' => '请求失败: ' . $e->getMessage()];
+            return ['ret' => 0, 'msg' => 'Yêu cầu thất bại: ' . $e->getMessage()];
         }
     }
 
@@ -128,7 +128,7 @@ final class FIDO
         $serializer = WebAuthn::getSerializer();
         $publicKeyCredential = $serializer->deserialize(json_encode($data), PublicKeyCredential::class, 'json');
         if (! $publicKeyCredential->response instanceof AuthenticatorAssertionResponse) {
-            return ['ret' => 0, 'msg' => '验证失败'];
+            return ['ret' => 0, 'msg' => 'Xác minh thất bại'];
         }
         $publicKeyCredentialSource = (new MFADevice())
             ->where('rawid', $data['id'])
@@ -136,7 +136,7 @@ final class FIDO
             ->where('type', 'fido')
             ->first();
         if ($publicKeyCredentialSource === null) {
-            return ['ret' => 0, 'msg' => '设备未注册'];
+            return ['ret' => 0, 'msg' => 'Thiết bị chưa đăng ký'];
         }
         $redis = (new Cache())->initRedis();
         try {
@@ -161,6 +161,6 @@ final class FIDO
         $publicKeyCredentialSource->used_at = date('Y-m-d H:i:s');
         $publicKeyCredentialSource->save();
         $redis->del('fido_assertion_' . session_id());
-        return ['ret' => 1, 'msg' => '验证成功', 'userid' => $user->id];
+        return ['ret' => 1, 'msg' => 'Xác minh thành công', 'userid' => $user->id];
     }
 }

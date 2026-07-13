@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title my-3">订阅记录</span>
+                        <span class="home-title my-3">Nhật ký đăng ký</span>
                     </h2>
                     <div class="page-pretitle">
-                        <span class="home-subtitle">查看用户订阅记录</span>
+                        <span class="home-subtitle">Xem nhật ký đăng ký người dùng</span>
                     </div>
                 </div>
             </div>

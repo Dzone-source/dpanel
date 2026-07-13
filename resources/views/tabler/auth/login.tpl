@@ -12,16 +12,16 @@
         </div>
         <div class="card card-md">
             <div class="card-body">
-                <h2 class="card-title text-center mb-4">登录到用户中心</h2>
+                <h2 class="card-title text-center mb-4">Đăng nhập vào trung tâm người dùng</h2>
                 <div class="mb-3">
-                    <label class="form-label">邮箱</label>
+                    <label class="form-label">Email</label>
                     <input id="email" type="email" class="form-control">
                 </div>
                 <div class="mb-2">
                     <label class="form-label">
-                        登录密码
+                        Mật khẩu đăng nhập
                         <span class="form-label-description">
-                                <a href="/password/reset">忘记密码</a>
+                                <a href="/password/reset">Quên mật khẩu</a>
                             </span>
                     </label>
                     <div class="input-group input-group-flat">
@@ -31,7 +31,7 @@
                 <div class="mb-2">
                     <label class="form-check">
                         <input id="remember_me" type="checkbox" class="form-check-input"/>
-                        <span class="form-check-label">记住此设备</span>
+                        <span class="form-check-label">Ghi nhớ thiết bị</span>
                     </label>
                 </div>
                 <div class="mb-3">
@@ -51,16 +51,16 @@
                                 password: document.getElementById("password").value,
                                 remember_me: document.getElementById("remember_me").checked,
                              }'>
-                        登录
+                        Đăng nhập
                     </button>
                     <button class="btn btn-primary w-100" id="webauthnLogin">
-                        使用WebAuthn登录
+                        Đăng nhập bằng WebAuthn
                     </button>
                 </div>
             </div>
         </div>
         <div class="text-center text-secondary mt-3">
-            还没有账户？ <a href="/auth/register" tabindex="-1">点击注册</a>
+            Chưa có tài khoản? <a href="/auth/register" tabindex="-1">Nhấn để đăng ký</a>
         </div>
     </div>
 </div>

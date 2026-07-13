@@ -6,17 +6,17 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">定时任务设置</span>
+                        <span class="home-title">Cài đặt tác vụ định kỳ</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">设置站点的定时任务</span>
+                        <span class="home-subtitle">Cấu hình tác vụ định kỳ của trang web</span>
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <a id="save-setting" href="#" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
-                            保存
+                            Lưu
                         </a>
                     </div>
                 </div>
@@ -31,16 +31,16 @@
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
                                 <li class="nav-item">
-                                    <a href="#daily_job" class="nav-link active" data-bs-toggle="tab">每日任务</a>
+                                    <a href="#daily_job" class="nav-link active" data-bs-toggle="tab">Tác vụ hàng ngày</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#finance_mail" class="nav-link" data-bs-toggle="tab">财务报告</a>
+                                    <a href="#finance_mail" class="nav-link" data-bs-toggle="tab">Báo cáo tài chính</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#detect" class="nav-link" data-bs-toggle="tab">审计任务</a>
+                                    <a href="#detect" class="nav-link" data-bs-toggle="tab">Tác vụ kiểm tra</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#inactive" class="nav-link" data-bs-toggle="tab">闲置账号检测</a>
+                                    <a href="#inactive" class="nav-link" data-bs-toggle="tab">Phát hiện tài khoản không hoạt động</a>
                                 </li>
                             </ul>
                         </div>
@@ -49,14 +49,14 @@
                                 <div class="tab-pane active show" id="daily_job">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">每日任务执行时间(小时)</label>
+                                            <label class="form-label col-3 col-form-label">Thời gian chạy tác vụ hàng ngày (giờ)</label>
                                             <div class="col">
                                                 <input id="daily_job_hour" type="text" class="form-control"
                                                        value="{$settings['daily_job_hour']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">每日任务执行时间(分钟)</label>
+                                            <label class="form-label col-3 col-form-label">Thời gian chạy tác vụ hàng ngày (phút)</label>
                                             <div class="col">
                                                 <input id="daily_job_minute" type="text" class="form-control"
                                                        value="{$settings['daily_job_minute']}">
@@ -67,47 +67,47 @@
                                 <div class="tab-pane show" id="finance_mail">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">是否启用每日财务报告</label>
+                                            <label class="form-label col-3 col-form-label">Bật báo cáo tài chính hàng ngày</label>
                                             <div class="col">
                                                 <select id="enable_daily_finance_mail" class="col form-select"
                                                         value="{$settings['enable_daily_finance_mail']}">
                                                     <option value="0"
                                                             {if ! $settings['enable_daily_finance_mail']}selected{/if}>
-                                                        关闭
+                                                        Tắt
                                                     </option>
                                                     <option value="1"
-                                                            {if $settings['enable_daily_finance_mail']}selected{/if}>开启
+                                                            {if $settings['enable_daily_finance_mail']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">是否启用每周财务报告</label>
+                                            <label class="form-label col-3 col-form-label">Bật báo cáo tài chính hàng tuần</label>
                                             <div class="col">
                                                 <select id="enable_weekly_finance_mail" class="col form-select"
                                                         value="{$settings['enable_weekly_finance_mail']}">
                                                     <option value="0"
                                                             {if ! $settings['enable_weekly_finance_mail']}selected{/if}>
-                                                        关闭
+                                                        Tắt
                                                     </option>
                                                     <option value="1"
-                                                            {if $settings['enable_weekly_finance_mail']}selected{/if}>开启
+                                                            {if $settings['enable_weekly_finance_mail']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">是否启用每月财务报告</label>
+                                            <label class="form-label col-3 col-form-label">Bật báo cáo tài chính hàng tháng</label>
                                             <div class="col">
                                                 <select id="enable_monthly_finance_mail" class="col form-select"
                                                         value="{$settings['enable_monthly_finance_mail']}">
                                                     <option value="0"
                                                             {if ! $settings['enable_monthly_finance_mail']}selected{/if}>
-                                                        关闭
+                                                        Tắt
                                                     </option>
                                                     <option value="1"
                                                             {if $settings['enable_monthly_finance_mail']}selected{/if}>
-                                                        开启
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>
@@ -117,29 +117,29 @@
                                 <div class="tab-pane show" id="detect">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">是否启用节点被墙检测</label>
+                                            <label class="form-label col-3 col-form-label">Bật phát hiện node bị chặn</label>
                                             <div class="col">
                                                 <select id="enable_detect_gfw" class="col form-select"
                                                         value="{$settings['enable_detect_gfw']}">
                                                     <option value="0"
-                                                            {if ! $settings['enable_detect_gfw']}selected{/if}>关闭
+                                                            {if ! $settings['enable_detect_gfw']}selected{/if}>Tắt
                                                     </option>
                                                     <option value="1" {if $settings['enable_detect_gfw']}selected{/if}>
-                                                        开启
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">是否启用审计封禁</label>
+                                            <label class="form-label col-3 col-form-label">Bật cấm kiểm tra</label>
                                             <div class="col">
                                                 <select id="enable_detect_ban" class="col form-select"
                                                         value="{$settings['enable_detect_ban']}">
                                                     <option value="0"
-                                                            {if ! $settings['enable_detect_ban']}selected{/if}>关闭
+                                                            {if ! $settings['enable_detect_ban']}selected{/if}>Tắt
                                                     </option>
                                                     <option value="1" {if $settings['enable_detect_ban']}selected{/if}>
-                                                        开启
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>
@@ -149,23 +149,23 @@
                                 <div class="tab-pane show" id="inactive">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">是否启用闲置账号检测</label>
+                                            <label class="form-label col-3 col-form-label">Bật phát hiện tài khoản không hoạt động</label>
                                             <div class="col">
                                                 <select id="enable_detect_inactive_user" class="col form-select"
                                                         value="{$settings['enable_detect_inactive_user']}">
                                                     <option value="0"
                                                             {if ! $settings['enable_detect_inactive_user']}selected{/if}>
-                                                        关闭
+                                                        Tắt
                                                     </option>
                                                     <option value="1"
                                                             {if $settings['enable_detect_inactive_user']}selected{/if}>
-                                                        开启
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">未签到时长(天)</label>
+                                            <label class="form-label col-3 col-form-label">Thời gian chưa điểm danh (ngày)</label>
                                             <div class="col">
                                                 <input id="detect_inactive_user_checkin_days" type="text"
                                                        class="form-control"
@@ -173,7 +173,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">未登录时长(天)</label>
+                                            <label class="form-label col-3 col-form-label">Thời gian chưa đăng nhập (ngày)</label>
                                             <div class="col">
                                                 <input id="detect_inactive_user_login_days" type="text"
                                                        class="form-control"
@@ -181,7 +181,7 @@
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">未使用时长(天)</label>
+                                            <label class="form-label col-3 col-form-label">Thời gian chưa sử dụng (ngày)</label>
                                             <div class="col">
                                                 <input id="detect_inactive_user_use_days" type="text"
                                                        class="form-control"
@@ -189,17 +189,17 @@
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">是否启用移除闲置账号订阅链接与邀请码</label>
+                                            <label class="form-label col-3 col-form-label">Bật xóa liên kết đăng ký và mã mời của tài khoản không hoạt động</label>
                                             <div class="col">
                                                 <select id="remove_inactive_user_link_and_invite" class="col form-select"
                                                         value="{$settings['remove_inactive_user_link_and_invite']}">
                                                     <option value="0"
                                                             {if ! $settings['remove_inactive_user_link_and_invite']}selected{/if}>
-                                                        关闭
+                                                        Tắt
                                                     </option>
                                                     <option value="1"
                                                             {if $settings['remove_inactive_user_link_and_invite']}selected{/if}>
-                                                        开启
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>

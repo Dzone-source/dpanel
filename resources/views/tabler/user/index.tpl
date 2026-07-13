@@ -102,13 +102,13 @@
     }
 }
 
-/* 手风琴样式 */
+/* Kiểu accordion */
 .accordion-button:not(.collapsed) {
     background: var(--tblr-primary-lt);
     color: var(--tblr-primary);
 }
 
-/* 敏感信息模糊效果 */
+/* Hiệu ứng làm mờ thông tin nhạy cảm */
 .spoiler {
     filter: blur(5px);
     transition: filter 0.3s;
@@ -125,10 +125,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">用户中心</span>
+                        <span class="home-title">Trung tâm người dùng</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">在这里查看账户信息和最新公告</span>
+                        <span class="home-subtitle">Xem thông tin tài khoản và thông báo mới nhất tại đây</span>
                     </div>
                 </div>
             </div>
@@ -175,28 +175,28 @@
                 <div class="col-lg-6 col-sm-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">快速配置</h3>
+                            <h3 class="card-title">Cấu hình nhanh</h3>
                         </div>
                         <div class="card-body">
                             <div class="mb-4">
                                 <h4 class="mb-3">
-                                    <i class="ti ti-link"></i> 您的专属订阅地址
+                                    <i class="ti ti-link"></i> Địa chỉ đăng ký node dành riêng cho bạn
                                 </h4>
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" value="{$UniversalSub}" readonly id="universal-sub-link">
                                     <button class="btn btn-primary copy" data-clipboard-text="{$UniversalSub}">
-                                        <i class="ti ti-copy"></i> 复制
+                                        <i class="ti ti-copy"></i> Sao chép
                                     </button>
                                 </div>
                                 <p class="text-muted mb-0">
-                                    <small>此订阅地址适用于所有客户端，请妥善保管</small>
+                                    <small>Địa chỉ đăng ký này dùng cho mọi ứng dụng khách, vui lòng bảo mật</small>
                                 </p>
                             </div>
 
                             <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
                                 <h4 class="mb-3">
                                     <i class="ti ti-rocket"></i> 
-                                    为您推荐的 <span id="detected-os" class="text-primary">Windows</span> 客户端
+                                    Ứng dụng khách <span id="detected-os" class="text-primary">Windows</span> được đề xuất cho bạn
                                 </h4>
                                 <div class="row g-3" id="recommended-clients">
                                 </div>
@@ -206,7 +206,7 @@
                                 <button class="btn btn-ghost-primary" type="button" data-bs-toggle="collapse" 
                                         data-bs-target="#all-platforms" aria-expanded="false">
                                     <i class="ti ti-package"></i> 
-                                    查看其他平台客户端
+                                    Xem ứng dụng khách cho nền tảng khác
                                     <i class="ti ti-chevron-down ms-1"></i>
                                 </button>
                             </div>
@@ -216,11 +216,11 @@
                                 </div>
                                 
                                 <div class="mt-3 p-3 bg-secondary-lt rounded">
-                                    <h5 class="mb-2">高级订阅格式</h5>
-                                    <div class="small text-muted mb-2">如果您需要特定格式的订阅链接：</div>
+                                    <h5 class="mb-2">Định dạng đăng ký nâng cao</h5>
+                                    <div class="small text-muted mb-2">Nếu bạn cần liên kết đăng ký theo định dạng cụ thể:</div>
                                     <div class="btn-group btn-group-sm flex-wrap">
                                         <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/json">
-                                            JSON 格式
+                                            Định dạng JSON
                                         </button>
                                         <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/v2rayjson">
                                             V2Ray JSON
@@ -250,7 +250,7 @@
                                     <button class="btn btn-ghost-secondary w-100" type="button" data-bs-toggle="collapse" 
                                             data-bs-target="#connection-info" aria-expanded="false">
                                         <i class="ti ti-info-circle"></i> 
-                                        查看连接信息
+                                        Xem thông tin kết nối
                                         <i class="ti ti-chevron-down ms-1"></i>
                                     </button>
                                     <div class="collapse mt-2" id="connection-info">
@@ -259,11 +259,11 @@
                                                 <table class="table table-sm mb-0">
                                                     <tbody>
                                                     <tr>
-                                                        <td class="text-muted" style="width: 100px;">端口</td>
+                                                        <td class="text-muted" style="width: 100px;">Cổng</td>
                                                         <td><code>{$user->port}</code></td>
                                                     </tr>
                                                     <tr>
-                                                        <td class="text-muted">连接密码</td>
+                                                        <td class="text-muted">Mật khẩu kết nối</td>
                                                         <td><code class="spoiler">{$user->passwd}</code></td>
                                                     </tr>
                                                     <tr>
@@ -271,7 +271,7 @@
                                                         <td><code class="spoiler" style="font-size: 0.8em;">{$user->uuid}</code></td>
                                                     </tr>
                                                     <tr>
-                                                        <td class="text-muted">加密方式</td>
+                                                        <td class="text-muted">Phương thức mã hóa</td>
                                                         <td><code>{$user->method}</code></td>
                                                     </tr>
                                                     </tbody>
@@ -290,7 +290,7 @@
                     <div class="vstack">
                         <div class="card">
                             <div class="card-body">
-                                <h3 class="card-title">流量用量</h3>
+                                <h3 class="card-title">Sử dụng lưu lượng</h3>
                                 <div class="progress progress-separated mb-3">
                                     {if $user->LastusedTrafficPercent() < '1'}
                                     <div class="progress-bar bg-primary" role="progressbar" style="width: 1%"></div>
@@ -309,24 +309,24 @@
                                 <div class="row">
                                     <div class="col-auto d-flex align-items-center pe-2">
                                         <span class="legend me-2 bg-primary"></span>
-                                        <span>过去用量 {$user->LastusedTraffic()}</span>
+                                        <span>Lưu lượng đã dùng {$user->LastusedTraffic()}</span>
                                     </div>
                                     <div class="col-auto d-flex align-items-center px-2">
                                         <span class="legend me-2 bg-success"></span>
-                                        <span>今日用量 {$user->TodayusedTraffic()}</span>
+                                        <span>Lưu lượng hôm nay {$user->TodayusedTraffic()}</span>
                                     </div>
                                     <div class="col-auto d-flex align-items-center ps-2">
                                         <span class="legend me-2"></span>
-                                        <span>剩余流量 {$user->unusedTraffic()}</span>
+                                        <span>Lưu lượng còn lại {$user->unusedTraffic()}</span>
                                     </div>
                                 </div>
                                 <p class="my-3">
                                     {if $user->class === 0}
-                                    前往
-                                    <a href="/user/product">商店</a>
-                                    购买套餐
+                                    Đến
+                                    <a href="/user/product">Cửa hàng</a>
+                                    mua gói dịch vụ
                                     {else}
-                                    你的 LV. {$user->class} 账户会在 {$class_expire_days} 天后到期（{$user->class_expire}）
+                                    Tài khoản LV. {$user->class} của bạn sẽ hết hạn sau {$class_expire_days} ngày ({$user->class_expire})
                                     {/if}
                                 </p>
                             </div>
@@ -334,7 +334,7 @@
                         {if $public_setting['traffic_log']}
                         <div class="card my-3 mb-0">
                             <div class="card-body">
-                                <h3 class="card-title">每小时用量</h3>
+                                <h3 class="card-title">Lưu lượng theo giờ</h3>
                                 <div id="traffic-log"></div>
                             </div>
                         </div>
@@ -350,27 +350,26 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <h3 class="card-title">每日签到</h3>
+                            <h3 class="card-title">Điểm danh hàng ngày</h3>
                             <p>
-                                签到可领取
+                                Điểm danh để nhận lưu lượng trong khoảng
                                 {if $public_setting['checkin_min'] !== $public_setting['checkin_max']}
                                 &nbsp;
                                 <code>{$public_setting['checkin_min']} MB</code>
-                                至
+                                đến
                                 <code>{$public_setting['checkin_max']} MB</code>
-                                范围内的流量
                                 {else}
                                 <code>{$public_setting['checkin_min']} MB</code>
                                 {/if}
                             </p>
                             <p>
-                                上次签到时间：<code id="last-checkin-time">{$user->lastCheckInTime()}</code>
+                                Lần điểm danh gần nhất: <code id="last-checkin-time">{$user->lastCheckInTime()}</code>
                             </p>
                         </div>
                         <div class="card-footer">
                             <div class="d-flex">
                                 {if !$user->isAbleToCheckin()}
-                                <button id="check-in" class="btn btn-primary ms-auto" disabled>已签到</button>
+                                <button id="check-in" class="btn btn-primary ms-auto" disabled>Đã điểm danh</button>
                                 {else}
                                 {if $public_setting['enable_checkin_captcha']}
                                 {include file='captcha/div.tpl'}
@@ -381,7 +380,7 @@
                                     {include file='captcha/ajax.tpl'}
                                     {/if}
                                     }'>
-                                    签到
+                                    Điểm danh
                                 </button>
                                 {/if}
                             </div>
@@ -396,7 +395,7 @@
                         </div>
                         <div class="card-body">
                             <h3 class="card-title">
-                                置顶公告
+                                Thông báo ghim
                                 {if $ann !== null}
                                 <span class="card-subtitle">{$ann->date}</span>
                                 {/if}
@@ -405,7 +404,7 @@
                                 {if $ann !== null}
                                 {$ann->content}
                                 {else}
-                                暂无公告
+                                Chưa có thông báo
                                 {/if}
                             </p>
                         </div>
@@ -444,7 +443,7 @@
                 },
                 series: [
                     {
-                        name: "使用流量（MB）",
+                        name: "Lưu lượng sử dụng (MB)",
                         data: trafficData
                     }
                 ],
@@ -462,7 +461,7 @@
                 },
                 xaxis: {
                     title: {
-                        text: "小时"
+                        text: "Giờ"
                     },
                     labels: {
                         padding: 0
@@ -480,7 +479,7 @@
                 },
                 yaxis: {
                     title: {
-                        text: "使用流量（MB）",
+                        text: "Lưu lượng sử dụng (MB)",
                         rotate: -90
                     },
                     labels: {
@@ -502,7 +501,7 @@
                 const chart = new ApexCharts(chartElement, getTrafficChartConfig({$traffic_logs}));
                 chart.render();
             } catch (error) {
-                console.error('流量图表初始化失败:', error);
+                console.error('Khởi tạo biểu đồ lưu lượng thất bại:', error);
             }
         }
         
@@ -539,10 +538,10 @@
     
 
     const CONFIG = {
-        ANIMATION_DURATION: 350,        // 动画持续时间（毫秒）
-        FEEDBACK_TIMEOUT: 2000,         // 反馈提示持续时间（毫秒）
-        CLIPBOARD_SUCCESS_TEXT: '已复制',
-        CLIPBOARD_ERROR_TEXT: '复制失败，请手动选择并复制',
+        ANIMATION_DURATION: 350,        // Thời gian hiệu ứng (ms)
+        FEEDBACK_TIMEOUT: 2000,         // Thời gian hiển thị phản hồi (ms)
+        CLIPBOARD_SUCCESS_TEXT: 'Đã sao chép',
+        CLIPBOARD_ERROR_TEXT: 'Sao chép thất bại, vui lòng chọn và sao chép thủ công',
         CLASSES: {
             BTN_GROUP_MOBILE: 'btn-group-vertical',
             BTN_GROUP_DESKTOP: 'btn-group btn-group-sm', 
@@ -552,11 +551,11 @@
             DESKTOP_SM: 'd-none d-sm-flex'
         },
         BUTTONS: {
-            download: { icon: 'ti-download', text: '下载', class: 'btn-primary' },
+            download: { icon: 'ti-download', text: 'Tải xuống', class: 'btn-primary' },
             downloadAppStore: { icon: 'ti-brand-appstore', text: 'App Store', class: 'btn-primary' },
-            copy: { icon: 'ti-copy', text: '复制订阅', class: 'btn-info copy' },
-            import: { icon: 'ti-link', text: '一键导入', class: 'btn-success' },
-            importRecommended: { icon: 'ti-rocket', text: '一键导入', class: 'btn-success' }
+            copy: { icon: 'ti-copy', text: 'Sao chép đăng ký', class: 'btn-info copy' },
+            import: { icon: 'ti-link', text: 'Nhập một chạm', class: 'btn-success' },
+            importRecommended: { icon: 'ti-rocket', text: 'Nhập một chạm', class: 'btn-success' }
         }
     };
     
@@ -564,7 +563,7 @@
         try {
             fn();
         } catch (error) {
-            console.error(`${name} 初始化失败:`, error);
+            console.error(`${name} khởi tạo thất bại:`, error);
         }
     }
     
@@ -762,7 +761,7 @@
     
     function initClipboard() {
         if (typeof ClipboardJS === 'undefined') {
-            console.warn('ClipboardJS 未加载');
+            console.warn('ClipboardJS chưa được tải');
             return;
         }
         
@@ -781,7 +780,7 @@
         });
         
         clipboard.on('error', function(e) {
-            console.error('复制失败:', e.action);
+            console.error('Sao chép thất bại:', e.action);
             alert(CONFIG.CLIPBOARD_ERROR_TEXT);
         });
     }
@@ -809,9 +808,9 @@
     }
     
     document.addEventListener('DOMContentLoaded', function() {
-        safeInit(initClientSelector, '客户端选择器');
-        safeInit(initClipboard, '剪贴板功能');
-        safeInit(initCollapseAnimations, '折叠动画');
+        safeInit(initClientSelector, 'Bộ chọn ứng dụng khách');
+        safeInit(initClipboard, 'Chức năng clipboard');
+        safeInit(initCollapseAnimations, 'Hiệu ứng thu gọn');
     });
     {/literal}
     </script>

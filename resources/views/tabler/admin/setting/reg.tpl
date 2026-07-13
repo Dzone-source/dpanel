@@ -6,17 +6,17 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">注册设置</span>
+                        <span class="home-title">Cài đặt đăng ký</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">管理站点的注册设置</span>
+                        <span class="home-subtitle">Quản lý cài đặt đăng ký của trang web</span>
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <a id="save-setting" href="#" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
-                            保存
+                            Lưu
                         </a>
                     </div>
                 </div>
@@ -31,10 +31,10 @@
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
                                 <li class="nav-item">
-                                    <a href="#reg" class="nav-link active" data-bs-toggle="tab">注册设置</a>
+                                    <a href="#reg" class="nav-link active" data-bs-toggle="tab">Cài đặt đăng ký</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#default_value" class="nav-link" data-bs-toggle="tab">默认值</a>
+                                    <a href="#default_value" class="nav-link" data-bs-toggle="tab">Giá trị mặc định</a>
                                 </li>
                             </ul>
                         </div>
@@ -43,47 +43,47 @@
                                 <div class="tab-pane active show" id="reg">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">注册模式</label>
+                                            <label class="form-label col-3 col-form-label">Chế độ đăng ký</label>
                                             <div class="col">
                                                 <select id="reg_mode" class="col form-select"
                                                         value="{$settings['reg_mode']}">
                                                     <option value="close"
-                                                            {if $settings['reg_mode'] === 'close'}selected{/if}>关闭注册
+                                                            {if $settings['reg_mode'] === 'close'}selected{/if}>Tắt đăng ký
                                                     </option>
                                                     <option value="open"
-                                                            {if $settings['reg_mode'] === 'open'}selected{/if}>公开注册
+                                                            {if $settings['reg_mode'] === 'open'}selected{/if}>Đăng ký công khai
                                                     </option>
                                                     <option value="invite"
                                                             {if $settings['reg_mode'] === 'invite'}selected{/if}>
-                                                        仅限用户邀请注册
+                                                        Chỉ đăng ký bằng lời mời
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">邮箱验证</label>
+                                            <label class="form-label col-3 col-form-label">Xác minh email</label>
                                             <div class="col">
                                                 <select id="reg_email_verify" class="col form-select"
                                                         value="{$settings['reg_email_verify']}">
                                                     <option value="0" {if ! $settings['reg_email_verify']}selected{/if}>
-                                                        关闭
+                                                        Tắt
                                                     </option>
                                                     <option value="1" {if $settings['reg_email_verify']}selected{/if}>
-                                                        开启
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">默认接收每日用量邮件推送</label>
+                                            <label class="form-label col-3 col-form-label">Nhận email báo cáo sử dụng hàng ngày mặc định</label>
                                             <div class="col">
                                                 <select id="reg_daily_report" class="col form-select"
                                                         value="{$settings['reg_daily_report']}">
                                                     <option value="0"
-                                                            {if ! $settings['reg_daily_report']}selected{/if}>关闭
+                                                            {if ! $settings['reg_daily_report']}selected{/if}>Tắt
                                                     </option>
                                                     <option value="1"
-                                                            {if $settings['reg_daily_report']}selected{/if}>开启
+                                                            {if $settings['reg_daily_report']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
@@ -93,81 +93,81 @@
                                 <div class="tab-pane" id="default_value">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">注册时随机分配到的分组，多个分组请用英文半角逗号分隔</label>
+                                            <label class="form-label col-3 col-form-label">Nhóm được gán ngẫu nhiên khi đăng ký, phân tách nhiều nhóm bằng dấu phẩy</label>
                                             <div class="col">
                                                 <input id="random_group" type="text" class="form-control"
                                                        value="{$settings['random_group']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">用户端口池最小值，设为 0
-                                                时用户不会被分配端口</label>
+                                            <label class="form-label col-3 col-form-label">Giá trị tối thiểu pool cổng người dùng, đặt 0
+                                                thì người dùng sẽ không được gán cổng</label>
                                             <div class="col">
                                                 <input id="min_port" type="text" class="form-control"
                                                        value="{$settings['min_port']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">用户端口池最大值，设为 0
-                                                时用户不会被分配端口</label>
+                                            <label class="form-label col-3 col-form-label">Giá trị tối đa pool cổng người dùng, đặt 0
+                                                thì người dùng sẽ không được gán cổng</label>
                                             <div class="col">
                                                 <input id="max_port" type="text" class="form-control"
                                                        value="{$settings['max_port']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">注册时赠送的流量（GB）</label>
+                                            <label class="form-label col-3 col-form-label">Lưu lượng tặng khi đăng ký (GB)</label>
                                             <div class="col">
                                                 <input id="reg_traffic" type="text" class="form-control"
                                                        value="{$settings['reg_traffic']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">免费用戶的流量重置日，设为 0
-                                                时不重置</label>
+                                            <label class="form-label col-3 col-form-label">Ngày reset lưu lượng người dùng miễn phí, đặt 0
+                                                thì không reset</label>
                                             <div class="col">
                                                 <input id="free_user_reset_day" type="text" class="form-control"
                                                        value="{$settings['free_user_reset_day']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">需要重置的免费流量，设为 0
-                                                时不重置</label>
+                                            <label class="form-label col-3 col-form-label">Lưu lượng miễn phí cần reset, đặt 0
+                                                thì không reset</label>
                                             <div class="col">
                                                 <input id="free_user_reset_bandwidth" type="text" class="form-control"
                                                        value="{$settings['free_user_reset_bandwidth']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">注册等级</label>
+                                            <label class="form-label col-3 col-form-label">Cấp độ khi đăng ký</label>
                                             <div class="col">
                                                 <input id="reg_class" type="text" class="form-control"
                                                        value="{$settings['reg_class']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">注册等级过期时间（天）</label>
+                                            <label class="form-label col-3 col-form-label">Thời hạn cấp độ khi đăng ký (ngày)</label>
                                             <div class="col">
                                                 <input id="reg_class_time" type="text" class="form-control"
                                                        value="{$settings['reg_class_time']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">默认加密</label>
+                                            <label class="form-label col-3 col-form-label">Mã hóa mặc định</label>
                                             <div class="col">
                                                 <input id="reg_method" type="text" class="form-control"
                                                        value="{$settings['reg_method']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">连接 IP 限制</label>
+                                            <label class="form-label col-3 col-form-label">Giới hạn IP kết nối</label>
                                             <div class="col">
                                                 <input id="reg_ip_limit" type="text" class="form-control"
                                                        value="{$settings['reg_ip_limit']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">使用速率限制</label>
+                                            <label class="form-label col-3 col-form-label">Giới hạn tốc độ sử dụng</label>
                                             <div class="col">
                                                 <input id="reg_speed_limit" type="text" class="form-control"
                                                        value="{$settings['reg_speed_limit']}">

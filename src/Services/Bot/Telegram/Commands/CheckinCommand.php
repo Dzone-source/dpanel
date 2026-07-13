@@ -25,7 +25,7 @@ final class CheckinCommand extends Command
     /**
      * @var string Command Description
      */
-    protected string $description = '[群组/私聊] 每日签到';
+    protected string $description = '[Nhóm/Chat riêng] Điểm danh hàng ngày';
 
     /**
      * {@inheritdoc}
@@ -70,12 +70,12 @@ final class CheckinCommand extends Command
                 $traffic = Reward::issueCheckinReward($user->id);
 
                 if (! $traffic) {
-                    $msg = '签到失败';
+                    $msg = 'Điểm danh thất bại';
                 } else {
-                    $msg = '获得了 ' . $traffic . 'MB 流量';
+                    $msg = 'Đã nhận được ' . $traffic . 'MB lưu lượng';
                 }
             } else {
-                $msg = '你今天已经签到过了';
+                $msg = 'Bạn đã điểm danh hôm nay rồi';
             }
             // 回送信息
             $response = $this->replyWithMessage(

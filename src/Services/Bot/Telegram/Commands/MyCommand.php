@@ -26,7 +26,7 @@ final class MyCommand extends Command
     /**
      * @var string Command Description
      */
-    protected string $description = '[群组/私聊] 我的个人信息';
+    protected string $description = '[Nhóm/Chat riêng] Thông tin cá nhân của tôi';
 
     /**
      * {@inheritdoc}
@@ -89,7 +89,7 @@ final class MyCommand extends Command
                         'inline_keyboard' => [
                             [
                                 [
-                                    'text' => (! $user->isAbleToCheckin() ? '已签到' : '签到'),
+                                    'text' => (! $user->isAbleToCheckin() ? 'Đã điểm danh' : 'Điểm danh'),
                                     'callback_data' => 'user.checkin.' . $send_user['id'],
                                 ],
                             ],

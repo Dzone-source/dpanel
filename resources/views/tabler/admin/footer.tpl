@@ -5,14 +5,14 @@
             <div class="modal-status bg-success"></div>
             <div class="modal-body text-center py-4">
                 <i class="ti ti-circle-check icon mb-2 text-green icon-lg" style="font-size:3.5rem;"></i>
-                <p id="success-message" class="text-secondary">成功</p>
+                <p id="success-message" class="text-secondary">Thành công</p>
             </div>
             <div class="modal-footer">
                 <div class="w-100">
                     <div class="row">
                         <div class="col">
                             <a id="success-confirm" href="" class="btn w-100" data-bs-dismiss="modal">
-                                好
+                                OK
                             </a>
                         </div>
                     </div>
@@ -29,14 +29,14 @@
             <div class="modal-status bg-danger"></div>
             <div class="modal-body text-center py-4">
                 <i class="ti ti-circle-x icon mb-2 text-danger icon-lg" style="font-size:3.5rem;"></i>
-                <p id="fail-message" class="text-secondary">失败</p>
+                <p id="fail-message" class="text-secondary">Thất bại</p>
             </div>
             <div class="modal-footer">
                 <div class="w-100">
                     <div class="row">
                         <div class="col">
                             <a href="" class="btn btn-danger w-100" data-bs-dismiss="modal">
-                                确认
+                                Xác nhận
                             </a>
                         </div>
                     </div>
@@ -53,11 +53,11 @@
             <div class="modal-status bg-yellow"></div>
             <div class="modal-body text-center py-4">
                 <i class="ti ti-alert-circle icon mb-2 text-yellow icon-lg" style="font-size:3.5rem;"></i>
-                <p id="notice-message" class="text-secondary">注意</p>
+                <p id="notice-message" class="text-secondary">Lưu ý</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
-                <button id="notice-confirm" type="button" class="btn btn-yellow" data-bs-dismiss="modal">确认</button>
+                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
+                <button id="notice-confirm" type="button" class="btn btn-yellow" data-bs-dismiss="modal">Xác nhận</button>
             </div>
         </div>
     </div>
@@ -70,7 +70,7 @@
                 <ul class="list-inline list-inline-dots mb-0">
                     <li class="list-inline-item">
                         Powered by <a href="/staff" class="link-secondary">DPanel</a>
-                        <!-- 删除staff是不尊重每一位开发者的行为 -->
+<!-- Không xóa trang staff — đó là sự tôn trọng với các nhà phát triển -->
                     </li>
                 </ul>
             </div>
@@ -119,7 +119,7 @@
         }
     });
 </script>
-<script>console.table([['数据库查询', '执行时间'], ['{count($queryLog)} 次', '{$optTime} ms']])</script>
+<script>console.table([['Truy vấn cơ sở dữ liệu', 'Thời gian thực thi'], ['{count($queryLog)} lần', '{$optTime} ms']])</script>
 
 {include file='telemetry.tpl'}
 

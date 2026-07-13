@@ -32,7 +32,7 @@ describe('I18n::trans', function () {
 
 describe('I18n::getLocaleList', function () {
     it('returns list of available locales', function () {
-        $expectedLocales = ['en_US', 'ja_JP', 'zh_CN', 'zh_TW'];
+        $expectedLocales = ['en_US', 'ja_JP', 'vi_VN', 'zh_CN', 'zh_TW'];
 
         $locales = I18n::getLocaleList();
 

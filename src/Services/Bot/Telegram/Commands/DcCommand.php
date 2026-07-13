@@ -23,7 +23,7 @@ final class DcCommand extends Command
     /**
      * @var string Command Description
      */
-    protected string $description = '[私聊] 获取用户当前所在的 DC';
+    protected string $description = '[Chat riêng] Lấy DC hiện tại của người dùng';
 
     /**
      * @throws TelegramSDKException

@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">站点概况</span>
+                        <span class="home-title">Tổng quan hệ thống</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">站点运营状态总览</span>
+                        <span class="home-subtitle">Tổng quan trạng thái vận hành</span>
                     </div>
                 </div>
             </div>
@@ -34,7 +34,7 @@
                                                 ￥{$today_income}
                                             </div>
                                             <div class="text-secondary">
-                                                本日流水
+                                                Doanh thu hôm nay
                                             </div>
                                         </div>
                                     </div>
@@ -55,7 +55,7 @@
                                                 ￥{$yesterday_income}
                                             </div>
                                             <div class="text-secondary">
-                                                昨日流水
+                                                Doanh thu hôm qua
                                             </div>
                                         </div>
                                     </div>
@@ -76,7 +76,7 @@
                                                 ￥{$this_month_income}
                                             </div>
                                             <div class="text-secondary">
-                                                本月流水
+                                                Doanh thu tháng này
                                             </div>
                                         </div>
                                     </div>
@@ -97,7 +97,7 @@
                                                 ￥{$total_income}
                                             </div>
                                             <div class="text-secondary">
-                                                累计流水
+                                                Doanh thu tích lũy
                                             </div>
                                         </div>
                                     </div>
@@ -109,7 +109,7 @@
                 <div class="col-sm-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">{$total_user} 位用户的签到情况</h3>
+                            <h3 class="card-title">Tình trạng điểm danh của {$total_user} người dùng</h3>
                         </div>
                         <div class="card-body">
                             <div id="check-in"></div>
@@ -119,7 +119,7 @@
                 <div class="col-sm-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">{$total_node} 个服务器的在线情况</h3>
+                            <h3 class="card-title">Tình trạng trực tuyến của {$total_node} máy chủ</h3>
                         </div>
                         <div class="card-body">
                             <div id="node-online"></div>
@@ -129,7 +129,7 @@
                 <div class="col-sm-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">闲置账户</h3>
+                            <h3 class="card-title">Tài khoản không hoạt động</h3>
                         </div>
                         <div class="card-body">
                             <div id="user-inactive"></div>
@@ -139,7 +139,7 @@
                 <div class="col-sm-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">流量用量</h3>
+                            <h3 class="card-title">Lưu lượng sử dụng</h3>
                         </div>
                         <div class="card-body">
                             <div id="traffic-usage"></div>
@@ -168,7 +168,7 @@
                     opacity: 1,
                 },
                 series: [{$total_user-$checkin_user}, {$checkin_user-$today_checkin_user}, {$today_checkin_user}],
-                labels: ["没有签到", "曾经签到", "今日签到"],
+                labels: ["Chưa điểm danh", "Đã từng điểm danh", "Điểm danh hôm nay"],
                 grid: {
                     strokeDashArray: 3,
                 },
@@ -208,7 +208,7 @@
                     opacity: 1,
                 },
                 series: [{$alive_node}, {$total_node-$alive_node}],
-                labels: ["在线", "离线"],
+                labels: ["Trực tuyến", "Ngoại tuyến"],
                 grid: {
                     strokeDashArray: 2,
                 },
@@ -248,7 +248,7 @@
                     opacity: 1,
                 },
                 series: [{$inactive_user}, {$active_user}],
-                labels: ["闲置账户", "活动账户"],
+                labels: ["Tài khoản không hoạt động", "Tài khoản hoạt động"],
                 grid: {
                     strokeDashArray: 4,
                 },
@@ -288,7 +288,7 @@
                     opacity: 1,
                 },
                 series: [{$raw_today_traffic}, {$raw_last_traffic}, {$raw_unused_traffic}],
-                labels: ["今日已用({$today_traffic})", "过去已用({$last_traffic})", "剩余流量({$unused_traffic})"],
+                labels: ["Đã dùng hôm nay ({$today_traffic})", "Đã dùng trước đó ({$last_traffic})", "Lưu lượng còn lại ({$unused_traffic})"],
                 grid: {
                     strokeDashArray: 3,
                 },

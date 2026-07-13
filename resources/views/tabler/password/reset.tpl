@@ -10,12 +10,12 @@
         </div>
         <div class="card card-md">
             <div class="card-body">
-                <h2 class="card-title text-center mb-4">忘记密码</h2>
+                <h2 class="card-title text-center mb-4">Quên mật khẩu</h2>
                 <p class="text-secondary mb-4">
-                    我们将向你的注册邮箱发送一封邮件，邮件内容中包含一个可以重设密码的链接
+                    Chúng tôi sẽ gửi email đến địa chỉ đăng ký của bạn với liên kết đặt lại mật khẩu
                 </p>
                 <div class="mb-3">
-                    <label class="form-label">注册邮箱</label>
+                    <label class="form-label">Email đăng ký</label>
                     <input id="email" type="email" class="form-control">
                 </div>
                 <div class="mb-3">
@@ -34,13 +34,13 @@
                             email: document.getElementById("email").value,
                          }'>
                         <i class="ti ti-brand-telegram icon"></i>
-                        发送邮件
+                        Gửi email
                     </button>
                 </div>
             </div>
         </div>
         <div class="text-center text-secondary mt-3">
-            已有账户？ <a href="/auth/login" tabindex="-1">点击登录</a>
+            Đã có tài khoản? <a href="/auth/login" tabindex="-1">Nhấn để đăng nhập</a>
         </div>
     </div>
 </div>

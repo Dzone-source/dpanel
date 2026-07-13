@@ -8,7 +8,7 @@
                     </a>
                     &nbsp;|&nbsp;
                     <a href="{$config['baseUrl']}/user/edit" style="color:#505050;text-decoration:none;" target="_blank">
-                        修改邮件接收设置
+                        Thay đổi cài đặt nhận email
                     </a>
                 </p>
             </div>

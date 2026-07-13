@@ -155,26 +155,26 @@ final class Callback
 
     public static function getUserIndexKeyboard($user): array
     {
-        $checkin = (! $user->isAbleToCheckin() ? '已签到' : '签到');
+        $checkin = (! $user->isAbleToCheckin() ? 'Đã điểm danh' : 'Điểm danh');
 
         $keyboard = [
             [
                 [
-                    'text' => '用户中心',
+                    'text' => 'Trung tâm người dùng',
                     'callback_data' => 'user.center',
                 ],
                 [
-                    'text' => '资料编辑',
+                    'text' => 'Chỉnh sửa hồ sơ',
                     'callback_data' => 'user.edit',
                 ],
             ],
             [
                 [
-                    'text' => '订阅中心',
+                    'text' => 'Trung tâm đăng ký',
                     'callback_data' => 'user.subscribe',
                 ],
                 [
-                    'text' => '分享计划',
+                    'text' => 'Chương trình giới thiệu',
                     'callback_data' => 'user.invite',
                 ],
             ],
@@ -204,7 +204,7 @@ final class Callback
         if ($this->user === null && $this->chat_id < 0) {
             // 群组内提示
             $this->answerCallbackQuery([
-                'text' => '你好，你尚未绑定账户，无法进行操作。',
+                'text' => 'Xin chào, bạn chưa liên kết tài khoản, không thể thực hiện thao tác.',
                 'show_alert' => true,
             ]);
         }
@@ -230,7 +230,7 @@ final class Callback
                 // 签到
                 if ((int) $Operate[2] !== $this->trigger_user['id']) {
                     $this->answerCallbackQuery([
-                        'text' => '你好，你无法操作他人的账户。',
+                        'text' => 'Xin chào, bạn không thể thao tác trên tài khoản của người khác.',
                         'show_alert' => true,
                     ]);
                 }
@@ -265,27 +265,27 @@ final class Callback
         $keyboard = [
             [
                 [
-                    'text' => '登录记录',
+                    'text' => 'Lịch sử đăng nhập',
                     'callback_data' => 'user.center.login_log',
                 ],
                 [
-                    'text' => '在线 IP',
+                    'text' => 'IP đang trực tuyến',
                     'callback_data' => 'user.center.usage_log',
                 ],
             ],
             [
                 [
-                    'text' => '返利记录',
+                    'text' => 'Lịch sử hoàn tiền',
                     'callback_data' => 'user.center.rebate_log',
                 ],
                 [
-                    'text' => '订阅记录',
+                    'text' => 'Lịch sử đăng ký',
                     'callback_data' => 'user.center.subscribe_log',
                 ],
             ],
             [
                 [
-                    'text' => '回主菜单',
+                    'text' => 'Về menu chính',
                     'callback_data' => 'user.index',
                 ],
             ],
@@ -307,11 +307,11 @@ final class Callback
         $back = [
             [
                 [
-                    'text' => '回主菜单',
+                    'text' => 'Về menu chính',
                     'callback_data' => 'user.index',
                 ],
                 [
-                    'text' => '回上一页',
+                    'text' => 'Quay lại',
                     'callback_data' => 'user.center',
                 ],
             ],
@@ -329,13 +329,13 @@ final class Callback
                     ->orderBy('datetime', 'desc')
                     ->take(10)
                     ->get();
-                $text = '<strong>以下是你最近 10 次的登录 IP 和地理位置：</strong>' . PHP_EOL . PHP_EOL;
+                $text = '<strong>Đây là 10 lần đăng nhập gần nhất với IP và vị trí địa lý:</strong>' . PHP_EOL . PHP_EOL;
 
                 foreach ($total as $single) {
                     $text .= $single->ip . ' - ' . Tools::getIpLocation($single->ip) . PHP_EOL;
                 }
 
-                $text .= PHP_EOL . '<strong>注意：地理位置根据 MaxMind GeoIP2 数据库预估，可能与实际位置不符，仅供参考</strong>' . PHP_EOL;
+                $text .= PHP_EOL . '<strong>Lưu ý: Vị trí địa lý được ước tính theo cơ sở dữ liệu MaxMind GeoIP2, có thể không khớp với vị trí thực tế, chỉ mang tính tham khảo</strong>' . PHP_EOL;
 
                 $sendMessage = [
                     'text' => $text,
@@ -354,14 +354,14 @@ final class Callback
                 // 使用记录
                 $logs = (new OnlineLog())->where('user_id', $this->user->id)
                     ->where('last_time', '>', time() - 90)->orderByDesc('last_time')->get('ip');
-                $text = '<strong>以下是你账户在线 IP 和地理位置：</strong>' . PHP_EOL . PHP_EOL;
+                $text = '<strong>Đây là IP đang trực tuyến và vị trí địa lý của tài khoản bạn:</strong>' . PHP_EOL . PHP_EOL;
 
                 foreach ($logs as $log) {
                     $ip = $log->ip();
                     $text .= $ip . ' - ' . Tools::getIpLocation($ip) . PHP_EOL;
                 }
 
-                $text .= PHP_EOL . '<strong>注意：地理位置根据 MaxMind GeoIP2 数据库预估，可能与实际位置不符，仅供参考</strong>' . PHP_EOL;
+                $text .= PHP_EOL . '<strong>Lưu ý: Vị trí địa lý được ước tính theo cơ sở dữ liệu MaxMind GeoIP2, có thể không khớp với vị trí thực tế, chỉ mang tính tham khảo</strong>' . PHP_EOL;
 
                 $sendMessage = [
                     'text' => $text,
@@ -379,12 +379,12 @@ final class Callback
             case 'rebate_log':
                 // 返利记录
                 $paybacks = (new Payback())->where('ref_by', $this->user->id)->orderBy('datetime', 'desc')->take(10)->get();
-                $text = '<strong>以下是你最近 10 次返利记录：</strong>' . PHP_EOL . PHP_EOL;
+                $text = '<strong>Đây là 10 lần hoàn tiền gần nhất:</strong>' . PHP_EOL . PHP_EOL;
 
                 foreach ($paybacks as $payback) {
                     $text .= '<code>#' . $payback->id .
-                        '：' . ($payback->user() !== null ? $payback->user()->user_name : '已注销') . '：' .
-                        $payback->ref_get . ' 元</code>' . PHP_EOL;
+                        '：' . ($payback->user() !== null ? $payback->user()->user_name : 'Đã hủy') . '：' .
+                        $payback->ref_get . ' VND</code>' . PHP_EOL;
                 }
 
                 $sendMessage = [
@@ -404,17 +404,17 @@ final class Callback
                 // 订阅记录
                 if (Config::obtain('subscribe_log')) {
                     $logs = (new SubscribeLog())->orderBy('id', 'desc')->where('user_id', $this->user->id)->take(10)->get();
-                    $text = '<strong>以下是你最近 10 次订阅记录：</strong>' . PHP_EOL . PHP_EOL;
+                    $text = '<strong>Đây là 10 lần đăng ký gần nhất:</strong>' . PHP_EOL . PHP_EOL;
 
                     foreach ($logs as $log) {
                         $text .= '<code>' . Tools::toDateTime($log->request_time) .
-                            ' 在 [' . $log->request_ip . '] ' . Tools::getIpLocation($log->request_ip) .
-                            ' 访问了 ' . $log->type . ' 订阅</code>' . PHP_EOL;
+                            ' truy cập đăng ký ' . $log->type . ' tại [' . $log->request_ip . '] ' . Tools::getIpLocation($log->request_ip) .
+                            '</code>' . PHP_EOL;
                     }
 
-                    $text .= PHP_EOL . '<strong>注意：地理位置根据 MaxMind GeoIP2 数据库预估，可能与实际位置不符，仅供参考</strong>' . PHP_EOL;
+                    $text .= PHP_EOL . '<strong>Lưu ý: Vị trí địa lý được ước tính theo cơ sở dữ liệu MaxMind GeoIP2, có thể không khớp với vị trí thực tế, chỉ mang tính tham khảo</strong>' . PHP_EOL;
                 } else {
-                    $text = '站点未开启订阅记录功能';
+                    $text = 'Trang web chưa bật tính năng ghi lại lịch sử đăng ký';
                 }
 
                 $sendMessage = [
@@ -452,41 +452,41 @@ final class Callback
 
     public function getUserEditKeyboard(): array
     {
-        $text = '你可在此编辑你的资料或连接信息：' . PHP_EOL . PHP_EOL;
-        $text .= '端口：' . $this->user->port . PHP_EOL;
-        $text .= '密码：' . $this->user->passwd . PHP_EOL;
-        $text .= '加密：' . $this->user->method;
+        $text = 'Bạn có thể chỉnh sửa hồ sơ hoặc thông tin kết nối tại đây:' . PHP_EOL . PHP_EOL;
+        $text .= 'Cổng: ' . $this->user->port . PHP_EOL;
+        $text .= 'Mật khẩu: ' . $this->user->passwd . PHP_EOL;
+        $text .= 'Mã hóa: ' . $this->user->method;
 
         $keyboard = [
             [
                 [
-                    'text' => '重置订阅链接',
+                    'text' => 'Đặt lại liên kết đăng ký',
                     'callback_data' => 'user.edit.update_link',
                 ],
                 [
-                    'text' => '重置链接密码',
+                    'text' => 'Đặt lại mật khẩu liên kết',
                     'callback_data' => 'user.edit.update_passwd',
                 ],
             ],
             [
                 [
-                    'text' => '更改加密方式',
+                    'text' => 'Thay đổi phương thức mã hóa',
                     'callback_data' => 'user.edit.encrypt',
                 ],
                 [
-                    'text' => '账户解绑',
+                    'text' => 'Hủy liên kết tài khoản',
                     'callback_data' => 'user.edit.unbind',
                 ],
             ],
             [
                 [
-                    'text' => '群组解封',
+                    'text' => 'Mở khóa nhóm',
                     'callback_data' => 'user.edit.unban',
                 ],
             ],
             [
                 [
-                    'text' => '回主菜单',
+                    'text' => 'Về menu chính',
                     'callback_data' => 'user.index',
                 ],
             ],
@@ -507,7 +507,7 @@ final class Callback
     {
         if ($this->chat_id < 0) {
             $this->answerCallbackQuery([
-                'text' => '无法在群组中进行该操作。',
+                'text' => 'Không thể thực hiện thao tác này trong nhóm.',
                 'show_alert' => true,
             ]);
         }
@@ -515,11 +515,11 @@ final class Callback
         $back = [
             [
                 [
-                    'text' => '回主菜单',
+                    'text' => 'Về menu chính',
                     'callback_data' => 'user.index',
                 ],
                 [
-                    'text' => '回上一页',
+                    'text' => 'Quay lại',
                     'callback_data' => 'user.edit',
                 ],
             ],
@@ -536,7 +536,7 @@ final class Callback
                 $this->user->removeLink();
 
                 $this->answerCallbackQuery([
-                    'text' => '订阅链接重置成功，请在下方重新更新订阅。',
+                    'text' => 'Đặt lại liên kết đăng ký thành công, vui lòng cập nhật đăng ký bên dưới.',
                     'show_alert' => true,
                 ]);
 
@@ -559,10 +559,10 @@ final class Callback
                 $this->user->passwd = Tools::genRandomChar();
 
                 if ($this->user->save()) {
-                    $answerCallbackQuery = '连接密码更新成功，请在下方重新更新订阅。';
+                    $answerCallbackQuery = 'Cập nhật mật khẩu kết nối thành công, vui lòng cập nhật đăng ký bên dưới.';
                     $temp = $this->getUserSubscribeKeyboard();
                 } else {
-                    $answerCallbackQuery = '出现错误，连接密码更新失败，请联系管理员。';
+                    $answerCallbackQuery = 'Đã xảy ra lỗi, cập nhật mật khẩu kết nối thất bại, vui lòng liên hệ quản trị viên.';
                     $temp = $this->getUserEditKeyboard();
                 }
 
@@ -592,12 +592,12 @@ final class Callback
                     if (in_array($CallbackDataExplode[1], $method)) {
                         $temp = $this->user->setMethod($CallbackDataExplode[1]);
                         if ($temp['ok']) {
-                            $text = '你当前的加密方式为：' . $this->user->method . PHP_EOL . PHP_EOL . $temp['msg'];
+                            $text = 'Phương thức mã hóa hiện tại của bạn: ' . $this->user->method . PHP_EOL . PHP_EOL . $temp['msg'];
                         } else {
-                            $text = '发生错误，请重新选择。' . PHP_EOL . PHP_EOL . $temp['msg'];
+                            $text = 'Đã xảy ra lỗi, vui lòng chọn lại.' . PHP_EOL . PHP_EOL . $temp['msg'];
                         }
                     } else {
-                        $text = '发生错误，请重新选择。';
+                        $text = 'Đã xảy ra lỗi, vui lòng chọn lại.';
                     }
                 } else {
                     $Encrypts = [];
@@ -617,7 +617,7 @@ final class Callback
                     }
 
                     $keyboard[] = $back[0];
-                    $text = '你当前的加密方式为：' . $this->user->method;
+                    $text = 'Phương thức mã hóa hiện tại của bạn: ' . $this->user->method;
                 }
 
                 $sendMessage = [
@@ -634,9 +634,9 @@ final class Callback
             case 'unbind':
                 // Telegram 账户解绑
                 $this->allow_edit_message = false;
-                $text = '发送 **/unbind 账户邮箱** 进行解绑。';
+                $text = 'Gửi **/unbind email_tài_khoản** để hủy liên kết.';
                 if (Config::obtain('telegram_unbind_kick_member')) {
-                    $text .= PHP_EOL . PHP_EOL . '根据管理员的设定，你解绑账户将会被自动移出用户群。';
+                    $text .= PHP_EOL . PHP_EOL . 'Theo cài đặt của quản trị viên, khi hủy liên kết bạn sẽ tự động bị loại khỏi nhóm người dùng.';
                 }
                 $sendMessage = [
                     'text' => $text,
@@ -649,7 +649,7 @@ final class Callback
             case 'unban':
                 // 群组解封
                 $sendMessage = [
-                    'text' => '如果你已经身处用户群，请勿随意点击解封，否则会导致你被移除出群组。',
+                    'text' => 'Nếu bạn đã ở trong nhóm người dùng, vui lòng không nhấn mở khóa tùy tiện, nếu không bạn sẽ bị loại khỏi nhóm.',
                     'disable_web_page_preview' => false,
                     'reply_to_message_id' => null,
                     'reply_markup' => json_encode(
@@ -657,7 +657,7 @@ final class Callback
                             'inline_keyboard' => [
                                 [
                                     [
-                                        'text' => '点击提交解封',
+                                        'text' => 'Nhấn để gửi yêu cầu mở khóa',
                                         'callback_data' => 'user.edit.unban_update',
                                     ],
                                 ],
@@ -678,7 +678,7 @@ final class Callback
                 );
 
                 $this->answerCallbackQuery([
-                    'text' => '已提交解封，如你仍无法加入群组，请联系管理员。',
+                    'text' => 'Đã gửi yêu cầu mở khóa, nếu bạn vẫn không thể tham gia nhóm, vui lòng liên hệ quản trị viên.',
                     'show_alert' => true,
                 ]);
 
@@ -709,7 +709,7 @@ final class Callback
 
     public function getUserSubscribeKeyboard(): array
     {
-        $text = '选择你想要使用的订阅链接类型：';
+        $text = 'Chọn loại liên kết đăng ký bạn muốn sử dụng:';
 
         $keyboard = [
             [
@@ -756,7 +756,7 @@ final class Callback
             ],
             [
                 [
-                    'text' => '回主菜单',
+                    'text' => 'Về menu chính',
                     'callback_data' => 'user.index',
                 ],
             ],
@@ -797,11 +797,11 @@ final class Callback
             $temp['keyboard'] = [
                 [
                     [
-                        'text' => '回主菜单',
+                        'text' => 'Về menu chính',
                         'callback_data' => 'user.index',
                     ],
                     [
-                        'text' => '回上一页',
+                        'text' => 'Quay lại',
                         'callback_data' => 'user.subscribe',
                     ],
                 ],
@@ -810,25 +810,25 @@ final class Callback
             $UniversalSub_Url = Subscribe::getUniversalSubLink($this->user);
 
             $text = match ($CallbackDataExplode[1]) {
-                'json' => 'Json 通用订阅地址：' . PHP_EOL . PHP_EOL .
+                'json' => 'Liên kết đăng ký Json chung:' . PHP_EOL . PHP_EOL .
                     '<code>' . $UniversalSub_Url . '/json</code>' . PHP_EOL . PHP_EOL,
-                'clash' => 'Clash 通用订阅地址：' . PHP_EOL . PHP_EOL .
+                'clash' => 'Liên kết đăng ký Clash chung:' . PHP_EOL . PHP_EOL .
                     '<code>' . $UniversalSub_Url . '/clash</code>' . PHP_EOL . PHP_EOL,
-                'singbox' => 'SingBox 通用订阅地址：' . PHP_EOL . PHP_EOL .
+                'singbox' => 'Liên kết đăng ký SingBox chung:' . PHP_EOL . PHP_EOL .
                     '<code>' . $UniversalSub_Url . '/singbox</code>' . PHP_EOL . PHP_EOL,
-                'v2rayjson' => 'V2RayJson 通用订阅地址：' . PHP_EOL . PHP_EOL .
+                'v2rayjson' => 'Liên kết đăng ký V2RayJson chung:' . PHP_EOL . PHP_EOL .
                     '<code>' . $UniversalSub_Url . '/v2rayjson</code>' . PHP_EOL . PHP_EOL,
-                'sip008' => 'SIP008 通用订阅地址：' . PHP_EOL . PHP_EOL .
+                'sip008' => 'Liên kết đăng ký SIP008 chung:' . PHP_EOL . PHP_EOL .
                     '<code>' . $UniversalSub_Url . '/sip008</code>' . PHP_EOL . PHP_EOL,
-                'ss' => 'Shadowsocks 客户端订阅地址：' . PHP_EOL . PHP_EOL .
+                'ss' => 'Liên kết đăng ký client Shadowsocks:' . PHP_EOL . PHP_EOL .
                     '<code>' . $UniversalSub_Url . '/ss</code>' . PHP_EOL . PHP_EOL,
-                'sip002' => 'SIP002 客户端订阅地址：' . PHP_EOL . PHP_EOL .
+                'sip002' => 'Liên kết đăng ký client SIP002:' . PHP_EOL . PHP_EOL .
                     '<code>' . $UniversalSub_Url . '/sip002</code>' . PHP_EOL . PHP_EOL,
-                'v2' => 'V2Ray 客户端订阅地址：' . PHP_EOL . PHP_EOL .
+                'v2' => 'Liên kết đăng ký client V2Ray:' . PHP_EOL . PHP_EOL .
                     '<code>' . $UniversalSub_Url . '/v2ray</code>' . PHP_EOL . PHP_EOL,
-                'trojan' => 'Trojan 客户端订阅地址：' . PHP_EOL . PHP_EOL .
+                'trojan' => 'Liên kết đăng ký client Trojan:' . PHP_EOL . PHP_EOL .
                     '<code>' . $UniversalSub_Url . '/trojan</code>' . PHP_EOL . PHP_EOL,
-                default => '未知参数' . PHP_EOL . PHP_EOL,
+                default => 'Tham số không xác định' . PHP_EOL . PHP_EOL,
             };
 
             $sendMessage = [
@@ -875,25 +875,25 @@ final class Callback
         }
 
         $text = [
-            '<strong>你每邀请 <code>1</code> 位用户注册：</strong>',
+            '<strong>Mỗi khi bạn mời <code>1</code> người dùng đăng ký:</strong>',
             '',
-            '- 你会获得 <code>' . Config::obtain('invite_reg_traffic_reward') . 'G</code> 流量奖励。',
-            '- 对方将获得 <code>' . Config::obtain('invite_reg_money_reward') . '元</code> 初始账户余额。',
-            '- 对方支付账单时你会获得对方账单金额的 <code>' . Config::obtain('invite_reward_rate') * 100 . '%</code> 的返利。',
+            '- Bạn sẽ nhận được <code>' . Config::obtain('invite_reg_traffic_reward') . 'G</code> lưu lượng thưởng.',
+            '- Người được mời sẽ nhận <code>' . Config::obtain('invite_reg_money_reward') . ' VND</code> số dư tài khoản ban đầu.',
+            '- Khi người được mời thanh toán hóa đơn, bạn sẽ nhận <code>' . Config::obtain('invite_reward_rate') * 100 . '%</code> hoàn tiền từ số tiền hóa đơn.',
             '',
-            '已获得返利：' . $paybacks_sum . ' 元。',
+            'Hoàn tiền đã nhận: ' . $paybacks_sum . ' VND.',
         ];
 
         $keyboard = [
             [
                 [
-                    'text' => '获取我的邀请链接',
+                    'text' => 'Lấy liên kết mời của tôi',
                     'callback_data' => 'user.invite.get',
                 ],
             ],
             [
                 [
-                    'text' => '回主菜单',
+                    'text' => 'Về menu chính',
                     'callback_data' => 'user.index',
                 ],
             ],
@@ -969,12 +969,12 @@ final class Callback
             $traffic = Reward::issueCheckinReward($this->user->id);
 
             if (! $traffic) {
-                $msg = '签到失败';
+                $msg = 'Điểm danh thất bại';
             } else {
-                $msg = '获得了 ' . $traffic . 'MB 流量';
+                $msg = 'Đã nhận được ' . $traffic . 'MB lưu lượng';
             }
         } else {
-            $msg = '你今天已经签到过了';
+            $msg = 'Bạn đã điểm danh hôm nay rồi';
         }
 
         $this->answerCallbackQuery([
@@ -990,7 +990,7 @@ final class Callback
             $temp['keyboard'] = [
                 [
                     [
-                        'text' => (! $this->user->isAbleToCheckin() ? '已签到' : '签到'),
+                        'text' => (! $this->user->isAbleToCheckin() ? 'Đã điểm danh' : 'Điểm danh'),
                         'callback_data' => 'user.checkin.' . $this->trigger_user['id'],
                     ],
                 ],
