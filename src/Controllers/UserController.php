@@ -97,26 +97,26 @@ final class UserController extends BaseController
     public function checkin(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
         if (! Config::obtain('enable_checkin') || ! $this->user->isAbleToCheckin()) {
-            return ResponseHelper::error($response, '暂时还不能签到');
+            return ResponseHelper::error($response, 'Chưa thể điểm danh');
         }
 
         if (Config::obtain('enable_checkin_captcha')) {
             $ret = Captcha::verify($request->getParams());
 
             if (! $ret) {
-                return ResponseHelper::error($response, '系统无法接受你的验证结果，请刷新页面后重试');
+                return ResponseHelper::error($response, 'Hệ thống không thể chấp nhận kết quả xác minh của bạn, vui lòng làm mới trang và thử lại');
             }
         }
 
         $traffic = Reward::issueCheckinReward($this->user->id);
 
         if (! $traffic) {
-            return ResponseHelper::error($response, '签到失败');
+            return ResponseHelper::error($response, 'Điểm danh thất bại');
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '获得了 ' . $traffic . 'MB 流量',
+            'msg' => 'Đã nhận được ' . $traffic . 'MB MB lưu lượng',
             'data' => [
                 'last-checkin-time' => Tools::toDateTime(time()),
             ],

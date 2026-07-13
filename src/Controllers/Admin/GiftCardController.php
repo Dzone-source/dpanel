@@ -18,38 +18,38 @@ final class GiftCardController extends BaseController
 {
     private static array $details = [
         'field' => [
-            'op' => '操作',
-            'id' => '礼品卡ID',
-            'card' => '卡号',
-            'balance' => '面值',
-            'create_time' => '创建时间',
-            'status' => '使用状态',
-            'use_time' => '使用时间',
-            'use_user' => '使用用户',
+            'op' => 'Thao tác',
+            'id' => 'ID thẻ quà tặng',
+            'card' => 'Số thẻ',
+            'balance' => 'Mệnh giá',
+            'create_time' => 'Thời gian tạo',
+            'status' => 'Trạng thái sử dụng',
+            'use_time' => 'Thời gian sử dụng',
+            'use_user' => 'Người dùng sử dụng',
         ],
         'create_dialog' => [
             [
                 'id' => 'card_number',
-                'info' => '创建数量',
+                'info' => 'Số lượng tạo',
                 'type' => 'input',
                 'placeholder' => '',
             ],
             [
                 'id' => 'card_value',
-                'info' => '礼品卡面值',
+                'info' => 'Mệnh giá thẻ quà tặng',
                 'type' => 'input',
                 'placeholder' => '',
             ],
             [
                 'id' => 'card_length',
-                'info' => '礼品卡长度',
+                'info' => 'Độ dài thẻ quà tặng',
                 'type' => 'select',
                 'select' => [
-                    '12' => '12位',
-                    '18' => '18位',
-                    '24' => '24位',
-                    '30' => '30位',
-                    '36' => '36位',
+                    '12' => '12 ký tự',
+                    '18' => '18 ký tự',
+                    '24' => '24 ký tự',
+                    '30' => '30 ký tự',
+                    '36' => '36 ký tự',
                 ],
             ],
         ],
@@ -77,21 +77,21 @@ final class GiftCardController extends BaseController
         if ($card_number === '' || $card_number <= 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '生成数量不能为空或小于0',
+                'msg' => 'Số lượng tạo không được để trống hoặc nhỏ hơn 0',
             ]);
         }
 
         if ($card_value === '' || $card_value <= 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '礼品卡面值不能为空或小于0',
+                'msg' => 'Mệnh giá thẻ quà tặng không được để trống hoặc nhỏ hơn 0',
             ]);
         }
 
         if ($card_length === '' || $card_length <= 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '礼品卡长度不能为空或小于0',
+                'msg' => 'Độ dài thẻ quà tặng không được để trống hoặc nhỏ hơn 0',
             ]);
         }
 
@@ -111,7 +111,7 @@ final class GiftCardController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '添加成功' . PHP_EOL . $card_added,
+            'msg' => 'Thêm thành công' . PHP_EOL . $card_added,
         ]);
     }
 
@@ -122,7 +122,7 @@ final class GiftCardController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '删除成功',
+            'msg' => 'Xóa thành công',
         ]);
     }
 
@@ -132,7 +132,7 @@ final class GiftCardController extends BaseController
 
         foreach ($giftcards as $giftcard) {
             $giftcard->op = '<button class="btn btn-red" id="delete-gift-card-' . $giftcard->id . '" 
-        onclick="deleteGiftCard(' . $giftcard->id . ')">删除</button>';
+        onclick="deleteGiftCard(' . $giftcard->id . ')">Xóa</button>';
             $giftcard->status = $giftcard->status();
             $giftcard->create_time = Tools::toDateTime((int) $giftcard->create_time);
             $giftcard->use_time = Tools::toDateTime((int) $giftcard->use_time);

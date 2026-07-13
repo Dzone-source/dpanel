@@ -21,17 +21,17 @@ final class OrderController extends BaseController
 {
     private static array $details = [
         'field' => [
-            'op' => '操作',
-            'id' => '订单ID',
-            'user_id' => '提交用户',
-            'product_id' => '商品ID',
-            'product_type' => '商品类型',
-            'product_name' => '商品名称',
-            'coupon' => '优惠码',
-            'price' => '金额',
-            'status' => '状态',
-            'create_time' => '创建时间',
-            'update_time' => '更新时间',
+            'op' => 'Thao tác',
+            'id' => 'ID đơn hàng',
+            'user_id' => 'Người dùng gửi',
+            'product_id' => 'ID sản phẩm',
+            'product_type' => 'Loại sản phẩm',
+            'product_name' => 'Tên sản phẩm',
+            'coupon' => 'Mã giảm giá',
+            'price' => 'Số tiền',
+            'status' => 'Trạng thái',
+            'create_time' => 'Thời gian tạo',
+            'update_time' => 'Thời gian cập nhật',
         ],
     ];
 
@@ -57,13 +57,13 @@ final class OrderController extends BaseController
         if ($order === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '未找到订单',
+                'msg' => 'Không tìm thấy đơn hàng',
             ]);
         }
 
         return $response->withHeader('HX-Redirect', '/admin/order/' . $order->id . '/view')->withJson([
             'ret' => 1,
-            'msg' => '找到了订单',
+            'msg' => 'Đã tìm thấy đơn hàng',
         ]);
     }
 
@@ -108,14 +108,14 @@ final class OrderController extends BaseController
         if ($order === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '订单不存在',
+                'msg' => 'Đơn hàng không tồn tại',
             ]);
         }
 
         if (in_array($order->status, ['activated', 'expired', 'cancelled'])) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '无法取消 ' . $order->status() . ' 状态的产品',
+                'msg' => 'Không thể hủy ' . $order->status() . ' sản phẩm ở trạng thái này',
             ]);
         }
 
@@ -124,14 +124,14 @@ final class OrderController extends BaseController
         if ($invoice === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '关联账单不存在',
+                'msg' => 'Hóa đơn liên quan không tồn tại',
             ]);
         }
 
         if ($invoice->status === 'partially_paid') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '无法取消账单已部分支付的订单',
+                'msg' => 'Không thể hủy đơn hàng có hóa đơn đã thanh toán một phần',
             ]);
         }
 
@@ -144,7 +144,7 @@ final class OrderController extends BaseController
 
             return $response->withJson([
                 'ret' => 1,
-                'msg' => '订单取消成功，关联账单已退款至余额',
+                'msg' => 'Hủy đơn hàng thành công, hóa đơn liên quan đã hoàn tiền vào số dư',
             ]);
         }
 
@@ -154,7 +154,7 @@ final class OrderController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '订单取消成功',
+            'msg' => 'Hủy đơn hàng thành công',
         ]);
     }
 
@@ -166,7 +166,7 @@ final class OrderController extends BaseController
         if ($order === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '订单不存在',
+                'msg' => 'Đơn hàng không tồn tại',
             ]);
         }
 
@@ -175,13 +175,13 @@ final class OrderController extends BaseController
         if ($order->delete() && $invoice->delete()) {
             return $response->withJson([
                 'ret' => 1,
-                'msg' => '删除成功',
+                'msg' => 'Xóa thành công',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '删除失败',
+            'msg' => 'Xóa thất bại',
         ]);
     }
 
@@ -191,16 +191,16 @@ final class OrderController extends BaseController
 
         foreach ($orders as $order) {
             $order->op = '<button class="btn btn-red" id="delete-order-' . $order->id . '"
-             onclick="deleteOrder(' . $order->id . ')">删除</button>';
+             onclick="deleteOrder(' . $order->id . ')">Xóa</button>';
 
             if (in_array($order->status, ['pending_payment', 'pending_activation'])) {
                 $order->op .= '
                 <button class="btn btn-orange" id="cancel-order-' . $order->id . '"
-                 onclick="cancelOrder(' . $order->id . ')">取消</button>';
+                 onclick="cancelOrder(' . $order->id . ')">Hủy</button>';
             }
 
             $order->op .= '
-            <a class="btn btn-primary" href="/admin/order/' . $order->id . '/view">查看</a>';
+            <a class="btn btn-primary" href="/admin/order/' . $order->id . '/view">Xem</a>';
             $order->product_type = $order->productType();
             $order->status = $order->status();
             $order->create_time = Tools::toDateTime($order->create_time);

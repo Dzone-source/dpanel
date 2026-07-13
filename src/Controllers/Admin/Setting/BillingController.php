@@ -57,7 +57,7 @@ final class BillingController extends BaseController
         if (! Config::set('payment_gateway', $active_gateway)) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '保存支付网关时出错',
+                'msg' => 'Lỗi khi lưu cổng thanh toán',
             ]);
         }
 
@@ -69,14 +69,14 @@ final class BillingController extends BaseController
             if (! Config::set($item, $request->getParam($item))) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '保存 ' . $item . ' 时出错',
+                    'msg' => 'Lưu ' . $item . ' thất bại',
                 ]);
             }
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '保存成功',
+            'msg' => 'Lưu thành công',
         ]);
     }
 
@@ -96,13 +96,13 @@ final class BillingController extends BaseController
         } catch (ApiErrorException) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '设置 Stripe Webhook 失败',
+                'msg' => 'Thiết lập Stripe Webhook thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '设置 Stripe Webhook 成功',
+            'msg' => 'Thiết lập Stripe Webhook thành công',
         ]);
     }
 
@@ -131,13 +131,13 @@ final class BillingController extends BaseController
         } catch (Throwable $e) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '设置 PayPal Webhook 失败',
+                'msg' => 'Thiết lập PayPal Webhook thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '设置 PayPal Webhook 成功',
+            'msg' => 'Thiết lập PayPal Webhook thành công',
         ]);
     }
 

@@ -37,7 +37,7 @@ final class RateController extends BaseController
         if (count($node_list) === 0) {
             $node_list[] = [
                 'id' => 0,
-                'name' => '暂无节点',
+                'name' => 'Chưa có máy chủ',
             ];
         }
 
@@ -54,7 +54,7 @@ final class RateController extends BaseController
         $node = $nodes->find($request->getParam('node_id'));
 
         if ($node === null) {
-            return ResponseHelper::error($response, '节点不存在');
+            return ResponseHelper::error($response, 'Máy chủ không tồn tại');
         }
 
         if ($node->is_dynamic_rate) {

@@ -21,15 +21,15 @@ final class InvoiceController extends BaseController
 {
     private static array $details = [
         'field' => [
-            'op' => '操作',
-            'id' => '账单ID',
-            'user_id' => '归属用户',
-            'order_id' => '订单ID',
-            'price' => '账单金额',
-            'status' => '账单状态',
-            'create_time' => '创建时间',
-            'update_time' => '更新时间',
-            'pay_time' => '支付时间',
+            'op' => 'Thao tác',
+            'id' => 'ID hóa đơn',
+            'user_id' => 'Người dùng sở hữu',
+            'order_id' => 'ID đơn hàng',
+            'price' => 'Số tiền hóa đơn',
+            'status' => 'Trạng thái hóa đơn',
+            'create_time' => 'Thời gian tạo',
+            'update_time' => 'Thời gian cập nhật',
+            'pay_time' => 'Thời gian thanh toán',
         ],
     ];
 
@@ -81,7 +81,7 @@ final class InvoiceController extends BaseController
         if (in_array($invoice->status, ['paid_gateway', 'paid_balance', 'paid_admin'])) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '不能标记已经支付的账单',
+                'msg' => 'Không thể đánh dấu hóa đơn đã thanh toán',
             ]);
         }
 
@@ -90,7 +90,7 @@ final class InvoiceController extends BaseController
         if ($order->status === 'cancelled') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '关联订单已被取消，标记失败',
+                'msg' => 'Đơn hàng liên quan đã bị hủy, đánh dấu thất bại',
             ]);
         }
 
@@ -105,7 +105,7 @@ final class InvoiceController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '成功标记账单为已支付（管理员）',
+            'msg' => 'Đánh dấu hóa đơn đã thanh toán thành công (quản trị viên)',
         ]);
     }
 
@@ -114,7 +114,7 @@ final class InvoiceController extends BaseController
         $invoices = (new Invoice())->orderBy('id', 'desc')->get();
 
         foreach ($invoices as $invoice) {
-            $invoice->op = '<a class="btn btn-primary" href="/admin/invoice/' . $invoice->id . '/view">查看</a>';
+            $invoice->op = '<a class="btn btn-primary" href="/admin/invoice/' . $invoice->id . '/view">Xem</a>';
             $invoice->status = $invoice->status();
             $invoice->create_time = Tools::toDateTime($invoice->create_time);
             $invoice->update_time = Tools::toDateTime($invoice->update_time);

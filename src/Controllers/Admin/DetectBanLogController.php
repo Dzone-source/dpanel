@@ -17,14 +17,14 @@ final class DetectBanLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'user_id' => '用户ID',
-                'detect_number' => '违规次数',
-                'ban_time' => '封禁时长(分钟)',
-                'start_time' => '统计开始时间',
-                'end_time' => '统计结束&封禁开始时间',
-                'ban_end_time' => '封禁结束时间',
-                'all_detect_number' => '累计违规次数',
+                'id' => 'ID sự kiện',
+                'user_id' => 'ID người dùng',
+                'detect_number' => 'Số lần vi phạm',
+                'ban_time' => 'Thời gian cấm (phút)',
+                'start_time' => 'Thời gian bắt đầu thống kê',
+                'end_time' => 'Kết thúc thống kê & thời gian bắt đầu cấm',
+                'ban_end_time' => 'Thời gian kết thúc cấm',
+                'all_detect_number' => 'Số lần vi phạm tích lũy',
             ],
         ];
 

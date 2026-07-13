@@ -29,12 +29,12 @@ final class AnnController extends BaseController
     private static array $details =
         [
             'field' => [
-                'op' => '操作',
+                'op' => 'Thao tác',
                 'id' => 'ID',
-                'status' => '状态',
-                'sort' => '排序',
-                'date' => '日期',
-                'content' => '内容（节选）',
+                'status' => 'Trạng thái',
+                'sort' => 'Sắp xếp',
+                'date' => 'Ngày',
+                'content' => 'Nội dung (trích đoạn)',
             ],
         ];
 
@@ -85,7 +85,7 @@ final class AnnController extends BaseController
         if ($content === '') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '内容不能为空',
+                'msg' => 'Nội dung không được để trống',
             ]);
         }
 
@@ -98,7 +98,7 @@ final class AnnController extends BaseController
         if (! $ann->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '公告保存失败',
+                'msg' => 'Lưu thông báo thất bại',
             ]);
         }
 
@@ -106,7 +106,7 @@ final class AnnController extends BaseController
             $users = (new User())->where('class', '>=', $email_notify_class)
                 ->where('is_banned', '=', 0)
                 ->get();
-            $subject = $_ENV['appName'] . ' - 新公告发布';
+            $subject = $_ENV['appName'] . ' - Thông báo mới';
 
             foreach ($users as $user) {
                 (new EmailQueue())->add(
@@ -126,23 +126,23 @@ final class AnnController extends BaseController
             $content = $converter->convert($content);
 
             try {
-                Notification::notifyUserGroup('新公告：' . PHP_EOL . $content);
+                Notification::notifyUserGroup('Thông báo mới:' . PHP_EOL . $content);
             } catch (TelegramSDKException | GuzzleException) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => $email_notify === 1 ? '公告添加成功，邮件发送成功，IM Bot 发送失败' : '公告添加成功，IM Bot 发送失败',
+                    'msg' => $email_notify === 1 ? 'Thêm thông báo thành công, gửi email thành công, gửi IM Bot thất bại' : 'Thêm thông báo thành công, gửi IM Bot thất bại',
                 ]);
             }
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => $email_notify === 1 ? '公告添加成功，邮件发送成功' : '公告添加成功',
+            'msg' => $email_notify === 1 ? 'Thêm thông báo thành công, gửi email thành công' : 'Thêm thông báo thành công',
         ]);
     }
 
     /**
-     * 后台编辑公告页面
+     * 后台Chỉnh sửa公告页面
      *
      * @throws Exception
      */
@@ -157,7 +157,7 @@ final class AnnController extends BaseController
     }
 
     /**
-     * 后台编辑公告提交
+     * 后台Chỉnh sửa公告提交
      */
     public function update(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
@@ -168,7 +168,7 @@ final class AnnController extends BaseController
         if ($content === '') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '内容不能为空',
+                'msg' => 'Nội dung không được để trống',
             ]);
         }
 
@@ -177,7 +177,7 @@ final class AnnController extends BaseController
         if ($ann === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '公告不存在',
+                'msg' => 'Thông báo không tồn tại',
             ]);
         }
 
@@ -189,7 +189,7 @@ final class AnnController extends BaseController
         if (! $ann->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '公告更新失败',
+                'msg' => 'Cập nhật thông báo thất bại',
             ]);
         }
 
@@ -198,36 +198,36 @@ final class AnnController extends BaseController
             $content = $converter->convert($ann->content);
 
             try {
-                Notification::notifyUserGroup('公告更新：' . PHP_EOL . $content);
+                Notification::notifyUserGroup('Cập nhật thông báo:' . PHP_EOL . $content);
             } catch (TelegramSDKException | GuzzleException) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '公告更新成功，IM Bot 发送失败',
+                    'msg' => 'Cập nhật thông báo thành công, gửi IM Bot thất bại',
                 ]);
             }
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '公告更新成功',
+            'msg' => 'Cập nhật thông báo thành công',
         ]);
     }
 
     /**
-     * 后台删除公告
+     * 后台Xóa公告
      */
     public function delete(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
         if ((new Ann())->find($args['id'])->delete()) {
             return $response->withJson([
                 'ret' => 1,
-                'msg' => '删除成功',
+                'msg' => 'Xóa thành công',
             ]);
         }
 
         return $response->withJson([
             'ret' => 0,
-            'msg' => '删除失败',
+            'msg' => 'Xóa thất bại',
         ]);
     }
 
@@ -240,8 +240,8 @@ final class AnnController extends BaseController
 
         foreach ($anns as $ann) {
             $ann->op = '<button class="btn btn-red" id="delete-announcement-' . $ann->id . '" 
-            onclick="deleteAnn(' . $ann->id . ')">删除</button>
-            <a class="btn btn-primary" href="/admin/announcement/' . $ann->id . '/edit">编辑</a>';
+            onclick="deleteAnn(' . $ann->id . ')">Xóa</button>
+            <a class="btn btn-primary" href="/admin/announcement/' . $ann->id . '/edit">Chỉnh sửa</a>';
             $ann->status = $ann->status();
             $ann->content = strlen($ann->content) > 40 ? mb_substr(strip_tags($ann->content), 0, 40, 'UTF-8') . '...' : $ann->content;
         }

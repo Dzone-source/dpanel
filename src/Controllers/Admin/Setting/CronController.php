@@ -44,14 +44,14 @@ final class CronController extends BaseController
         if ($daily_job_hour < 0 || $daily_job_hour > 23) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '每日任务执行时间的小时数必须在 0-23 之间',
+                'msg' => 'Giờ thực thi tác vụ hàng ngày phải trong khoảng 0-23',
             ]);
         }
 
         if ($daily_job_minute < 0 || $daily_job_minute > 59) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '每日任务执行时间的分钟数必须在 0-59 之间',
+                'msg' => 'Phút thực thi tác vụ hàng ngày phải trong khoảng 0-59',
             ]);
         }
 
@@ -64,14 +64,14 @@ final class CronController extends BaseController
             if (! Config::set($item, $request->getParam($item))) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '保存 ' . $item . ' 时出错',
+                    'msg' => 'Lưu ' . $item . ' thất bại',
                 ]);
             }
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '保存成功',
+            'msg' => 'Lưu thành công',
         ]);
     }
 }

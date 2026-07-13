@@ -69,7 +69,7 @@ final class TicketController extends BaseController
             $comment === '' ||
             $type === ''
         ) {
-            return ResponseHelper::error($response, '工单创建失败');
+            return ResponseHelper::error($response, 'Tạo phiếu hỗ trợ thất bại');
         }
 
         $content = [
@@ -93,8 +93,8 @@ final class TicketController extends BaseController
 
         if (Config::obtain('mail_ticket')) {
             Notification::notifyAdmin(
-                $_ENV['appName'] . '-新工单被开启',
-                '管理员，有人开启了新的工单，请你及时处理。'
+                $_ENV['appName'] . '- Phiếu hỗ trợ mới được mở',
+                'Quản trị viên, có người đã mở phiếu hỗ trợ mới, vui lòng xử lý kịp thời.'
             );
         }
 
@@ -115,13 +115,13 @@ final class TicketController extends BaseController
             $this->user->is_shadow_banned ||
             $comment === ''
         ) {
-            ResponseHelper::error($response, '工单回复失败');
+            ResponseHelper::error($response, 'Trả lời phiếu hỗ trợ thất bại');
         }
 
         $ticket = (new Ticket())->where('id', $id)->where('userid', $this->user->id)->first();
 
         if ($ticket === null) {
-            ResponseHelper::error($response, '工单不存在');
+            ResponseHelper::error($response, 'Phiếu hỗ trợ không tồn tại');
         }
 
         $content_old = json_decode($ticket->content, true);
@@ -141,10 +141,10 @@ final class TicketController extends BaseController
 
         if (Config::obtain('mail_ticket')) {
             Notification::notifyAdmin(
-                $_ENV['appName'] . '-工单被回复',
-                '管理员，有人回复了 <a href="' .
+                $_ENV['appName'] . '- Phiếu hỗ trợ được trả lời',
+                'Quản trị viên, có người đã trả lời <a href="' .
                 $_ENV['baseUrl'] . '/admin/ticket/' . $ticket->id . '/view">#' . $ticket->id .
-                '</a> 工单，请你及时处理。'
+                '</a> phiếu hỗ trợ, vui lòng xử lý kịp thời.'
             );
         }
 

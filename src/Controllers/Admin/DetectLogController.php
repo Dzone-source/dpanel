@@ -17,13 +17,13 @@ final class DetectLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'user_id' => '用户ID',
-                'node_id' => '节点ID',
-                'node_name' => '节点名',
-                'list_id' => '规则ID',
-                'rule_name' => '规则名',
-                'datetime' => '时间',
+                'id' => 'ID sự kiện',
+                'user_id' => 'ID người dùng',
+                'node_id' => 'ID máy chủ',
+                'node_name' => 'Tên máy chủ',
+                'list_id' => 'ID quy tắc',
+                'rule_name' => 'Tên quy tắc',
+                'datetime' => 'Thời gian',
             ],
         ];
 

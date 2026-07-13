@@ -19,14 +19,14 @@ final class OnlineLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'user_id' => '用户ID',
-                'node_id' => '节点ID',
-                'node_name' => '节点名',
+                'id' => 'ID sự kiện',
+                'user_id' => 'ID người dùng',
+                'node_id' => 'ID máy chủ',
+                'node_name' => 'Tên máy chủ',
                 'ip' => 'IP',
-                'location' => 'IP归属地',
-                'first_time' => '首次连接',
-                'last_time' => '最后连接',
+                'location' => 'Vị trí IP',
+                'first_time' => 'Kết nối lần đầu',
+                'last_time' => 'Kết nối cuối',
             ],
         ];
 
