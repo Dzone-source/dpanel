@@ -298,20 +298,18 @@ EOL;
     }
 
     /**
-     * Set locale for all users
+     * Set locale for all users (Vietnamese only)
      */
     public function setLocale(): void
     {
-        fwrite(STDOUT, 'Please input the new locale: ');
-        $locale = trim(fgets(STDIN));
         $users = ModelsUser::all();
 
         foreach ($users as $user) {
-            $user->locale = $locale;
+            $user->locale = 'vi_VN';
             $user->save();
         }
 
-        echo 'Set locale for all users successfully.' . PHP_EOL;
+        echo 'Đã đặt ngôn ngữ vi_VN cho tất cả người dùng.' . PHP_EOL;
     }
 
     /**

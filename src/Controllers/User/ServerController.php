@@ -35,7 +35,7 @@ final class ServerController extends BaseController
                 'traffic_rate' => $node->traffic_rate,
                 'is_dynamic_rate' => $node->is_dynamic_rate,
                 'node_bandwidth' => Tools::autoBytes($node->node_bandwidth),
-                'node_bandwidth_limit' => $node->node_bandwidth_limit === 0 ? '无限制' :
+                'node_bandwidth_limit' => $node->node_bandwidth_limit === 0 ? 'Không giới hạn' :
                     Tools::autoBytes($node->node_bandwidth_limit),
             ];
         }

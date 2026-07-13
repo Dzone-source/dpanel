@@ -28,7 +28,7 @@ use function time;
 
 final class OAuthController extends BaseController
 {
-    private static string $err_msg = 'OAuth 请求失败';
+    private static string $err_msg = 'Yêu cầu OAuth thất bại';
 
     /**
      * @throws SmartyException
@@ -109,7 +109,7 @@ final class OAuthController extends BaseController
 
         if ((new User())->where('im_type', 1)->where('im_value', $slack_user_id)->first() !== null ||
             ($user->im_type === 1 && $user->im_value === $slack_user_id)) {
-            return ResponseHelper::error($response, 'Slack 账户已绑定');
+            return ResponseHelper::error($response, 'Tài khoản Slack đã được liên kết');
         }
 
         $user->im_type = 1;
@@ -194,7 +194,7 @@ final class OAuthController extends BaseController
 
         if ((new User())->where('im_type', 2)->where('im_value', $discord_user_id)->first() !== null ||
             ($user->im_type === 2 && $user->im_value === $discord_user_id)) {
-            return ResponseHelper::error($response, 'Discord 账户已绑定');
+            return ResponseHelper::error($response, 'Tài khoản Discord đã được liên kết');
         }
 
         $user->im_type = 2;
@@ -249,7 +249,7 @@ final class OAuthController extends BaseController
 
         if ((new User())->where('im_type', 4)->where('im_value', $telegram_id)->first() !== null ||
             ($user->im_type === 4 && $user->im_value === $telegram_id)) {
-            return ResponseHelper::error($response, 'Telegram 账户已绑定');
+            return ResponseHelper::error($response, 'Tài khoản Telegram đã được liên kết');
         }
 
         $user->im_type = 4;
@@ -257,6 +257,6 @@ final class OAuthController extends BaseController
 
         $user->save();
 
-        return ResponseHelper::success($response, '绑定成功');
+        return ResponseHelper::success($response, 'Liên kết thành công');
     }
 }

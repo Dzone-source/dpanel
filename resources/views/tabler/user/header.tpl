@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8"/>
@@ -39,7 +39,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                <img src="/images/uim-logo-round_48x48.png" height="32" alt="SSPanel-UIM Logo"
+                <img src="/images/uim-logo-round_48x48.png" height="32" alt="DPanel Logo"
                      class="navbar-brand-image" style="filter: none;">
             </h1>
             <div class="navbar-nav flex-row order-md-last">
@@ -56,14 +56,14 @@
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                         {if $user->is_dark_mode}
                             <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none">
-                                浅色模式
+                                Chế độ sáng
                             </a>
                         {else}
                             <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none">
-                                深色模式
+                                Chế độ tối
                             </a>
                         {/if}
-                        <a href="/user/logout" class="dropdown-item">登出</a>
+                        <a href="/user/logout" class="dropdown-item">Đăng xuất</a>
                     </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                                         <i class="ti ti-home icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        主页
+                                        Trang chủ
                                     </span>
                             </a>
                         </li>
@@ -87,7 +87,7 @@
                                         <i class="ti ti-user icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        我的
+                                        Của tôi
                                     </span>
                             </a>
                             <div class="dropdown-menu">
@@ -95,15 +95,15 @@
                                     <div class="dropdown-menu-column">
                                         <a class="dropdown-item" href="/user/profile">
                                             <i class="ti ti-info-square"></i>&nbsp;
-                                            账户
+                                            Tài khoản
                                         </a>
                                         <a class="dropdown-item" href="/user/edit">
                                             <i class="ti ti-edit"></i>&nbsp;
-                                            资料
+                                            Hồ sơ
                                         </a>
                                         <a class="dropdown-item" href="/user/invite">
                                             <i class="ti ti-friends"></i>&nbsp;
-                                            邀请
+                                            Mời bạn
                                         </a>
                                     </div>
                                 </div>
@@ -116,17 +116,17 @@
                                         <i class="ti ti-brand-telegram icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        使用
+                                        Sử dụng
                                     </span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="/user/server">
                                     <i class="ti ti-server"></i>&nbsp;
-                                    节点
+                                    Máy chủ
                                 </a>
                                 <a class="dropdown-item" href="/user/rate">
                                     <i class="ti ti-chart-bar"></i>&nbsp;
-                                    流量倍率
+                                    Hệ số lưu lượng
                                 </a>
                             </div>
                         </li>
@@ -137,25 +137,25 @@
                                         <i class="ti ti-dots-circle-horizontal icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        支援
+                                        Hỗ trợ
                                     </span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="/user/announcement">
                                     <i class="ti ti-speakerphone"></i>&nbsp;
-                                    公告
+                                    Thông báo
                                 </a>
                                 {if $public_setting['enable_ticket']}
                                     <a class="dropdown-item" href="/user/ticket">
                                         <i class="ti ti-ticket"></i>&nbsp;
-                                        工单
+                                        Phiếu hỗ trợ
                                     </a>
                                 {/if}
                                 {if $public_setting['display_docs'] &&
                                 (! $public_setting['display_docs_only_for_paid_user'] || $user->class !== 0)}
                                     <a class="dropdown-item" href="/user/docs">
                                         <i class="ti ti-notes"></i>&nbsp;
-                                        文档
+                                        Tài liệu
                                     </a>
                                 {/if}
                             </div>
@@ -167,18 +167,18 @@
                                         <i class="ti ti-shield-check icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        审计
+                                        Kiểm duyệt
                                     </span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="/user/detect">
                                     <i class="ti ti-barrier-block"></i>&nbsp;
-                                    规则
+                                    Quy tắc
                                 </a>
                                 {if $public_setting['display_detect_log']}
                                     <a class="dropdown-item" href="/user/detect/log">
                                         <i class="ti ti-notes"></i>&nbsp;
-                                        日志
+                                        Nhật ký
                                     </a>
                                 {/if}
                             </div>
@@ -190,7 +190,7 @@
                                         <i class="ti ti-building-store icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        商店
+                                        Cửa hàng
                                     </span>
                             </a>
                             <div class="dropdown-menu">
@@ -198,19 +198,19 @@
                                     <div class="dropdown-menu-column">
                                         <a class="dropdown-item" href="/user/product">
                                             <i class="ti ti-list"></i>&nbsp;
-                                            商品
+                                            Sản phẩm
                                         </a>
                                         <a class="dropdown-item" href="/user/order">
                                             <i class="ti ti-file-invoice"></i>&nbsp;
-                                            订单
+                                            Đơn hàng
                                         </a>
                                         <a class="dropdown-item" href="/user/invoice">
                                             <i class="ti ti-file-dollar"></i>&nbsp;
-                                            账单
+                                            Hóa đơn
                                         </a>
                                         <a class="dropdown-item" href="/user/money">
                                             <i class="ti ti-home-dollar"></i>&nbsp;
-                                            余额
+                                            Số dư
                                         </a>
                                     </div>
                                 </div>
@@ -223,7 +223,7 @@
                                         <i class="ti ti-settings icon"></i>
                                     </span>
                                     <span class="nav-link-title">
-                                        站点管理
+                                        Quản trị
                                     </span>
                                 </a>
                             </li>

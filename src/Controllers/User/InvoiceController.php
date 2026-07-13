@@ -22,14 +22,14 @@ final class InvoiceController extends BaseController
 {
     private static array $details = [
         'field' => [
-            'op' => '操作',
-            'id' => '账单ID',
-            'order_id' => '订单ID',
-            'price' => '账单金额',
-            'status' => '账单状态',
-            'create_time' => '创建时间',
-            'update_time' => '更新时间',
-            'pay_time' => '支付时间',
+            'op' => 'Thao tác',
+            'id' => 'ID hóa đơn',
+            'order_id' => 'ID đơn hàng',
+            'price' => 'Số tiền hóa đơn',
+            'status' => 'Trạng thái hóa đơn',
+            'create_time' => 'Thời gian tạo',
+            'update_time' => 'Thời gian cập nhật',
+            'pay_time' => 'Thời gian thanh toán',
         ],
     ];
 
@@ -89,7 +89,7 @@ final class InvoiceController extends BaseController
         if ($invoice === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '账单不存在',
+                'msg' => 'Hóa đơn không tồn tại',
             ]);
         }
 
@@ -98,7 +98,7 @@ final class InvoiceController extends BaseController
         if ($user->is_shadow_banned) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '支付失败，请稍后再试',
+                'msg' => 'Thanh toán thất bại, vui lòng thử lại sau',
             ]);
         }
 
@@ -106,7 +106,7 @@ final class InvoiceController extends BaseController
         if ($invoice->type === 'topup') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '该账单不支持使用余额支付',
+                'msg' => 'Hóa đơn này không hỗ trợ thanh toán bằng số dư',
             ]);
         }
 
@@ -124,7 +124,7 @@ final class InvoiceController extends BaseController
                 $invoice_content = json_decode($invoice->content);
                 $invoice_content[] = [
                     'content_id' => count($invoice_content),
-                    'name' => '余额部分支付',
+                    'name' => 'Thanh toán một phần bằng số dư',
                     'price' => '-' . $paid,
                 ];
                 $invoice->content = json_encode($invoice_content);
@@ -138,7 +138,7 @@ final class InvoiceController extends BaseController
                 $money_before,
                 (float) $user->money,
                 -$paid,
-                '支付账单 #' . $invoice->id
+                'Thanh toán hóa đơn #' . $invoice->id
             );
 
             $invoice->update_time = time();
@@ -147,7 +147,7 @@ final class InvoiceController extends BaseController
         } else {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '余额不足',
+                'msg' => 'Số dư không đủ',
             ]);
         }
 
@@ -163,7 +163,7 @@ final class InvoiceController extends BaseController
         $invoices = (new Invoice())->orderBy('id', 'desc')->where('user_id', $this->user->id)->get();
 
         foreach ($invoices as $invoice) {
-            $invoice->op = '<a class="btn btn-primary" href="/user/invoice/' . $invoice->id . '/view">查看</a>';
+            $invoice->op = '<a class="btn btn-primary" href="/user/invoice/' . $invoice->id . '/view">Xem</a>';
             $invoice->status = $invoice->status();
             $invoice->create_time = Tools::toDateTime($invoice->create_time);
             $invoice->update_time = Tools::toDateTime($invoice->update_time);

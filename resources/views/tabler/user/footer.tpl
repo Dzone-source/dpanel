@@ -5,14 +5,14 @@
             <div class="modal-status bg-success"></div>
             <div class="modal-body text-center py-4">
                 <i class="ti ti-circle-check icon mb-2 text-green icon-lg" style="font-size:3.5rem;"></i>
-                <p id="success-message" class="text-secondary">成功</p>
+                <p id="success-message" class="text-secondary">Thành công</p>
             </div>
             <div class="modal-footer">
                 <div class="w-100">
                     <div class="row">
                         <div class="col">
                             <button type="button" id="success-confirm" class="btn w-100" data-bs-dismiss="modal">
-                                好
+                                OK
                             </button>
                         </div>
                     </div>
@@ -29,14 +29,14 @@
             <div class="modal-status bg-danger"></div>
             <div class="modal-body text-center py-4">
                 <i class="ti ti-circle-x icon mb-2 text-danger icon-lg" style="font-size:3.5rem;"></i>
-                <p id="fail-message" class="text-secondary">失败</p>
+                <p id="fail-message" class="text-secondary">Thất bại</p>
             </div>
             <div class="modal-footer">
                 <div class="w-100">
                     <div class="row">
                         <div class="col">
                             <a href="" class="btn btn-danger w-100" data-bs-dismiss="modal">
-                                确认
+                                Xác nhận
                             </a>
                         </div>
                     </div>
@@ -52,8 +52,8 @@
             <div class="col-lg-auto ms-lg-auto">
                 <ul class="list-inline list-inline-dots mb-0">
                     <li class="list-inline-item">
-                        Powered by <a href="/staff" class="link-secondary">SSPanel-UIM</a>
-                        <!-- 删除staff是不尊重每一位开发者的行为 -->
+                        Powered by <a href="/staff" class="link-secondary">DPanel</a>
+<!-- Không xóa trang staff — đó là sự tôn trọng với các nhà phát triển -->
                     </li>
                 </ul>
             </div>
@@ -94,27 +94,27 @@
     if (typeof ClipboardJS !== 'undefined' && document.querySelector('.copy')) {
         let clipboard = new ClipboardJS('.copy');
         clipboard.on('success', function(e) {
-            showToast('已复制到剪切板');
+            showToast('Đã sao chép vào clipboard');
             e.clearSelection();
         });
         
         clipboard.on('error', function(e) {
-            console.error('复制失败:', e);
+            console.error('Sao chép thất bại:', e);
             const text = e.trigger.getAttribute('data-clipboard-text');
             if (text) {
                 // Try native API first, fallback to prompt
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(text).then(function() {
-                        showToast('已复制到剪切板');
+                        showToast('Đã sao chép vào clipboard');
                     }).catch(function(err) {
-                        console.error('原生 API 也失败了:', err);
-                        prompt('复制失败，请手动复制以下内容：', text);
+                        console.error('API gốc cũng thất bại:', err);
+                        prompt('Sao chép thất bại, vui lòng sao chép nội dung sau:', text);
                     });
                 } else {
-                    prompt('复制失败，请手动复制以下内容：', text);
+                    prompt('Sao chép thất bại, vui lòng sao chép nội dung sau:', text);
                 }
             } else {
-                showToast('复制失败，请重试', 'danger');
+                showToast('Sao chép thất bại, vui lòng thử lại', 'danger');
             }
         });
     } else if (typeof ClipboardJS === 'undefined') {
@@ -124,7 +124,7 @@
                 e.preventDefault();
                 const text = this.getAttribute('data-clipboard-text');
                 if (text) {
-                    prompt('请手动复制以下内容：', text);
+                    prompt('Vui lòng sao chép nội dung sau:', text);
                 }
             });
         });
@@ -152,7 +152,7 @@
 
                         if (key === "last-checkin-time") {
                             const checkInBtn = document.getElementById("check-in");
-                            checkInBtn.textContent = "已签到";
+                            checkInBtn.textContent = "Đã điểm danh";
                             checkInBtn.disabled = true;
                             continue;
                         }
@@ -182,11 +182,11 @@
             }
         } catch (e) {
             console.error("Failed to parse HTMX response:", e);
-            showToast('发生了意外错误', 'danger');
+            showToast('Đã xảy ra lỗi không mong muốn', 'danger');
         }
     });
 </script>
-<script>console.table([['数据库查询', '执行时间'], ['{count($queryLog)} 次', '{$optTime} ms']])</script>
+<script>console.table([['Truy vấn cơ sở dữ liệu', 'Thời gian thực thi'], ['{count($queryLog)} lần', '{$optTime} ms']])</script>
 
 {include file='live_chat.tpl'}
 

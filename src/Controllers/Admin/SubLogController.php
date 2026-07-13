@@ -18,13 +18,13 @@ final class SubLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'user_id' => '用户ID',
-                'type' => '获取的订阅类型',
-                'request_ip' => '请求IP',
-                'location' => 'IP归属地',
-                'request_time' => '请求时间',
-                'request_user_agent' => '客户端标识符',
+                'id' => 'ID sự kiện',
+                'user_id' => 'ID người dùng',
+                'type' => 'Loại đăng ký đã lấy',
+                'request_ip' => 'IP yêu cầu',
+                'location' => 'Vị trí IP',
+                'request_time' => 'Thời gian yêu cầu',
+                'request_user_agent' => 'Định danh máy khách',
             ],
         ];
 

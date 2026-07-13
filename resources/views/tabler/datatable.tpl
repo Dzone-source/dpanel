@@ -24,27 +24,27 @@
             $('div.dt-scroll-body').css('border-bottom-style', 'none')
         },
         language: {
-            "sProcessing": "处理中...",
-            "sLengthMenu": "显示 _MENU_ 条",
-            "sZeroRecords": "没有匹配结果",
-            "sInfo": "第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
-            "sInfoEmpty": "第 0 至 0 项结果，共 0 项",
-            "sInfoFiltered": "(在 _MAX_ 项中查找)",
+            "sProcessing": "Đang xử lý...",
+            "sLengthMenu": "Hiển thị _MENU_ mục",
+            "sZeroRecords": "Không tìm thấy kết quả phù hợp",
+            "sInfo": "Hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+            "sInfoEmpty": "Hiển thị 0 đến 0 trong tổng số 0 mục",
+            "sInfoFiltered": "(lọc từ _MAX_ mục)",
             "sInfoPostFix": "",
             "sSearch": "<i class=\"ti ti-search\"></i> ",
             "sUrl": "",
-            "sEmptyTable": "表中数据为空",
-            "sLoadingRecords": "载入中...",
+            "sEmptyTable": "Không có dữ liệu trong bảng",
+            "sLoadingRecords": "Đang tải...",
             "sInfoThousands": ",",
             "oPaginate": {
-                "sFirst": "首页",
+                "sFirst": "Đầu",
                 "sPrevious": "<i class=\"ti ti-arrow-left\"></i>",
                 "sNext": "<i class=\"ti ti-arrow-right\"></i>",
-                "sLast": "末页"
+                "sLast": "Cuối"
             },
             "oAria": {
-                "sSortAscending": ": 以升序排列此列",
-                "sSortDescending": ": 以降序排列此列"
+                "sSortAscending": ": sắp xếp cột theo thứ tự tăng dần",
+                "sSortDescending": ": sắp xếp cột theo thứ tự giảm dần"
             }
         }
     };

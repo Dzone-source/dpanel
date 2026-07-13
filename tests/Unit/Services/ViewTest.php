@@ -42,7 +42,7 @@ describe('View::getConfig', function () {
         $_ENV['enable_change_email'] = true;
         $_ENV['enable_r2_client_download'] = true;
         $_ENV['jsdelivr_url'] = 'https://cdn.jsdelivr.net';
-        $_ENV['locale'] = 'en_US';
+        $_ENV['locale'] = 'vi_VN';
 
         $config = $this->view->getConfig();
 
@@ -59,6 +59,6 @@ describe('View::getConfig', function () {
             ->and($config['enable_change_email'])->toBeTrue()
             ->and($config['enable_r2_client_download'])->toBeTrue()
             ->and($config['jsdelivr_url'])->toBe('https://cdn.jsdelivr.net')
-            ->and($config['locale'])->toBe('en_US');
+            ->and($config['locale'])->toBe('vi_VN');
     });
 });

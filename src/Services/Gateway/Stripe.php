@@ -90,7 +90,7 @@ final class Stripe extends Base
         } catch (GuzzleException|RedisException) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '汇率获取失败',
+                'msg' => 'Không thể lấy tỷ giá',
             ]);
         }
         // https://docs.stripe.com/currencies?presentment-currency=US#zero-decimal

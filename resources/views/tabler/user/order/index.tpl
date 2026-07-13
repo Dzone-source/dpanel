@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title my-3">订单列表</span>
+                        <span class="home-title my-3">Danh sách đơn hàng</span>
                     </h2>
                     <div class="page-pretitle">
-                        <span class="home-subtitle">查看并管理账户中的订单</span>
+                        <span class="home-subtitle">Xem và quản lý đơn hàng trong tài khoản</span>
                     </div>
                 </div>
             </div>

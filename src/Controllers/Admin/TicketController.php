@@ -30,13 +30,13 @@ final class TicketController extends BaseController
     private static array $details =
         [
             'field' => [
-                'op' => '操作',
-                'id' => '工单ID',
-                'title' => '主题',
-                'status' => '工单状态',
-                'type' => '工单类型',
-                'userid' => '提交用户',
-                'datetime' => '创建时间',
+                'op' => 'Thao tác',
+                'id' => 'ID phiếu hỗ trợ',
+                'title' => 'Chủ đề',
+                'status' => 'Trạng thái phiếu hỗ trợ',
+                'type' => 'Loại phiếu hỗ trợ',
+                'userid' => 'Người dùng gửi',
+                'datetime' => 'Thời gian tạo',
             ],
         ];
 
@@ -58,13 +58,13 @@ final class TicketController extends BaseController
         $comment = $request->getParam('comment') ?? '';
 
         if ($comment === '') {
-            return ResponseHelper::error($response, '请输入评论内容');
+            return ResponseHelper::error($response, 'Vui lòng nhập nội dung bình luận');
         }
 
         $ticket = (new Ticket())->where('id', $id)->first();
 
         if ($ticket === null) {
-            return ResponseHelper::error($response, '工单不存在');
+            return ResponseHelper::error($response, 'Phiếu hỗ trợ không tồn tại');
         }
 
         $content_old = json_decode($ticket->content, true);
@@ -85,8 +85,8 @@ final class TicketController extends BaseController
         try {
             Notification::notifyUser(
                 (new User())->find($ticket->userid),
-                $_ENV['appName'] . '-工单被回复',
-                '你好，有人回复了<a href="' . $_ENV['baseUrl'] . '/user/ticket/' . $ticket->id . '/view">工单</a>，请你查看。'
+                $_ENV['appName'] . '- Phiếu hỗ trợ được trả lời',
+                'Xin chào, có người đã trả lời<a href="' . $_ENV['baseUrl'] . '/user/ticket/' . $ticket->id . '/view">phiếu hỗ trợ</a>, vui lòng xem.'
             );
         } catch (TelegramSDKException|GuzzleException|ClientExceptionInterface $e) {
             return $response->withHeader('HX-Refresh', 'true');
@@ -101,7 +101,7 @@ final class TicketController extends BaseController
         $ticket = (new Ticket())->where('id', $id)->first();
 
         if ($ticket === null) {
-            return ResponseHelper::error($response, '工单不存在');
+            return ResponseHelper::error($response, 'Phiếu hỗ trợ không tồn tại');
         }
 
         $content_old = json_decode($ticket->content, true);
@@ -152,8 +152,8 @@ final class TicketController extends BaseController
         try {
             Notification::notifyUser(
                 (new User())->find($ticket->userid),
-                $_ENV['appName'] . '-工单被回复',
-                '你好，AI助理回复了<a href="' . $_ENV['baseUrl'] . '/user/ticket/' . $ticket->id . '/view">工单</a>，请你查看。'
+                $_ENV['appName'] . '- Phiếu hỗ trợ được trả lời',
+                'Xin chào, trợ lý AI đã trả lời<a href="' . $_ENV['baseUrl'] . '/user/ticket/' . $ticket->id . '/view">phiếu hỗ trợ</a>, vui lòng xem.'
             );
         } catch (TelegramSDKException|GuzzleException|ClientExceptionInterface $e) {
             return $response->withHeader('HX-Refresh', 'true');
@@ -163,7 +163,7 @@ final class TicketController extends BaseController
     }
 
     /**
-     * 后台查看指定工单
+     * 后台Xem指定工单
      *
      * @throws Exception
      */
@@ -192,7 +192,7 @@ final class TicketController extends BaseController
     }
 
     /**
-     * 后台关闭工单
+     * 后台Đóng工单
      */
     public function close(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
@@ -200,28 +200,28 @@ final class TicketController extends BaseController
         $ticket = (new Ticket())->where('id', '=', $id)->first();
 
         if ($ticket === null) {
-            return ResponseHelper::error($response, '工单不存在');
+            return ResponseHelper::error($response, 'Phiếu hỗ trợ không tồn tại');
         }
 
         if ($ticket->status === 'closed') {
-            return ResponseHelper::error($response, '工单已关闭，无需重复操作');
+            return ResponseHelper::error($response, 'Phiếu hỗ trợ đã đóng, không cần thao tác lại');
         }
 
         $ticket->status = 'closed';
         $ticket->save();
 
-        return ResponseHelper::success($response, '工单关闭成功');
+        return ResponseHelper::success($response, 'Đóng phiếu hỗ trợ thành công');
     }
 
     /**
-     * 后台删除工单
+     * 后台Xóa工单
      */
     public function delete(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
         $id = $args['id'];
         (new Ticket())->where('id', '=', $id)->delete();
 
-        return ResponseHelper::success($response, '工单删除成功');
+        return ResponseHelper::success($response, 'Xóa phiếu hỗ trợ thành công');
     }
 
     /**
@@ -233,16 +233,16 @@ final class TicketController extends BaseController
 
         foreach ($tickets as $ticket) {
             $ticket->op = '<button class="btn btn-red" id="delete-ticket" 
-            onclick="deleteTicket(' . $ticket->id . ')">删除</button>';
+            onclick="deleteTicket(' . $ticket->id . ')">Xóa</button>';
 
             if ($ticket->status !== 'closed') {
                 $ticket->op .= '
                 <button class="btn btn-orange" id="close-ticket" 
-                onclick="closeTicket(' . $ticket->id . ')">关闭</button>';
+                onclick="closeTicket(' . $ticket->id . ')">Đóng</button>';
             }
 
             $ticket->op .= '
-            <a class="btn btn-primary" href="/admin/ticket/' . $ticket->id . '/view">查看</a>';
+            <a class="btn btn-primary" href="/admin/ticket/' . $ticket->id . '/view">Xem</a>';
             $ticket->status = $ticket->status();
             $ticket->type = $ticket->type();
             $ticket->datetime = Tools::toDateTime((int) $ticket->datetime);

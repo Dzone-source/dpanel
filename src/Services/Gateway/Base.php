@@ -81,7 +81,7 @@ abstract class Base
                 $money_before,
                 $user->money,
                 $paylist?->total - $invoice?->price,
-                '超额支付账单 #' . $invoice?->id
+                'Thanh toán vượt mức hóa đơn #' . $invoice?->id
             );
         }
 

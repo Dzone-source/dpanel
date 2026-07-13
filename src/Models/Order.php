@@ -32,12 +32,12 @@ final class Order extends Model
     public function status(): string
     {
         return match ($this->status) {
-            'pending_payment' => '等待中',
-            'pending_activation' => '待激活',
-            'activated' => '已激活',
-            'expired' => '已过期',
-            'cancelled' => '已取消',
-            default => '未知',
+            'pending_payment' => 'Đang chờ',
+            'pending_activation' => 'Chờ kích hoạt',
+            'activated' => 'Đã kích hoạt',
+            'expired' => 'Đã hết hạn',
+            'cancelled' => 'Đã hủy',
+            default => 'Không xác định',
         };
     }
 
@@ -47,11 +47,11 @@ final class Order extends Model
     public function productType(): string
     {
         return match ($this->product_type) {
-            'tabp' => '时间流量包',
-            'time' => '时间包',
-            'bandwidth' => '流量包',
-            'topup' => '充值',
-            default => '其他',
+            'tabp' => 'Gói thời gian + lưu lượng',
+            'time' => 'Gói thời gian',
+            'bandwidth' => 'Gói lưu lượng',
+            'topup' => 'Nạp tiền',
+            default => 'Khác',
         };
     }
 }

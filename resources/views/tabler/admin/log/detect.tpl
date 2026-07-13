@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">审计碰撞记录</span>
+                        <span class="home-title">Nhật ký vi phạm kiểm toán</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">查看审计碰撞记录的内容</span>
+                        <span class="home-subtitle">Xem nội dung nhật ký vi phạm kiểm toán</span>
                     </div>
                 </div>
             </div>

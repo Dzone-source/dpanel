@@ -26,20 +26,20 @@ final class NodeController extends BaseController
 {
     private static array $details = [
         'field' => [
-            'op' => '操作',
-            'id' => '节点ID',
-            'name' => '名称',
-            'server' => '地址',
-            'type' => '状态',
-            'sort' => '类型',
-            'traffic_rate' => '倍率',
-            'is_dynamic_rate' => '动态倍率',
-            'dynamic_rate_type' => '动态倍率计算方式',
-            'node_class' => '等级',
-            'node_group' => '组别',
-            'node_bandwidth_limit' => '流量限制/GB',
-            'node_bandwidth' => '已用流量/GB',
-            'bandwidthlimit_resetday' => '重置日',
+            'op' => 'Thao tác',
+            'id' => 'ID máy chủ',
+            'name' => 'Tên',
+            'server' => 'Địa chỉ',
+            'type' => 'Trạng thái',
+            'sort' => 'Loại',
+            'traffic_rate' => 'Hệ số',
+            'is_dynamic_rate' => 'Hệ số động',
+            'dynamic_rate_type' => 'Phương thức tính hệ số động',
+            'node_class' => 'Cấp',
+            'node_group' => 'Nhóm',
+            'node_bandwidth_limit' => 'Giới hạn lưu lượng/GB',
+            'node_bandwidth' => 'Lưu lượng đã dùng/GB',
+            'bandwidthlimit_resetday' => 'Ngày đặt lại',
         ],
     ];
 
@@ -128,7 +128,7 @@ final class NodeController extends BaseController
         if (! $node->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '添加失败',
+                'msg' => 'Thêm thất bại',
             ]);
         }
 
@@ -144,7 +144,7 @@ final class NodeController extends BaseController
             } catch (TelegramSDKException | GuzzleException) {
                 return $response->withJson([
                     'ret' => 1,
-                    'msg' => '添加成功，但 IM Bot 通知失败',
+                    'msg' => 'Thêm thành công, nhưng thông báo IM Bot thất bại',
                     'node_id' => $node->id,
                 ]);
             }
@@ -152,13 +152,13 @@ final class NodeController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '添加成功',
+            'msg' => 'Thêm thành công',
             'node_id' => $node->id,
         ]);
     }
 
     /**
-     * 后台编辑指定节点页面
+     * 后台Chỉnh sửa指定节点页面
      *
      * @throws SmartyException
      */
@@ -221,7 +221,7 @@ final class NodeController extends BaseController
         if (! $node->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '修改失败',
+                'msg' => 'Cập nhật thất bại',
             ]);
         }
 
@@ -237,14 +237,14 @@ final class NodeController extends BaseController
             } catch (TelegramSDKException | GuzzleException) {
                 return $response->withJson([
                     'ret' => 1,
-                    'msg' => '修改成功，但 IM Bot 通知失败',
+                    'msg' => 'Cập nhật thành công, nhưng thông báo IM Bot thất bại',
                 ]);
             }
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '修改成功',
+            'msg' => 'Cập nhật thành công',
         ]);
     }
 
@@ -256,7 +256,7 @@ final class NodeController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '重置节点通讯密钥成功',
+            'msg' => 'Đặt lại khóa giao tiếp máy chủ thành công',
         ]);
     }
 
@@ -268,12 +268,12 @@ final class NodeController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '重置节点流量成功',
+            'msg' => 'Đặt lại lưu lượng máy chủ thành công',
         ]);
     }
 
     /**
-     * 后台删除指定节点
+     * 后台Xóa指定节点
      */
     public function delete(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
@@ -282,7 +282,7 @@ final class NodeController extends BaseController
         if (! $node->delete()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '删除失败',
+                'msg' => 'Xóa thất bại',
             ]);
         }
 
@@ -298,14 +298,14 @@ final class NodeController extends BaseController
             } catch (TelegramSDKException | GuzzleException) {
                 return $response->withJson([
                     'ret' => 1,
-                    'msg' => '删除成功，但 IM Bot 通知失败',
+                    'msg' => 'Xóa thành công, nhưng thông báo IM Bot thất bại',
                 ]);
             }
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '删除成功',
+            'msg' => 'Xóa thành công',
         ]);
     }
 
@@ -315,20 +315,20 @@ final class NodeController extends BaseController
         $new_node = $old_node->replicate([
             'node_bandwidth',
         ]);
-        $new_node->name .= ' (副本)';
+        $new_node->name .= ' (bản sao)';
         $new_node->node_bandwidth = 0;
         $new_node->password = Tools::genRandomChar(32);
 
         if (! $new_node->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '复制失败',
+                'msg' => 'Sao chép thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '复制成功',
+            'msg' => 'Sao chép thành công',
         ]);
     }
 
@@ -341,10 +341,10 @@ final class NodeController extends BaseController
 
         foreach ($nodes as $node) {
             $node->op = '<button class="btn btn-red" id="delete-node-' . $node->id . '" 
-            onclick="deleteNode(' . $node->id . ')">删除</button>
+            onclick="deleteNode(' . $node->id . ')">Xóa</button>
             <button class="btn btn-orange" id="copy-node-' . $node->id . '" 
-            onclick="copyNode(' . $node->id . ')">复制</button>
-            <a class="btn btn-primary" href="/admin/node/' . $node->id . '/edit">编辑</a>';
+            onclick="copyNode(' . $node->id . ')">Sao chép</button>
+            <a class="btn btn-primary" href="/admin/node/' . $node->id . '/edit">Chỉnh sửa</a>';
             $node->type = $node->type();
             $node->sort = $node->sort();
             $node->is_dynamic_rate = $node->isDynamicRate();

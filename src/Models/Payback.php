@@ -30,7 +30,7 @@ final class Payback extends Model
 
     public function getUserNameAttribute(): string
     {
-        return (new User())->where('id', $this->userid)->first() === null ? '已注销' :
+        return (new User())->where('id', $this->userid)->first() === null ? 'Đã hủy' :
             (new User())->where('id', $this->userid)->first()->user_name;
     }
 
@@ -41,7 +41,7 @@ final class Payback extends Model
 
     public function getRefUserNameAttribute(): string
     {
-        return (new User())->where('id', $this->ref_by)->first() === null ? '已注销' :
+        return (new User())->where('id', $this->ref_by)->first() === null ? 'Đã hủy' :
             (new User())->where('id', $this->ref_by)->first()->user_name;
     }
 

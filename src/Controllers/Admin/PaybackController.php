@@ -17,15 +17,15 @@ final class PaybackController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'total' => '原始金额',
-                'userid' => '发起用户ID',
-                'user_name' => '发起用户名',
-                'ref_by' => '获利用户ID',
-                'ref_user_name' => '获利用户名',
-                'ref_get' => '获利金额',
-                'invoice_id' => '账单ID',
-                'datetime' => '时间',
+                'id' => 'ID sự kiện',
+                'total' => 'Số tiền gốc',
+                'userid' => 'ID người dùng khởi tạo',
+                'user_name' => 'Tên người dùng khởi tạo',
+                'ref_by' => 'ID người dùng hưởng lợi',
+                'ref_user_name' => 'Tên người dùng hưởng lợi',
+                'ref_get' => 'Số tiền hưởng lợi',
+                'invoice_id' => 'ID hóa đơn',
+                'datetime' => 'Thời gian',
             ],
         ];
 

@@ -6,17 +6,17 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">创建公告</span>
+                        <span class="home-title">Tạo thông báo</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">创建站点公告</span>
+                        <span class="home-subtitle">Tạo thông báo hệ thống</span>
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <button id="create" href="#" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
-                            保存
+                            Lưu
                         </button>
                     </div>
                 </div>
@@ -40,34 +40,34 @@
                 <div class="col-md-3 col-sm-12">
                     <div class="card">
                         <div class="card-body">
-                            <h3 class="card-title">选项</h3>
+                            <h3 class="card-title">Tùy chọn</h3>
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">状态</label>
+                                <label class="form-label col-3 col-form-label">Trạng thái</label>
                                 <div class="col">
                                     <select id="status" class="col form-select" value="1">
-                                        <option value="0">未发布</option>
-                                        <option value="1">已发布</option>
-                                        <option value="2">置顶</option>
+                                        <option value="0">Chưa xuất bản</option>
+                                        <option value="1">Đã xuất bản</option>
+                                        <option value="2">Ghim</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label">排序</label>
+                                <label class="form-label">Thứ tự</label>
                                 <div class="col">
                                     <input id="sort" type="text" class="form-control" value="0">
                                 </div>
                             </div>
                             <div class="hr-text">
-                                <span>通知</span>
+                                <span>Thông báo</span>
                             </div>
                             <div class="form-group mb-3 row">
-                                <label class="form-label">邮件通知的用户等级</label>
+                                <label class="form-label">Cấp người dùng nhận thông báo email</label>
                                 <div class="col">
                                     <input id="email_notify_class" type="text" class="form-control" value="0">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
-                                <span class="col">发送邮件通知</span>
+                                <span class="col">Gửi thông báo email</span>
                                 <span class="col-auto">
                                     <label class="form-check form-check-single form-switch">
                                         <input id="email_notify" class="form-check-input" type="checkbox"

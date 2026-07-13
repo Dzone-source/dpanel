@@ -30,7 +30,7 @@ final class TOTP
             if ($TOTPDevice !== null) {
                 return [
                     'ret' => 0,
-                    'msg' => '您已经注册过TOTP设备，请勿重复注册',
+                    'msg' => 'Bạn đã đăng ký thiết bị TOTP, vui lòng không đăng ký lại',
                 ];
             }
             $ga = new GoogleAuthenticator();
@@ -46,7 +46,7 @@ final class TOTP
         } catch (Exception $e) {
             return [
                 'ret' => 0,
-                'msg' => '请求失败: ' . $e->getMessage(),
+                'msg' => 'Yêu cầu thất bại: ' . $e->getMessage(),
             ];
         }
     }
@@ -61,11 +61,11 @@ final class TOTP
         $redis = (new Cache())->initRedis();
         $token = $redis->get('totp_register_' . session_id());
         if ($token === false) {
-            return ['ret' => 0, 'msg' => '注册请求已过期，请刷新页面重试'];
+            return ['ret' => 0, 'msg' => 'Yêu cầu đăng ký đã hết hạn, vui lòng tải lại trang và thử lại'];
         }
         $ga = new GoogleAuthenticator();
         if (! $ga->verifyCode($token, $code)) {
-            return ['ret' => 0, 'msg' => '验证码错误'];
+            return ['ret' => 0, 'msg' => 'Mã xác minh không đúng'];
         }
         $MFADevice = new MFADevice();
         $MFADevice->userid = $user->id;
@@ -76,7 +76,7 @@ final class TOTP
         $MFADevice->created_at = date('Y-m-d H:i:s');
         $MFADevice->save();
         $redis->del('totp_register_' . session_id());
-        return ['ret' => 1, 'msg' => '注册成功'];
+        return ['ret' => 1, 'msg' => 'Đăng ký thành công'];
     }
 
     public static function assertHandle(User $user, string $code): array
@@ -88,14 +88,14 @@ final class TOTP
             if ($TOTPDevice === null) {
                 return [
                     'ret' => 0,
-                    'msg' => '您还没有注册TOTP设备，请先注册',
+                    'msg' => 'Bạn chưa đăng ký thiết bị TOTP, vui lòng đăng ký trước',
                 ];
             }
             $ga = new GoogleAuthenticator();
             if (! $ga->verifyCode(json_decode($TOTPDevice->body, true)['token'], $code)) {
                 return [
                     'ret' => 0,
-                    'msg' => '验证码错误',
+                    'msg' => 'Mã xác minh không đúng',
                 ];
             }
             return [
@@ -105,7 +105,7 @@ final class TOTP
         } catch (Exception $e) {
             return [
                 'ret' => 0,
-                'msg' => '请求失败: ' . $e->getMessage(),
+                'msg' => 'Yêu cầu thất bại: ' . $e->getMessage(),
             ];
         }
     }

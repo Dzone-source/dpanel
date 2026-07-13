@@ -6,41 +6,30 @@ namespace App\Services;
 
 use Symfony\Component\Translation\Loader\PhpFileLoader;
 use Symfony\Component\Translation\Translator;
-use function basename;
-use function glob;
 use const BASE_PATH;
 
 final class I18n
 {
-    // trans() right is human right 🏳️‍⚧️
-    public static function trans(string $key, string $lang = 'en_US'): string
-    {
-        $translator = self::getTranslator($lang);
+    public const DEFAULT_LOCALE = 'vi_VN';
 
-        return $translator->trans($key);
+    public static function trans(string $key, ?string $lang = null): string
+    {
+        return self::getTranslator($lang)->trans($key);
     }
 
     public static function getLocaleList(): array
     {
-        $locales = [];
-        $files = glob(BASE_PATH . '/resources/locale/*.php');
-
-        foreach ($files as $file) {
-            $locales[] = basename($file, '.php');
-        }
-
-        return $locales;
+        return [self::DEFAULT_LOCALE];
     }
 
-    public static function getTranslator($lang = 'en_US'): Translator
+    public static function getTranslator(?string $lang = null): Translator
     {
-        $translator = new Translator($lang);
+        $locale = self::DEFAULT_LOCALE;
+        $localeFile = BASE_PATH . '/resources/locale/' . $locale . '.php';
+
+        $translator = new Translator($locale);
         $translator->addLoader('php', new PhpFileLoader());
-        $translator->addResource(
-            'php',
-            BASE_PATH . '/resources/locale/' . $lang . '.php',
-            $lang
-        );
+        $translator->addResource('php', $localeFile, $locale);
 
         return $translator;
     }

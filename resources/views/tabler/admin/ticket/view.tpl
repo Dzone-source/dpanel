@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title my-3">工单回复</span>
+                        <span class="home-title my-3">Trả lời phiếu hỗ trợ</span>
                     </h2>
                     <div class="page-pretitle">
-                        <span class="home-subtitle">你可以在这里查看历史消息并添加回复</span>
+                        <span class="home-subtitle">Bạn có thể xem lịch sử tin nhắn và thêm trả lời tại đây</span>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -18,18 +18,18 @@
                         <button href="#" class="btn btn-red" data-bs-toggle="modal"
                                 data-bs-target="#close_ticket_confirm_dialog">
                             <i class="icon ti ti-x"></i>
-                            关闭
+                            Đóng
                         </button>
                         {/if}
                         <button href="#" class="btn btn-primary" hx-post="/admin/ticket/{$ticket->id}/llm_reply"
                                 hx-swap="none">
                             <i class="icon ti ti-robot"></i>
-                            LLM 回复
+                            Trả lời bằng LLM
                         </button>
                         <button href="#" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#add-reply">
                             <i class="icon ti ti-plus"></i>
-                            回复
+                            Trả lời
                         </button>
                     </div>
                 </div>
@@ -59,8 +59,8 @@
                                             <div>
                                                 {$comment->comment}
                                             </div>
-                                            <div class="text-secondary my-1">{$comment->commenter_name}
-                                                回复于 {$comment->datetime}
+                                            <div class="text-secondary my-1">                                                {$comment->commenter_name}
+                                                trả lời lúc {$comment->datetime}
                                             </div>
                                         </div>
                                         <div class="col-auto">
@@ -83,23 +83,23 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">添加回复</h5>
+                    <h5 class="modal-title">Thêm trả lời</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <textarea id="reply-comment" class="form-control" rows="12"
-                                  placeholder="请输入回复内容"></textarea>
+                                  placeholder="Nhập nội dung trả lời"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
                     <button class="btn btn-primary" data-bs-dismiss="modal"
                         hx-post="/admin/ticket/{$ticket->id}" hx-swap="none"
                         hx-vals='js:{
                             comment: document.getElementById("reply-comment").value,
                         }'>
-                        回复
+                        Trả lời
                     </button>
                 </div>
             </div>
@@ -110,20 +110,20 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">关闭工单</h5>
+                    <h5 class="modal-title">Đóng phiếu hỗ trợ</h5>
                     <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"
                             hx-post="/admin/ticket/{$ticket->id}/close" hx-swap="none"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
                         <p>
-                            确认关闭工单？
+                            Xác nhận đóng phiếu hỗ trợ?
                         <p>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
-                    <button id="confirm_close" type="button" class="btn btn-primary" data-bs-dismiss="modal">确认
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button id="confirm_close" type="button" class="btn btn-primary" data-bs-dismiss="modal">Xác nhận
                     </button>
                 </div>
             </div>

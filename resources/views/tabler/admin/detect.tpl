@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">审计规则</span>
+                        <span class="home-title">Quy tắc kiểm toán</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">查看站点中的审计规则</span>
+                        <span class="home-subtitle">Xem quy tắc kiểm toán trên hệ thống</span>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -17,7 +17,7 @@
                         <button href="#" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#add-detect-dialog">
                             <i class="icon ti ti-plus"></i>
-                            添加审计规则
+                            Thêm quy tắc kiểm toán
                         </button>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">添加审计规则</h5>
+                    <h5 class="modal-title">Thêm quy tắc kiểm toán</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -86,8 +86,8 @@
                     {/foreach}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
-                    <button id="add-detect-button" type="button" class="btn btn-primary" data-bs-dismiss="modal">提交
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button id="add-detect-button" type="button" class="btn btn-primary" data-bs-dismiss="modal">Gửi
                     </button>
                 </div>
             </div>
@@ -138,7 +138,7 @@
         });
 
         function deleteRule(rule_id) {
-            $('#notice-message').text('确定删除此审计规则？');
+            $('#notice-message').text('Bạn có chắc muốn xóa quy tắc kiểm toán này?');
             $('#notice-dialog').modal('show');
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({

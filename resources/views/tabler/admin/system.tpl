@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">系统状态</span>
+                        <span class="home-title">Trạng thái hệ thống</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">查看系统的运行状态</span>
+                        <span class="home-subtitle">Xem trạng thái hoạt động của hệ thống</span>
                     </div>
                 </div>
             </div>
@@ -23,16 +23,16 @@
                         <div class="card-body">
                             <table class="table table-transparent table-responsive">
                                 <tr>
-                                    <td>SSPanel-UIM 版本</td>
+                                    <td>Phiên bản DPanel</td>
                                     <td class="text-end" id="version"><a href="#" id="version_check">{$version} </a>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>数据库版本</td>
+                                    <td>Phiên bản cơ sở dữ liệu</td>
                                     <td class="text-end">{$db_version}</td>
                                 </tr>
                                 <tr>
-                                    <td>最后一次每日任务执行时间</td>
+                                    <td>Thời gian thực thi tác vụ hàng ngày gần nhất</td>
                                     <td class="text-end">{$last_daily_job_time}</td>
                                 </tr>
                             </table>
@@ -52,10 +52,10 @@
                 success: function (data) {
                     if (data.is_upto_date) {
                         $('.badge').remove();
-                        $('#version').append('<span class="badge bg-green text-green-fg">已是最新版本</span>');
+                        $('#version').append('<span class="badge bg-green text-green-fg">Đã là phiên bản mới nhất</span>');
                     } else {
                         $('.badge').remove();
-                        $('#version').append('<span class="badge bg-red text-red-fg">有新版本 ' + data.latest_version + ' 可用</span>');
+                        $('#version').append('<span class="badge bg-red text-red-fg">Có phiên bản mới ' + data.latest_version + ' khả dụng</span>');
                     }
                 }
             })

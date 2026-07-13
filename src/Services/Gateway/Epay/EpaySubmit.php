@@ -38,7 +38,7 @@ final class EpaySubmit
         return $para_sort;
     }
 
-    public function buildRequestForm($para_temp, $method = 'POST', $button_name = '正在跳转'): string
+    public function buildRequestForm($para_temp, $method = 'POST', $button_name = 'Đang chuyển hướng'): string
     {
         //待请求参数数组
         $para = $this->buildRequestPara($para_temp);

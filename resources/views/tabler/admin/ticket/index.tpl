@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">工单列表</span>
+                        <span class="home-title">Danh sách phiếu hỗ trợ</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">查看并回复用户工单</span>
+                        <span class="home-subtitle">Xem và trả lời phiếu hỗ trợ người dùng</span>
                     </div>
                 </div>
             </div>
@@ -62,7 +62,7 @@
         }
 
         function closeTicket(ticket_id) {
-            $('#notice-message').text('确定关闭此工单？');
+            $('#notice-message').text('Bạn có chắc muốn đóng phiếu hỗ trợ này?');
             $('#notice-dialog').modal('show');
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({
@@ -84,7 +84,7 @@
         }
 
         function deleteTicket(ticket_id) {
-            $('#notice-message').text('确定删除此工单？');
+            $('#notice-message').text('Bạn có chắc muốn xóa phiếu hỗ trợ này?');
             $('#notice-dialog').modal('show');
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({

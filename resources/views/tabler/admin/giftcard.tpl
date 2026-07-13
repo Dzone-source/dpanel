@@ -6,11 +6,11 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">礼品卡</span>
+                        <span class="home-title">Thẻ quà tặng</span>
                     </h2>
                     <div class="page-pretitle my-3">
                         <span class="home-subtitle">
-                            查看并管理礼品卡
+                            Xem và quản lý thẻ quà tặng
                         </span>
                     </div>
                 </div>
@@ -19,7 +19,7 @@
                         <a href="#" class="btn btn-primary" data-bs-toggle="modal"
                            data-bs-target="#create-dialog">
                             <i class="icon ti ti-plus"></i>
-                            创建
+                            Tạo
                         </a>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">礼品卡内容</h5>
+                    <h5 class="modal-title">Nội dung thẻ quà tặng</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -88,9 +88,9 @@
                     {/foreach}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
                     <button id="create-button" onclick="createGiftCard()"
-                            type="button" class="btn btn-primary" data-bs-dismiss="modal">创建
+                            type="button" class="btn btn-primary" data-bs-dismiss="modal">Tạo
                     </button>
                 </div>
             </div>
@@ -145,7 +145,7 @@
         }
 
         function deleteGiftCard(giftcard_id) {
-            $('#notice-message').text('确定删除此礼品卡？');
+            $('#notice-message').text('Bạn có chắc muốn xóa thẻ quà tặng này?');
             $('#notice-dialog').modal('show');
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({

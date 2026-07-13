@@ -52,8 +52,8 @@ final class Detect
 
                 try {
                     Notification::notifyAdmin(
-                        $_ENV['appName'] . '-系统警告',
-                        '管理员你好，系统发现节点 ' . $node->name . ' 被墙了。'
+                        $_ENV['appName'] . '-Cảnh báo hệ thống',
+                        'Xin chào quản trị viên, hệ thống phát hiện nút ' . $node->name . ' đã bị chặn.'
                     );
                 } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
                     echo $e->getMessage() . PHP_EOL;
@@ -85,8 +85,8 @@ final class Detect
 
                 try {
                     Notification::notifyAdmin(
-                        $_ENV['appName'] . '-系统提示',
-                        '管理员你好，系统发现节点 ' . $node->name . ' 溜出墙了。'
+                        $_ENV['appName'] . '-Thông báo hệ thống',
+                        'Xin chào quản trị viên, hệ thống phát hiện nút ' . $node->name . ' đã vượt qua tường lửa.'
                     );
                 } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
                     echo $e->getMessage() . PHP_EOL;

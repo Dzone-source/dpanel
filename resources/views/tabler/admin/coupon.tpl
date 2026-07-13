@@ -13,11 +13,11 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">优惠码</span>
+                        <span class="home-title">Mã giảm giá</span>
                     </h2>
                     <div class="page-pretitle my-3">
                         <span class="home-subtitle">
-                            查看并管理优惠码
+                            Xem và quản lý mã giảm giá
                         </span>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                         <a href="#" class="btn btn-primary" data-bs-toggle="modal"
                            data-bs-target="#create-dialog">
                             <i class="icon ti ti-plus"></i>
-                            创建
+                            Tạo
                         </a>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">优惠码内容</h5>
+                    <h5 class="modal-title">Nội dung mã giảm giá</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -94,7 +94,7 @@
                         {/if}
                     {/foreach}
                     <div class="form-group mb-3 row">
-                        <label class="form-label col-3 col-form-label">过期时间（留空则为不限制）</label>
+                        <label class="form-label col-3 col-form-label">Thời gian hết hạn (để trống nếu không giới hạn)</label>
                         <div class="col">
                             <input id="expire_time" type="text" class="form-control"
                                    placeholder="">
@@ -102,9 +102,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
                     <button id="create-button" onclick="createCoupon()"
-                            type="button" class="btn btn-primary" data-bs-dismiss="modal">创建
+                            type="button" class="btn btn-primary" data-bs-dismiss="modal">Tạo
                     </button>
                 </div>
             </div>
@@ -119,7 +119,7 @@
             dateFormat: "U",
             time_24hr: true,
             minDate: "today",
-            locale: "zh"
+            locale: "vi"
         });
 
         tableConfig.ajax = {
@@ -168,7 +168,7 @@
         }
 
         function deleteCoupon(coupon_id) {
-            $('#notice-message').text('确定删除此优惠码？');
+            $('#notice-message').text('Bạn có chắc muốn xóa mã giảm giá này?');
             $('#notice-dialog').modal('show');
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({
@@ -190,7 +190,7 @@
         }
 
         function disableCoupon(coupon_id) {
-            $('#notice-message').text('确定禁用此优惠码？');
+            $('#notice-message').text('Bạn có chắc muốn vô hiệu hóa mã giảm giá này?');
             $('#notice-dialog').modal('show');
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({

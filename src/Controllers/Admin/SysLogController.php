@@ -18,14 +18,14 @@ final class SysLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'op' => '操作',
-                'id' => '事件ID',
-                'user_id' => '触发用户',
-                'ip' => '触发IP',
-                'message' => '日志内容',
-                'level' => '日志等级',
-                'channel' => '日志类别',
-                'datetime' => '记录时间',
+                'op' => 'Thao tác',
+                'id' => 'ID sự kiện',
+                'user_id' => 'Người dùng kích hoạt',
+                'ip' => 'IP kích hoạt',
+                'message' => 'Nội dung nhật ký',
+                'level' => 'Cấp nhật ký',
+                'channel' => 'Loại nhật ký',
+                'datetime' => 'Thời gian ghi',
             ],
         ];
 
@@ -102,7 +102,7 @@ final class SysLogController extends BaseController
 
         foreach ($syslogs as $log) {
             $log->op =
-                '<a class="btn btn-primary" href="/admin/syslog/' . $log->id . '/view">查看</a>';
+                '<a class="btn btn-primary" href="/admin/syslog/' . $log->id . '/view">Xem</a>';
             $log->message = strlen($log->message) > 25 ?
                 substr($log->message, 0, 25) . '...' : $log->message;
             $log->level = $log->level();

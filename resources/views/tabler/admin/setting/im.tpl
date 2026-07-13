@@ -6,17 +6,17 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">IM 设置</span>
+                        <span class="home-title">Cài đặt IM</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">管理站点的 IM 集成设置</span>
+                        <span class="home-subtitle">Quản lý tích hợp IM của trang web</span>
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <a id="save-setting" href="#" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
-                            保存
+                            Lưu
                         </a>
                     </div>
                 </div>
@@ -308,101 +308,101 @@
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">解绑 Telegram
-                                                账户后自动踢出群组</label>
+                                            <label class="form-label col-3 col-form-label">Tự động đuổi khỏi nhóm sau khi hủy liên kết
+                                                tài khoản Telegram</label>
                                             <div class="col">
                                                 <select id="telegram_unbind_kick_member" class="col form-select"
                                                         value="{$settings['telegram_unbind_kick_member']}">
                                                     <option value="0"
                                                             {if ! $settings['telegram_unbind_kick_member']}selected{/if}>
-                                                        关闭
+                                                        Tắt
                                                     </option>
                                                     <option value="1"
                                                             {if $settings['telegram_unbind_kick_member']}selected{/if}>
-                                                        开启
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">仅允许已绑定 Telegram
-                                                账户的用户加入群组</label>
+                                            <label class="form-label col-3 col-form-label">Chỉ cho phép người dùng đã liên kết
+                                                tài khoản Telegram tham gia nhóm</label>
                                             <div class="col">
                                                 <select id="telegram_group_bound_user" class="col form-select"
                                                         value="{$settings['telegram_group_bound_user']}">
                                                     <option value="0"
                                                             {if ! $settings['telegram_group_bound_user']}selected{/if}>
-                                                        关闭
+                                                        Tắt
                                                     </option>
                                                     <option value="1"
-                                                            {if $settings['telegram_group_bound_user']}selected{/if}>开启
+                                                            {if $settings['telegram_group_bound_user']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">Telegram
-                                                机器人发送欢迎消息</label>
+                                            <label class="form-label col-3 col-form-label">Bot Telegram
+                                                gửi tin nhắn chào mừng</label>
                                             <div class="col">
                                                 <select id="enable_welcome_message" class="col form-select"
                                                         value="{$settings['enable_welcome_message']}">
                                                     <option value="0"
-                                                            {if ! $settings['enable_welcome_message']}selected{/if}>关闭
+                                                            {if ! $settings['enable_welcome_message']}selected{/if}>Tắt
                                                     </option>
                                                     <option value="1"
-                                                            {if $settings['enable_welcome_message']}selected{/if}>开启
+                                                            {if $settings['enable_welcome_message']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">Telegram
-                                                机器人在群组中不回应</label>
+                                            <label class="form-label col-3 col-form-label">Bot Telegram
+                                                không phản hồi trong nhóm</label>
                                             <div class="col">
                                                 <select id="telegram_group_quiet" class="col form-select"
                                                         value="{$settings['telegram_group_quiet']}">
                                                     <option value="0"
-                                                            {if ! $settings['telegram_group_quiet']}selected{/if}>关闭
+                                                            {if ! $settings['telegram_group_quiet']}selected{/if}>Tắt
                                                     </option>
                                                     <option value="1"
-                                                            {if $settings['telegram_group_quiet']}selected{/if}>开启
+                                                            {if $settings['telegram_group_quiet']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">允许 Bot
-                                                加入下方配置之外的群组</label>
+                                            <label class="form-label col-3 col-form-label">Cho phép Bot
+                                                tham gia nhóm ngoài cấu hình bên dưới</label>
                                             <div class="col">
                                                 <select id="allow_to_join_new_groups" class="col form-select"
                                                         value="{$settings['allow_to_join_new_groups']}">
                                                     <option value="0"
-                                                            {if ! $settings['allow_to_join_new_groups']}selected{/if}>关闭
+                                                            {if ! $settings['allow_to_join_new_groups']}selected{/if}>Tắt
                                                     </option>
                                                     <option value="1"
-                                                            {if $settings['allow_to_join_new_groups']}selected{/if}>开启
+                                                            {if $settings['allow_to_join_new_groups']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">允许加入的群组 ID</label>
+                                            <label class="form-label col-3 col-form-label">ID nhóm được phép tham gia</label>
                                             <div class="col">
                                                 <input id="group_id_allowed_to_join" type="text" class="form-control"
                                                        value="{$settings['group_id_allowed_to_join']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">允许任意未知的命令触发 /help
-                                                的回复</label>
+                                            <label class="form-label col-3 col-form-label">Cho phép lệnh không xác định kích hoạt
+                                                phản hồi /help</label>
                                             <div class="col">
                                                 <select id="help_any_command" class="col form-select"
                                                         value="{$settings['help_any_command']}">
                                                     <option value="0" {if ! $settings['help_any_command']}selected{/if}>
-                                                        关闭
+                                                        Tắt
                                                     </option>
                                                     <option value="1" {if $settings['help_any_command']}selected{/if}>
-                                                        开启
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>

@@ -9,14 +9,14 @@
                         <span class="home-title">LLM</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">设置站点的大型语言模型服务</span>
+                        <span class="home-subtitle">Cấu hình dịch vụ mô hình ngôn ngữ lớn của trang web</span>
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <a id="save-setting" href="#" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
-                            保存
+                            Lưu
                         </a>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
                                 <li class="nav-item">
-                                    <a href="#backend" class="nav-link active" data-bs-toggle="tab">设置</a>
+                                    <a href="#backend" class="nav-link active" data-bs-toggle="tab">Cài đặt</a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#openai" class="nav-link" data-bs-toggle="tab">OpenAI</a>

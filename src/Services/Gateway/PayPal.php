@@ -81,7 +81,7 @@ final class PayPal extends Base
         if ($price <= 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '非法的金额',
+                'msg' => 'Số tiền không hợp lệ',
             ]);
         }
 
@@ -108,7 +108,7 @@ final class PayPal extends Base
         } catch (GuzzleException|RedisException) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '汇率获取失败',
+                'msg' => 'Không thể lấy tỷ giá',
             ]);
         }
 

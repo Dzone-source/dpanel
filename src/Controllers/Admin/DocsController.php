@@ -19,12 +19,12 @@ final class DocsController extends BaseController
     private static array $details =
         [
             'field' => [
-                'op' => '操作',
+                'op' => 'Thao tác',
                 'id' => 'ID',
-                'status' => '状态',
-                'sort' => '排序',
-                'date' => '日期',
-                'title' => '标题',
+                'status' => 'Trạng thái',
+                'sort' => 'Sắp xếp',
+                'date' => 'Ngày',
+                'title' => 'Tiêu đề',
             ],
         ];
 
@@ -75,7 +75,7 @@ final class DocsController extends BaseController
         if ($title === '' || $content === '') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '文档标题和内容不能为空',
+                'msg' => 'Tiêu đề và nội dung tài liệu không được để trống',
             ]);
         }
 
@@ -89,13 +89,13 @@ final class DocsController extends BaseController
         if (! $doc->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '文档添加失败',
+                'msg' => 'Thêm tài liệu thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '文档添加成功',
+            'msg' => 'Thêm tài liệu thành công',
         ]);
     }
 
@@ -114,13 +114,13 @@ final class DocsController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '文档生成成功',
+            'msg' => 'Tạo tài liệu thành công',
             'content' => $content,
         ]);
     }
 
     /**
-     * 文档编辑页面
+     * 文档Chỉnh sửa页面
      *
      * @throws Exception
      */
@@ -137,7 +137,7 @@ final class DocsController extends BaseController
     }
 
     /**
-     * 后台编辑文档提交
+     * 后台Chỉnh sửa文档提交
      */
     public function update(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
@@ -149,7 +149,7 @@ final class DocsController extends BaseController
         if ($title === '' || $content === '') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '文档标题和内容不能为空',
+                'msg' => 'Tiêu đề và nội dung tài liệu không được để trống',
             ]);
         }
 
@@ -158,7 +158,7 @@ final class DocsController extends BaseController
         if ($doc === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '文档不存在',
+                'msg' => 'Tài liệu không tồn tại',
             ]);
         }
 
@@ -171,18 +171,18 @@ final class DocsController extends BaseController
         if (! $doc->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '文档更新失败',
+                'msg' => 'Cập nhật tài liệu thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '文档更新成功',
+            'msg' => 'Cập nhật tài liệu thành công',
         ]);
     }
 
     /**
-     * 后台删除文档
+     * 后台Xóa文档
      */
     public function delete(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
@@ -191,13 +191,13 @@ final class DocsController extends BaseController
         if (! $doc->delete()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '删除失败',
+                'msg' => 'Xóa thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '删除成功',
+            'msg' => 'Xóa thành công',
         ]);
     }
 
@@ -210,8 +210,8 @@ final class DocsController extends BaseController
 
         foreach ($docs as $doc) {
             $doc->op = '<button class="btn btn-red" id="delete-doc-' . $doc->id . '" 
-            onclick="deleteDoc(' . $doc->id . ')">删除</button>
-            <a class="btn btn-primary" href="/admin/docs/' . $doc->id . '/edit">编辑</a>';
+            onclick="deleteDoc(' . $doc->id . ')">Xóa</button>
+            <a class="btn btn-primary" href="/admin/docs/' . $doc->id . '/edit">Chỉnh sửa</a>';
             $doc->status = $doc->status();
         }
 

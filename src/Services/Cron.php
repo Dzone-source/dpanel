@@ -91,8 +91,8 @@ final class Cron
 
                 try {
                     Notification::notifyAdmin(
-                        $_ENV['appName'] . '-系统警告',
-                        '管理员你好，系统发现节点 ' . $node->name . ' 掉线了，请你及时处理。'
+                        $_ENV['appName'] . '-Cảnh báo hệ thống',
+                        'Xin chào quản trị viên, hệ thống phát hiện nút ' . $node->name . ' đã ngắt kết nối, vui lòng xử lý kịp thời.'
                     );
                 } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
                     echo $e->getMessage() . PHP_EOL;
@@ -123,8 +123,8 @@ final class Cron
 
                 try {
                     Notification::notifyAdmin(
-                        $_ENV['appName'] . '-系统提示',
-                        '管理员你好，系统发现节点 ' . $node->name . ' 恢复上线了。'
+                        $_ENV['appName'] . '-Thông báo hệ thống',
+                        'Xin chào quản trị viên, hệ thống phát hiện nút ' . $node->name . ' đã trực tuyến trở lại.'
                     );
                 } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
                     echo $e->getMessage() . PHP_EOL;
@@ -158,16 +158,16 @@ final class Cron
 
         foreach ($paidUsers as $user) {
             if (strtotime($user->class_expire) < time()) {
-                $text = '你好，系统发现你的账号等级已经过期了。';
+                $text = 'Xin chào, hệ thống phát hiện cấp tài khoản của bạn đã hết hạn.';
                 $reset_traffic = $_ENV['class_expire_reset_traffic'];
 
                 if ($reset_traffic >= 0) {
                     $user->transfer_enable = Tools::gbToB($reset_traffic);
-                    $text .= '流量已经被重置为' . $reset_traffic . 'GB。';
+                    $text .= 'Lưu lượng đã được đặt lại thành ' . $reset_traffic . 'GB.';
                 }
 
                 try {
-                    Notification::notifyUser($user, $_ENV['appName'] . '-你的账号等级已经过期了', $text);
+                    Notification::notifyUser($user, $_ENV['appName'] . '-Cấp tài khoản của bạn đã hết hạn', $text);
                 } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
                     echo $e->getMessage() . PHP_EOL;
                 }
@@ -388,7 +388,7 @@ final class Cron
                 $user->money - $content->amount,
                 $user->money,
                 $content->amount,
-                "充值订单 #{$order->id}"
+                "Đơn nạp tiền #{$order->id}"
             );
             echo "充值订单 #{$order->id} 已激活。\n";
         }
@@ -466,8 +466,8 @@ final class Cron
             try {
                 Notification::notifyUser(
                     $user,
-                    $_ENV['appName'] . '-免费流量重置通知',
-                    '你好，你的免费流量已经被重置为' . $user->auto_reset_bandwidth . 'GB。'
+                    $_ENV['appName'] . '-Thông báo đặt lại lưu lượng miễn phí',
+                    'Xin chào, lưu lượng miễn phí của bạn đã được đặt lại thành ' . $user->auto_reset_bandwidth . 'GB.'
                 );
             } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
                 echo $e->getMessage() . PHP_EOL;
@@ -489,7 +489,7 @@ final class Cron
             ->whereBetween('datetime', [strtotime('-1 day', $today), $today])->get();
 
         if (count($paylists) > 0) {
-            $text_html = '<table><tr><td>金额</td><td>用户ID</td><td>用户名</td><td>充值时间</td></tr>';
+            $text_html = '<table><tr><td>Số tiền</td><td>ID người dùng</td><td>Tên người dùng</td><td>Thời gian nạp tiền</td></tr>';
 
             foreach ($paylists as $paylist) {
                 $text_html .= '<tr>';
@@ -501,7 +501,7 @@ final class Cron
             }
 
             $text_html .= '</table>';
-            $text_html .= '<br>昨日总收入笔数：' . count($paylists) . '<br>昨日总收入金额：' . $paylists->sum('total');
+            $text_html .= '<br>Tổng số giao dịch hôm qua: ' . count($paylists) . '<br>Tổng doanh thu hôm qua: ' . $paylists->sum('total');
 
             $text_html = str_replace([
                 '<table>',
@@ -517,7 +517,7 @@ final class Cron
 
             try {
                 Notification::notifyAdmin(
-                    '财务日报',
+                    'Báo cáo tài chính hàng ngày',
                     $text_html,
                     'finance.tpl'
                 );
@@ -538,12 +538,12 @@ final class Cron
             ->whereBetween('datetime', [strtotime('-1 week', $today), $today])
             ->get();
 
-        $text_html = '<br>上周总收入笔数：' . count($paylists) . '<br>上周总收入金额：' . $paylists->sum('total');
+        $text_html = '<br>Tổng số giao dịch tuần trước: ' . count($paylists) . '<br>Tổng doanh thu tuần trước: ' . $paylists->sum('total');
         echo 'Sending weekly finance email to admin user' . PHP_EOL;
 
         try {
             Notification::notifyAdmin(
-                '财务周报',
+                'Báo cáo tài chính hàng tuần',
                 $text_html,
                 'finance.tpl'
             );
@@ -561,12 +561,12 @@ final class Cron
             ->whereBetween('datetime', [strtotime('-1 month', $today), $today])
             ->get();
 
-        $text_html = '<br>上月总收入笔数：' . count($paylists) . '<br>上月总收入金额：' . $paylists->sum('total');
+        $text_html = '<br>Tổng số giao dịch tháng trước: ' . count($paylists) . '<br>Tổng doanh thu tháng trước: ' . $paylists->sum('total');
         echo 'Sending monthly finance email to admin user' . PHP_EOL;
 
         try {
             Notification::notifyAdmin(
-                '财务月报',
+                'Báo cáo tài chính hàng tháng',
                 $text_html,
                 'finance.tpl'
             );
@@ -602,8 +602,8 @@ final class Cron
                 try {
                     Notification::notifyUser(
                         $user,
-                        $_ENV['appName'] . '-你的剩余流量过低',
-                        '你好，系统发现你剩余流量已经低于 ' . $_ENV['notify_limit_value'] . $unit_text . ' 。',
+                        $_ENV['appName'] . '-Lưu lượng còn lại quá thấp',
+                        'Xin chào, hệ thống phát hiện lưu lượng còn lại của bạn đã dưới ' . $_ENV['notify_limit_value'] . $unit_text . '.',
                     );
 
                     $user->traffic_notified = true;

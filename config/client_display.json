@@ -2,7 +2,7 @@
   "clients": [
     {
       "name": "Clash Verge Rev",
-      "description": "功能完善的图形化客户端",
+      "description": "Ứng dụng đồ họa đầy đủ tính năng",
       "format": "clash",
       "importUrl": "clash://install-config?url={sub}/clash",
       "platforms": {
@@ -22,7 +22,7 @@
     },
     {
       "name": "Clash Nyanpasu",
-      "description": "增强版 Clash 客户端",
+      "description": "Phiên bản Clash nâng cao",
       "format": "clash",
       "importUrl": "clash-nyanpasu://subscribe-remote-profile?url={sub}/clash&name={name}",
       "platforms": {
@@ -42,7 +42,7 @@
     },
     {
       "name": "FlClash",
-      "description": "Flutter 开发的现代化客户端",
+      "description": "Ứng dụng hiện đại phát triển bằng Flutter",
       "format": "clash",
       "importUrl": "clash://install-config?url={sub}/clash",
       "platforms": {
@@ -67,7 +67,7 @@
     },
     {
       "name": "Hiddify",
-      "description": "易用的多协议客户端",
+      "description": "Ứng dụng đa giao thức dễ sử dụng",
       "format": "singbox",
       "importUrl": "hiddify://import/{sub}/clash#{name}",
       "platforms": {
@@ -91,7 +91,7 @@
     },
     {
       "name": "SFM",
-      "description": "sing-box 官方 Mac 客户端",
+      "description": "Ứng dụng sing-box chính thức cho Mac",
       "format": "singbox",
       "importUrl": "sing-box://import-remote-profile?url={sub}/singbox#{name}",
       "platforms": {
@@ -103,7 +103,7 @@
     },
     {
       "name": "SFA",
-      "description": "sing-box 官方 Android 客户端",
+      "description": "Ứng dụng sing-box chính thức cho Android",
       "format": "singbox",
       "importUrl": "sing-box://import-remote-profile?url={sub}/singbox#{name}",
       "platforms": {
@@ -115,7 +115,7 @@
     },
     {
       "name": "SFI",
-      "description": "sing-box 官方 iOS 客户端",
+      "description": "Ứng dụng sing-box chính thức cho iOS",
       "format": "singbox",
       "importUrl": "sing-box://import-remote-profile?url={sub}/singbox#{name}",
       "platforms": {
@@ -126,7 +126,7 @@
     },
     {
       "name": "CMFA",
-      "description": "支持分应用代理的 Android 客户端",
+      "description": "Ứng dụng Android hỗ trợ proxy theo từng app",
       "format": "clash",
       "importUrl": "clash://install-config?url={sub}/clash&name={name}",
       "platforms": {
@@ -138,7 +138,7 @@
     },
     {
       "name": "ClashMi",
-      "description": "基于 Mihomo 内核的新客户端",
+      "description": "Ứng dụng mới dựa trên lõi Mihomo",
       "format": "clash",
       "importUrl": "clash://install-config?url={sub}/clash&name={name}",
       "platforms": {

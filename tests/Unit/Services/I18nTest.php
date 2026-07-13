@@ -12,8 +12,8 @@ require_once __DIR__ . '/../../../app/predefine.php';
 describe('I18n::trans', function () {
     it('returns existing translation for valid key and locale', function () {
         $key = 'lang_name';
-        $lang = 'en_US';
-        $expectedTranslation = 'English(Simplified)';
+        $lang = 'vi_VN';
+        $expectedTranslation = 'Tiếng Việt';
 
         $translation = I18n::trans($key, $lang);
 
@@ -22,27 +22,31 @@ describe('I18n::trans', function () {
 
     it('returns key when translation does not exist', function () {
         $key = 'non_existent_key';
-        $lang = 'en_US';
+        $lang = 'vi_VN';
 
         $translation = I18n::trans($key, $lang);
 
         expect($translation)->toBe($key);
     });
+
+    it('falls back to Vietnamese for unsupported locale', function () {
+        $translation = I18n::trans('lang_name', 'en_US');
+
+        expect($translation)->toBe('Tiếng Việt');
+    });
 });
 
 describe('I18n::getLocaleList', function () {
-    it('returns list of available locales', function () {
-        $expectedLocales = ['en_US', 'ja_JP', 'zh_CN', 'zh_TW'];
-
+    it('returns only Vietnamese locale', function () {
         $locales = I18n::getLocaleList();
 
-        expect($locales)->toBe($expectedLocales);
+        expect($locales)->toBe(['vi_VN']);
     });
 });
 
 describe('I18n::getTranslator', function () {
     it('returns translator instance with correct locale', function () {
-        $lang = 'en_US';
+        $lang = 'vi_VN';
 
         $translator = I18n::getTranslator($lang);
 

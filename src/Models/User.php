@@ -123,7 +123,7 @@ final class User extends Model
      */
     public function lastUseTime(): string
     {
-        return $this->last_use_time === 0 ? '从未使用' : Tools::toDateTime($this->last_use_time);
+        return $this->last_use_time === 0 ? 'Chưa từng sử dụng' : Tools::toDateTime($this->last_use_time);
     }
 
     /**
@@ -131,7 +131,7 @@ final class User extends Model
      */
     public function lastCheckInTime(): string
     {
-        return $this->last_check_in_time === 0 ? '从未签到' : Tools::toDateTime($this->last_check_in_time);
+        return $this->last_check_in_time === 0 ? 'Chưa từng điểm danh' : Tools::toDateTime($this->last_check_in_time);
     }
 
     /*
@@ -291,11 +291,11 @@ final class User extends Model
 
             (new EmailQueue())->add(
                 $this->email,
-                $_ENV['appName'] . '-每日流量报告以及公告',
+                $_ENV['appName'] . '- Báo cáo lưu lượng hàng ngày và thông báo',
                 'traffic_report.tpl',
                 [
                     'user' => $this,
-                    'text' => '站点公告:<br><br>' . $ann . '<br><br>晚安！',
+                    'text' => 'Thông báo trang web:<br><br>' . $ann . '<br><br>Chúc ngủ ngon!',
                     'lastday_traffic' => $lastday_traffic,
                     'enable_traffic' => $enable_traffic,
                     'used_traffic' => $used_traffic,
@@ -305,11 +305,11 @@ final class User extends Model
         } elseif ($this->daily_mail_enable === 2 && $this->im_value !== '') {
             echo 'Sending daily IM message to user: ' . $this->id . PHP_EOL;
 
-            $text = date('Y-m-d') . ' 流量使用报告' . PHP_EOL . PHP_EOL;
-            $text .= '流量总计：' . $enable_traffic . PHP_EOL;
-            $text .= '已用流量：' . $used_traffic . PHP_EOL;
-            $text .= '剩余流量：' . $unused_traffic . PHP_EOL;
-            $text .= '今日使用：' . $lastday_traffic;
+            $text = date('Y-m-d') . ' Báo cáo sử dụng lưu lượng' . PHP_EOL . PHP_EOL;
+            $text .= 'Tổng lưu lượng: ' . $enable_traffic . PHP_EOL;
+            $text .= 'Đã dùng: ' . $used_traffic . PHP_EOL;
+            $text .= 'Còn lại: ' . $unused_traffic . PHP_EOL;
+            $text .= 'Hôm nay: ' . $lastday_traffic;
 
             try {
                 IM::send((int) $this->im_value, $text, $this->im_type);

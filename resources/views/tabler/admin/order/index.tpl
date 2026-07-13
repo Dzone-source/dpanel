@@ -5,12 +5,12 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">查找订单</h5>
+                    <h5 class="modal-title">Tìm đơn hàng</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group mb-3 row">
-                        <label class="form-label col-3 col-form-label">网关订单号</label>
+                        <label class="form-label col-3 col-form-label">Mã đơn hàng cổng thanh toán</label>
                         <div class="col">
                             <input id="gateway_order_id" type="text" class="form-control"
                                    placeholder="">
@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
                     <button id="create-button" 
                         type="button" 
                         class="btn btn-primary" 
@@ -26,7 +26,7 @@
                         hx-swap="none"
                         hx-vals='js:{
                             gateway_order_id: document.getElementById("gateway_order_id").value
-                        }'>查找
+                        }'>Tìm
                     </button>
                 </div>
             </div>
@@ -38,10 +38,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">订单列表</span>
+                        <span class="home-title">Danh sách đơn hàng</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">管理客户订单</span>
+                        <span class="home-subtitle">Quản lý đơn hàng khách hàng</span>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -49,7 +49,7 @@
                         <a href="#" class="btn btn-primary" data-bs-toggle="modal"
                            data-bs-target="#search-gateway">
                             <i class="icon ti ti-search"></i>
-                            查找
+                            Tìm
                         </a>
                     </div>
                 </div>
@@ -103,7 +103,7 @@
         }
 
         function deleteOrder(order_id) {
-            $('#notice-message').text('确定删除此订单？');
+            $('#notice-message').text('Bạn có chắc muốn xóa đơn hàng này?');
             $('#notice-dialog').modal('show');
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({
@@ -125,7 +125,7 @@
         }
 
         function cancelOrder(order_id) {
-            $('#notice-message').text('确定取消此订单？如果关联账单已支付，将会退款至用户余额。');
+            $('#notice-message').text('Bạn có chắc muốn hủy đơn hàng này? Nếu hóa đơn liên quan đã thanh toán, số tiền sẽ được hoàn vào số dư người dùng.');
             $('#notice-dialog').modal('show');
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({

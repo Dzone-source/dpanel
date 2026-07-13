@@ -102,7 +102,7 @@ final class Message
             } else {
                 $this->replyWithMessage(
                     [
-                        'text' => '雷猴啊。',
+                        'text' => 'Xin chào.',
                     ]
                 );
             }
@@ -120,7 +120,7 @@ final class Message
             ) {
                 $this->replyWithMessage(
                     [
-                        'text' => $member['name'] . ' 未绑定 Telegram 账户，将被移除。',
+                        'text' => $member['name'] . ' chưa liên kết tài khoản Telegram, sẽ bị loại khỏi nhóm.',
                     ]
                 );
 
@@ -164,11 +164,11 @@ final class Message
     public static function getUserTrafficInfo(User $user): string
     {
         $text = [
-            '你当前的流量状况：',
+            'Tình trạng lưu lượng hiện tại của bạn:',
             '',
-            '今日已使用 ' . $user->todayUsedTrafficPercent() . '% ：' . $user->todayUsedTraffic(),
-            '之前已使用 ' . $user->lastUsedTrafficPercent() . '% ：' . $user->lastUsedTraffic(),
-            '流量约剩余 ' . $user->unusedTrafficPercent() . '% ：' . $user->unusedTraffic(),
+            'Đã dùng hôm nay ' . $user->todayUsedTrafficPercent() . '%: ' . $user->todayUsedTraffic(),
+            'Đã dùng trước đó ' . $user->lastUsedTrafficPercent() . '%: ' . $user->lastUsedTraffic(),
+            'Lưu lượng còn lại khoảng ' . $user->unusedTrafficPercent() . '%: ' . $user->unusedTraffic(),
         ];
 
         return implode(PHP_EOL, $text);
@@ -180,10 +180,10 @@ final class Message
     public static function getUserInfo(User $user): string
     {
         $text = [
-            '当前余额：' . $user->money,
-            '端口速率：' . ($user->node_speedlimit > 0 ? $user->node_speedlimit . 'Mbps' : '不限制'),
-            '上次使用：' . $user->lastUseTime(),
-            '过期时间：' . $user->class_expire,
+            'Số dư hiện tại: ' . $user->money,
+            'Tốc độ cổng: ' . ($user->node_speedlimit > 0 ? $user->node_speedlimit . 'Mbps' : 'Không giới hạn'),
+            'Lần sử dụng gần nhất: ' . $user->lastUseTime(),
+            'Thời hạn hết hạn: ' . $user->class_expire,
         ];
 
         return implode(PHP_EOL, $text);
@@ -195,9 +195,9 @@ final class Message
     public static function getUserTitle(User $user): string
     {
         if ($user->class > 0) {
-            $text = '付费用户你好：';
+            $text = 'Xin chào người dùng trả phí:';
         } else {
-            $text = '免费用户你好：';
+            $text = 'Xin chào người dùng miễn phí:';
         }
 
         return $text;

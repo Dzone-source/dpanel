@@ -27,7 +27,7 @@ final class Smogate extends Base
 
     public static function _readableName(): string
     {
-        return '支付宝在线充值';
+        return 'Nạp tiền qua Alipay trực tuyến';
     }
 
     public function post($data)
@@ -74,7 +74,7 @@ final class Smogate extends Base
         if ($amount === '') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '订单金额错误：' . $amount,
+                'msg' => 'Số tiền đơn hàng không đúng: ' . $amount,
             ]);
         }
 

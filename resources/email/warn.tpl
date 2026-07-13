@@ -9,7 +9,7 @@
                         <div border="0" cellpadding="0" cellspacing="0" width="100%">
                             <div align="center" valign="middle" style="padding-top:60px;padding-bottom:60px;">
                                 <h2 class="bigTitle">
-                                    系统提示
+                                    Thông báo hệ thống
                                 </h2>
                             </div>
                         </div>

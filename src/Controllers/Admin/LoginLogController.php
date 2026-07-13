@@ -18,12 +18,12 @@ final class LoginLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'userid' => '用户ID',
-                'ip' => '登录IP',
-                'location' => 'IP归属地',
-                'datetime' => '时间',
-                'type' => '类型',
+                'id' => 'ID sự kiện',
+                'userid' => 'ID người dùng',
+                'ip' => 'IP đăng nhập',
+                'location' => 'Vị trí IP',
+                'datetime' => 'Thời gian',
+                'type' => 'Loại',
             ],
         ];
 

@@ -29,7 +29,7 @@ final class MFAController extends BaseController
         try {
             return $response->withJson(WebAuthn::registerHandle($this->user, $this->antiXss->xss_clean($request)));
         } catch (Exception $e) {
-            return $response->withJson(['ret' => 0, 'msg' => '请求失败: ' . $e->getMessage()]);
+            return $response->withJson(['ret' => 0, 'msg' => 'Yêu cầu thất bại: ' . $e->getMessage()]);
         }
     }
 
@@ -43,13 +43,13 @@ final class MFAController extends BaseController
         if ($webauthnDevice === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '设备不存在',
+                'msg' => 'Thiết bị không tồn tại',
             ]);
         }
         $webauthnDevice->delete();
         return $response->withHeader('HX-Refresh', 'true')->withJson([
             'ret' => 1,
-            'msg' => '删除成功',
+            'msg' => 'Xóa thành công',
         ]);
     }
 
@@ -63,7 +63,7 @@ final class MFAController extends BaseController
         try {
             return $response->withJson(TOTP::registerHandle($this->user, $this->antiXss->xss_clean($request->getParam('code', ''))));
         } catch (Exception $e) {
-            return $response->withJson(['ret' => 0, 'msg' => '请求失败: ' . $e->getMessage()]);
+            return $response->withJson(['ret' => 0, 'msg' => 'Yêu cầu thất bại: ' . $e->getMessage()]);
         }
     }
 
@@ -76,13 +76,13 @@ final class MFAController extends BaseController
         if ($totpDevice === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '设备不存在',
+                'msg' => 'Thiết bị không tồn tại',
             ]);
         }
         $totpDevice->delete();
         return $response->withHeader('HX-Refresh', 'true')->withJson([
             'ret' => 1,
-            'msg' => '删除成功',
+            'msg' => 'Xóa thành công',
         ]);
     }
 
@@ -96,7 +96,7 @@ final class MFAController extends BaseController
         try {
             return $response->withJson(FIDO::registerHandle($this->user, $this->antiXss->xss_clean($request->getParsedBody())));
         } catch (Exception $e) {
-            return $response->withJson(['ret' => 0, 'msg' => '请求失败: ' . $e->getMessage()]);
+            return $response->withJson(['ret' => 0, 'msg' => 'Yêu cầu thất bại: ' . $e->getMessage()]);
         }
     }
 
@@ -110,13 +110,13 @@ final class MFAController extends BaseController
         if ($fidoDevice === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '设备不存在',
+                'msg' => 'Thiết bị không tồn tại',
             ]);
         }
         $fidoDevice->delete();
         return $response->withHeader('HX-Refresh', 'true')->withJson([
             'ret' => 1,
-            'msg' => '删除成功',
+            'msg' => 'Xóa thành công',
         ]);
     }
 }

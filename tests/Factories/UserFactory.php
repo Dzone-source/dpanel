@@ -62,7 +62,7 @@ class UserFactory
             'is_banned' => 0,
             'is_shadow_banned' => 0,
             'theme' => 'tabler',
-            'locale' => 'zh-CN',
+            'locale' => 'vi_VN',
             'reg_date' => date('Y-m-d H:i:s'),
             'method' => 'aes-256-gcm',
             'port' => rand(10000, 60000),

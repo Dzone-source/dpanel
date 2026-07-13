@@ -70,7 +70,7 @@ final class Cryptomus extends Base
         if ($price <= 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '非法的金额',
+                'msg' => 'Số tiền không hợp lệ',
             ]);
         }
 
@@ -106,13 +106,13 @@ final class Cryptomus extends Base
         } catch (\Exception $exception) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '请求支付失败: ' . $exception->getMessage(),
+                'msg' => 'Yêu cầu thanh toán thất bại: ' . $exception->getMessage(),
             ]);
         }
 
         return $response->withHeader('HX-Redirect', $payment['url'])->withJson([
             'ret' => 1,
-            'msg' => '订单发起成功，正在跳转到支付页面...',
+            'msg' => 'Đơn hàng đã được tạo, đang chuyển đến trang thanh toán...',
         ]);
     }
 
@@ -140,7 +140,7 @@ final class Cryptomus extends Base
 
             return $response->withJson([
                 'ret' => 1,
-                'msg' => '支付成功',
+                'msg' => 'Thanh toán thành công',
             ]);
         }
 

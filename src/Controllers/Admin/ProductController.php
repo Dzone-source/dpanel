@@ -19,16 +19,16 @@ final class ProductController extends BaseController
 {
     private static array $details = [
         'field' => [
-            'op' => '操作',
-            'id' => '商品ID',
-            'type' => '类型',
-            'name' => '名称',
-            'price' => '售价',
-            'status' => '销售状态',
-            'create_time' => '创建时间',
-            'update_time' => '更新时间',
-            'sale_count' => '累计销售',
-            'stock' => '库存',
+            'op' => 'Thao tác',
+            'id' => 'ID sản phẩm',
+            'type' => 'Loại',
+            'name' => 'Tên',
+            'price' => 'Giá bán',
+            'status' => 'Trạng thái bán hàng',
+            'create_time' => 'Thời gian tạo',
+            'update_time' => 'Thời gian cập nhật',
+            'sale_count' => 'Doanh số tích lũy',
+            'stock' => 'Tồn kho',
         ],
     ];
 
@@ -49,7 +49,7 @@ final class ProductController extends BaseController
         'node_group_required',
     ];
 
-    private static string $invalid_data_msg = '无效商品数据';
+    private static string $invalid_data_msg = 'Dữ liệu sản phẩm không hợp lệ';
 
     /**
      * @throws Exception
@@ -204,7 +204,7 @@ final class ProductController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '添加成功',
+            'msg' => 'Thêm thành công',
         ]);
     }
 
@@ -308,7 +308,7 @@ final class ProductController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '更新成功',
+            'msg' => 'Cập nhật thành công',
         ]);
     }
 
@@ -319,7 +319,7 @@ final class ProductController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '删除成功',
+            'msg' => 'Xóa thành công',
         ]);
     }
 
@@ -332,7 +332,7 @@ final class ProductController extends BaseController
             'create_time',
             'update_time',
         ]);
-        $new_product->name .= ' (副本)';
+        $new_product->name .= ' (bản sao)';
         $new_product->create_time = time();
         $new_product->update_time = time();
         $new_product->sale_count = 0;
@@ -340,7 +340,7 @@ final class ProductController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '复制成功',
+            'msg' => 'Sao chép thành công',
         ]);
     }
 
@@ -350,10 +350,10 @@ final class ProductController extends BaseController
 
         foreach ($products as $product) {
             $product->op = '<button class="btn btn-red" id="delete-product-' . $product->id . '"
-             onclick="deleteProduct(' . $product->id . ')">删除</button>
+             onclick="deleteProduct(' . $product->id . ')">Xóa</button>
             <button class="btn btn-orange" id="copy-product-' . $product->id . '"
-             onclick="copyProduct(' . $product->id . ')">复制</button>
-            <a class="btn btn-primary" href="/admin/product/' . $product->id . '/edit">编辑</a>';
+             onclick="copyProduct(' . $product->id . ')">Sao chép</button>
+            <a class="btn btn-primary" href="/admin/product/' . $product->id . '/edit">Chỉnh sửa</a>';
             $product->type = $product->type();
             $product->status = $product->status();
             $product->create_time = Tools::toDateTime($product->create_time);

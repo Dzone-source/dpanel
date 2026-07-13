@@ -62,7 +62,7 @@ final class InviteController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '重置成功',
+            'msg' => 'Đặt lại thành công',
             'data' => [
                 'invite-url' => $_ENV['baseUrl'] . '/auth/register?code=' . $code,
             ],

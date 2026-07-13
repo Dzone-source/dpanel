@@ -6,17 +6,17 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">订阅设置</span>
+                        <span class="home-title">Cài đặt đăng ký dịch vụ</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">设置站点的订阅系统</span>
+                        <span class="home-subtitle">Cấu hình hệ thống đăng ký dịch vụ của trang web</span>
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <a id="save-setting" href="#" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
-                            保存
+                            Lưu
                         </a>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
                                 <li class="nav-item">
-                                    <a href="#sub" class="nav-link active" data-bs-toggle="tab">订阅设置</a>
+                                    <a href="#sub" class="nav-link active" data-bs-toggle="tab">Cài đặt đăng ký dịch vụ</a>
                                 </li>
                             </ul>
                         </div>
@@ -89,7 +89,7 @@
                                         </div>
                                         <div class="form-group mb-3 row">
                                             <label class="form-label col-3 col-form-label">
-                                                修改账户登录密码时重置订阅地址
+                                                Đặt lại URL đăng ký khi đổi mật khẩu đăng nhập
                                             </label>
                                             <div class="col">
                                                 <select id="enable_forced_replacement" class="col form-select"

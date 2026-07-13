@@ -80,7 +80,7 @@ final class AlipayF2F extends Base
         if ($price <= 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '非法的金额',
+                'msg' => 'Số tiền không hợp lệ',
             ]);
         }
 

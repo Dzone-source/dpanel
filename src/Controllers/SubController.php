@@ -28,7 +28,7 @@ final class SubController extends BaseController
      */
     public function index($request, $response, $args): ResponseInterface
     {
-        $err_msg = '订阅链接无效';
+        $err_msg = 'Liên kết đăng ký không hợp lệ';
         $subtype = $args['subtype'];
         $subtype_list = ['json', 'clash', 'sip008', 'singbox', 'v2rayjson', 'sip002', 'ss', 'v2ray', 'trojan'];
 

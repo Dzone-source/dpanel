@@ -6,11 +6,11 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">用户列表</span>
+                        <span class="home-title">Danh sách người dùng</span>
                     </h2>
                     <div class="page-pretitle my-3">
                         <span class="home-subtitle">
-                            系统中所有用户的列表
+                            Danh sách tất cả người dùng trong hệ thống
                         </span>
                     </div>
                 </div>
@@ -19,7 +19,7 @@
                         <button href="#" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#create-dialog">
                             <i class="icon ti ti-plus"></i>
-                            创建
+                            Tạo
                         </button>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">添加用户</h5>
+                    <h5 class="modal-title">Thêm người dùng</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -88,8 +88,8 @@
                     {/foreach}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
-                    <button id="create-button" type="button" class="btn btn-primary" data-bs-dismiss="modal">添加
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button id="create-button" type="button" class="btn btn-primary" data-bs-dismiss="modal">Thêm
                     </button>
                 </div>
             </div>
@@ -144,7 +144,7 @@
         });
 
         function deleteUser(user_id) {
-            $('#notice-message').text('确定删除此用户？');
+            $('#notice-message').text('Bạn có chắc muốn xóa người dùng này?');
             $('#notice-dialog').modal('show');
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({
