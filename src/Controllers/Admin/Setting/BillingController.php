@@ -120,7 +120,7 @@ final class BillingController extends BaseController
             'payment_action' => 'Sale',
             'currency' => 'USD',
             'notify_url' => '',
-            'locale' => 'en_US',
+            'locale' => 'vi_VN',
             'validate_ssl' => true,
         ];
 

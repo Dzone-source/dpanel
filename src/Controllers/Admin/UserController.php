@@ -9,7 +9,6 @@ use App\Controllers\BaseController;
 use App\Models\Config;
 use App\Models\User;
 use App\Models\UserMoneyLog;
-use App\Services\I18n;
 use App\Utils\Hash;
 use App\Utils\Tools;
 use Exception;
@@ -80,7 +79,6 @@ final class UserController extends BaseController
         'auto_reset_bandwidth',
         'node_speedlimit',
         'node_iplimit',
-        'locale',
         'banned_reason',
         'remark',
     ];
@@ -166,7 +164,6 @@ final class UserController extends BaseController
                 ->assign('update_field', self::$update_field)
                 ->assign('edit_user', $user)
                 ->assign('ss_methods', Tools::getSsMethod())
-                ->assign('locales', I18n::getLocaleList())
                 ->fetch('admin/user/edit.tpl')
         );
     }
@@ -208,7 +205,7 @@ final class UserController extends BaseController
         $user->auto_reset_bandwidth = $request->getParam('auto_reset_bandwidth');
         $user->node_speedlimit = $request->getParam('node_speedlimit');
         $user->node_iplimit = $request->getParam('node_iplimit');
-        $user->locale = $request->getParam('locale');
+        $user->locale = 'vi_VN';
         $user->is_admin = $request->getParam('is_admin') === 'true' ? 1 : 0;
         $user->ga_enable = $request->getParam('ga_enable') === 'true' ? 1 : 0;
         $user->is_shadow_banned = $request->getParam('is_shadow_banned') === 'true' ? 1 : 0;

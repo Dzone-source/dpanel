@@ -99,13 +99,17 @@ Container Nginx chỉ lắng nghe HTTP (cổng 80). Đặt reverse proxy phía t
 
 ## Ngôn ngữ
 
-Giao diện mặc định là **Tiếng Việt** (`vi_VN`). Có thể đổi trong `config/.config.php`:
+DPanel chỉ hỗ trợ **Tiếng Việt** (`vi_VN`). Locale mặc định được cấu hình trong `config/.config.php`:
 
 ```php
 $_ENV['locale'] = 'vi_VN';
 ```
 
-Các ngôn ngữ hỗ trợ: `vi_VN`, `en_US`, `zh_CN`, `zh_TW`, `ja_JP`.
+Nếu nâng cấp từ bản cũ, đặt locale cho toàn bộ người dùng:
+
+```bash
+docker compose exec php php xcat Tool setLocale
+```
 
 ## Giấy phép
 

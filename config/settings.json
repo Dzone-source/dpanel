@@ -235,11 +235,11 @@
     },
     {
         "item": "paypal_locale",
-        "value": "en_US",
+        "value": "vi_VN",
         "class": "billing",
         "is_public": 0,
         "type": "string",
-        "default": "en_US",
+        "default": "vi_VN",
         "mark": "Ngôn ngữ PayPal"
     },
     {

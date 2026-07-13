@@ -202,18 +202,6 @@
                         </div>
                         <div class="card-body">
                             <div class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label">Ngôn ngữ hiển thị</label>
-                                <div class="col">
-                                    <select id="locale" class="col form-select" value="{$edit_user->locale}">
-                                        {foreach $locales as $locale}
-                                        <option value="{$locale}" {if $edit_user->locale === $locale}selected{/if}>
-                                            {$locale}
-                                        </option>
-                                        {/foreach}
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group mb-3 row">
                                 <span class="col">Quản trị viên</span>
                                 <span class="col-auto">
                                     <label class="form-check form-check-single form-switch">
