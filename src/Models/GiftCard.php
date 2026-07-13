@@ -27,6 +27,6 @@ final class GiftCard extends Model
      */
     public function status(): string
     {
-        return $this->status ? '已使用' : '未使用';
+        return $this->status ? 'Đã sử dụng' : 'Chưa sử dụng';
     }
 }

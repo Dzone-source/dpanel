@@ -72,7 +72,7 @@ final class Node extends Model
      */
     public function type(): string
     {
-        return $this->type ? '显示' : '隐藏';
+        return $this->type ? 'Hiển thị' : 'Ẩn';
     }
 
     /**
@@ -87,13 +87,13 @@ final class Node extends Model
             3 => 'WireGuard',
             11 => 'Vmess',
             14 => 'Trojan',
-            default => '未知',
+            default => 'Không xác định',
         };
     }
 
     public function isDynamicRate(): string
     {
-        return $this->is_dynamic_rate ? '是' : '否';
+        return $this->is_dynamic_rate ? 'Có' : 'Không';
     }
 
     public function dynamicRateType(): string
@@ -101,7 +101,7 @@ final class Node extends Model
         return match ($this->dynamic_rate_type) {
             0 => 'Logistic',
             1 => 'Linear',
-            default => '未知',
+            default => 'Không xác định',
         };
     }
 

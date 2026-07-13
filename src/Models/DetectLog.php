@@ -34,7 +34,7 @@ final class DetectLog extends Model
      */
     public function nodeName(): string
     {
-        return $this->node() === null ? '节点不存在' : $this->node()->name;
+        return $this->node() === null ? 'Nút không tồn tại' : $this->node()->name;
     }
 
     /**
@@ -50,6 +50,6 @@ final class DetectLog extends Model
      */
     public function ruleName(): string
     {
-        return $this->rule() === null ? '规则不存在' : $this->rule()->name;
+        return $this->rule() === null ? 'Quy tắc không tồn tại' : $this->rule()->name;
     }
 }

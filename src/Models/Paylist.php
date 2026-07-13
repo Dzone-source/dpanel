@@ -29,9 +29,9 @@ final class Paylist extends Model
     public function status(): string
     {
         return match ($this->status) {
-            0 => '未支付',
-            1 => '已支付',
-            default => '未知',
+            0 => 'Chưa thanh toán',
+            1 => 'Đã thanh toán',
+            default => 'Không xác định',
         };
     }
 }

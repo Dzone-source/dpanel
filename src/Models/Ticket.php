@@ -28,10 +28,10 @@ final class Ticket extends Model
     public function type(): string
     {
         return match ($this->type) {
-            'howto' => '使用',
-            'billing' => '财务',
-            'account' => '账户',
-            default => '其他',
+            'howto' => 'Hướng dẫn',
+            'billing' => 'Tài chính',
+            'account' => 'Tài khoản',
+            default => 'Khác',
         };
     }
 
@@ -41,10 +41,10 @@ final class Ticket extends Model
     public function status(): string
     {
         return match ($this->status) {
-            'closed' => '已结单',
-            'open_wait_user' => '等待用户回复',
-            'open_wait_admin' => '进行中',
-            default => '未知',
+            'closed' => 'Đã đóng',
+            'open_wait_user' => 'Chờ phản hồi người dùng',
+            'open_wait_admin' => 'Đang xử lý',
+            default => 'Không xác định',
         };
     }
 }

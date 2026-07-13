@@ -41,12 +41,12 @@ final class SysLog extends Model
     public function channel(): string
     {
         return match ($this->channel) {
-            'cron' => '计划任务',
-            'sub' => '订阅',
-            'auth' => '认证',
-            'user' => '用户',
-            'admin' => '管理员',
-            default => '未知',
+            'cron' => 'Tác vụ định kỳ',
+            'sub' => 'Đăng ký',
+            'auth' => 'Xác thực',
+            'user' => 'Người dùng',
+            'admin' => 'Quản trị viên',
+            default => 'Không xác định',
         };
     }
 }

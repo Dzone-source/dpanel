@@ -22,7 +22,7 @@ final class Password
 
         $redis->setex('password_reset:' . $token, Config::obtain('email_password_reset_ttl'), $email);
 
-        $subject = $_ENV['appName'] . '-重置密码';
+        $subject = $_ENV['appName'] . '- Đặt lại mật khẩu';
         $resetUrl = $_ENV['baseUrl'] . '/password/token/' . $token;
 
         Mail::send(

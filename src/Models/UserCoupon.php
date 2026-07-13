@@ -30,9 +30,9 @@ final class UserCoupon extends Model
     public function type(): string
     {
         return match (json_decode($this->content)->type ?? null) {
-            'percentage' => '百分比',
-            'fixed' => '固定金额',
-            default => '未知',
+            'percentage' => 'Phần trăm',
+            'fixed' => 'Số tiền cố định',
+            default => 'Không xác định',
         };
     }
 
@@ -41,6 +41,6 @@ final class UserCoupon extends Model
      */
     public function status(): string
     {
-        return $this->expire_time < time() ? '已过期' : '激活';
+        return $this->expire_time < time() ? 'Đã hết hạn' : 'Kích hoạt';
     }
 }
