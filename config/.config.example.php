@@ -6,7 +6,7 @@ $_ENV['pwdMethod'] = 'bcrypt'; // 密码加密 可选 bcrypt, argon2i, argon2id
 $_ENV['salt'] = '';            // bcrypt/argon2i/argon2id 会忽略此项
 
 $_ENV['debug'] = false;                  // debug模式开关，生产环境请保持为false
-$_ENV['appName'] = 'SSPanel-UIM';         // 站点名称
+$_ENV['appName'] = 'DPanel';              // 站点名称
 $_ENV['baseUrl'] = 'https://example.com'; // 站点地址，必须以https://开头，不要以/结尾
 
 // WebAPI
@@ -19,11 +19,11 @@ $_ENV['checkNodeIp'] = true;           // 是否webapi验证节点ip
 // db_host|db_socket 二选一，若设置 db_socket 则 db_host 会被忽略，不用请留空
 // db_host 例: localhost（可解析的主机名）, 127.0.0.1（IP 地址）
 // db_socket 例：/var/run/mysqld/mysqld.sock（需使用绝对地址）
-$_ENV['db_host'] = '';
+$_ENV['db_host'] = 'mariadb'; // Docker: mariadb | Manual: 127.0.0.1 or localhost
 $_ENV['db_socket'] = '';
-$_ENV['db_database'] = 'sspanel'; // 数据库名
-$_ENV['db_username'] = 'root';    // 数据库用户名
-$_ENV['db_password'] = 'sspanel'; // 用户密码
+$_ENV['db_database'] = 'dpanel';  // 数据库名
+$_ENV['db_username'] = 'dpanel';    // 数据库用户名
+$_ENV['db_password'] = 'dpanel'; // 用户密码
 $_ENV['db_port'] = '3306';        // 端口
 #读写分离相关配置
 $_ENV['enable_db_rw_split'] = false; // 是否开启读写分离
@@ -35,7 +35,7 @@ $_ENV['db_collation'] = 'utf8mb4_unicode_ci';
 $_ENV['db_prefix'] = '';
 
 //Redis设置--------------------------------------------------------------------------------------------------------------
-$_ENV['redis_host'] = '127.0.0.1';    // Redis地址，使用unix domain socket时填写文件路径
+$_ENV['redis_host'] = 'redis';    // Docker: redis | Manual: 127.0.0.1
 $_ENV['redis_port'] = 6379;           // Redis端口，使用unix domain socket时填写-1
 $_ENV['redis_db'] = 0;                // Redis数据库编号，留空则使用默认的0
 $_ENV['redis_connect_timeout'] = 2.0; // Redis连接超时时间，单位秒
@@ -96,7 +96,7 @@ $_ENV['enable_detect_offline'] = true;
 $_ENV['enable_login_bind_ip'] = true;     //是否将登陆线程和IP绑定
 $_ENV['enable_login_bind_device'] = true; //是否将登陆线程和设备绑定
 $_ENV['rememberMeDuration'] = 7;          //登录时记住账号时长天数
-$_ENV['timeZone'] = 'Asia/Shanghai';        //需使用 PHP 兼容的时区格式
+$_ENV['timeZone'] = 'Asia/Ho_Chi_Minh';  //需使用 PHP 兼容的时区格式
 $_ENV['theme'] = 'tabler';                //默认主题
 $_ENV['locale'] = 'zh-CN';                //默认语言
 $_ENV['jump_delay'] = 1000;               //跳转延时，单位ms

@@ -1,11 +1,11 @@
 {
-    "name": "anankke/sspanel-uim",
-    "description": "Multi-functional proxy service management system supporting Shadowsocks(2022), V2Ray, Trojan and TUIC protocols",
+    "name": "dzone-source/dpanel",
+    "description": "DPanel - Multi-functional proxy service management panel (Docker-ready)",
     "license": "MIT",
     "authors": [
         {
-            "name": "Anankke",
-            "homepage": "https://github.com/Anankke"
+            "name": "DZone",
+            "homepage": "https://github.com/dzone-source"
         }
     ],
     "require": {

@@ -23,7 +23,7 @@
                         <div class="card-body">
                             <table class="table table-transparent table-responsive">
                                 <tr>
-                                    <td>SSPanel-UIM 版本</td>
+                                    <td>DPanel 版本</td>
                                     <td class="text-end" id="version"><a href="#" id="version_check">{$version} </a>
                                     </td>
                                 </tr>
