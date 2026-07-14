@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>DPanel Demo — GoPass UI</title>
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css" rel="stylesheet"/>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0f0a1e; color: #fff; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 3rem 1.25rem; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    p { color: rgba(255,255,255,.7); line-height: 1.5; }
+    .cards { display: grid; gap: 1rem; margin-top: 2rem; }
+    a.card {
+      display: block; padding: 1.25rem 1.5rem; border-radius: 1rem;
+      text-decoration: none; color: #fff;
+      background: linear-gradient(135deg, #5b21b6, #7c3aed 50%, #a855f7);
+      box-shadow: 0 12px 40px rgba(124,58,237,.35);
+      transition: transform .15s ease;
+    }
+    a.card:hover { transform: translateY(-2px); color: #fff; }
+    a.card span { display: block; font-size: .85rem; opacity: .85; margin-top: .35rem; }
+    .note { margin-top: 2rem; font-size: .85rem; color: rgba(255,255,255,.45); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>DPanel · GoPass Demo</h1>
+    <p>Xem trước giao diện reskin GoPass (không cần đăng nhập / database).</p>
+    <div class="cards">
+      <a class="card" href="login.html">Đăng nhập (Auth)<span>Gradient tím · form login</span></a>
+      <a class="card" href="dashboard.html">Trang chủ user<span>Sidebar tối · stat cards · header gradient</span></a>
+    </div>
+    <p class="note">Đây là preview tĩnh của theme. Bản Docker đầy đủ dùng sau khi sửa entrypoint + setup-config trên VPS.</p>
+  </div>
+</body>
+</html>
