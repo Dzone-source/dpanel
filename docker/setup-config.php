@@ -32,27 +32,47 @@ if (! is_readable($configFile)) {
 
 $content = file_get_contents($configFile);
 
-$replacements = [
-    "/^\$_ENV\['key'\] = '.*';/m" => "\$_ENV['key'] = '" . addslashes($env['APP_KEY'] ?? 'ChangeMe') . "';",
-    "/^\$_ENV\['muKey'\] = '.*';/m" => "\$_ENV['muKey'] = '" . addslashes($env['MU_KEY'] ?? 'ChangeMe') . "';",
-    "/^\$_ENV\['appName'\] = '.*';/m" => "\$_ENV['appName'] = '" . addslashes($env['APP_NAME'] ?? 'DPanel') . "';",
-    "/^\$_ENV\['baseUrl'\] = '.*';/m" => "\$_ENV['baseUrl'] = '" . addslashes($env['APP_URL'] ?? 'https://example.com') . "';",
-    "/^\$_ENV\['db_host'\] = '.*';/m" => "\$_ENV['db_host'] = '" . addslashes($env['DB_HOST'] ?? 'mariadb') . "';",
-    "/^\$_ENV\['db_database'\] = '.*';/m" => "\$_ENV['db_database'] = '" . addslashes($env['DB_DATABASE'] ?? 'dpanel') . "';",
-    "/^\$_ENV\['db_username'\] = '.*';/m" => "\$_ENV['db_username'] = '" . addslashes($env['DB_USERNAME'] ?? 'dpanel') . "';",
-    "/^\$_ENV\['db_password'\] = '.*';/m" => "\$_ENV['db_password'] = '" . addslashes($env['DB_PASSWORD'] ?? '') . "';",
-    "/^\$_ENV\['db_port'\] = '.*';/m" => "\$_ENV['db_port'] = '" . addslashes($env['DB_PORT'] ?? '3306') . "';",
-    "/^\$_ENV\['redis_host'\] = '.*';/m" => "\$_ENV['redis_host'] = '" . addslashes($env['REDIS_HOST'] ?? 'redis') . "';",
-    "/^\$_ENV\['redis_port'\] = .*/m" => "\$_ENV['redis_port'] = " . (int) ($env['REDIS_PORT'] ?? 6379) . ";",
-    "/^\$_ENV\['redis_db'\] = .*/m" => "\$_ENV['redis_db'] = " . (int) ($env['REDIS_DB'] ?? 0) . ";",
-    "/^\$_ENV\['redis_password'\] = '.*';/m" => "\$_ENV['redis_password'] = '" . addslashes($env['REDIS_PASSWORD'] ?? '') . "';",
-    "/^\$_ENV\['timeZone'\] = '.*';/m" => "\$_ENV['timeZone'] = '" . addslashes($env['TZ'] ?? 'Asia/Ho_Chi_Minh') . "';",
-    "/^\$_ENV\['locale'\] = '.*';/m" => "\$_ENV['locale'] = '" . addslashes($env['APP_LOCALE'] ?? 'vi_VN') . "';",
-];
+/**
+ * Replace a $_ENV['key'] = '...' assignment (optional trailing comment preserved).
+ */
+$replaceString = static function (string $content, string $key, string $value): string {
+    $pattern = '/^\$_ENV\[\'' . preg_quote($key, '/') . '\'\]\s*=\s*\'[^\']*\';(.*)$/m';
+    $replacement = '\$_ENV[\'' . $key . '\'] = \'' . addcslashes($value, '\\\'') . '\';$1';
 
-foreach ($replacements as $pattern => $replacement) {
-    $content = preg_replace($pattern, $replacement, $content, 1);
-}
+    $updated = preg_replace($pattern, $replacement, $content, 1, $count);
+    if ($count !== 1) {
+        fwrite(STDERR, "Warning: could not update \$_ENV['{$key}']\n");
+    }
+
+    return $updated ?? $content;
+};
+
+$replaceInt = static function (string $content, string $key, int $value): string {
+    $pattern = '/^\$_ENV\[\'' . preg_quote($key, '/') . '\'\]\s*=\s*[^;]+;(.*)$/m';
+    $replacement = '\$_ENV[\'' . $key . '\'] = ' . $value . ';$1';
+    $updated = preg_replace($pattern, $replacement, $content, 1, $count);
+    if ($count !== 1) {
+        fwrite(STDERR, "Warning: could not update \$_ENV['{$key}']\n");
+    }
+
+    return $updated ?? $content;
+};
+
+$content = $replaceString($content, 'key', $env['APP_KEY'] ?? 'ChangeMe');
+$content = $replaceString($content, 'muKey', $env['MU_KEY'] ?? 'ChangeMe');
+$content = $replaceString($content, 'appName', $env['APP_NAME'] ?? 'DPanel');
+$content = $replaceString($content, 'baseUrl', $env['APP_URL'] ?? 'https://example.com');
+$content = $replaceString($content, 'db_host', $env['DB_HOST'] ?? 'mariadb');
+$content = $replaceString($content, 'db_database', $env['DB_DATABASE'] ?? 'dpanel');
+$content = $replaceString($content, 'db_username', $env['DB_USERNAME'] ?? 'dpanel');
+$content = $replaceString($content, 'db_password', $env['DB_PASSWORD'] ?? '');
+$content = $replaceString($content, 'db_port', $env['DB_PORT'] ?? '3306');
+$content = $replaceString($content, 'redis_host', $env['REDIS_HOST'] ?? 'redis');
+$content = $replaceInt($content, 'redis_port', (int) ($env['REDIS_PORT'] ?? 6379));
+$content = $replaceInt($content, 'redis_db', (int) ($env['REDIS_DB'] ?? 0));
+$content = $replaceString($content, 'redis_password', $env['REDIS_PASSWORD'] ?? '');
+$content = $replaceString($content, 'timeZone', $env['TZ'] ?? 'Asia/Ho_Chi_Minh');
+$content = $replaceString($content, 'locale', $env['APP_LOCALE'] ?? 'vi_VN');
 
 file_put_contents($configFile, $content);
 echo "Updated config/.config.php from .env\n";

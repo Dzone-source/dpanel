@@ -73,7 +73,13 @@ generate_config() {
     set_env_var APP_KEY "$app_key"
     set_env_var MU_KEY "$mu_key"
 
-    php docker/setup-config.php
+    # Prefer host PHP; fall back to Composer/PHP Docker image so VPS without php-cli still works
+    if command -v php >/dev/null 2>&1; then
+        php docker/setup-config.php
+    else
+        info "php-cli not found on host; running setup-config via Docker"
+        docker run --rm -v "$ROOT_DIR":/app -w /app php:8.3-cli php docker/setup-config.php
+    fi
 
     if [ ! -f config/appprofile.php ]; then
         cp config/appprofile.example.php config/appprofile.php

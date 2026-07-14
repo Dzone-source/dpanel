@@ -12,7 +12,7 @@ wait_for_service() {
     attempt=1
 
     while [ "$attempt" -le "$max_attempts" ]; do
-        if php -r "exit(@fsockopen(getenv('HOST'), (int) getenv('PORT')) ? 0 : 1);" HOST="$host" PORT="$port"; then
+        if HOST="$host" PORT="$port" php -r 'exit(@fsockopen(getenv("HOST"), (int) getenv("PORT")) ? 0 : 1);'; then
             echo "[entrypoint] ${name} is ready"
             return 0
         fi
@@ -21,8 +21,8 @@ wait_for_service() {
         attempt=$((attempt + 1))
     done
 
-    echo "[entrypoint] timeout waiting for ${name}"
-    exit 1
+    echo "[entrypoint] warning: timeout waiting for ${name}; continuing (depends_on healthcheck may already be satisfied)"
+    return 0
 }
 
 if [ -n "${DB_HOST:-}" ]; then

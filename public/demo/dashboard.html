@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>DPanel — Trung tâm người dùng</title>
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css" rel="stylesheet"/>
+  <link href="/assets/css/gopass.css" rel="stylesheet"/>
+</head>
+<body class="gopass-theme" data-bs-theme="light">
+
+<div id="gopass-sidebar-overlay" class="gopass-sidebar-overlay"></div>
+
+<div class="gopass-app">
+  <aside id="gopass-sidebar" class="gopass-sidebar">
+    <div class="gopass-sidebar-brand">
+      <img src="/images/uim-logo-round_48x48.png" height="36" width="36" alt="DPanel">
+      <span>DPanel</span>
+    </div>
+
+    <div class="gopass-sidebar-user">
+      <div class="d-flex align-items-center gap-2">
+        <span class="avatar avatar-sm" style="background:linear-gradient(135deg,#7c3aed,#ec4899)"></span>
+        <div>
+          <div class="user-name">Demo User</div>
+          <div class="user-email">admin@demo.local</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="gopass-nav">
+      <div class="gopass-nav-section">Trang chính</div>
+      <a class="gopass-nav-link active" href="dashboard.html"><i class="ti ti-home"></i> Trang chủ</a>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-server"></i> Máy chủ <span class="gopass-nav-badge">Hot</span></a>
+
+      <div class="gopass-nav-section">Tài khoản</div>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-user"></i> Thông tin</a>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-settings"></i> Hồ sơ</a>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-wallet"></i> Ví tiền</a>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-friends"></i> Mời bạn</a>
+
+      <div class="gopass-nav-section">Cửa hàng</div>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-shopping-cart"></i> Sản phẩm</a>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-file-invoice"></i> Đơn hàng</a>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-receipt"></i> Hóa đơn</a>
+
+      <div class="gopass-nav-section">Hỗ trợ</div>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-speakerphone"></i> Thông báo</a>
+      <a class="gopass-nav-link" href="#"><i class="ti ti-ticket"></i> Phiếu hỗ trợ</a>
+    </nav>
+  </aside>
+
+  <div class="gopass-content">
+    <header class="gopass-topbar">
+      <div class="d-flex align-items-center gap-2">
+        <button id="gopass-sidebar-toggle" class="gopass-sidebar-toggle" type="button" aria-label="Menu">
+          <i class="ti ti-menu-2"></i>
+        </button>
+        <span class="text-secondary d-none d-md-inline" style="font-size:0.85rem">
+          Xin chào, <strong>Demo User</strong>
+        </span>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <a href="login.html" class="btn btn-ghost-danger btn-sm">
+          <i class="ti ti-logout"></i>
+          <span class="d-none d-md-inline ms-1">Đăng xuất</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="gopass-main">
+      <div class="page-wrapper">
+        <div class="container-xl">
+          <div class="page-header d-print-none">
+            <div class="row align-items-center">
+              <div class="col">
+                <h2 class="page-title"><span class="home-title">Trung tâm người dùng</span></h2>
+                <div class="page-pretitle my-3">
+                  <span class="home-subtitle">Xem thông tin tài khoản và thông báo mới nhất tại đây</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="container-xl">
+            <div class="row row-cards">
+              <div class="col-12">
+                <div class="row row-cards">
+                  <div class="col-sm-6 col-lg-3">
+                    <div class="card gopass-stat-card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                          <div class="gopass-stat-icon gopass-gradient-1"><i class="ti ti-crown"></i></div>
+                          <div class="flex-fill">
+                            <div class="gopass-stat-label">Gói dịch vụ</div>
+                            <div class="gopass-stat-value">LV. 1 · còn 30 ngày</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-lg-3">
+                    <div class="card gopass-stat-card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                          <div class="gopass-stat-icon gopass-gradient-2"><i class="ti ti-wallet"></i></div>
+                          <div class="flex-fill">
+                            <div class="gopass-stat-label">Số dư ví</div>
+                            <div class="gopass-stat-value">150000 VND</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-lg-3">
+                    <div class="card gopass-stat-card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                          <div class="gopass-stat-icon gopass-gradient-3"><i class="ti ti-devices"></i></div>
+                          <div class="flex-fill">
+                            <div class="gopass-stat-label">Thiết bị đồng thời</div>
+                            <div class="gopass-stat-value">3 thiết bị</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6 col-lg-3">
+                    <div class="card gopass-stat-card">
+                      <div class="card-body">
+                        <div class="d-flex align-items-center gap-3">
+                          <div class="gopass-stat-icon gopass-gradient-4"><i class="ti ti-bolt"></i></div>
+                          <div class="flex-fill">
+                            <div class="gopass-stat-label">Tốc độ cổng</div>
+                            <div class="gopass-stat-value">Không giới hạn</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-6 col-sm-12 mt-3">
+                <div class="card">
+                  <div class="card-header"><h3 class="card-title">Cấu hình nhanh</h3></div>
+                  <div class="card-body">
+                    <h4 class="mb-3"><i class="ti ti-link"></i> Địa chỉ đăng ký node</h4>
+                    <div class="input-group mb-3">
+                      <input type="text" class="form-control" value="https://demo.dpanel.local/sub/abc123" readonly>
+                      <button class="btn btn-primary" type="button"><i class="ti ti-copy"></i> Sao chép</button>
+                    </div>
+                    <div class="recommended-section p-3 rounded">
+                      <h4 class="mb-2"><i class="ti ti-rocket"></i> Ứng dụng khách được đề xuất</h4>
+                      <p class="text-secondary mb-0">Clash Meta · Sing-box · V2rayN</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-6 col-sm-12 mt-3">
+                <div class="card">
+                  <div class="card-header"><h3 class="card-title">Thông báo</h3></div>
+                  <div class="card-body">
+                    <h4>Chào mừng đến DPanel</h4>
+                    <p class="text-secondary mb-0">Giao diện GoPass — sidebar tối, gradient tím, stat cards.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="gopass-footer">
+      Powered by <a href="#" class="link-secondary">DPanel</a> · GoPass Style Demo
+    </div>
+  </div>
+</div>
+
+<script src="/assets/js/gopass.js"></script>
+</body>
+</html>
