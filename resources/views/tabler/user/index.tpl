@@ -185,6 +185,17 @@
                                 </p>
                             </div>
 
+                            <div class="mb-4 gopass-app-forward">
+                                <h4 class="mb-2">
+                                    <i class="ti ti-external-link"></i> Chuyển tiếp tới ứng dụng
+                                </h4>
+                                <p class="text-muted small mb-3">
+                                    Nhấn để mở trực tiếp app và nhập subscription (cần cài app trước).
+                                </p>
+                                <div id="gopass-app-forward-btns" class="d-flex flex-wrap gap-2">
+                                </div>
+                            </div>
+
                             <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
                                 <h4 class="mb-3">
                                     <i class="ti ti-rocket"></i> 
@@ -546,10 +557,49 @@
             download: { icon: 'ti-download', text: 'Tải xuống', class: 'btn-primary' },
             downloadAppStore: { icon: 'ti-brand-appstore', text: 'App Store', class: 'btn-primary' },
             copy: { icon: 'ti-copy', text: 'Sao chép đăng ký', class: 'btn-info copy' },
-            import: { icon: 'ti-link', text: 'Nhập một chạm', class: 'btn-success' },
-            importRecommended: { icon: 'ti-rocket', text: 'Nhập một chạm', class: 'btn-success' }
+            import: { icon: 'ti-external-link', text: 'Mở trong app', class: 'btn-success' },
+            importRecommended: { icon: 'ti-external-link', text: 'Mở trong app', class: 'btn-success' }
         }
     };
+
+    function getAppIconClass(name) {
+        const n = (name || '').toLowerCase();
+        if (n.includes('clash')) return 'ti-rocket';
+        if (n.includes('hiddify')) return 'ti-shield';
+        if (n.includes('sing') || n.startsWith('sf')) return 'ti-box';
+        if (n.includes('shadowrocket') || n.includes('quantumult') || n.includes('surge')) return 'ti-device-mobile';
+        if (n.includes('v2ray')) return 'ti-network';
+        return 'ti-app-window';
+    }
+
+    function renderAppForwardButtons(os) {
+        const container = document.getElementById('gopass-app-forward-btns');
+        if (!container) return;
+
+        const recommendations = clientRecommendations[os] || clientRecommendations.Windows || [];
+        const seen = new Set();
+        container.innerHTML = '';
+
+        recommendations.forEach(function (client) {
+            if (!client.importUrl || seen.has(client.name)) return;
+            seen.add(client.name);
+
+            const a = document.createElement('a');
+            a.className = 'gopass-app-forward-btn';
+            a.href = client.importUrl;
+            a.setAttribute('title', 'Mở ' + client.name);
+
+            const icon = document.createElement('i');
+            icon.className = 'ti ' + getAppIconClass(client.name);
+            a.appendChild(icon);
+            a.appendChild(document.createTextNode(' ' + client.name));
+            container.appendChild(a);
+        });
+
+        if (!container.children.length) {
+            container.innerHTML = '<span class="text-muted small">Không có liên kết chuyển tiếp cho nền tảng này</span>';
+        }
+    }
     
     function safeInit(fn, name) {
         try {
@@ -709,6 +759,8 @@
     function initClientSelector() {
         const os = detectOS();
         document.getElementById('detected-os').textContent = os;
+
+        renderAppForwardButtons(os);
         
         const recommendations = clientRecommendations[os] || clientRecommendations["Windows"];
         const recommendedContainer = document.getElementById('recommended-clients');

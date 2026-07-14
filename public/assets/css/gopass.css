@@ -299,6 +299,41 @@ body.gopass-theme {
     background: linear-gradient(90deg, #7c3aed, #a855f7) !important;
 }
 
+/* ---- App forward (deep-link) buttons ---- */
+.gopass-app-forward-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 0.9rem;
+    border-radius: 0.65rem;
+    border: 1px solid rgba(124, 58, 237, 0.22);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(168, 85, 247, 0.05));
+    color: var(--gopass-primary-dark);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.gopass-app-forward-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--gopass-primary);
+    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.15);
+    color: var(--gopass-primary);
+    text-decoration: none;
+}
+
+[data-bs-theme="dark"] .gopass-app-forward-btn {
+    background: rgba(124, 58, 237, 0.18);
+    border-color: rgba(167, 139, 250, 0.35);
+    color: #e9e5ff;
+}
+
+[data-bs-theme="dark"] .gopass-app-forward-btn:hover {
+    color: #fff;
+    border-color: var(--gopass-primary-light);
+}
+
 /* ---- Import buttons ---- */
 .gopass-import-btn {
     display: flex;
