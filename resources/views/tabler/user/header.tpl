@@ -4,17 +4,18 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/>
+    <meta name="theme-color" content="#7c3aed"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="referrer" content="never">
     <title>{$config['appName']}</title>
-    <link href="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
-    <link href="//{$config['jsdelivr_url']}/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+    <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://{$config['jsdelivr_url']}/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css" rel="stylesheet"/>
     <link href="/assets/css/gopass.css" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
-    <script src="//{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
-    <script src="//{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
-    <script src="//{$config['jsdelivr_url']}/npm/htmx.org@latest/dist/htmx.min.js"></script>
+    <script src="https://{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
+    <script src="https://{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
+    <script src="https://{$config['jsdelivr_url']}/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
 </head>
 
 {if $user->is_dark_mode}
@@ -117,15 +118,20 @@
 
     <div class="gopass-content">
         <header class="gopass-topbar">
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-2 min-w-0">
                 <button id="gopass-sidebar-toggle" class="gopass-sidebar-toggle" type="button" aria-label="Menu">
                     <i class="ti ti-menu-2"></i>
                 </button>
-                <span class="text-secondary d-none d-md-inline" style="font-size:0.85rem">
-                    Xin chào, <strong>{$user->user_name}</strong>
-                </span>
+                <div class="min-w-0">
+                    <div class="fw-bold text-truncate d-md-none" style="font-size:0.95rem;letter-spacing:-0.02em">
+                        {$config['appName']}
+                    </div>
+                    <span class="text-secondary d-none d-md-inline" style="font-size:0.85rem">
+                        Xin chào, <strong>{$user->user_name}</strong>
+                    </span>
+                </div>
             </div>
-            <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
                 {if $user->is_dark_mode}
                 <button class="btn btn-ghost-secondary btn-sm" hx-post="/user/switch_theme_mode" hx-swap="none" title="Chế độ sáng">
                     <i class="ti ti-sun"></i>
@@ -137,7 +143,7 @@
                 {/if}
                 <a href="/user/logout" class="btn btn-ghost-danger btn-sm">
                     <i class="ti ti-logout"></i>
-                    <span class="d-none d-md-inline ms-1">Đăng xuất</span>
+                    <span class="d-none d-sm-inline ms-1">Đăng xuất</span>
                 </a>
             </div>
         </header>

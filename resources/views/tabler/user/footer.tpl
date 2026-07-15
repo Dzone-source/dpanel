@@ -55,7 +55,7 @@
     </div>
 </div>
 
-<script src="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+<script src="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
 <script src="/assets/js/gopass.js"></script>
 <script>
     function showToast(message, type = 'success') {

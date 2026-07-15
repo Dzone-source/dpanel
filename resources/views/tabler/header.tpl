@@ -5,7 +5,8 @@
     <meta charset="utf-8"/>
     <meta name="robots" content="noindex">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/>
+    <meta name="theme-color" content="#7c3aed"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>{$config['appName']}</title>
     <script>

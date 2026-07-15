@@ -11,11 +11,13 @@
         function openSidebar() {
             sidebar.classList.add('open');
             overlay?.classList.add('show');
+            document.body.classList.add('gopass-sidebar-open');
         }
 
         function closeSidebar() {
             sidebar.classList.remove('open');
             overlay?.classList.remove('show');
+            document.body.classList.remove('gopass-sidebar-open');
         }
 
         toggle.addEventListener('click', function () {
@@ -28,12 +30,24 @@
 
         overlay?.addEventListener('click', closeSidebar);
 
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeSidebar();
+            }
+        });
+
         sidebar.querySelectorAll('.gopass-nav-link').forEach(function (link) {
             link.addEventListener('click', function () {
                 if (window.innerWidth < 992) {
                     closeSidebar();
                 }
             });
+        });
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth >= 992) {
+                closeSidebar();
+            }
         });
     }
 

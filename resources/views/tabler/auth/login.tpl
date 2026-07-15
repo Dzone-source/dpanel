@@ -10,7 +10,10 @@
         </div>
         <div class="card card-md">
             <div class="card-body">
-                <h2 class="card-title text-center mb-4">Đăng nhập vào trung tâm người dùng</h2>
+                <h2 class="card-title text-center mb-4">Đăng nhập</h2>
+                <p class="text-secondary text-center mb-4" style="margin-top:-0.75rem;font-size:0.9rem">
+                    Trung tâm người dùng {$config['appName']}
+                </p>
                 <form id="login-form" action="/auth/login" method="post" autocomplete="on">
                     <div class="mb-3">
                         <label class="form-label" for="email">Email</label>

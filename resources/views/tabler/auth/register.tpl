@@ -11,7 +11,10 @@
         <div class="card card-md">
             {if ($public_setting['reg_mode']|default:'open') !== 'close'}
                 <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Đăng ký tài khoản</h2>
+                    <h2 class="card-title text-center mb-4">Đăng ký</h2>
+                    <p class="text-secondary text-center mb-4" style="margin-top:-0.75rem;font-size:0.9rem">
+                        Tạo tài khoản {$config['appName']}
+                    </p>
                     <div class="mb-3">
                         <input id="name" type="text" class="form-control" placeholder="Biệt danh">
                     </div>
