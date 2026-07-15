@@ -36,7 +36,7 @@
                 </div>
                 <div class="mb-3">
                     <div class="input-group mb-3">
-                    {if $public_setting['enable_login_captcha']}
+                    {if $public_setting['enable_login_captcha']|default:false}
                         {include file='captcha/div.tpl'}
                     {/if}
                     </div>
@@ -44,7 +44,7 @@
                 <div class="form-footer">
                     <button class="btn btn-primary w-100 mb-3"
                             hx-post="/auth/login" hx-swap="none" hx-vals='js:{
-                                {if $public_setting['enable_login_captcha']}
+                                {if $public_setting['enable_login_captcha']|default:false}
                                     {include file='captcha/ajax.tpl'}
                                 {/if}
                                 email: document.getElementById("email").value,
@@ -65,7 +65,7 @@
     </div>
 </div>
 
-{if $public_setting['enable_login_captcha']}
+{if $public_setting['enable_login_captcha']|default:false}
     {include file='captcha/js.tpl'}
 {/if}
 

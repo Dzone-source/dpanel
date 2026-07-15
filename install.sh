@@ -49,6 +49,10 @@ prompt_if_empty() {
     local default_value="${3:-}"
     local current_value="${!var_name:-}"
 
+    if is_placeholder_value "$current_value"; then
+        current_value=""
+    fi
+
     if [ -z "$current_value" ]; then
         if [ -n "$default_value" ]; then
             read -r -p "$prompt_text [$default_value]: " input
@@ -60,6 +64,18 @@ prompt_if_empty() {
         # shellcheck disable=SC1091
         set -a && source .env && set +a
     fi
+}
+
+# Treat .env.example placeholders as empty so install.sh always asks
+is_placeholder_value() {
+    case "${1:-}" in
+        ''|change_me*|https://panel.example.com|http://panel.example.com|admin@example.com)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 }
 
 generate_config() {

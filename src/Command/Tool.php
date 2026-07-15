@@ -103,15 +103,36 @@ EOL;
                 $new_item->mark = $item['mark'];
                 $new_item->save();
 
-                echo '添加新数据库设置：' . $item_name . PHP_EOL;
+                echo 'Thêm cài đặt DB mới: ' . $item_name . PHP_EOL;
                 $add_counter += 1;
                 continue;
             }
 
+            $dirty = false;
             if ($query->class !== $item['class']) {
                 $query->class = $item['class'];
+                $dirty = true;
+            }
+            if ((string) $query->is_public !== (string) $item['is_public']) {
+                $query->is_public = $item['is_public'];
+                $dirty = true;
+            }
+            if ($query->type !== $item['type']) {
+                $query->type = $item['type'];
+                $dirty = true;
+            }
+            if ($query->default !== $item['default']) {
+                $query->default = $item['default'];
+                $dirty = true;
+            }
+            if ((string) $query->mark !== (string) $item['mark']) {
+                $query->mark = $item['mark'];
+                $dirty = true;
+            }
+
+            if ($dirty) {
                 $query->save();
-                echo '更新数据库设置：' . $item_name . PHP_EOL;
+                echo 'Cập nhật cài đặt DB: ' . $item_name . PHP_EOL;
                 $update_counter += 1;
             }
         }
@@ -126,15 +147,15 @@ EOL;
         }
 
         if ($add_counter !== 0) {
-            echo '添加了 ' . $add_counter . ' 项新数据库设置' . PHP_EOL;
+            echo 'Đã thêm ' . $add_counter . ' mục cài đặt DB mới' . PHP_EOL;
         }
 
         if ($update_counter !== 0) {
-            echo '更新了 ' . $update_counter . ' 项数据库设置' . PHP_EOL;
+            echo 'Đã cập nhật ' . $update_counter . ' mục cài đặt DB' . PHP_EOL;
         }
 
         if ($del_counter !== 0) {
-            echo '移除了 ' . $del_counter . ' 项数据库设置' . PHP_EOL;
+            echo 'Đã gỡ ' . $del_counter . ' mục cài đặt DB' . PHP_EOL;
         }
     }
 

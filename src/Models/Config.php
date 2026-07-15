@@ -75,7 +75,7 @@ final class Config extends Model
     public static function getPublicConfig(): array
     {
         $configs = [];
-        $all_configs = (new Config())->where('is_public', '1')->get();
+        $all_configs = (new Config())->where('is_public', 1)->get();
 
         foreach ($all_configs as $config) {
             $configs[$config->item] = match ($config->type) {
@@ -84,6 +84,26 @@ final class Config extends Model
                 'array' => json_decode($config->value),
                 default => (string) $config->value,
             };
+        }
+
+        // Defaults so auth/register pages never hit undefined array keys
+        $defaults = [
+            'reg_mode' => 'open',
+            'reg_email_verify' => false,
+            'enable_reg_captcha' => false,
+            'enable_login_captcha' => false,
+            'enable_checkin_captcha' => false,
+            'display_docs' => false,
+            'display_docs_only_for_paid_user' => false,
+            'enable_ticket' => false,
+            'display_detect_log' => false,
+            'live_chat' => '',
+        ];
+
+        foreach ($defaults as $key => $value) {
+            if (! array_key_exists($key, $configs)) {
+                $configs[$key] = $value;
+            }
         }
 
         return $configs;

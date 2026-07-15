@@ -9,7 +9,7 @@
             </a>
         </div>
         <div class="card card-md">
-            {if $public_setting['reg_mode'] !== 'close'}
+            {if ($public_setting['reg_mode']|default:'open') !== 'close'}
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Đăng ký tài khoản</h2>
                     <div class="mb-3">
@@ -18,7 +18,7 @@
                     <div class="mb-3">
                         <input id="email" type="email" class="form-control" placeholder="Email">
                     </div>
-                    {if $public_setting['reg_email_verify']}
+                    {if $public_setting['reg_email_verify']|default:false}
                     <div class="mb-3">
                         <div class="input-group mb-2">
                             <input id="emailcode" type="text" class="form-control" placeholder="Mã xác minh email">
@@ -43,8 +43,8 @@
                     <div class="mb-3">
                         <div class="input-group input-group-flat">
                             <input id="invite_code" type="text" class="form-control"
-                                   placeholder="Mã mời đăng ký{if $public_setting['reg_mode'] === 'open'}（tùy chọn）{else}（bắt buộc）{/if}"
-                                   value="{$invite_code}">
+                                   placeholder="Mã mời đăng ký{if ($public_setting['reg_mode']|default:'open') === 'open'}（tùy chọn）{else}（bắt buộc）{/if}"
+                                   value="{$invite_code|default:''}">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -57,7 +57,7 @@
                     </div>
                     <div class="mb-3">
                         <div class="input-group mb-3">
-                        {if $public_setting['enable_reg_captcha']}
+                        {if $public_setting['enable_reg_captcha']|default:false}
                             {include file='captcha/div.tpl'}
                         {/if}
                         </div>
@@ -65,10 +65,10 @@
                     <div class="form-footer">
                         <button class="btn btn-primary w-100"
                                 hx-post="/auth/register" hx-swap="none" hx-vals='js:{
-                                    {if $public_setting['reg_email_verify']}
+                                    {if $public_setting['reg_email_verify']|default:false}
                                         emailcode: document.getElementById("emailcode").value,
                                     {/if}
-                                    {if $public_setting['enable_reg_captcha']}
+                                    {if $public_setting['enable_reg_captcha']|default:false}
                                         {include file='captcha/ajax.tpl'}
                                     {/if}
                                     name: document.getElementById("name").value,
@@ -94,7 +94,7 @@
     </div>
 </div>
 
-{if $public_setting['enable_reg_captcha']}
+{if $public_setting['enable_reg_captcha']|default:false}
     {include file='captcha/js.tpl'}
 {/if}
 

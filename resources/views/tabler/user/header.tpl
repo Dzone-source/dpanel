@@ -81,13 +81,13 @@
             <a class="gopass-nav-link" href="/user/announcement">
                 <i class="ti ti-speakerphone"></i> Thông báo
             </a>
-            {if $public_setting['enable_ticket']}
+            {if $public_setting['enable_ticket']|default:false}
             <a class="gopass-nav-link" href="/user/ticket">
                 <i class="ti ti-ticket"></i> Phiếu hỗ trợ
             </a>
             {/if}
-            {if $public_setting['display_docs'] &&
-            (! $public_setting['display_docs_only_for_paid_user'] || $user->class !== 0)}
+            {if ($public_setting['display_docs']|default:false) &&
+            (! ($public_setting['display_docs_only_for_paid_user']|default:false) || $user->class !== 0)}
             <a class="gopass-nav-link" href="/user/docs">
                 <i class="ti ti-book"></i> Tài liệu
             </a>
@@ -100,7 +100,7 @@
             <a class="gopass-nav-link" href="/user/detect">
                 <i class="ti ti-shield-check"></i> Quy tắc
             </a>
-            {if $public_setting['display_detect_log']}
+            {if $public_setting['display_detect_log']|default:false}
             <a class="gopass-nav-link" href="/user/detect/log">
                 <i class="ti ti-list"></i> Nhật ký
             </a>
