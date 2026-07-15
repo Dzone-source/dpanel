@@ -29,6 +29,7 @@ use Ramsey\Uuid\Uuid;
 use RedisException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use Throwable;
 use function array_rand;
 use function date;
 use function explode;
@@ -58,65 +59,99 @@ final class AuthController extends BaseController
 
     public function loginHandle(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        if (Config::obtain('enable_login_captcha') && ! Captcha::verify($request->getParams())) {
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => 'Hệ thống không thể chấp nhận kết quả xác minh của bạn, vui lòng làm mới trang và thử lại.',
-            ]);
-        }
+        try {
+            if (Config::obtain('enable_login_captcha') && ! Captcha::verify($request->getParams())) {
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Hệ thống không thể chấp nhận kết quả xác minh của bạn, vui lòng làm mới trang và thử lại.',
+                ]);
+            }
 
-        $password = $request->getParam('password');
-        $rememberMe = $request->getParam('remember_me') === 'true' ? 1 : 0;
-        $email = strtolower(trim($this->antiXss->xss_clean($request->getParam('email'))));
-        $redir = $this->antiXss->xss_clean(Cookie::get('redir')) ?? '/user';
-        $user = (new User())->where('email', $email)->first();
-        $loginIp = new LoginIp();
+            $password = (string) ($request->getParam('password') ?? '');
+            $rememberMe = $request->getParam('remember_me') === 'true' ? 1 : 0;
+            $email = strtolower(trim($this->antiXss->xss_clean((string) ($request->getParam('email') ?? ''))));
+            $redirRaw = $this->antiXss->xss_clean(Cookie::get('redir'));
+            $redir = (is_string($redirRaw) && $redirRaw !== '') ? $redirRaw : '/user';
+            $user = (new User())->where('email', $email)->first();
+            $loginIp = new LoginIp();
+            $clientIp = (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
 
-        if ($user === null) {
-            $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 1);
+            if ($user === null) {
+                try {
+                    $loginIp->collectLoginIP($clientIp, 1);
+                } catch (Exception) {
+                    // ignore logging errors
+                }
 
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => 'Email hoặc mật khẩu không đúng',
-            ]);
-        }
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Email hoặc mật khẩu không đúng',
+                ]);
+            }
 
-        if (! Hash::checkPassword($user->pass, $password)) {
-            $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 1, $user->id);
+            if ($password === '' || ! Hash::checkPassword($user->pass, $password)) {
+                try {
+                    $loginIp->collectLoginIP($clientIp, 1, $user->id);
+                } catch (Exception) {
+                    // ignore logging errors
+                }
 
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => 'Email hoặc mật khẩu không đúng',
-            ]);
-        }
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Email hoặc mật khẩu không đúng',
+                ]);
+            }
 
-        $mfaStatus = $user->checkMfaStatus();
-        if ($mfaStatus['require']) {
-            $redis = (new Cache())->initRedis();
-            $redis->setex('mfa_login_' . session_id(), 300, json_encode([
-                'userid' => $user->id,
-                'method' => $mfaStatus,
-                'redir' => $redir,
-                'remember_me' => $rememberMe,
-            ]));
+            try {
+                $mfaStatus = $user->checkMfaStatus();
+            } catch (Exception) {
+                $mfaStatus = ['require' => false];
+            }
+
+            if (! empty($mfaStatus['require'])) {
+                $redis = (new Cache())->initRedis();
+                $redis->setex('mfa_login_' . session_id(), 300, json_encode([
+                    'userid' => $user->id,
+                    'method' => $mfaStatus,
+                    'redir' => $redir,
+                    'remember_me' => $rememberMe,
+                ]));
+
+                return $response
+                    ->withHeader('HX-Redirect', '/auth/mfa')
+                    ->withJson([
+                        'ret' => 1,
+                        'msg' => 'Vui lòng hoàn tất xác thực hai bước',
+                        'redir' => '/auth/mfa',
+                    ]);
+            }
+
+            $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600;
+
+            Auth::login($user->id, $time);
+
+            try {
+                $loginIp->collectLoginIP($clientIp, 0, $user->id);
+            } catch (Exception) {
+                // ignore logging errors
+            }
+
+            $user->last_login_time = time();
+            $user->save();
 
             return $response
-                ->withHeader('HX-Redirect', '/auth/mfa')
+                ->withHeader('HX-Redirect', $redir)
                 ->withJson([
                     'ret' => 1,
-                    'msg' => 'Vui lòng hoàn tất xác thực hai bước',
+                    'msg' => 'Đăng nhập thành công',
+                    'redir' => $redir,
                 ]);
+        } catch (Exception $e) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Lỗi đăng nhập: ' . $e->getMessage(),
+            ]);
         }
-
-        $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600; // Cookie 过期时间
-
-        Auth::login($user->id, $time);
-        // 记录登录成功
-        $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
-        $user->last_login_time = time();
-        $user->save();
-
-        return $response->withHeader('HX-Redirect', $redir);
     }
 
     public function mfaPage(ServerRequest $request, Response $response, $next): ResponseInterface

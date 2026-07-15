@@ -24,8 +24,8 @@ final class Cookie extends Base
             'uid' => (string) $uid,
             'email' => $user->email,
             'key' => Hash::cookieHash($user->pass, $expire_in),
-            'ip' => Hash::ipHash($_SERVER['REMOTE_ADDR'], $uid, $expire_in),
-            'device' => Hash::deviceHash($_SERVER['HTTP_USER_AGENT'], $uid, $expire_in),
+            'ip' => Hash::ipHash((string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0'), $uid, $expire_in),
+            'device' => Hash::deviceHash((string) ($_SERVER['HTTP_USER_AGENT'] ?? ''), $uid, $expire_in),
             'expire_in' => (string) $expire_in,
         ], $expire_in, $host);
     }

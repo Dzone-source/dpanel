@@ -123,9 +123,7 @@
 
             if (data.ret === 1) {
                 showOk(data.msg || 'Thành công');
-                if (data.redir) {
-                    window.location.href = data.redir;
-                }
+                window.location.href = data.redir || redirect || '/user';
             } else {
                 showError(data.msg || 'Email hoặc mật khẩu không đúng');
             }
