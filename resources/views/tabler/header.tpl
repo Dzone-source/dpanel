@@ -26,7 +26,7 @@
     </script>
     <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="https://{$config['jsdelivr_url']}/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css" rel="stylesheet"/>
-    <link href="/assets/css/gopass.css" rel="stylesheet"/>
+    <link href="/assets/css/gopass.css?v=20260715b" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
 </head>
