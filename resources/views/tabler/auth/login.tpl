@@ -49,7 +49,7 @@
                                 {/if}
                                 email: document.getElementById("email").value,
                                 password: document.getElementById("password").value,
-                                remember_me: document.getElementById("remember_me").checked,
+                                remember_me: document.getElementById("remember_me").checked ? 'true' : 'false',
                              }'>
                         Đăng nhập
                     </button>
