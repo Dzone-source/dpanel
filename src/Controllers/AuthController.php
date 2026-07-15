@@ -79,7 +79,7 @@ final class AuthController extends BaseController
             if ($user === null) {
                 try {
                     $loginIp->collectLoginIP($clientIp, 1);
-                } catch (Exception) {
+                } catch (Throwable) {
                     // ignore logging errors
                 }
 
@@ -92,7 +92,7 @@ final class AuthController extends BaseController
             if ($password === '' || ! Hash::checkPassword($user->pass, $password)) {
                 try {
                     $loginIp->collectLoginIP($clientIp, 1, $user->id);
-                } catch (Exception) {
+                } catch (Throwable) {
                     // ignore logging errors
                 }
 
@@ -104,7 +104,7 @@ final class AuthController extends BaseController
 
             try {
                 $mfaStatus = $user->checkMfaStatus();
-            } catch (Exception) {
+            } catch (Throwable) {
                 $mfaStatus = ['require' => false];
             }
 
@@ -132,7 +132,7 @@ final class AuthController extends BaseController
 
             try {
                 $loginIp->collectLoginIP($clientIp, 0, $user->id);
-            } catch (Exception) {
+            } catch (Throwable) {
                 // ignore logging errors
             }
 
@@ -146,7 +146,7 @@ final class AuthController extends BaseController
                     'msg' => 'Đăng nhập thành công',
                     'redir' => $redir,
                 ]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => 'Lỗi đăng nhập: ' . $e->getMessage(),
