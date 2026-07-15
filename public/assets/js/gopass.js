@@ -64,8 +64,46 @@
         });
     }
 
+    function syncThemeUI() {
+        const body = document.body;
+        if (!body || !body.classList.contains('gopass-theme')) {
+            return;
+        }
+
+        const mode = body.getAttribute('data-gopass-theme-mode');
+        let theme = body.getAttribute('data-bs-theme');
+
+        if (mode === '2' || theme === 'auto') {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            body.setAttribute('data-bs-theme', theme);
+        }
+
+        if (theme === 'dark' || theme === 'light') {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        }
+
+        const toggle = document.getElementById('gopass-theme-toggle');
+        if (!toggle) {
+            return;
+        }
+
+        const icon = toggle.querySelector('i');
+        if (!icon) {
+            return;
+        }
+
+        const isDark = theme === 'dark';
+        icon.className = isDark ? 'ti ti-sun' : 'ti ti-moon';
+        toggle.setAttribute('title', isDark ? 'Chế độ sáng' : 'Chế độ tối');
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         initSidebar();
         markActiveNav();
+        syncThemeUI();
+
+        if (document.body.getAttribute('data-gopass-theme-mode') === '2') {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeUI);
+        }
     });
 })();

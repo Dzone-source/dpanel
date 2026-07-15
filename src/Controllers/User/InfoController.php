@@ -295,7 +295,33 @@ final class InfoController extends BaseController
         $theme_mode = (int) $this->antiXss->xss_clean($request->getParam('theme_mode'));
         $user = $this->user;
 
-        $user->is_dark_mode = in_array($theme_mode, [0, 1, 2]) ? $theme_mode : 0;
+        $user->is_dark_mode = in_array($theme_mode, [0, 1, 2], true) ? $theme_mode : 0;
+
+        if (! $user->save()) {
+            return ResponseHelper::error($response, 'Chuyển đổi thất bại');
+        }
+
+        return $response->withHeader('HX-Refresh', 'true');
+    }
+
+    /**
+     * Toggle nhanh sáng/tối từ nút topbar (0 ↔ 1).
+     * Nếu đang auto (2) thì chuyển sang chế độ đối lập với preference hệ thống.
+     */
+    public function switchThemeMode(ServerRequest $request, Response $response, array $args): ResponseInterface
+    {
+        $user = $this->user;
+        $current = (int) $user->is_dark_mode;
+
+        if ($current === 1) {
+            $user->is_dark_mode = 0;
+        } elseif ($current === 0) {
+            $user->is_dark_mode = 1;
+        } else {
+            // auto: prefer opposite of what the client reports, else default to light
+            $prefersDark = (string) $request->getParam('prefers_dark') === '1';
+            $user->is_dark_mode = $prefersDark ? 0 : 1;
+        }
 
         if (! $user->save()) {
             return ResponseHelper::error($response, 'Chuyển đổi thất bại');

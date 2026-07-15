@@ -26,10 +26,24 @@
     </style>
 </head>
 
-{if $user->is_dark_mode}
+{if $user->is_dark_mode == 1}
 <body data-bs-theme="dark">
+{elseif $user->is_dark_mode == 2}
+<body data-bs-theme="auto">
+<script>
+(function () {
+    function apply() {
+        document.body.setAttribute(
+            'data-bs-theme',
+            window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        );
+    }
+    apply();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply);
+})();
+</script>
 {else}
-<body>
+<body data-bs-theme="light">
 {/if}
 <div class="page">
     <header class="navbar navbar-expand-md navbar-overlap d-print-none" data-bs-theme="dark">
@@ -53,12 +67,14 @@
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        {if $user->is_dark_mode}
-                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none">
+                        {if $user->is_dark_mode == 1}
+                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none"
+                               hx-vals='js:{ prefers_dark: "1" }'>
                                 Chế độ sáng
                             </a>
                         {else}
-                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none">
+                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none"
+                               hx-vals='js:{ prefers_dark: window.matchMedia("(prefers-color-scheme: dark)").matches ? "1" : "0" }'>
                                 Chế độ tối
                             </a>
                         {/if}

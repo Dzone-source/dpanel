@@ -34,9 +34,22 @@
     --gopass-surface-elevated: #161225;
     --gopass-text: #f4f1ff;
     --gopass-muted: #9b94ad;
-    --gopass-border: rgba(255, 255, 255, 0.08);
-    --gopass-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
-    --gopass-shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.45);
+    --gopass-border: rgba(255, 255, 255, 0.1);
+    --gopass-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+    --gopass-shadow-lg: 0 18px 50px rgba(0, 0, 0, 0.5);
+    --tblr-body-bg: #0c0a14;
+    --tblr-body-color: #f4f1ff;
+    --tblr-secondary: #9b94ad;
+    --tblr-border-color: rgba(255, 255, 255, 0.1);
+    --tblr-bg-surface: #161225;
+    --tblr-bg-surface-secondary: #1c1730;
+    --tblr-card-bg: #161225;
+    color-scheme: dark;
+}
+
+body.gopass-theme[data-bs-theme="dark"] {
+    background: var(--gopass-surface);
+    color: var(--gopass-text);
 }
 
 *,
@@ -619,6 +632,132 @@ body.gopass-auth .border-top-wide {
     background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(192, 38, 211, 0.05)) !important;
     border: 1px solid rgba(124, 58, 237, 0.14) !important;
     border-radius: var(--gopass-radius-sm) !important;
+}
+
+/* ===================== Dark mode polish ===================== */
+[data-bs-theme="dark"] .gopass-theme .card,
+.gopass-theme[data-bs-theme="dark"] .card {
+    background: var(--gopass-surface-elevated);
+    border-color: var(--gopass-border);
+    color: var(--gopass-text);
+}
+
+[data-bs-theme="dark"] .gopass-theme .card-title,
+[data-bs-theme="dark"] .gopass-theme .card-header,
+.gopass-theme[data-bs-theme="dark"] .card-title,
+.gopass-theme[data-bs-theme="dark"] .card-header {
+    color: var(--gopass-text);
+}
+
+[data-bs-theme="dark"] .gopass-topbar,
+.gopass-theme[data-bs-theme="dark"] .gopass-topbar {
+    background: rgba(22, 18, 37, 0.88);
+    border-bottom-color: var(--gopass-border);
+}
+
+[data-bs-theme="dark"] .gopass-topbar .text-secondary,
+[data-bs-theme="dark"] .gopass-topbar .fw-bold,
+.gopass-theme[data-bs-theme="dark"] .gopass-topbar .text-secondary,
+.gopass-theme[data-bs-theme="dark"] .gopass-topbar .fw-bold {
+    color: rgba(244, 241, 255, 0.9) !important;
+}
+
+[data-bs-theme="dark"] .gopass-topbar .btn-ghost-secondary,
+.gopass-theme[data-bs-theme="dark"] .gopass-topbar .btn-ghost-secondary {
+    color: #e9e5ff;
+}
+
+[data-bs-theme="dark"] .gopass-sidebar-toggle,
+.gopass-theme[data-bs-theme="dark"] .gopass-sidebar-toggle {
+    background: rgba(124, 58, 237, 0.22);
+    border-color: rgba(167, 139, 250, 0.35);
+    color: #e9e5ff;
+}
+
+[data-bs-theme="dark"] .gopass-theme .form-control,
+[data-bs-theme="dark"] .gopass-theme .form-select,
+.gopass-theme[data-bs-theme="dark"] .form-control,
+.gopass-theme[data-bs-theme="dark"] .form-select {
+    background-color: #1c1730;
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--gopass-text);
+}
+
+[data-bs-theme="dark"] .gopass-theme .form-control:focus,
+.gopass-theme[data-bs-theme="dark"] .form-control:focus {
+    background-color: #1c1730;
+    border-color: var(--gopass-primary);
+    color: var(--gopass-text);
+}
+
+[data-bs-theme="dark"] .gopass-theme .text-muted,
+[data-bs-theme="dark"] .gopass-theme .text-secondary,
+.gopass-theme[data-bs-theme="dark"] .text-muted,
+.gopass-theme[data-bs-theme="dark"] .text-secondary {
+    color: var(--gopass-muted) !important;
+}
+
+[data-bs-theme="dark"] .gopass-theme .recommended-section,
+.gopass-theme[data-bs-theme="dark"] .recommended-section {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(192, 38, 211, 0.12)) !important;
+    border-color: rgba(167, 139, 250, 0.28) !important;
+}
+
+[data-bs-theme="dark"] .gopass-theme .client-item,
+.gopass-theme[data-bs-theme="dark"] .client-item {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--gopass-border) !important;
+}
+
+[data-bs-theme="dark"] .gopass-theme .bg-primary-lt,
+.gopass-theme[data-bs-theme="dark"] .bg-primary-lt {
+    background: rgba(124, 58, 237, 0.18) !important;
+}
+
+[data-bs-theme="dark"] .gopass-theme .bg-secondary-lt,
+.gopass-theme[data-bs-theme="dark"] .bg-secondary-lt {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .gopass-theme .table,
+.gopass-theme[data-bs-theme="dark"] .table {
+    --tblr-table-color: var(--gopass-text);
+    --tblr-table-border-color: var(--gopass-border);
+}
+
+[data-bs-theme="dark"] .gopass-footer,
+.gopass-theme[data-bs-theme="dark"] .gopass-footer {
+    color: var(--gopass-muted);
+    border-top-color: var(--gopass-border);
+}
+
+[data-bs-theme="dark"] .gopass-theme .accordion-button,
+.gopass-theme[data-bs-theme="dark"] .accordion-button {
+    background: var(--gopass-surface-elevated);
+    color: var(--gopass-text);
+}
+
+[data-bs-theme="dark"] .gopass-theme .accordion-item,
+.gopass-theme[data-bs-theme="dark"] .accordion-item {
+    background: var(--gopass-surface-elevated);
+    border-color: var(--gopass-border);
+}
+
+[data-bs-theme="dark"] .gopass-theme .modal-content,
+.gopass-theme[data-bs-theme="dark"] .modal-content {
+    background: var(--gopass-surface-elevated);
+    color: var(--gopass-text);
+}
+
+[data-bs-theme="dark"] .gopass-theme .btn-outline-secondary,
+.gopass-theme[data-bs-theme="dark"] .btn-outline-secondary {
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #e9e5ff;
+}
+
+[data-bs-theme="dark"] .gopass-theme .btn-ghost-primary,
+.gopass-theme[data-bs-theme="dark"] .btn-ghost-primary {
+    color: var(--gopass-primary-light);
 }
 
 .gopass-theme .progress {

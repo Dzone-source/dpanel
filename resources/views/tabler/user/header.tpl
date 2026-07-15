@@ -11,18 +11,53 @@
     <title>{$config['appName']}</title>
     <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-    <link href="/assets/css/gopass.css?v=20260715d" rel="stylesheet"/>
+    <link href="/assets/css/gopass.css?v=20260715e" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
+    <script>
+        (function () {
+            var mode = parseInt('{$user->is_dark_mode}', 10) || 0;
+            function resolveTheme() {
+                if (mode === 1) return 'dark';
+                if (mode === 0) return 'light';
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            function applyTheme() {
+                var theme = resolveTheme();
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                var meta = document.querySelector('meta[name="theme-color"]');
+                if (meta) meta.setAttribute('content', theme === 'dark' ? '#0c0a14' : '#7c3aed');
+            }
+            applyTheme();
+            if (mode === 2) {
+                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+            }
+            window.__gopassResolveTheme = resolveTheme;
+        })();
+    </script>
 </head>
 
-{if $user->is_dark_mode}
-<body class="gopass-theme" data-bs-theme="dark">
+{if $user->is_dark_mode == 1}
+<body class="gopass-theme" data-bs-theme="dark" data-gopass-theme-mode="1">
+{elseif $user->is_dark_mode == 2}
+<body class="gopass-theme" data-bs-theme="auto" data-gopass-theme-mode="2">
 {else}
-<body class="gopass-theme" data-bs-theme="light">
+<body class="gopass-theme" data-bs-theme="light" data-gopass-theme-mode="0">
 {/if}
+<script>
+    (function () {
+        var mode = document.body.getAttribute('data-gopass-theme-mode');
+        if (mode === '2') {
+            var theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            document.body.setAttribute('data-bs-theme', theme);
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        } else if (mode === '1' || mode === '0') {
+            document.documentElement.setAttribute('data-bs-theme', mode === '1' ? 'dark' : 'light');
+        }
+    })();
+</script>
 
 <div id="gopass-sidebar-overlay" class="gopass-sidebar-overlay"></div>
 
@@ -132,15 +167,18 @@
                 </div>
             </div>
             <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
-                {if $user->is_dark_mode}
-                <button class="btn btn-ghost-secondary btn-sm" hx-post="/user/switch_theme_mode" hx-swap="none" title="Chế độ sáng">
+                <button id="gopass-theme-toggle" class="btn btn-ghost-secondary btn-sm"
+                        type="button"
+                        hx-post="/user/switch_theme_mode"
+                        hx-swap="none"
+                        hx-vals='js:{ prefers_dark: window.matchMedia("(prefers-color-scheme: dark)").matches ? "1" : "0" }'
+                        title="{if $user->is_dark_mode == 1}Chế độ sáng{else}Chế độ tối{/if}">
+                    {if $user->is_dark_mode == 1}
                     <i class="ti ti-sun"></i>
+                    {else}
+                    <i class="ti ti-moon" id="gopass-theme-toggle-icon"></i>
+                    {/if}
                 </button>
-                {else}
-                <button class="btn btn-ghost-secondary btn-sm" hx-post="/user/switch_theme_mode" hx-swap="none" title="Chế độ tối">
-                    <i class="ti ti-moon"></i>
-                </button>
-                {/if}
                 <a href="/user/logout" class="btn btn-ghost-danger btn-sm">
                     <i class="ti ti-logout"></i>
                     <span class="d-none d-sm-inline ms-1">Đăng xuất</span>
