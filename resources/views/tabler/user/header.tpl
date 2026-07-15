@@ -11,7 +11,7 @@
     <title>{$config['appName']}</title>
     <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-    <link href="/assets/css/gopass.css?v=20260715c" rel="stylesheet"/>
+    <link href="/assets/css/gopass.css?v=20260715d" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>

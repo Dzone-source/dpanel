@@ -645,45 +645,6 @@ body.gopass-auth .border-top-wide {
     border-radius: var(--gopass-radius-sm);
 }
 
-/* ===================== Quick actions ===================== */
-.gopass-app-forward-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    padding: 0.65rem 0.95rem;
-    border-radius: 0.75rem;
-    border: 1px solid rgba(124, 58, 237, 0.2);
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(168, 85, 247, 0.04));
-    color: var(--gopass-primary-dark);
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 700;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-    min-height: 44px;
-}
-
-.gopass-app-forward-btn:hover {
-    transform: translateY(-1px);
-    border-color: var(--gopass-primary);
-    box-shadow: 0 8px 20px rgba(124, 58, 237, 0.14);
-    color: var(--gopass-primary);
-    text-decoration: none;
-}
-
-[data-bs-theme="dark"] .gopass-app-forward-btn {
-    background: rgba(124, 58, 237, 0.16);
-    border-color: rgba(167, 139, 250, 0.3);
-    color: #e9e5ff;
-}
-
-#gopass-app-forward-btns {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 0.6rem;
-    width: 100%;
-}
-
 .gopass-theme .input-group .form-control {
     min-width: 0;
 }
@@ -818,10 +779,6 @@ body.gopass-sidebar-open {
         font-size: 0.98rem;
     }
 
-    #gopass-app-forward-btns {
-        grid-template-columns: 1fr 1fr;
-    }
-
     .gopass-theme .input-group {
         flex-wrap: wrap;
         gap: 0.5rem;
@@ -937,10 +894,6 @@ body.gopass-auth .modal-content {
     .gopass-theme .col-sm-6.col-lg-3 {
         flex: 0 0 100%;
         max-width: 100%;
-    }
-
-    #gopass-app-forward-btns {
-        grid-template-columns: 1fr;
     }
 }
 

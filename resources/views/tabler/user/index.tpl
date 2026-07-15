@@ -170,7 +170,7 @@
                             <h3 class="card-title">Cấu hình nhanh</h3>
                         </div>
                         <div class="card-body">
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <h4 class="mb-3">
                                     <i class="ti ti-link"></i> Địa chỉ đăng ký node dành riêng cho bạn
                                 </h4>
@@ -183,17 +183,6 @@
                                 <p class="text-muted mb-0">
                                     <small>Địa chỉ đăng ký này dùng cho mọi ứng dụng khách, vui lòng bảo mật</small>
                                 </p>
-                            </div>
-
-                            <div class="mb-4 gopass-app-forward">
-                                <h4 class="mb-2">
-                                    <i class="ti ti-external-link"></i> Chuyển tiếp tới ứng dụng
-                                </h4>
-                                <p class="text-muted small mb-3">
-                                    Nhấn để mở trực tiếp app và nhập subscription (cần cài app trước).
-                                </p>
-                                <div id="gopass-app-forward-btns" class="d-flex flex-wrap gap-2">
-                                </div>
                             </div>
 
                             <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
@@ -562,45 +551,6 @@
         }
     };
 
-    function getAppIconClass(name) {
-        const n = (name || '').toLowerCase();
-        if (n.includes('clash')) return 'ti-rocket';
-        if (n.includes('hiddify')) return 'ti-shield';
-        if (n.includes('sing') || n.startsWith('sf')) return 'ti-box';
-        if (n.includes('shadowrocket') || n.includes('quantumult') || n.includes('surge')) return 'ti-device-mobile';
-        if (n.includes('v2ray')) return 'ti-network';
-        return 'ti-app-window';
-    }
-
-    function renderAppForwardButtons(os) {
-        const container = document.getElementById('gopass-app-forward-btns');
-        if (!container) return;
-
-        const recommendations = clientRecommendations[os] || clientRecommendations.Windows || [];
-        const seen = new Set();
-        container.innerHTML = '';
-
-        recommendations.forEach(function (client) {
-            if (!client.importUrl || seen.has(client.name)) return;
-            seen.add(client.name);
-
-            const a = document.createElement('a');
-            a.className = 'gopass-app-forward-btn';
-            a.href = client.importUrl;
-            a.setAttribute('title', 'Mở ' + client.name);
-
-            const icon = document.createElement('i');
-            icon.className = 'ti ' + getAppIconClass(client.name);
-            a.appendChild(icon);
-            a.appendChild(document.createTextNode(' ' + client.name));
-            container.appendChild(a);
-        });
-
-        if (!container.children.length) {
-            container.innerHTML = '<span class="text-muted small">Không có liên kết chuyển tiếp cho nền tảng này</span>';
-        }
-    }
-    
     function safeInit(fn, name) {
         try {
             fn();
@@ -760,8 +710,6 @@
         const os = detectOS();
         document.getElementById('detected-os').textContent = os;
 
-        renderAppForwardButtons(os);
-        
         const recommendations = clientRecommendations[os] || clientRecommendations["Windows"];
         const recommendedContainer = document.getElementById('recommended-clients');
         
