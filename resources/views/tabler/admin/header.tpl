@@ -8,13 +8,13 @@
     <meta name="format-detection" content="telephone=no"/>
     <title>{$config['appName']}</title>
     <!-- CSS files -->
-    <link href="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
-    <link href="//{$config['jsdelivr_url']}/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+    <link href="//{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
     <!-- JS files -->
     <script src="//{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="//{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
     <script src="//{$config['jsdelivr_url']}/npm/jquery/dist/jquery.min.js"></script>
-    <script src="//{$config['jsdelivr_url']}/npm/htmx.org@latest/dist/htmx.min.js"></script>
+    <script src="//{$config['jsdelivr_url']}/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
     <style>
         .home-subtitle {
             font-size: 14px;
