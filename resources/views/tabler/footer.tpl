@@ -46,32 +46,51 @@
     </div>
 </div>
 
-<script src="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+<script src="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
 
 <script>
-    let successDialog = new tabler.bootstrap.Modal(document.getElementById('success-dialog'));
-    let failDialog = new tabler.bootstrap.Modal(document.getElementById('fail-dialog'));
+(function () {
+    try {
+        if (window.tabler && tabler.bootstrap) {
+            window.successDialog = new tabler.bootstrap.Modal(document.getElementById('success-dialog'));
+            window.failDialog = new tabler.bootstrap.Modal(document.getElementById('fail-dialog'));
+        }
+    } catch (e) {
+        console.warn('Modal init skipped', e);
+    }
+
+    if (typeof htmx === 'undefined') {
+        console.warn('htmx not loaded');
+        return;
+    }
 
     htmx.on("htmx:afterRequest", function(evt) {
-        if (evt.detail.xhr.getResponseHeader('HX-Redirect'))
-        {
+        if (evt.detail.xhr.getResponseHeader('HX-Redirect')) {
             return;
         }
 
-        let res = JSON.parse(evt.detail.xhr.response);
+        let res;
+        try {
+            res = JSON.parse(evt.detail.xhr.response || '{}');
+        } catch (e) {
+            return;
+        }
 
-        if (evt.detail.elt.id === 'send-verify-email') {
+        if (evt.detail.elt && evt.detail.elt.id === 'send-verify-email') {
             document.getElementById('send-verify-email').disabled = true;
         }
 
         if (res.ret === 1) {
-            document.getElementById("success-message").innerHTML = res.msg;
-            successDialog.show();
-        } else {
-            document.getElementById("fail-message").innerHTML = res.msg;
-            failDialog.show();
+            const el = document.getElementById("success-message");
+            if (el) el.innerHTML = res.msg || 'Thành công';
+            if (window.successDialog) successDialog.show();
+        } else if (typeof res.ret !== 'undefined') {
+            const el = document.getElementById("fail-message");
+            if (el) el.innerHTML = res.msg || 'Thất bại';
+            if (window.failDialog) failDialog.show();
         }
     });
+})();
 </script>
 
 {include file='live_chat.tpl'}

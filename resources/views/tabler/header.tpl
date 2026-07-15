@@ -8,7 +8,6 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>{$config['appName']}</title>
-    <!-- Auto dark mode -->
     <script>
         ;(function () {
             const htmlElement = document.querySelector("html")
@@ -24,11 +23,9 @@
             }
         })()
     </script>
-    <!-- CSS files -->
-    <link href="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
-    <link href="//{$config['jsdelivr_url']}/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+    <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="https://{$config['jsdelivr_url']}/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css" rel="stylesheet"/>
     <link href="/assets/css/gopass.css" rel="stylesheet"/>
-    <!-- JS files -->
     <script src="/assets/js/fuck.min.js"></script>
-    <script src="//{$config['jsdelivr_url']}/npm/htmx.org@v2/dist/htmx.min.js"></script>
+    <script src="https://{$config['jsdelivr_url']}/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
 </head>
