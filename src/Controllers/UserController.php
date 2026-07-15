@@ -71,6 +71,8 @@ final class UserController extends BaseController
                 'icon' => 'ti-crown',
                 'gradient' => 'gopass-gradient-1',
                 'action_url' => '/user/product',
+                'cta' => $this->user->class <= 0,
+                'cta_label' => 'Mua hàng',
             ],
             [
                 'title' => 'Số dư ví',
