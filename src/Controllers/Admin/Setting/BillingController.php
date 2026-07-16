@@ -55,7 +55,8 @@ final class BillingController extends BaseController
         $active_gateway = [];
 
         foreach ($this->returnGatewaysList() as $key => $value) {
-            if ($request->getParam($value) === 'true' || $request->getParam($value) === true) {
+            $enabled = $request->getParam($value);
+            if (in_array($enabled, [true, 1, '1', 'true', 'on', 'yes'], true)) {
                 $active_gateway[] = $value;
             }
         }

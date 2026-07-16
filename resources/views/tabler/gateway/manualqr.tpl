@@ -6,22 +6,26 @@
 
     <div class="text-center mb-3">
         {$transfer_note = "INV{$invoice->id}"}
-        {if $public_setting['manual_qr_bank_bin'] !== '' && $public_setting['manual_qr_account_number'] !== ''}
-        <img src="https://img.vietqr.io/image/{$public_setting['manual_qr_bank_bin']}-{$public_setting['manual_qr_account_number']}-compact2.png?amount={$invoice->price}&addInfo={$transfer_note|escape:'url'}&accountName={$public_setting['manual_qr_account_name']|escape:'url'}"
+        {$manual_qr_bank_bin = $public_setting['manual_qr_bank_bin']|default:''}
+        {$manual_qr_account_number = $public_setting['manual_qr_account_number']|default:''}
+        {$manual_qr_account_name = $public_setting['manual_qr_account_name']|default:''}
+        {$manual_qr_image_url = $public_setting['manual_qr_image_url']|default:''}
+        {if $manual_qr_bank_bin !== '' && $manual_qr_account_number !== ''}
+        <img src="https://img.vietqr.io/image/{$manual_qr_bank_bin}-{$manual_qr_account_number}-compact2.png?amount={$invoice->price}&addInfo={$transfer_note|escape:'url'}&accountName={$manual_qr_account_name|escape:'url'}"
              alt="Mã QR VietQR thanh toán" class="img-fluid rounded" style="max-width: 240px;">
-        {elseif $public_setting['manual_qr_image_url'] !== ''}
-        <img src="{$public_setting['manual_qr_image_url']}" alt="Mã QR thanh toán" class="img-fluid rounded" style="max-width: 240px;">
+        {elseif $manual_qr_image_url !== ''}
+        <img src="{$manual_qr_image_url}" alt="Mã QR thanh toán" class="img-fluid rounded" style="max-width: 240px;">
         {else}
         <div class="alert alert-warning mb-0">
-            Chưa cấu hình VietQR hoặc ảnh QR. Vui lòng liên hệ quản trị viên.
+            Chưa cấu hình VietQR hoặc ảnh QR. Vào Admin → Cài đặt tài chính → Manual QR để điền mã ngân hàng + số tài khoản.
         </div>
         {/if}
     </div>
 
     <div class="small">
         <div><strong>Ngân hàng:</strong> {$public_setting['manual_qr_bank_name']|default:'-'}</div>
-        <div><strong>Số tài khoản:</strong> {$public_setting['manual_qr_account_number']|default:'-'}</div>
-        <div><strong>Chủ tài khoản:</strong> {$public_setting['manual_qr_account_name']|default:'-'}</div>
+        <div><strong>Số tài khoản:</strong> {$manual_qr_account_number|default:'-'}</div>
+        <div><strong>Chủ tài khoản:</strong> {$manual_qr_account_name|default:'-'}</div>
         <div><strong>Số tiền:</strong> {$invoice->price} VND</div>
         <div><strong>Mã đơn hàng:</strong> #{$invoice->id}</div>
         <div><strong>Nội dung chuyển khoản:</strong> {$transfer_note}</div>

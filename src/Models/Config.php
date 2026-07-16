@@ -41,7 +41,7 @@ final class Config extends Model
         return match ($config->type) {
             'bool' => (bool) $config->value,
             'int' => (int) $config->value,
-            'array' => json_decode($config->value),
+            'array' => json_decode((string) $config->value, true) ?? [],
             default => (string) $config->value,
         };
     }
@@ -55,7 +55,7 @@ final class Config extends Model
             $configs[$config->item] = match ($config->type) {
                 'bool' => (bool) $config->value,
                 'int' => (int) $config->value,
-                'array' => json_decode($config->value),
+                'array' => json_decode((string) $config->value, true) ?? [],
                 default => (string) $config->value,
             };
         }
@@ -84,7 +84,7 @@ final class Config extends Model
             $configs[$config->item] = match ($config->type) {
                 'bool' => (bool) $config->value,
                 'int' => (int) $config->value,
-                'array' => json_decode($config->value),
+                'array' => json_decode((string) $config->value, true) ?? [],
                 default => (string) $config->value,
             };
         }
@@ -101,6 +101,11 @@ final class Config extends Model
             'enable_ticket' => false,
             'display_detect_log' => false,
             'live_chat' => '',
+            'manual_qr_bank_bin' => '',
+            'manual_qr_bank_name' => '',
+            'manual_qr_account_number' => '',
+            'manual_qr_account_name' => '',
+            'manual_qr_image_url' => '',
         ];
 
         foreach ($defaults as $key => $value) {

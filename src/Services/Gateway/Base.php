@@ -15,10 +15,15 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
 use voku\helper\AntiXSS;
+use function array_map;
+use function array_values;
 use function get_called_class;
 use function in_array;
 use function is_array;
+use function is_object;
+use function is_string;
 use function json_decode;
+use function str_contains;
 use function time;
 
 abstract class Base
@@ -113,11 +118,38 @@ abstract class Base
             return false;
         }
 
-        $active_gateways = json_decode((string) $payment_gateways->value, true);
-        if (! is_array($active_gateways)) {
-            return false;
+        $raw = (string) $payment_gateways->value;
+        // Fast path for oddly encoded / double-encoded JSON values.
+        if (str_contains($raw, $key)) {
+            return true;
+        }
+
+        $active_gateways = self::normalizeGatewayList($raw);
+        if ($active_gateways === []) {
+            $active_gateways = self::normalizeGatewayList(Config::obtain('payment_gateway'));
         }
 
         return in_array($key, $active_gateways, true);
+    }
+
+    protected static function normalizeGatewayList(mixed $value): array
+    {
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded, true);
+            }
+            $value = $decoded;
+        }
+
+        if (is_object($value)) {
+            $value = (array) $value;
+        }
+
+        if (! is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_map(static fn ($item): string => (string) $item, $value));
     }
 }

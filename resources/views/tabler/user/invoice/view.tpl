@@ -136,7 +136,7 @@
                                     {foreach from=$payments item=payment}
                                     <div class="mb-3">
                                         {$payment_name = $payment::_name()}
-                                        {include file="../../gateway/$payment_name.tpl"}
+                                        {include file="gateway/$payment_name.tpl"}
                                     </div>
                                     {/foreach}
                                 </div>

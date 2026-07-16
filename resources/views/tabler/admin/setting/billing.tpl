@@ -434,18 +434,21 @@
 
         <script>
             $("#save-setting").click(function () {
+                const payload = {};
+                {foreach $update_field as $key}
+                {if $key !== 'payment_gateway'}
+                payload['{$key}'] = $('#{$key}').val();
+                {/if}
+                {/foreach}
+                {foreach $payment_gateways as $key => $value}
+                payload['{$value}'] = $("#{$value}_enable").is(":checked") ? 'true' : 'false';
+                {/foreach}
+
                 $.ajax({
                     url: '/admin/setting/billing',
                     type: 'POST',
                     dataType: "json",
-                    data: {
-                        {foreach $update_field as $key}
-                            {$key}: $('#{$key}').val(),
-                        {/foreach}
-                        {foreach $payment_gateways as $key => $value}
-                            {$value}: $("#{$value}_enable").is(":checked"),
-                        {/foreach}
-                    },
+                    data: payload,
                     success: function (data) {
                         if (data.ret === 1) {
                             $('#success-message').text(data.msg);

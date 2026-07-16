@@ -8,12 +8,15 @@ use App\Controllers\BaseController;
 use App\Models\Invoice;
 use App\Models\Paylist;
 use App\Models\UserMoneyLog;
+use App\Services\Gateway\ManualQr;
 use App\Services\Payment;
 use App\Utils\Tools;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use function array_values;
+use function in_array;
 use function json_decode;
 use function json_encode;
 use function time;
@@ -70,12 +73,19 @@ final class InvoiceController extends BaseController
         $invoice->pay_time = Tools::toDateTime($invoice->pay_time);
         $invoice_content = json_decode($invoice->content);
 
+        $payments = Payment::getPaymentsEnabled();
+        // Hard guarantee: if Manual QR is enabled/configured, always show it on invoice.
+        if (ManualQr::_enable() && ! in_array(ManualQr::class, $payments, true)) {
+            $payments[] = ManualQr::class;
+        }
+        $payments = array_values($payments);
+
         return $response->write(
             $this->view()
                 ->assign('invoice', $invoice)
                 ->assign('invoice_content', $invoice_content)
                 ->assign('paylist', $paylist)
-                ->assign('payments', Payment::getPaymentsEnabled())
+                ->assign('payments', $payments)
                 ->fetch('user/invoice/view.tpl')
         );
     }
