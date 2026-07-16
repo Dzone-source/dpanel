@@ -1,6 +1,6 @@
 /* DPanel GoPass UI — modern responsive shell */
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500&display=swap');
 
 :root {
     --gopass-primary: #7c3aed;
@@ -20,8 +20,8 @@
     --gopass-shadow: 0 8px 28px rgba(55, 30, 110, 0.08);
     --gopass-shadow-lg: 0 18px 50px rgba(55, 30, 110, 0.14);
     --gopass-topbar-h: 60px;
-    --gopass-font: "Manrope", system-ui, sans-serif;
-    --gopass-display: "Sora", "Manrope", system-ui, sans-serif;
+    --gopass-font: "Roboto", "Helvetica Neue", Arial, sans-serif;
+    --gopass-display: "Roboto", "Helvetica Neue", Arial, sans-serif;
     --tblr-primary: #7c3aed;
     --tblr-primary-rgb: 124, 58, 237;
     --tblr-primary-fg: #fff;
@@ -118,7 +118,7 @@ body.gopass-auth .card-title {
     font-family: var(--gopass-display);
     font-weight: 700;
     font-size: clamp(1.15rem, 4vw, 1.35rem);
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
     margin-bottom: 1.25rem !important;
 }
 
@@ -468,7 +468,7 @@ body.gopass-auth .border-top-wide {
     font-family: var(--gopass-display);
     font-weight: 700;
     font-size: clamp(1.25rem, 3.6vw, 1.75rem);
-    letter-spacing: -0.03em;
+    letter-spacing: -0.01em;
     line-height: 1.25;
     word-break: break-word;
 }

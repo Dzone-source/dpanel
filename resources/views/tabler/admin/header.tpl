@@ -8,6 +8,7 @@
     <meta name="format-detection" content="telephone=no"/>
     <title>{$config['appName']}</title>
     <!-- CSS files -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet"/>
     <link href="//{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
     <!-- JS files -->
@@ -16,6 +17,15 @@
     <script src="//{$config['jsdelivr_url']}/npm/jquery/dist/jquery.min.js"></script>
     <script src="//{$config['jsdelivr_url']}/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
     <style>
+        :root {
+            --tblr-font-sans-serif: "Roboto", "Helvetica Neue", Arial, sans-serif;
+            --tblr-body-font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            font-family: "Roboto", "Helvetica Neue", Arial, sans-serif;
+        }
+
         .home-subtitle {
             font-size: 14px;
         }
