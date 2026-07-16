@@ -106,7 +106,7 @@
                             {/if}
                             {if count($payments) > 0}
                             <li class="nav-item">
-                                <a href="#gateway" class="nav-link" data-bs-toggle="tab">
+                                <a href="#gateway" class="nav-link{if $invoice->type === 'topup'} active{/if}" data-bs-toggle="tab">
                                     <i class="ti ti-coin icon"></i>
                                     &nbsp;Thanh toán qua cổng
                                 </a>
@@ -132,7 +132,7 @@
                                 </div>
                                 {/if}
                                 {if count($payments) > 0}
-                                <div class="tab-pane show" id="gateway">
+                                <div class="tab-pane{if $invoice->type === 'topup'} active{/if} show" id="gateway">
                                     {foreach from=$payments item=payment}
                                     <div class="mb-3">
                                         {$payment_name = $payment::_name()}
@@ -142,7 +142,12 @@
                                 </div>
                                 {/if}
                                 {if $invoice->type === 'topup' && count($payments) === 0}
-                                Chưa có phương thức thanh toán
+                                <div class="alert alert-warning mb-0">
+                                    Chưa có phương thức thanh toán.
+                                    Vui lòng vào Admin → Cài đặt tài chính → bật
+                                    <strong>Chuyển khoản QR thủ công</strong>
+                                    và điền mã ngân hàng + số tài khoản VietQR.
+                                </div>
                                 {/if}
                             </div>
                         </div>

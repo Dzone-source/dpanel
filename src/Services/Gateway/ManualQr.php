@@ -34,7 +34,15 @@ final class ManualQr extends Base
 
     public static function _enable(): bool
     {
-        return self::getActiveGateway('manualqr');
+        if (self::getActiveGateway('manualqr')) {
+            return true;
+        }
+
+        // Auto-enable when VietQR bank details are already configured.
+        $bank_bin = trim((string) Config::obtain('manual_qr_bank_bin'));
+        $account_number = trim((string) Config::obtain('manual_qr_account_number'));
+
+        return $bank_bin !== '' && $account_number !== '';
     }
 
     public static function _readableName(): string

@@ -16,6 +16,8 @@ use Stripe\Exception\ApiErrorException;
 use Stripe\Stripe;
 use Stripe\WebhookEndpoint;
 use Throwable;
+use function in_array;
+use function trim;
 
 final class BillingController extends BaseController
 {
@@ -81,6 +83,14 @@ final class BillingController extends BaseController
                     'msg' => 'Lưu ' . $item . ' thất bại',
                 ]);
             }
+        }
+
+        // If Manual QR bank details are filled, keep the gateway enabled for top-up invoices.
+        $bank_bin = trim((string) ($request->getParam('manual_qr_bank_bin') ?? Config::obtain('manual_qr_bank_bin')));
+        $account_number = trim((string) ($request->getParam('manual_qr_account_number') ?? Config::obtain('manual_qr_account_number')));
+        if ($bank_bin !== '' && $account_number !== '' && ! in_array('manualqr', $active_gateway, true)) {
+            $active_gateway[] = 'manualqr';
+            Config::set('payment_gateway', $active_gateway);
         }
 
         return $response->withJson([
