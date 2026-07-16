@@ -297,52 +297,90 @@
                 </div>
 
                 <div class="col-lg-6 col-sm-12">
-                    <div class="vstack">
-                        <div class="card">
+                    <div class="vstack gap-3">
+                        <div class="card gopass-traffic-card">
                             <div class="card-body">
-                                <h3 class="card-title">Sử dụng lưu lượng</h3>
-                                <div class="progress progress-separated mb-3">
-                                    {if $user->LastusedTrafficPercent() < '1'}
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 1%"></div>
-                                    {else}
-                                    <div class="progress-bar bg-primary" role="progressbar"
-                                         style="width: {$user->LastusedTrafficPercent()}%">
+                                <div class="gopass-traffic-head">
+                                    <div>
+                                        <h3 class="card-title mb-1">Sử dụng lưu lượng</h3>
+                                        <div class="gopass-traffic-sub">
+                                            {if $user->transfer_enable > 0}
+                                            Tổng gói: <strong>{$user->enableTraffic()}</strong>
+                                            {else}
+                                            Chưa có gói lưu lượng
+                                            {/if}
+                                        </div>
                                     </div>
-                                    {/if}
-                                    {if $user->TodayusedTrafficPercent() < '1'}
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 1%"></div>
+                                    {if $user->transfer_enable > 0}
+                                    <div class="gopass-traffic-remain-badge">
+                                        {$user->unusedTrafficPercent()|string_format:"%.0f"}% còn lại
+                                    </div>
                                     {else}
-                                    <div class="progress-bar bg-success" role="progressbar"
-                                         style="width: {$user->TodayusedTrafficPercent()}%"></div>
+                                    <div class="gopass-traffic-remain-badge gopass-traffic-remain-badge--empty">
+                                        Chưa kích hoạt
+                                    </div>
                                     {/if}
                                 </div>
-                                <div class="row">
-                                    <div class="col-auto d-flex align-items-center pe-2">
-                                        <span class="legend me-2 bg-primary"></span>
-                                        <span>Lưu lượng đã dùng {$user->LastusedTraffic()}</span>
+
+                                <div class="gopass-traffic-bar progress progress-separated" role="progressbar"
+                                     aria-label="Tiến độ lưu lượng"
+                                     aria-valuenow="{$user->unusedTrafficPercent()|string_format:'%.0f'}"
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    {assign var=last_pct value=$user->lastUsedTrafficPercent()}
+                                    {assign var=today_pct value=$user->todayUsedTrafficPercent()}
+                                    {if $last_pct > 0}
+                                    <div class="progress-bar gopass-traffic-bar-used"
+                                         style="width: {$last_pct}%"></div>
+                                    {/if}
+                                    {if $today_pct > 0}
+                                    <div class="progress-bar gopass-traffic-bar-today"
+                                         style="width: {$today_pct}%"></div>
+                                    {/if}
+                                </div>
+
+                                <div class="gopass-traffic-stats">
+                                    <div class="gopass-traffic-stat gopass-traffic-stat--used">
+                                        <div class="gopass-traffic-stat-label">
+                                            <span class="gopass-traffic-dot"></span>
+                                            Đã dùng
+                                        </div>
+                                        <div class="gopass-traffic-stat-value">{$user->lastUsedTraffic()}</div>
                                     </div>
-                                    <div class="col-auto d-flex align-items-center px-2">
-                                        <span class="legend me-2 bg-success"></span>
-                                        <span>Lưu lượng hôm nay {$user->TodayusedTraffic()}</span>
+                                    <div class="gopass-traffic-stat gopass-traffic-stat--today">
+                                        <div class="gopass-traffic-stat-label">
+                                            <span class="gopass-traffic-dot"></span>
+                                            Hôm nay
+                                        </div>
+                                        <div class="gopass-traffic-stat-value">{$user->todayUsedTraffic()}</div>
                                     </div>
-                                    <div class="col-auto d-flex align-items-center ps-2">
-                                        <span class="legend me-2"></span>
-                                        <span>Lưu lượng còn lại {$user->unusedTraffic()}</span>
+                                    <div class="gopass-traffic-stat gopass-traffic-stat--left">
+                                        <div class="gopass-traffic-stat-label">
+                                            <span class="gopass-traffic-dot"></span>
+                                            Còn lại
+                                        </div>
+                                        <div class="gopass-traffic-stat-value">{$user->unusedTraffic()}</div>
                                     </div>
                                 </div>
-                                <p class="my-3">
-                                    {if $user->class === 0}
-                                    Đến
-                                    <a href="/user/product">Cửa hàng</a>
-                                    mua gói dịch vụ
-                                    {else}
-                                    Tài khoản LV. {$user->class} của bạn sẽ hết hạn sau {$class_expire_days} ngày ({$user->class_expire})
-                                    {/if}
-                                </p>
+
+                                {if $user->class === 0}
+                                <a href="/user/product" class="btn btn-primary w-100 gopass-traffic-cta">
+                                    <i class="ti ti-shopping-cart"></i>
+                                    Đến cửa hàng mua gói dịch vụ
+                                </a>
+                                {else}
+                                <div class="gopass-traffic-expire">
+                                    <i class="ti ti-calendar-event"></i>
+                                    <span>
+                                        Gói <strong>LV. {$user->class}</strong> hết hạn sau
+                                        <strong>{$class_expire_days} ngày</strong>
+                                        <span class="gopass-traffic-expire-date">({$user->class_expire})</span>
+                                    </span>
+                                </div>
+                                {/if}
                             </div>
                         </div>
                         {if $public_setting['traffic_log']}
-                        <div class="card my-3 mb-0">
+                        <div class="card mb-0">
                             <div class="card-body">
                                 <h3 class="card-title">Lưu lượng theo giờ</h3>
                                 <div id="traffic-log"></div>

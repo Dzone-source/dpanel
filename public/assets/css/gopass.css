@@ -802,6 +802,222 @@ body.gopass-auth .border-top-wide {
     background: linear-gradient(90deg, #7c3aed, #a855f7) !important;
 }
 
+/* ===================== Traffic usage card ===================== */
+.gopass-traffic-card .card-body {
+    padding: 1.2rem 1.2rem 1.25rem;
+}
+
+.gopass-traffic-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.gopass-traffic-head .card-title {
+    margin: 0;
+}
+
+.gopass-traffic-sub {
+    font-size: 0.8rem;
+    color: var(--gopass-muted);
+    margin-top: 0.15rem;
+}
+
+.gopass-traffic-remain-badge {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(124, 58, 237, 0.1);
+    color: var(--gopass-primary-dark);
+    white-space: nowrap;
+}
+
+.gopass-traffic-remain-badge--empty {
+    background: rgba(107, 101, 120, 0.12);
+    color: var(--gopass-muted);
+}
+
+[data-bs-theme="dark"] .gopass-traffic-remain-badge {
+    background: rgba(124, 58, 237, 0.22);
+    color: #e9e5ff;
+}
+
+.gopass-traffic-bar {
+    height: 0.7rem !important;
+    border-radius: 999px !important;
+    background: color-mix(in srgb, var(--gopass-muted) 18%, transparent);
+    margin-bottom: 1rem;
+    display: flex;
+    overflow: hidden;
+}
+
+.gopass-traffic-bar-used {
+    background: linear-gradient(90deg, #6d28d9, #7c3aed) !important;
+}
+
+.gopass-traffic-bar-today {
+    background: linear-gradient(90deg, #059669, #34d399) !important;
+}
+
+.gopass-traffic-stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+}
+
+.gopass-traffic-stat {
+    min-width: 0;
+    padding: 0.75rem 0.8rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--gopass-border);
+    background: color-mix(in srgb, var(--gopass-surface) 70%, transparent);
+}
+
+.gopass-traffic-stat-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--gopass-muted);
+    margin-bottom: 0.35rem;
+    line-height: 1.2;
+}
+
+.gopass-traffic-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 0.2rem;
+    flex-shrink: 0;
+}
+
+.gopass-traffic-stat--used .gopass-traffic-dot {
+    background: linear-gradient(135deg, #6d28d9, #7c3aed);
+}
+
+.gopass-traffic-stat--today .gopass-traffic-dot {
+    background: linear-gradient(135deg, #059669, #34d399);
+}
+
+.gopass-traffic-stat--left .gopass-traffic-dot {
+    background: color-mix(in srgb, var(--gopass-muted) 45%, transparent);
+}
+
+.gopass-traffic-stat-value {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--gopass-text);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    word-break: break-word;
+}
+
+.gopass-traffic-cta {
+    min-height: 48px;
+    font-weight: 800 !important;
+    font-size: 0.95rem !important;
+    border-radius: 0.8rem !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    box-shadow: 0 10px 24px rgba(124, 58, 237, 0.25);
+}
+
+.gopass-traffic-expire {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    padding: 0.85rem 0.95rem;
+    border-radius: 0.85rem;
+    background: rgba(124, 58, 237, 0.08);
+    border: 1px solid rgba(124, 58, 237, 0.14);
+    color: var(--gopass-text);
+    font-size: 0.88rem;
+    line-height: 1.45;
+}
+
+.gopass-traffic-expire .ti {
+    color: var(--gopass-primary);
+    font-size: 1.15rem;
+    margin-top: 0.1rem;
+}
+
+.gopass-traffic-expire-date {
+    color: var(--gopass-muted);
+    font-size: 0.82rem;
+}
+
+[data-bs-theme="dark"] .gopass-traffic-stat {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+[data-bs-theme="dark"] .gopass-traffic-bar {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+[data-bs-theme="dark"] .gopass-traffic-expire {
+    background: rgba(124, 58, 237, 0.16);
+    border-color: rgba(167, 139, 250, 0.25);
+}
+
+@media (max-width: 575.98px) {
+    .gopass-traffic-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.65rem;
+    }
+
+    .gopass-traffic-remain-badge {
+        align-self: flex-start;
+    }
+
+    .gopass-traffic-stats {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .gopass-traffic-stat {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.7rem 0.85rem;
+    }
+
+    .gopass-traffic-stat-label {
+        margin-bottom: 0;
+    }
+
+    .gopass-traffic-stat-value {
+        font-size: 0.92rem;
+        text-align: right;
+    }
+
+    .gopass-traffic-cta {
+        min-height: 50px;
+        font-size: 0.92rem !important;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .gopass-traffic-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .gopass-traffic-stat-value {
+        font-size: 0.88rem;
+    }
+}
+
 .gopass-theme .form-control,
 .gopass-theme .form-select {
     border-radius: 0.7rem;
