@@ -27,4 +27,14 @@
     <div class="alert alert-info mt-3 mb-0">
         Sau khi chuyển khoản, hóa đơn sẽ được quản trị viên xác nhận thủ công.
     </div>
+
+    <button class="btn btn-primary w-100 mt-3"
+            hx-post="/user/payment/purchase/manualqr" hx-swap="none"
+            hx-confirm="Xác nhận bạn đã chuyển khoản đúng số tiền và nội dung INV{$invoice->id}?"
+            hx-vals='js:{
+                invoice_id: {$invoice->id},
+                confirm_paid: "1"
+            }'>
+        Tôi đã chuyển khoản
+    </button>
 </div>
