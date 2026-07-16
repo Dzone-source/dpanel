@@ -86,6 +86,8 @@ final class User extends Model
         'port' => 'int',
         'daily_mail_enable' => 'int',
         'ref_by' => 'int',
+        'node_iplimit' => 'int',
+        'node_speedlimit' => 'float',
     ];
 
     /**

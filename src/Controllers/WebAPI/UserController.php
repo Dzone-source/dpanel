@@ -79,12 +79,25 @@ final class UserController extends BaseController
             'uuid',
         ]);
 
+        // Keep node_iplimit so XrayR can enforce device/IP limits in real time.
         $keys_unset = match ($node->sort) {
-            14, 11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd', 'node_iplimit'],
-            2 => ['u', 'd', 'transfer_enable', 'method', 'port', 'node_iplimit'],
-            1 => ['u', 'd', 'transfer_enable', 'method', 'port', 'uuid', 'node_iplimit'],
-            default => ['u', 'd', 'transfer_enable', 'uuid', 'node_iplimit']
+            14, 11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'],
+            2 => ['u', 'd', 'transfer_enable', 'method', 'port'],
+            1 => ['u', 'd', 'transfer_enable', 'method', 'port', 'uuid'],
+            default => ['u', 'd', 'transfer_enable', 'uuid']
         };
+
+        // Batch online IP counts (active within last 90 seconds) for multi-node coordination.
+        $alive_ip_counts = [];
+        if ($users_raw->isNotEmpty()) {
+            $alive_ip_counts = (new OnlineLog())
+                ->whereIn('user_id', $users_raw->pluck('id'))
+                ->where('last_time', '>', time() - 90)
+                ->groupBy('user_id')
+                ->selectRaw('user_id, COUNT(*) AS cnt')
+                ->pluck('cnt', 'user_id')
+                ->all();
+        }
 
         $users = [];
 
@@ -98,13 +111,11 @@ final class UserController extends BaseController
                 }
             }
 
-            if ($user_raw->node_iplimit !== 0 &&
-                $user_raw->node_iplimit <
-                (new OnlineLog())
-                    ->where('user_id', $user_raw->id)
-                    ->where('last_time', '>', time() - 90)
-                    ->count()
-            ) {
+            $ip_limit = (int) $user_raw->node_iplimit;
+            $alive_ip = (int) ($alive_ip_counts[$user_raw->id] ?? 0);
+
+            // Hard kick when online IPs already exceed package limit.
+            if ($ip_limit !== 0 && $ip_limit < $alive_ip) {
                 continue;
             }
 
@@ -122,6 +133,10 @@ final class UserController extends BaseController
             foreach ($keys_unset as $key) {
                 unset($user_raw->$key);
             }
+
+            // Expose limit + current online IP count for XrayR DeviceLimit / AliveIP.
+            $user_raw->node_iplimit = $ip_limit;
+            $user_raw->alive_ip = $alive_ip;
 
             $users[] = $user_raw;
         }
