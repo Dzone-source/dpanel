@@ -15,12 +15,19 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use RedisException;
 use Telegram\Bot\Exceptions\TelegramSDKException;
+use function base64_encode;
 use function in_array;
 use function strtotime;
 
+/**
+ * Subscription endpoint — UA detection aligned with Xboard ProtocolManager.
+ */
 final class SubController extends BaseController
 {
-    private const SUBTYPE_LIST = ['json', 'clash', 'sip008', 'singbox', 'v2rayjson', 'sip002', 'ss', 'v2ray', 'trojan'];
+    private const SUBTYPE_LIST = [
+        'json', 'clash', 'sip008', 'singbox', 'v2rayjson',
+        'sip002', 'ss', 'v2ray', 'trojan', 'general',
+    ];
 
     /**
      * @throws ClientExceptionInterface
@@ -38,7 +45,6 @@ final class SubController extends BaseController
         }
 
         $request_host = strtolower(trim($request->getHeaderLine('Host')));
-        // Strip optional port from Host (e.g. co2.vn:443)
         if (str_contains($request_host, ':')) {
             $request_host = explode(':', $request_host, 2)[0];
         }
@@ -70,9 +76,9 @@ final class SubController extends BaseController
         $user = $link->user();
         $sub_info = Subscribe::getContent($user, $subtype);
 
-        // Hiddify/trojan path with no nodes would return empty body — fall back to Clash.
-        if ($sub_info === '' && $subtype === 'trojan') {
-            $subtype = 'clash';
+        // Empty fallbacks (same idea as Xboard always having a usable body).
+        if ($sub_info === '' && in_array($subtype, ['trojan', 'general', 'v2ray', 'singbox'], true)) {
+            $subtype = $subtype === 'singbox' ? 'general' : 'clash';
             $sub_info = Subscribe::getContent($user, $subtype);
         }
 
@@ -86,9 +92,9 @@ final class SubController extends BaseController
             . '; download=' . $user->d
             . '; total=' . $user->transfer_enable
             . '; expire=' . strtotime($user->class_expire);
-        $sub_profile_update_interval = 6;
-        $sub_profile_web_page_url = $_ENV['baseUrl'];
         $profile_title = (string) ($_ENV['appName'] ?? 'DPanel');
+        // Xboard-compatible Profile-Title (emoji-safe)
+        $profile_title_header = 'base64:' . base64_encode($profile_title);
 
         if (Config::obtain('subscribe_log')) {
             (new SubscribeLog())->add(
@@ -99,16 +105,15 @@ final class SubController extends BaseController
         }
 
         $response = $response->withHeader('Subscription-Userinfo', $sub_details)
-            ->withHeader('Profile-Update-Interval', (string) $sub_profile_update_interval)
-            ->withHeader('Profile-Web-Page-Url', $sub_profile_web_page_url)
-            ->withHeader('Profile-Title', $profile_title)
+            ->withHeader('Profile-Update-Interval', '24')
+            ->withHeader('Profile-Web-Page-Url', (string) $_ENV['baseUrl'])
+            ->withHeader('Profile-Title', $profile_title_header)
             ->withHeader('Content-Type', $content_type);
 
-        // Only Clash clients commonly expect Content-Disposition; it can break Hiddify/Dio.
         if ($subtype === 'clash') {
             $response = $response->withHeader(
                 'Content-Disposition',
-                'attachment; filename=' . $_ENV['appName']
+                'attachment; filename=' . $profile_title
             );
         }
 
@@ -116,55 +121,54 @@ final class SubController extends BaseController
     }
 
     /**
-     * Pick a subscription format when the client uses the bare /sub/{token} URL.
+     * Mirror Xboard flag matching (longer / more specific flags win via order).
      */
     private function detectSubtype(string $userAgent): string
     {
         $ua = strtolower($userAgent);
 
         if ($ua === '') {
-            return 'clash';
+            return 'general';
         }
 
+        // Clash Meta family (Xboard: meta, verge, flclash, ...)
         if (str_contains($ua, 'clash') ||
             str_contains($ua, 'stash') ||
             str_contains($ua, 'verge') ||
             str_contains($ua, 'flclash') ||
             str_contains($ua, 'nyanpasu') ||
-            str_contains($ua, 'mihomo')
+            str_contains($ua, 'mihomo') ||
+            str_contains($ua, 'nekobox')
         ) {
             return 'clash';
         }
 
-        // Hiddify parses trojan:// share-links more reliably than full Clash YAML.
-        // Flutter HTTP clients often send only Dart/* / Dio in the User-Agent.
+        // Xboard SingBox flags: sing-box, hiddify, sfm
         if (str_contains($ua, 'hiddify') ||
-            str_contains($ua, 'dart/') ||
-            str_contains($ua, 'dio')
-        ) {
-            return 'trojan';
-        }
-
-        if (str_contains($ua, 'sing-box') ||
+            str_contains($ua, 'sing-box') ||
             str_contains($ua, 'singbox') ||
-            str_contains($ua, 'sfa') ||
             str_contains($ua, 'sfm') ||
+            str_contains($ua, 'sfa') ||
             str_contains($ua, 'sfi')
         ) {
             return 'singbox';
         }
 
-        if (str_contains($ua, 'v2ray') ||
+        // Xboard falls back to General for generic clients (incl. Dart/Dio from Hiddify).
+        if (str_contains($ua, 'dart/') ||
+            str_contains($ua, 'dio') ||
+            str_contains($ua, 'v2ray') ||
             str_contains($ua, 'v2box') ||
             str_contains($ua, 'shadowrocket') ||
             str_contains($ua, 'quantumult') ||
             str_contains($ua, 'surge') ||
-            str_contains($ua, 'loon')
+            str_contains($ua, 'loon') ||
+            str_contains($ua, 'passwall') ||
+            str_contains($ua, 'sagernet')
         ) {
-            return 'v2ray';
+            return 'general';
         }
 
-        // Most GUI clients accept Clash YAML from a bare subscription URL.
-        return 'clash';
+        return 'general';
     }
 }

@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Link;
 use App\Models\Node;
 use App\Services\Subscribe\Clash;
+use App\Services\Subscribe\General;
 use App\Services\Subscribe\Json;
 use App\Services\Subscribe\SingBox;
 use App\Services\Subscribe\SIP002;
@@ -86,7 +87,7 @@ final class Subscribe
         return self::getClient($type)->getContent($user);
     }
 
-    public static function getClient(string $type): Json|SS|SIP002|V2Ray|Trojan|Clash|SIP008|SingBox|V2RayJson
+    public static function getClient(string $type): Json|SS|SIP002|V2Ray|Trojan|Clash|SIP008|SingBox|V2RayJson|General
     {
         return match ($type) {
             'ss' => new SS(),
@@ -97,6 +98,7 @@ final class Subscribe
             'sip008' => new SIP008(),
             'singbox' => new SingBox(),
             'v2rayjson' => new V2RayJson(),
+            'general' => new General(),
             default => new Json(),
         };
     }

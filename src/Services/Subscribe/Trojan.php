@@ -19,7 +19,8 @@ final class Trojan extends Base
     public function getContent($user): string
     {
         $links = '';
-        //判断是否开启Trojan订阅
+        // Dedicated /trojan endpoint respects the admin toggle; General may still call us.
+        // Keep generating when the toggle is on (default for this deployment).
         if (! Config::obtain('enable_trojan_sub')) {
             return $links;
         }
