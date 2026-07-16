@@ -60,9 +60,23 @@ final class UserController extends BaseController
             $r2Enabled
         );
 
-        $class_value = $this->user->class > 0
-            ? 'LV. ' . $this->user->class . ' · còn ' . $class_expire_days . ' ngày'
-            : 'Chưa kích hoạt';
+        // Bandwidth-only packages may leave class at 0 while transfer_enable > 0.
+        $has_active_plan = $this->user->class > 0 || $this->user->transfer_enable > 0;
+        $class_expire_ts = strtotime((string) $this->user->class_expire);
+        $expire_still_valid = $class_expire_ts !== false && $class_expire_ts > time();
+
+        if ($this->user->class > 0) {
+            $class_value = 'LV. ' . $this->user->class
+                . ($class_expire_days > 0 ? ' · còn ' . $class_expire_days . ' ngày' : '');
+        } elseif ($this->user->transfer_enable > 0) {
+            $class_value = $this->user->enableTraffic() . ' · đang dùng';
+            if ($expire_still_valid) {
+                $class_value = $this->user->enableTraffic()
+                    . ' · còn ' . (int) round(($class_expire_ts - time()) / 86400) . ' ngày';
+            }
+        } else {
+            $class_value = 'Chưa kích hoạt';
+        }
 
         $info_cards = [
             [
@@ -71,8 +85,10 @@ final class UserController extends BaseController
                 'icon' => 'ti-crown',
                 'gradient' => 'gopass-gradient-1',
                 'action_url' => '/user/product',
-                'cta' => $this->user->class <= 0,
+                'cta' => ! $has_active_plan,
                 'cta_label' => 'Mua hàng',
+                'buy_new' => $has_active_plan,
+                'buy_new_label' => 'Mua gói mới',
             ],
             [
                 'title' => 'Số dư ví',

@@ -168,7 +168,12 @@
                                             <div class="gopass-stat-label">{$card.title}</div>
                                             <div class="gopass-stat-value">{$card.value}</div>
                                         </div>
-                                        {if isset($card.action_url)}
+                                        {if isset($card.buy_new) && $card.buy_new}
+                                        <a href="{$card.action_url}" class="btn btn-primary btn-sm gopass-stat-buy-new">
+                                            <i class="ti ti-shopping-cart"></i>
+                                            <span>{$card.buy_new_label|default:'Mua gói mới'}</span>
+                                        </a>
+                                        {elseif isset($card.action_url)}
                                         <a href="{$card.action_url}" class="btn btn-primary btn-icon btn-sm">
                                             <i class="ti ti-arrow-right"></i>
                                         </a>
