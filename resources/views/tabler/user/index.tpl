@@ -197,6 +197,14 @@
                                 <h4 class="mb-3">
                                     <i class="ti ti-link"></i> Địa chỉ đăng ký node dành riêng cho bạn
                                 </h4>
+                                <label class="form-label mb-1">Clash Meta / Clash Verge</label>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" value="{$UniversalSub}/clash" readonly id="clash-sub-link">
+                                    <button class="btn btn-primary copy" data-clipboard-text="{$UniversalSub}/clash">
+                                        <i class="ti ti-copy"></i> Sao chép
+                                    </button>
+                                </div>
+                                <label class="form-label mb-1">Hiddify / SFA (Sing-box)</label>
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" value="{$UniversalSub}/singbox" readonly id="universal-sub-link">
                                     <button class="btn btn-primary copy" data-clipboard-text="{$UniversalSub}/singbox">
@@ -204,7 +212,7 @@
                                     </button>
                                 </div>
                                 <p class="text-muted mb-0">
-                                    <small>Link Sing-box — dùng cho <strong>Hiddify</strong> và <strong>SFA</strong> (Clipboard). Clash Meta: thêm <code>/clash</code> bên dưới. Vui lòng bảo mật.</small>
+                                    <small>Mỗi app một link — đừng dùng nhầm. Vui lòng bảo mật liên kết.</small>
                                 </p>
                             </div>
 
@@ -261,12 +269,9 @@
                                         {/if}
                                         {if $public_setting['enable_trojan_sub']}
                                         <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/trojan">
-                                            Trojan / Hiddify
+                                            Trojan
                                         </button>
                                         {/if}
-                                        <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/clash">
-                                            Clash Meta
-                                        </button>
                                     </div>
                                 </div>
                                 
