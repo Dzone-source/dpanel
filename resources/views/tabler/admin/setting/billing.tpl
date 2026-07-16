@@ -390,7 +390,7 @@
                                             <label class="form-label col-3 col-form-label">Mã ngân hàng VietQR</label>
                                             <div class="col">
                                                 <input id="manual_qr_bank_bin" type="text" class="form-control"
-                                                       value="{$settings['manual_qr_bank_bin']}">
+                                                       value="{$settings['manual_qr_bank_bin']|default:''}">
                                                 <span>Ví dụ: MB, VCB, ACB, TCB...</span>
                                             </div>
                                         </div>
@@ -398,29 +398,29 @@
                                             <label class="form-label col-3 col-form-label">Tên ngân hàng</label>
                                             <div class="col">
                                                 <input id="manual_qr_bank_name" type="text" class="form-control"
-                                                       value="{$settings['manual_qr_bank_name']}">
+                                                       value="{$settings['manual_qr_bank_name']|default:''}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
                                             <label class="form-label col-3 col-form-label">Số tài khoản</label>
                                             <div class="col">
                                                 <input id="manual_qr_account_number" type="text" class="form-control"
-                                                       value="{$settings['manual_qr_account_number']}">
+                                                       value="{$settings['manual_qr_account_number']|default:''}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
                                             <label class="form-label col-3 col-form-label">Tên chủ tài khoản</label>
                                             <div class="col">
                                                 <input id="manual_qr_account_name" type="text" class="form-control"
-                                                       value="{$settings['manual_qr_account_name']}">
+                                                       value="{$settings['manual_qr_account_name']|default:''}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">URL ảnh QR</label>
+                                            <label class="form-label col-3 col-form-label">URL ảnh QR (tùy chọn)</label>
                                             <div class="col">
                                                 <input id="manual_qr_image_url" type="text" class="form-control"
-                                                       value="{$settings['manual_qr_image_url']}">
-                                                <span>Dùng URL https công khai hoặc đường dẫn tĩnh nội bộ.</span>
+                                                       value="{$settings['manual_qr_image_url']|default:''}">
+                                                <span>Chỉ dùng khi không dùng VietQR. Có thể để trống.</span>
                                             </div>
                                         </div>
                                     </div>

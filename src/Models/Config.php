@@ -6,9 +6,12 @@ namespace App\Models;
 
 use Illuminate\Database\Query\Builder;
 use Illuminate\Database\QueryException;
+use function file_get_contents;
 use function is_array;
+use function is_readable;
 use function json_decode;
 use function json_encode;
+use const BASE_PATH;
 
 /**
  * @property int    $id
@@ -114,11 +117,61 @@ final class Config extends Model
         $value = is_array($value) ? json_encode($value) : $value;
 
         try {
-            (new Config())->where('item', $item)->update(['value' => $value]);
+            $config = (new Config())->where('item', $item)->first();
+            if ($config === null) {
+                return false;
+            }
+
+            $config->value = $value;
+            $config->save();
         } catch (QueryException $e) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Insert missing settings defined in config/settings.json.
+     *
+     * @return int number of newly inserted rows
+     */
+    public static function importMissingFromFile(?string $path = null): int
+    {
+        $path ??= BASE_PATH . '/config/settings.json';
+        if (! is_readable($path)) {
+            return 0;
+        }
+
+        $settings = json_decode((string) file_get_contents($path), true);
+        if (! is_array($settings)) {
+            return 0;
+        }
+
+        $added = 0;
+
+        foreach ($settings as $item) {
+            if (! is_array($item) || ! isset($item['item'])) {
+                continue;
+            }
+
+            $exists = (new Config())->where('item', $item['item'])->first();
+            if ($exists !== null) {
+                continue;
+            }
+
+            $new_item = new Config();
+            $new_item->item = (string) $item['item'];
+            $new_item->value = (string) ($item['value'] ?? '');
+            $new_item->class = (string) ($item['class'] ?? '');
+            $new_item->is_public = (string) ($item['is_public'] ?? '0');
+            $new_item->type = (string) ($item['type'] ?? 'string');
+            $new_item->default = (string) ($item['default'] ?? '');
+            $new_item->mark = (string) ($item['mark'] ?? '');
+            $new_item->save();
+            $added++;
+        }
+
+        return $added;
     }
 }

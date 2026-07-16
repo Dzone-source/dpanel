@@ -34,6 +34,7 @@ final class Tool extends Command
 ├─=: php xcat Tool [选项]
 │ ├─ resetSetting        - 使用默认值覆盖数据库配置
 │ ├─ importSetting       - 导入数据库配置
+│ ├─ importMissingSetting - Chỉ thêm key cấu hình mới từ settings.json
 │ ├─ resetNodePassword   - 重置所有节点通讯密钥
 │ ├─ resetNodeBandwidth  - 重置所有节点流量
 │ ├─ resetPort           - 重置所有用户端口
@@ -75,6 +76,12 @@ EOL;
         }
 
         echo '已使用默认值覆盖所有数据库设置' . PHP_EOL;
+    }
+
+    public function importMissingSetting(): void
+    {
+        $added = Config::importMissingFromFile();
+        echo 'Đã thêm ' . $added . ' cấu hình mới từ settings.json' . PHP_EOL;
     }
 
     public function importSetting(): void

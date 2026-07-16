@@ -25,6 +25,7 @@ final class BillingController extends BaseController
     public function __construct()
     {
         parent::__construct();
+        Config::importMissingFromFile();
         $this->update_field = Config::getItemListByClass('billing');
         $this->settings = Config::getClass('billing');
     }
@@ -39,17 +40,20 @@ final class BillingController extends BaseController
                 ->assign('update_field', $this->update_field)
                 ->assign('settings', $this->settings)
                 ->assign('payment_gateways', $this->returnGatewaysList())
-                ->assign('active_payment_gateway', $this->returnActiveGateways())
+                ->assign('active_payment_gateway', $this->returnActiveGateways() ?? [])
                 ->fetch('admin/setting/billing.tpl')
         );
     }
 
     public function save(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
+        Config::importMissingFromFile();
+        $this->update_field = Config::getItemListByClass('billing');
+
         $active_gateway = [];
 
         foreach ($this->returnGatewaysList() as $key => $value) {
-            if ($request->getParam($value) === 'true') {
+            if ($request->getParam($value) === 'true' || $request->getParam($value) === true) {
                 $active_gateway[] = $value;
             }
         }
@@ -66,7 +70,12 @@ final class BillingController extends BaseController
                 continue;
             }
 
-            if (! Config::set($item, $request->getParam($item))) {
+            $value = $request->getParam($item);
+            if ($value === null) {
+                continue;
+            }
+
+            if (! Config::set($item, $value)) {
                 return $response->withJson([
                     'ret' => 0,
                     'msg' => 'Lưu ' . $item . ' thất bại',

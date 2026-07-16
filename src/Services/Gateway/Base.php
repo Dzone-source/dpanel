@@ -17,6 +17,7 @@ use Slim\Http\ServerRequest;
 use voku\helper\AntiXSS;
 use function get_called_class;
 use function in_array;
+use function is_array;
 use function json_decode;
 use function time;
 
@@ -108,12 +109,15 @@ abstract class Base
     protected static function getActiveGateway(string $key): bool
     {
         $payment_gateways = (new Config())->where('item', 'payment_gateway')->first();
-        $active_gateways = json_decode($payment_gateways->value);
-
-        if (in_array($key, $active_gateways)) {
-            return true;
+        if ($payment_gateways === null) {
+            return false;
         }
 
-        return false;
+        $active_gateways = json_decode((string) $payment_gateways->value, true);
+        if (! is_array($active_gateways)) {
+            return false;
+        }
+
+        return in_array($key, $active_gateways, true);
     }
 }

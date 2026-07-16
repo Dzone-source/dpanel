@@ -50,4 +50,7 @@ if [ ! -f config/appprofile.php ]; then
     cp config/appprofile.example.php config/appprofile.php
 fi
 
+# Import newly added settings keys (e.g. Manual QR) without overwriting existing values.
+php /var/www/html/xcat Tool importMissingSetting >/tmp/dpanel-import-setting.log 2>&1 || true
+
 exec "$@"
