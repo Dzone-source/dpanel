@@ -22,8 +22,8 @@ return static function (Slim\App $app): void {
     // OAuth
     $app->post('/oauth/{type}', App\Controllers\OAuthController::class . ':index');
     $app->get('/oauth/{type}', App\Controllers\OAuthController::class . ':index');
-    // 通用订阅
-    $app->get('/sub/{token}/{subtype}', App\Controllers\SubController::class . ':index');
+    // Universal subscription (subtype optional — auto-detect from User-Agent)
+    $app->get('/sub/{token}[/{subtype}]', App\Controllers\SubController::class . ':index');
     // User
     $app->group('/user', static function (RouteCollectorProxy $group): void {
         $group->get('', App\Controllers\UserController::class . ':index');

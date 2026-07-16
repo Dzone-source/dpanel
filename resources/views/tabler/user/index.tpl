@@ -204,7 +204,7 @@
                                     </button>
                                 </div>
                                 <p class="text-muted mb-0">
-                                    <small>Địa chỉ đăng ký này dùng cho mọi ứng dụng khách, vui lòng bảo mật</small>
+                                    <small>Dùng trực tiếp trong Clash / Hiddify / sing-box. Có thể thêm <code>/clash</code> hoặc <code>/singbox</code> nếu app yêu cầu. Vui lòng bảo mật liên kết.</small>
                                 </p>
                             </div>
 
