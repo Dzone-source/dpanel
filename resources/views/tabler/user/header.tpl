@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
     <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-    <link href="/assets/css/gopass.css?v=20260716d" rel="stylesheet"/>
+    <link href="/assets/css/gopass.css?v=20260716e" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
@@ -167,8 +167,8 @@
                     </span>
                 </div>
             </div>
-            <div class="gopass-topbar-actions d-flex align-items-center flex-shrink-0">
-                <button id="gopass-theme-toggle" class="btn btn-ghost-secondary gopass-topbar-btn"
+            <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
+                <button id="gopass-theme-toggle" class="btn btn-ghost-secondary btn-sm"
                         type="button"
                         hx-post="/user/switch_theme_mode"
                         hx-swap="none"
@@ -180,9 +180,9 @@
                     <i class="ti ti-moon" id="gopass-theme-toggle-icon"></i>
                     {/if}
                 </button>
-                <a href="/user/logout" class="btn btn-ghost-danger gopass-topbar-btn gopass-logout-btn">
+                <a href="/user/logout" class="btn btn-ghost-danger btn-sm">
                     <i class="ti ti-logout"></i>
-                    <span>Đăng xuất</span>
+                    <span class="d-none d-sm-inline ms-1">Đăng xuất</span>
                 </a>
             </div>
         </header>
