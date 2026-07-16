@@ -28,18 +28,37 @@ final class ClientConfig
             }
         }
 
+        $sub = rtrim($sub, '/');
         $result = [];
+
         foreach (self::$config['clients'] as $client) {
+            $format = (string) ($client['format'] ?? 'clash');
+            $subWithFormat = $sub . '/' . $format;
+
             foreach ($client['platforms'] as $platform => $data) {
+                $template = $data['importUrl'] ?? $client['importUrl'] ?? '';
+                $importUrl = str_replace(
+                    ['{url}', '{sub}', '{name}'],
+                    [
+                        // Fully encoded subscription URL (required by Hiddify / some Android parsers)
+                        rawurlencode($subWithFormat),
+                        $sub,
+                        rawurlencode($name),
+                    ],
+                    $template
+                );
+
+                // Deep links that embed a raw https:// URL in the path break on Android.
+                // Encode the embedded subscription URL while keeping the scheme + fragment.
+                if (str_starts_with($importUrl, 'hiddify://import/')) {
+                    $importUrl = self::encodeHiddifyImportUrl($importUrl);
+                }
+
                 $result[$platform][] = [
                     'name' => $client['name'],
                     'description' => $data['desc'] ?? $client['description'],
-                    'format' => $client['format'],
-                    'importUrl' => str_replace(
-                        ['{sub}', '{name}'],
-                        [$sub, rawurlencode($name)],
-                        $data['importUrl'] ?? $client['importUrl']
-                    ),
+                    'format' => $format,
+                    'importUrl' => $importUrl,
                     'downloadUrl' => $data['storeUrl'] ??
                         (isset($data['ext']) ? ($r2 ? '/user' : '') . '/clients/' . ($data['file'] ?? str_replace(' ', '.', $client['name'])) . ".{$data['ext']}" : ''),
                     'isAppStore' => isset($data['storeUrl']),
@@ -48,5 +67,28 @@ final class ClientConfig
         }
 
         return ['clients' => $result, 'icons' => self::$config['icons']];
+    }
+
+    /**
+     * Convert hiddify://import/https://...#Name into hiddify://import/https%3A%2F%2F...#Name
+     */
+    private static function encodeHiddifyImportUrl(string $importUrl): string
+    {
+        $prefix = 'hiddify://import/';
+        $rest = substr($importUrl, strlen($prefix));
+        $fragment = '';
+        $hashPos = strrpos($rest, '#');
+
+        if ($hashPos !== false) {
+            $fragment = substr($rest, $hashPos);
+            $rest = substr($rest, 0, $hashPos);
+        }
+
+        // Already encoded
+        if ($rest === '' || str_contains($rest, '%3A%2F%2F') || str_contains($rest, '%3a%2f%2f')) {
+            return $importUrl;
+        }
+
+        return $prefix . rawurlencode($rest) . $fragment;
     }
 }

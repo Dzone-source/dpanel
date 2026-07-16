@@ -32,9 +32,17 @@ final class SubController extends BaseController
         $subtype = $args['subtype'];
         $subtype_list = ['json', 'clash', 'sip008', 'singbox', 'v2rayjson', 'sip002', 'ss', 'v2ray', 'trojan'];
 
+        $request_host = strtolower(trim($request->getHeaderLine('Host')));
+        // Strip optional port from Host (e.g. co2.vn:443)
+        if (str_contains($request_host, ':')) {
+            $request_host = explode(':', $request_host, 2)[0];
+        }
+        $configured_sub_host = strtolower((string) parse_url((string) $_ENV['subUrl'], PHP_URL_HOST));
+
         if (! $_ENV['Subscribe'] ||
             ! in_array($subtype, $subtype_list) ||
-            'https://' . $request->getHeaderLine('Host') !== $_ENV['subUrl']
+            $configured_sub_host === '' ||
+            $request_host !== $configured_sub_host
         ) {
             return ResponseHelper::error($response, $err_msg);
         }
@@ -80,16 +88,22 @@ final class SubController extends BaseController
             );
         }
 
+        $profile_title = (string) ($_ENV['appName'] ?? 'DPanel');
+
         if ($subtype === 'clash') {
             return $response->withHeader('Subscription-Userinfo', $sub_details)
                 ->withHeader('Content-Disposition', $sub_content_disposition)
                 ->withHeader('Profile-Update-Interval', $sub_profile_update_interval)
                 ->withHeader('Profile-Web-Page-Url', $sub_profile_web_page_url)
+                ->withHeader('Profile-Title', $profile_title)
                 ->withHeader('Content-Type', $content_type)
                 ->write($sub_info);
         }
 
         return $response->withHeader('Subscription-Userinfo', $sub_details)
+            ->withHeader('Profile-Title', $profile_title)
+            ->withHeader('Profile-Update-Interval', $sub_profile_update_interval)
+            ->withHeader('Profile-Web-Page-Url', $sub_profile_web_page_url)
             ->withHeader('Content-Type', $content_type)
             ->write($sub_info);
     }
