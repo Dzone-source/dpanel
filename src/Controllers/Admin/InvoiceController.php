@@ -8,6 +8,7 @@ use App\Controllers\BaseController;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Paylist;
+use App\Services\Cron as CronService;
 use App\Utils\Tools;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
@@ -102,6 +103,13 @@ final class InvoiceController extends BaseController
         $invoice->pay_time = time();
         $invoice->status = 'paid_admin';
         $invoice->save();
+
+        // Activate immediately instead of waiting for the next cron tick.
+        try {
+            CronService::processShopOrdersNow();
+        } catch (Exception) {
+            // Cron loop will retry activation if immediate processing fails.
+        }
 
         return $response->withJson([
             'ret' => 1,

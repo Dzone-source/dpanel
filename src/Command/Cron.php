@@ -15,7 +15,7 @@ use function time;
 final class Cron extends Command
 {
     public string $description = <<<EOL
-├─=: php xcat Cron - 站点定时任务，每五分钟
+├─=: php xcat Cron - Tác vụ định kỳ (khuyến nghị mỗi 1 phút)
 EOL;
 
     /**

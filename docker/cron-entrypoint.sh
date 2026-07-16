@@ -9,9 +9,9 @@ if [ ! -f config/.config.php ]; then
     exit 1
 fi
 
-echo "[cron] starting scheduler (every 5 minutes)"
+echo "[cron] starting scheduler (every 1 minute)"
 
 while true; do
     php /var/www/html/xcat Cron || true
-    sleep 300
+    sleep 60
 done

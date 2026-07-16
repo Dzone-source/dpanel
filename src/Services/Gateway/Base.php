@@ -6,11 +6,14 @@ namespace App\Services\Gateway;
 
 use App\Models\Config;
 use App\Models\Invoice;
+use App\Models\Order;
 use App\Models\Paylist;
 use App\Models\User;
 use App\Models\UserMoneyLog;
+use App\Services\Cron as CronService;
 use App\Services\Reward;
 use App\Utils\Tools;
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
@@ -93,6 +96,21 @@ abstract class Base
 
         if ($user !== null && $user->ref_by > 0 && Config::obtain('invite_mode') === 'reward') {
             Reward::issuePaybackReward($user->id, $user->ref_by, $invoice?->price, $paylist?->invoice_id);
+        }
+
+        // Activate paid shop/topup orders immediately after gateway confirmation.
+        try {
+            if ($invoice !== null) {
+                $order = (new Order())->find($invoice->order_id);
+                if ($order !== null && $order->status === 'pending_payment') {
+                    $order->status = 'pending_activation';
+                    $order->update_time = time();
+                    $order->save();
+                }
+            }
+            CronService::processShopOrdersNow();
+        } catch (Exception) {
+            // Leave activation to cron if immediate processing fails.
         }
     }
 

@@ -55,7 +55,7 @@ docker compose exec php php xcat Tool createAdmin admin@example.com your_passwor
 |---------|--------|
 | `nginx` | Web server, cổng `HTTP_PORT` (mặc định 80) |
 | `php` | PHP 8.3-FPM chạy ứng dụng |
-| `cron` | Chạy `php xcat Cron` mỗi 5 phút |
+| `cron` | Chạy `php xcat Cron` mỗi 1 phút |
 | `mariadb` | MariaDB 11.8 |
 | `redis` | Redis 7 |
 

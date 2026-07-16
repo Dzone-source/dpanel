@@ -173,6 +173,18 @@ final class InvoiceController extends BaseController
         }
 
         if ($invoice->status === 'paid_balance') {
+            try {
+                $order = (new Order())->find($invoice->order_id);
+                if ($order !== null && $order->status === 'pending_payment') {
+                    $order->status = 'pending_activation';
+                    $order->update_time = time();
+                    $order->save();
+                }
+                CronService::processShopOrdersNow();
+            } catch (Exception) {
+                // Cron will retry if immediate activation fails.
+            }
+
             return $response->withHeader('HX-Redirect', '/user/invoice');
         }
 

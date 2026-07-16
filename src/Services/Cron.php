@@ -431,6 +431,21 @@ final class Cron
         echo Tools::toDateTime(time()) . ' 等待中订单处理完成' . PHP_EOL;
     }
 
+    /**
+     * Immediately flip paid invoices to activation and activate shop orders.
+     * Used by admin mark-paid / payment callbacks so users do not wait for cron.
+     *
+     * @throws Exception
+     */
+    public static function processShopOrdersNow(): void
+    {
+        self::processPendingOrder();
+        self::processTabpOrderActivation();
+        self::processBandwidthOrderActivation();
+        self::processTimeOrderActivation();
+        self::processTopupOrderActivation();
+    }
+
     public static function removeInactiveUserLinkAndInvite(): void
     {
         $inactive_users = (new User())->where('is_inactive', 1)->get();
