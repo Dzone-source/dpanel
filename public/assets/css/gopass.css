@@ -1,6 +1,6 @@
 /* DPanel GoPass UI — modern responsive shell */
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
     --gopass-primary: #7c3aed;
@@ -20,8 +20,8 @@
     --gopass-shadow: 0 8px 28px rgba(55, 30, 110, 0.08);
     --gopass-shadow-lg: 0 18px 50px rgba(55, 30, 110, 0.14);
     --gopass-topbar-h: 60px;
-    --gopass-font: "Roboto", "Helvetica Neue", Arial, sans-serif;
-    --gopass-display: "Roboto", "Helvetica Neue", Arial, sans-serif;
+    --gopass-font: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --gopass-display: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     --tblr-primary: #7c3aed;
     --tblr-primary-rgb: 124, 58, 237;
     --tblr-primary-fg: #fff;

@@ -3,12 +3,12 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <link href="//fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="//fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
 
     <style>
         .bigTitle {
             color: #000000;
-            font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif;
             font-size: 24px;
             font-weight: 700;
             font-style: normal;
@@ -21,7 +21,7 @@
 
         .midText {
             color: #000000 !important;
-            font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+            font-family: 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif !important;
             font-size: 16px !important;
             font-weight: 400 !important;
             line-height: 22px !important;
@@ -32,7 +32,7 @@
 
         .smlText {
             color: #313131;
-            font-family: 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Be Vietnam Pro', 'Noto Sans', Arial, sans-serif;
             font-size: 12px;
             font-weight: 400;
             line-height: 18px;
