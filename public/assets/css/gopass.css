@@ -1413,6 +1413,219 @@ body.gopass-auth .modal-content {
     }
 }
 
+/* —— Shop / product cards —— */
+.gopass-shop {
+    display: grid;
+    gap: 1.25rem;
+}
+
+.gopass-shop-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.4rem;
+    margin: 0;
+    list-style: none;
+    background: var(--gopass-surface-elevated);
+    border: 1px solid var(--gopass-border);
+    border-radius: 1rem;
+    box-shadow: var(--gopass-shadow);
+}
+
+.gopass-shop-tabs .nav-item {
+    flex: 1 1 auto;
+    min-width: min(100%, 9.5rem);
+}
+
+.gopass-shop-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.55rem 0.9rem;
+    border-radius: 0.75rem;
+    color: var(--gopass-muted) !important;
+    font-size: 0.86rem;
+    font-weight: 650;
+    text-decoration: none !important;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.gopass-shop-tab i {
+    font-size: 1.05rem;
+    opacity: 0.9;
+}
+
+.gopass-shop-tab:hover {
+    background: color-mix(in srgb, var(--gopass-primary) 8%, transparent);
+    color: var(--gopass-text) !important;
+}
+
+.gopass-shop-tab.active {
+    background: linear-gradient(105deg, #6d28d9, #7c3aed 55%, #9333ea);
+    color: #fff !important;
+    box-shadow: 0 8px 18px rgba(109, 40, 217, 0.22);
+}
+
+.gopass-product-card {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid var(--gopass-border);
+    border-radius: 1.15rem;
+    background: var(--gopass-surface-elevated);
+    box-shadow: var(--gopass-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.gopass-product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--gopass-shadow-lg);
+    border-color: color-mix(in srgb, var(--gopass-primary) 28%, var(--gopass-border));
+}
+
+.gopass-product-card-accent {
+    height: 4px;
+    background: linear-gradient(90deg, #6d28d9, #db2777 70%, #f472b6);
+}
+
+.gopass-product-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.2rem 1.2rem 1.25rem;
+    height: calc(100% - 4px);
+}
+
+.gopass-product-name {
+    font-size: 0.78rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gopass-muted);
+    line-height: 1.35;
+}
+
+.gopass-product-price {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.45rem;
+}
+
+.gopass-product-amount {
+    font-family: var(--gopass-display);
+    font-size: clamp(1.7rem, 2.4vw, 2.05rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--gopass-text);
+}
+
+.gopass-product-currency {
+    font-size: 0.95rem;
+    font-weight: 750;
+    color: var(--gopass-primary);
+}
+
+.gopass-product-features {
+    display: grid;
+    gap: 0.55rem;
+    flex: 1 1 auto;
+}
+
+.gopass-product-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0.65rem;
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--gopass-primary) 5%, var(--gopass-surface));
+}
+
+.gopass-product-feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.65rem;
+    background: color-mix(in srgb, var(--gopass-primary) 12%, transparent);
+    color: var(--gopass-primary);
+    flex-shrink: 0;
+}
+
+.gopass-product-feature-icon i {
+    font-size: 1rem;
+}
+
+.gopass-product-feature-text {
+    min-width: 0;
+    display: grid;
+    gap: 0.05rem;
+}
+
+.gopass-product-feature-label {
+    font-size: 0.7rem;
+    font-weight: 650;
+    color: var(--gopass-muted);
+    letter-spacing: 0.02em;
+}
+
+.gopass-product-feature-value {
+    font-size: 0.92rem;
+    font-weight: 750;
+    color: var(--gopass-text);
+    line-height: 1.25;
+}
+
+.gopass-product-buy {
+    margin-top: auto;
+    min-height: 2.7rem;
+    border-radius: 0.85rem !important;
+    font-weight: 750 !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    box-shadow: 0 10px 22px rgba(109, 40, 217, 0.22);
+}
+
+.gopass-shop-empty {
+    display: grid;
+    place-items: center;
+    gap: 0.55rem;
+    min-height: 14rem;
+    padding: 2rem 1rem;
+    border: 1px dashed var(--gopass-border);
+    border-radius: 1.15rem;
+    background: color-mix(in srgb, var(--gopass-primary) 4%, var(--gopass-surface-elevated));
+    color: var(--gopass-muted);
+    text-align: center;
+}
+
+.gopass-shop-empty i {
+    font-size: 2rem;
+    opacity: 0.7;
+}
+
+.gopass-shop-empty p {
+    margin: 0;
+    font-weight: 600;
+}
+
+@media (max-width: 575.98px) {
+    .gopass-shop-tab span {
+        font-size: 0.8rem;
+    }
+
+    .gopass-product-card-body {
+        padding: 1.05rem;
+    }
+}
+
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
     *,

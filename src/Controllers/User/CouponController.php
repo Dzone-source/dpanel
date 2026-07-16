@@ -14,6 +14,7 @@ use Slim\Http\ServerRequest;
 use function explode;
 use function in_array;
 use function json_decode;
+use function number_format;
 use function time;
 
 final class CouponController extends BaseController
@@ -102,8 +103,8 @@ final class CouponController extends BaseController
             'msg' => 'Mã giảm giá khả dụng',
             'data' => [
                 'coupon-code' => $coupon->code,
-                'product-buy-discount' => $discount,
-                'product-buy-total' => $buy_price,
+                'product-buy-discount' => number_format((float) $discount, 0, ',', '.') . ' VNĐ',
+                'product-buy-total' => number_format((float) $buy_price, 0, ',', '.') . ' VNĐ',
             ],
         ]);
     }
