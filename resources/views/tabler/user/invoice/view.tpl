@@ -39,7 +39,7 @@
                                 </div>
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">Số tiền đơn hàng</div>
-                                    <div class="datagrid-content">{$invoice->price}</div>
+                                    <div class="datagrid-content">{$invoice_price_vnd|default:$invoice->price}</div>
                                 </div>
                                 <div class="datagrid-item">
                                     <div class="datagrid-title">Trạng thái đơn hàng</div>
@@ -83,7 +83,7 @@
                                         {foreach $invoice_content as $invoice_content_detail}
                                         <tr>
                                             <td>{$invoice_content_detail->name}</td>
-                                            <td>{$invoice_content_detail->price}</td>
+                                            <td>{$invoice_content_detail->price|number_format:0:',':'.'} VNĐ</td>
                                         </tr>
                                         {/foreach}
                                     </tbody>

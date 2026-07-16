@@ -19,6 +19,9 @@ use function array_values;
 use function in_array;
 use function json_decode;
 use function json_encode;
+use function ltrim;
+use function number_format;
+use function round;
 use function time;
 
 final class InvoiceController extends BaseController
@@ -74,11 +77,17 @@ final class InvoiceController extends BaseController
         $invoice_content = json_decode($invoice->content);
 
         $payments = Payment::getPaymentsEnabled();
-        // Hard guarantee: if Manual QR is enabled/configured, always show it on invoice.
-        if (ManualQr::_enable() && ! in_array(ManualQr::class, $payments, true)) {
-            $payments[] = ManualQr::class;
+        // Hard guarantee + de-dupe by class name (avoid "\App\..." vs "App\..." duplicates).
+        $normalized = [];
+        foreach ($payments as $payment) {
+            $class = '\\' . ltrim((string) $payment, '\\');
+            $normalized[$class] = $class;
         }
-        $payments = array_values($payments);
+        if (ManualQr::_enable()) {
+            $manual = '\\' . ltrim(ManualQr::class, '\\');
+            $normalized[$manual] = $manual;
+        }
+        $payments = array_values($normalized);
 
         return $response->write(
             $this->view()
@@ -86,6 +95,8 @@ final class InvoiceController extends BaseController
                 ->assign('invoice_content', $invoice_content)
                 ->assign('paylist', $paylist)
                 ->assign('payments', $payments)
+                ->assign('invoice_price_vnd', number_format((float) $invoice->price, 0, ',', '.') . ' VNĐ')
+                ->assign('invoice_price_qr', (string) (int) round((float) $invoice->price))
                 ->fetch('user/invoice/view.tpl')
         );
     }

@@ -10,8 +10,18 @@
         {$manual_qr_account_number = $public_setting['manual_qr_account_number']|default:''}
         {$manual_qr_account_name = $public_setting['manual_qr_account_name']|default:''}
         {$manual_qr_image_url = $public_setting['manual_qr_image_url']|default:''}
+        {if isset($invoice_price_vnd)}
+            {$amount_vnd = $invoice_price_vnd}
+        {else}
+            {$amount_vnd = "{$invoice->price|number_format:0:',':'.'} VNĐ"}
+        {/if}
+        {if isset($invoice_price_qr)}
+            {$amount_qr = $invoice_price_qr}
+        {else}
+            {$amount_qr = $invoice->price|string_format:"%d"}
+        {/if}
         {if $manual_qr_bank_bin !== '' && $manual_qr_account_number !== ''}
-        <img src="https://img.vietqr.io/image/{$manual_qr_bank_bin}-{$manual_qr_account_number}-compact2.png?amount={$invoice->price}&addInfo={$transfer_note|escape:'url'}&accountName={$manual_qr_account_name|escape:'url'}"
+        <img src="https://img.vietqr.io/image/{$manual_qr_bank_bin}-{$manual_qr_account_number}-compact2.png?amount={$amount_qr}&addInfo={$transfer_note|escape:'url'}&accountName={$manual_qr_account_name|escape:'url'}"
              alt="Mã QR VietQR thanh toán" class="img-fluid rounded" style="max-width: 240px;">
         {elseif $manual_qr_image_url !== ''}
         <img src="{$manual_qr_image_url}" alt="Mã QR thanh toán" class="img-fluid rounded" style="max-width: 240px;">
@@ -26,7 +36,7 @@
         <div><strong>Ngân hàng:</strong> {$public_setting['manual_qr_bank_name']|default:'-'}</div>
         <div><strong>Số tài khoản:</strong> {$manual_qr_account_number|default:'-'}</div>
         <div><strong>Chủ tài khoản:</strong> {$manual_qr_account_name|default:'-'}</div>
-        <div><strong>Số tiền:</strong> {$invoice->price} VND</div>
+        <div><strong>Số tiền:</strong> {$amount_vnd}</div>
         <div><strong>Mã đơn hàng:</strong> #{$invoice->id}</div>
         <div><strong>Nội dung chuyển khoản:</strong> {$transfer_note}</div>
     </div>
