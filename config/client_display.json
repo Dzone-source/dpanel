@@ -67,9 +67,9 @@
     },
     {
       "name": "Hiddify",
-      "description": "Ứng dụng đa giao thức dễ sử dụng",
-      "format": "clash",
-      "importUrl": "hiddify://install-config/?url={url}#{name}",
+      "description": "Dùng cùng kiểu import với SFA (sing-box profile)",
+      "format": "singbox",
+      "importUrl": "sing-box://import-remote-profile?url={url}#{name}",
       "platforms": {
         "Windows": {
           "ext": "exe",

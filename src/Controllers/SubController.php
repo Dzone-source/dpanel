@@ -111,19 +111,31 @@ final class SubController extends BaseController
     {
         $ua = strtolower($userAgent);
 
-        if (str_contains($ua, 'sing-box') ||
+        // Clash Meta family
+        if (str_contains($ua, 'clash') ||
+            str_contains($ua, 'stash') ||
+            str_contains($ua, 'verge') ||
+            str_contains($ua, 'flclash') ||
+            str_contains($ua, 'nyanpasu') ||
+            str_contains($ua, 'mihomo') ||
+            str_contains($ua, 'nekobox')
+        ) {
+            return 'clash';
+        }
+
+        // Hiddify + official sing-box apps — same simplified /singbox body that SFA accepts.
+        if (str_contains($ua, 'hiddify') ||
+            str_contains($ua, 'dart/') ||
+            str_contains($ua, 'dio') ||
+            str_contains($ua, 'sing-box') ||
             str_contains($ua, 'singbox') ||
             str_contains($ua, 'sfm') ||
             str_contains($ua, 'sfa') ||
             str_contains($ua, 'sfi')
         ) {
-            // Don't treat Hiddify as sing-box even if UA mentions it.
-            if (! str_contains($ua, 'hiddify')) {
-                return 'singbox';
-            }
+            return 'singbox';
         }
 
-        // Bare /sub/{token}: always Clash (Hiddify + Clash Meta both work with this).
         return 'clash';
     }
 }
