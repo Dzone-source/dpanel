@@ -47,8 +47,8 @@ $_ENV['redis_ssl_context'] = [];      // 使用SSL时的上下文选项，参考
 
 //Rate Limit 设置--------------------------------------------------------------------------------------------------------
 $_ENV['enable_rate_limit'] = true;     // 是否开启请求限制
-$_ENV['rate_limit_sub_ip'] = 10;       // 每分钟每个IP的订阅链接请求限制
-$_ENV['rate_limit_sub'] = 10;          // 每分钟每个用户的订阅链接请求限制
+$_ENV['rate_limit_sub_ip'] = 60;       // 每分钟每个IP的订阅链接请求限制
+$_ENV['rate_limit_sub'] = 60;          // 每分钟每个用户的订阅链接请求限制
 $_ENV['rate_limit_webapi_ip'] = 120;   // 每分钟每个IP的WebAPI请求限制
 $_ENV['rate_limit_webapi'] = 1200;     // 每分钟WebAPI全局请求限制
 $_ENV['rate_limit_user_api_ip'] = 60;  // 每分钟每个IP的用户API请求限制

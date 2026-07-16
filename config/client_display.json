@@ -68,7 +68,7 @@
     {
       "name": "Hiddify",
       "description": "Ứng dụng đa giao thức dễ sử dụng",
-      "format": "singbox",
+      "format": "clash",
       "importUrl": "hiddify://import/{url}#{name}",
       "platforms": {
         "Windows": {

@@ -192,6 +192,44 @@ final class Tools
         return self::genRandomChar(max($_ENV['sub_token_len'], 8));
     }
 
+    /**
+     * Parse legacy SSPanel node server strings used by some backends:
+     *   vn.example.com;port=443|host=www.example.jp
+     *
+     * @return array{server: string, params: array<string, string>}
+     */
+    public static function parseNodeServer(string $raw): array
+    {
+        $raw = trim($raw);
+        $params = [];
+        $server = $raw;
+
+        if (str_contains($raw, ';')) {
+            [$server, $extra] = explode(';', $raw, 2);
+            $server = trim($server);
+
+            foreach (explode('|', $extra) as $pair) {
+                $pair = trim($pair);
+                if ($pair === '' || ! str_contains($pair, '=')) {
+                    continue;
+                }
+
+                [$key, $value] = explode('=', $pair, 2);
+                $params[strtolower(trim($key))] = trim($value);
+            }
+        }
+
+        return [
+            'server' => $server,
+            'params' => $params,
+        ];
+    }
+
+    public static function getNodeServerHost(string $raw): string
+    {
+        return self::parseNodeServer($raw)['server'];
+    }
+
     public static function genRandomChar(int $length = 8): string|false
     {
         if ($length <= 2) {

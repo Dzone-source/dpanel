@@ -58,7 +58,7 @@ final class SubController extends BaseController
             (! (new RateLimit())->checkRateLimit('sub_ip', $request->getServerParam('REMOTE_ADDR')) ||
             ! (new RateLimit())->checkRateLimit('sub_token', $token))
         ) {
-            return ResponseHelper::error($response, $err_msg);
+            return ResponseHelper::error($response, 'Quá nhiều yêu cầu đăng ký, vui lòng thử lại sau', 429);
         }
 
         $link = (new Link())->where('token', $token)->first();
@@ -123,15 +123,19 @@ final class SubController extends BaseController
             return 'clash';
         }
 
-        // Hiddify (Flutter) often sends Dart/* without "hiddify" in UA.
+        // Hiddify accepts Clash well; Flutter clients often send Dart/* only.
         if (str_contains($ua, 'hiddify') ||
-            str_contains($ua, 'sing-box') ||
+            str_contains($ua, 'dart/') ||
+            str_contains($ua, 'dio')
+        ) {
+            return 'clash';
+        }
+
+        if (str_contains($ua, 'sing-box') ||
             str_contains($ua, 'singbox') ||
             str_contains($ua, 'sfa') ||
             str_contains($ua, 'sfm') ||
-            str_contains($ua, 'sfi') ||
-            str_contains($ua, 'dart/') ||
-            str_contains($ua, 'dio')
+            str_contains($ua, 'sfi')
         ) {
             return 'singbox';
         }

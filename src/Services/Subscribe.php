@@ -49,11 +49,36 @@ final class Subscribe
             $query->whereIn('node_group', $group);
         }
 
-        return $query->where(static function ($query): void {
+        $nodes = $query->where(static function ($query): void {
             $query->where('node_bandwidth_limit', '=', 0)->orWhereRaw('node_bandwidth < node_bandwidth_limit');
         })->orderBy('node_class')
             ->orderBy('name')
             ->get();
+
+        // Strip legacy "host;port=443|host=sni" server strings so clients get a real hostname.
+        return $nodes->each(static function ($node): void {
+            $parsed = Tools::parseNodeServer((string) $node->server);
+            $node->server = $parsed['server'];
+
+            $cfg = json_decode((string) ($node->custom_config ?? '{}'), true);
+            if (! is_array($cfg)) {
+                $cfg = [];
+            }
+
+            $changed = false;
+            if (($cfg['host'] ?? '') === '' && isset($parsed['params']['host'])) {
+                $cfg['host'] = $parsed['params']['host'];
+                $changed = true;
+            }
+            if (! isset($cfg['offset_port_node']) && isset($parsed['params']['port']) && $parsed['params']['port'] !== '') {
+                $cfg['offset_port_node'] = (int) $parsed['params']['port'];
+                $changed = true;
+            }
+
+            if ($changed) {
+                $node->custom_config = json_encode($cfg, JSON_UNESCAPED_SLASHES);
+            }
+        });
     }
 
     public static function getContent($user, string $type): string
