@@ -51,6 +51,9 @@
                                 <li class="nav-item">
                                     <a href="#cryptomus" class="nav-link" data-bs-toggle="tab">Cryptomus</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="#manualqr" class="nav-link" data-bs-toggle="tab">Manual QR</a>
+                                </li>
                             </ul>
                         </div>
                         <div class="card-body">
@@ -379,6 +382,39 @@
 {*                                                       value="{$settings['cryptomus_currency']}">*}
 {*                                            </div>*}
 {*                                        </div>*}
+                                    </div>
+                                </div>
+                                <div class="tab-pane" id="manualqr">
+                                    <div class="card-body">
+                                        <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">Tên ngân hàng</label>
+                                            <div class="col">
+                                                <input id="manual_qr_bank_name" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_bank_name']}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">Số tài khoản</label>
+                                            <div class="col">
+                                                <input id="manual_qr_account_number" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_account_number']}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">Tên chủ tài khoản</label>
+                                            <div class="col">
+                                                <input id="manual_qr_account_name" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_account_name']}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">URL ảnh QR</label>
+                                            <div class="col">
+                                                <input id="manual_qr_image_url" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_image_url']}">
+                                                <span>Dùng URL https công khai hoặc đường dẫn tĩnh nội bộ.</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

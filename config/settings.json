@@ -261,6 +261,42 @@
         "mark": "Smogate APP Secret"
     },
     {
+        "item": "manual_qr_bank_name",
+        "value": "",
+        "class": "billing",
+        "is_public": 1,
+        "type": "string",
+        "default": "",
+        "mark": "Tên ngân hàng chuyển khoản thủ công"
+    },
+    {
+        "item": "manual_qr_account_number",
+        "value": "",
+        "class": "billing",
+        "is_public": 1,
+        "type": "string",
+        "default": "",
+        "mark": "Số tài khoản chuyển khoản thủ công"
+    },
+    {
+        "item": "manual_qr_account_name",
+        "value": "",
+        "class": "billing",
+        "is_public": 1,
+        "type": "string",
+        "default": "",
+        "mark": "Tên chủ tài khoản chuyển khoản thủ công"
+    },
+    {
+        "item": "manual_qr_image_url",
+        "value": "",
+        "class": "billing",
+        "is_public": 1,
+        "type": "string",
+        "default": "",
+        "mark": "URL ảnh QR chuyển khoản thủ công"
+    },
+    {
         "item": "email_driver",
         "value": "none",
         "class": "email",
