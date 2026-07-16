@@ -204,7 +204,7 @@
                                     </button>
                                 </div>
                                 <p class="text-muted mb-0">
-                                    <small>Một link dùng cho mọi app (tự nhận diện theo client). Clash Meta → Clash, Hiddify → SingBox. Có thể thêm <code>/clash</code>, <code>/singbox</code>, <code>/general</code>. Vui lòng bảo mật.</small>
+                                    <small>Sao chép link này dán vào Hiddify / Clash Meta là dùng được (tự trả Clash). Vui lòng bảo mật liên kết.</small>
                                 </p>
                             </div>
 
@@ -235,10 +235,10 @@
                                     <div class="small text-muted mb-2">Nếu bạn cần liên kết đăng ký theo định dạng cụ thể:</div>
                                     <div class="btn-group btn-group-sm flex-wrap">
                                         <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/general">
-                                            General (Hiddify)
+                                            General (base64)
                                         </button>
                                         <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/singbox">
-                                            Sing-box / Hiddify
+                                            Sing-box / SFA
                                         </button>
                                         <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/json">
                                             Định dạng JSON

@@ -131,7 +131,7 @@ final class SubController extends BaseController
             return 'general';
         }
 
-        // Clash Meta family (Xboard: meta, verge, flclash, ...)
+        // Clash Meta family
         if (str_contains($ua, 'clash') ||
             str_contains($ua, 'stash') ||
             str_contains($ua, 'verge') ||
@@ -143,9 +143,17 @@ final class SubController extends BaseController
             return 'clash';
         }
 
-        // Xboard SingBox flags: sing-box, hiddify, sfm
+        // Hiddify on this board only accepts Clash YAML reliably (bare /sub + /clash).
+        // Dart/Dio is Hiddify's Flutter HTTP client when the UA omits "hiddify".
         if (str_contains($ua, 'hiddify') ||
-            str_contains($ua, 'sing-box') ||
+            str_contains($ua, 'dart/') ||
+            str_contains($ua, 'dio')
+        ) {
+            return 'clash';
+        }
+
+        // Official sing-box apps
+        if (str_contains($ua, 'sing-box') ||
             str_contains($ua, 'singbox') ||
             str_contains($ua, 'sfm') ||
             str_contains($ua, 'sfa') ||
@@ -154,10 +162,7 @@ final class SubController extends BaseController
             return 'singbox';
         }
 
-        // Xboard falls back to General for generic clients (incl. Dart/Dio from Hiddify).
-        if (str_contains($ua, 'dart/') ||
-            str_contains($ua, 'dio') ||
-            str_contains($ua, 'v2ray') ||
+        if (str_contains($ua, 'v2ray') ||
             str_contains($ua, 'v2box') ||
             str_contains($ua, 'shadowrocket') ||
             str_contains($ua, 'quantumult') ||
@@ -169,6 +174,7 @@ final class SubController extends BaseController
             return 'general';
         }
 
-        return 'general';
+        // Default bare link → Clash so clipboard import works in Hiddify / Clash Meta.
+        return 'clash';
     }
 }
