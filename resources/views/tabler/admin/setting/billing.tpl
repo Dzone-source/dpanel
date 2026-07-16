@@ -387,6 +387,14 @@
                                 <div class="tab-pane" id="manualqr">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">Mã ngân hàng VietQR</label>
+                                            <div class="col">
+                                                <input id="manual_qr_bank_bin" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_bank_bin']}">
+                                                <span>Ví dụ: MB, VCB, ACB, TCB...</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3 row">
                                             <label class="form-label col-3 col-form-label">Tên ngân hàng</label>
                                             <div class="col">
                                                 <input id="manual_qr_bank_name" type="text" class="form-control"

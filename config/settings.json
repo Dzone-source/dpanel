@@ -261,6 +261,15 @@
         "mark": "Smogate APP Secret"
     },
     {
+        "item": "manual_qr_bank_bin",
+        "value": "",
+        "class": "billing",
+        "is_public": 1,
+        "type": "string",
+        "default": "",
+        "mark": "Mã ngân hàng VietQR (VD: MB, VCB, ACB)"
+    },
+    {
         "item": "manual_qr_bank_name",
         "value": "",
         "class": "billing",
