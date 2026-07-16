@@ -39,7 +39,14 @@ final class ClientDownload extends Command
      */
     public function boot(): void
     {
-        $this->client = new Client();
+        $this->client = new Client([
+            'timeout' => 600,
+            'connect_timeout' => 30,
+            'headers' => [
+                'User-Agent' => 'DPanel-ClientDownload',
+            ],
+            'http_errors' => true,
+        ]);
         $this->version = $this->getLocalVersions();
         $clientsPath = BASE_PATH . '/config/clients.json';
 
@@ -48,13 +55,15 @@ final class ClientDownload extends Command
             exit(0);
         }
 
-        if (PHP_OS !== 'WINNT' && ! str_contains(php_uname(), 'Windows NT')) {
-            $runningUser = posix_getpwuid(posix_geteuid())['name'];
-            $fileOwner = get_current_user();
+        if (PHP_OS !== 'WINNT' && ! str_contains(php_uname(), 'Windows NT') && function_exists('posix_geteuid')) {
+            $runningUser = posix_getpwuid(posix_geteuid())['name'] ?? '';
+            $fileOwner = @fileowner(__FILE__) !== false
+                ? (posix_getpwuid(fileowner(__FILE__))['name'] ?? '')
+                : get_current_user();
 
-            if ($runningUser !== $fileOwner) {
-                echo '当前用户为 ' . $runningUser . '，与文件所有者 ' . $fileOwner . ' 不符，脚本中止。' . PHP_EOL;
-                exit(0);
+            // Allow root (Docker) and matching owners; only warn otherwise
+            if ($runningUser !== '' && $fileOwner !== '' && $runningUser !== $fileOwner && $runningUser !== 'root') {
+                echo 'Cảnh báo: đang chạy bằng ' . $runningUser . ', chủ file là ' . $fileOwner . ' — vẫn tiếp tục.' . PHP_EOL;
             }
         }
 

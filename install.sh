@@ -136,6 +136,15 @@ create_admin() {
     docker compose exec -T php php xcat Tool createAdmin "${ADMIN_EMAIL}" "${ADMIN_PASSWORD}"
 }
 
+download_clients() {
+    info "Downloading recommended client apps into public/clients/"
+    if command -v python3 >/dev/null 2>&1; then
+        python3 scripts/download-clients.py || warn "Client download had failures — re-run: python3 scripts/download-clients.py"
+    else
+        warn "python3 not found. Download clients later with: python3 scripts/download-clients.py"
+    fi
+}
+
 print_summary() {
     echo ""
     info "Installation complete!"
@@ -147,6 +156,7 @@ print_summary() {
     echo "  docker compose ps"
     echo "  docker compose logs -f"
     echo "  docker compose exec php php xcat Tool"
+    echo "  python3 scripts/download-clients.py   # tải / cập nhật app khách"
     echo ""
     warn "Configure HTTPS in front of Nginx (Caddy, Traefik, or host Nginx + Certbot)."
 }
@@ -180,6 +190,7 @@ main() {
     wait_for_php
     run_migrations
     create_admin
+    download_clients
     print_summary
 }
 

@@ -111,6 +111,17 @@ Nếu nâng cấp từ bản cũ, đặt locale cho toàn bộ người dùng:
 docker compose exec php php xcat Tool setLocale
 ```
 
+## Tải ứng dụng khách (đề xuất)
+
+File cài đặt client nằm ở `public/clients/` (không commit vào git vì dung lượng lớn). Trên VPS chạy:
+
+```bash
+cd /opt/dpanel   # hoặc thư mục clone của bạn
+python3 scripts/download-clients.py
+```
+
+Sau đó nút **Tải xuống** trên trang chủ user sẽ trỏ tới `/clients/...`.
+
 ## Giấy phép
 
 MIT — dựa trên SSPanel-UIM. Xem [LICENSE](LICENSE).

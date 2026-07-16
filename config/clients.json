@@ -47,7 +47,7 @@
             "savePath": "public/clients/",
             "downloads": [
                 {
-                    "sourceName": "cmfa-%tagName1%-meta-universal-release.apk ",
+                    "sourceName": "cmfa-%tagName1%-meta-universal-release.apk",
                     "saveName": "CMFA.apk"
                 }
             ]
@@ -63,15 +63,15 @@
                     "saveName": "SFA.apk"
                 },
                 {
-                    "sourceName": "SFM-%tagName1%-universal.dmg",
-                    "saveName": "SFM.dmg"
+                    "sourceName": "SFM-%tagName1%-Universal.pkg",
+                    "saveName": "SFM.pkg"
                 }
             ]
         },
         {
             "name": "Hiddify",
             "tagMethod": "github_release",
-            "gitRepo": "hiddify/hiddify-next",
+            "gitRepo": "hiddify/hiddify-app",
             "savePath": "public/clients/",
             "downloads": [
                 {
@@ -79,7 +79,7 @@
                     "saveName": "Hiddify.apk"
                 },
                 {
-                    "sourceName": "Hiddify-Linux-x64.AppImage",
+                    "sourceName": "Hiddify-Linux-x64-AppImage.AppImage",
                     "saveName": "Hiddify.AppImage"
                 },
                 {
