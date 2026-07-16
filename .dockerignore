@@ -17,3 +17,16 @@ node_modules
 tests
 coverage
 docker-compose.override.yml
+
+# Large client binaries are volume-served / downloaded separately — never bake into image
+public/clients/**
+!public/clients/.gitkeep
+*.apk
+*.ipa
+*.dmg
+*.exe
+*.msi
+*.zip
+*.7z
+*.tar
+*.tar.gz
