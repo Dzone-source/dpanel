@@ -198,13 +198,13 @@
                                     <i class="ti ti-link"></i> Địa chỉ đăng ký node dành riêng cho bạn
                                 </h4>
                                 <div class="input-group mb-2">
-                                    <input type="text" class="form-control" value="{$UniversalSub}" readonly id="universal-sub-link">
-                                    <button class="btn btn-primary copy" data-clipboard-text="{$UniversalSub}">
+                                    <input type="text" class="form-control" value="{$UniversalSub}/clash" readonly id="universal-sub-link">
+                                    <button class="btn btn-primary copy" data-clipboard-text="{$UniversalSub}/clash">
                                         <i class="ti ti-copy"></i> Sao chép
                                     </button>
                                 </div>
                                 <p class="text-muted mb-0">
-                                    <small>Sao chép link này dán vào Hiddify / Clash Meta là dùng được (tự trả Clash). Vui lòng bảo mật liên kết.</small>
+                                    <small>Dán link này vào Hiddify hoặc Clash Meta (Clipboard). Vui lòng bảo mật liên kết.</small>
                                 </p>
                             </div>
 
