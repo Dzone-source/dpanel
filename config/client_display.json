@@ -69,7 +69,7 @@
       "name": "Hiddify",
       "description": "Ứng dụng đa giao thức dễ sử dụng",
       "format": "singbox",
-      "importUrl": "hiddify://import/{url}#{name}",
+      "importUrl": "hiddify://install-config/?url={url}#{name}",
       "platforms": {
         "Windows": {
           "ext": "exe",
@@ -93,7 +93,7 @@
       "name": "SFM",
       "description": "Ứng dụng sing-box chính thức cho Mac",
       "format": "singbox",
-      "importUrl": "sing-box://import-remote-profile?url={sub}/singbox#{name}",
+      "importUrl": "sing-box://import-remote-profile?url={url}#{name}",
       "platforms": {
         "macOS": {
           "ext": "pkg",
@@ -105,7 +105,7 @@
       "name": "SFA",
       "description": "Ứng dụng sing-box chính thức cho Android",
       "format": "singbox",
-      "importUrl": "sing-box://import-remote-profile?url={sub}/singbox#{name}",
+      "importUrl": "sing-box://import-remote-profile?url={url}#{name}",
       "platforms": {
         "Android": {
           "ext": "apk",
@@ -117,7 +117,7 @@
       "name": "SFI",
       "description": "Ứng dụng sing-box chính thức cho iOS",
       "format": "singbox",
-      "importUrl": "sing-box://import-remote-profile?url={sub}/singbox#{name}",
+      "importUrl": "sing-box://import-remote-profile?url={url}#{name}",
       "platforms": {
         "iOS": {
           "storeUrl": "https://apps.apple.com/app/sing-box/id6451272673"

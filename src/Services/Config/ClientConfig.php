@@ -37,10 +37,11 @@ final class ClientConfig
 
             foreach ($client['platforms'] as $platform => $data) {
                 $template = $data['importUrl'] ?? $client['importUrl'] ?? '';
+                // {url} = encoded full sub URL with format (same pattern SFA uses successfully).
+                // {sub} = raw base sub URL for legacy templates.
                 $importUrl = str_replace(
                     ['{url}', '{sub}', '{name}'],
                     [
-                        // Fully encoded subscription URL (required by Hiddify / some Android parsers)
                         rawurlencode($subWithFormat),
                         $sub,
                         rawurlencode($name),
@@ -48,9 +49,11 @@ final class ClientConfig
                     $template
                 );
 
-                // Deep links that embed a raw https:// URL in the path break on Android.
-                // Encode the embedded subscription URL while keeping the scheme + fragment.
-                if (str_starts_with($importUrl, 'hiddify://import/')) {
+                // Path-style hiddify://import/https://... must encode the embedded URL.
+                if (str_starts_with($importUrl, 'hiddify://import/') &&
+                    ! str_contains($importUrl, 'hiddify://import/?') &&
+                    ! str_contains($importUrl, 'hiddify://import?')
+                ) {
                     $importUrl = self::encodeHiddifyImportUrl($importUrl);
                 }
 
