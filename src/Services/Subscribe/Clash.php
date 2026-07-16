@@ -6,6 +6,7 @@ namespace App\Services\Subscribe;
 
 use App\Services\Subscribe;
 use App\Utils\Tools;
+use function array_filter;
 use function array_merge;
 use function json_decode;
 use function yaml_emit;
@@ -172,7 +173,11 @@ final class Clash extends Base
                 continue;
             }
 
-            $nodes[] = $node;
+            // Drop null / empty optional fields — some clients (Hiddify) reject YAML nulls.
+            $nodes[] = array_filter(
+                $node,
+                static fn ($value): bool => $value !== null && $value !== ''
+            );
 
             foreach ($clash_group_indexes as $index) {
                 $clash_group_config['proxy-groups'][$index]['proxies'][] = $node_raw->name;

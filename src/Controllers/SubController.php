@@ -70,6 +70,12 @@ final class SubController extends BaseController
         $user = $link->user();
         $sub_info = Subscribe::getContent($user, $subtype);
 
+        // Hiddify/trojan path with no nodes would return empty body — fall back to Clash.
+        if ($sub_info === '' && $subtype === 'trojan') {
+            $subtype = 'clash';
+            $sub_info = Subscribe::getContent($user, $subtype);
+        }
+
         $content_type = match ($subtype) {
             'clash' => 'application/yaml',
             'json', 'sip008', 'singbox', 'v2rayjson' => 'application/json',
@@ -80,7 +86,6 @@ final class SubController extends BaseController
             . '; download=' . $user->d
             . '; total=' . $user->transfer_enable
             . '; expire=' . strtotime($user->class_expire);
-        $sub_content_disposition = 'attachment; filename=' . $_ENV['appName'];
         $sub_profile_update_interval = 6;
         $sub_profile_web_page_url = $_ENV['baseUrl'];
         $profile_title = (string) ($_ENV['appName'] ?? 'DPanel');
@@ -93,13 +98,21 @@ final class SubController extends BaseController
             );
         }
 
-        return $response->withHeader('Subscription-Userinfo', $sub_details)
-            ->withHeader('Content-Disposition', $sub_content_disposition)
+        $response = $response->withHeader('Subscription-Userinfo', $sub_details)
             ->withHeader('Profile-Update-Interval', (string) $sub_profile_update_interval)
             ->withHeader('Profile-Web-Page-Url', $sub_profile_web_page_url)
             ->withHeader('Profile-Title', $profile_title)
-            ->withHeader('Content-Type', $content_type)
-            ->write($sub_info);
+            ->withHeader('Content-Type', $content_type);
+
+        // Only Clash clients commonly expect Content-Disposition; it can break Hiddify/Dio.
+        if ($subtype === 'clash') {
+            $response = $response->withHeader(
+                'Content-Disposition',
+                'attachment; filename=' . $_ENV['appName']
+            );
+        }
+
+        return $response->write($sub_info);
     }
 
     /**
@@ -123,12 +136,13 @@ final class SubController extends BaseController
             return 'clash';
         }
 
-        // Hiddify accepts Clash well; Flutter clients often send Dart/* only.
+        // Hiddify parses trojan:// share-links more reliably than full Clash YAML.
+        // Flutter HTTP clients often send only Dart/* / Dio in the User-Agent.
         if (str_contains($ua, 'hiddify') ||
             str_contains($ua, 'dart/') ||
             str_contains($ua, 'dio')
         ) {
-            return 'clash';
+            return 'trojan';
         }
 
         if (str_contains($ua, 'sing-box') ||

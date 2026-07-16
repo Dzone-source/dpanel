@@ -204,7 +204,7 @@
                                     </button>
                                 </div>
                                 <p class="text-muted mb-0">
-                                    <small>Dùng trực tiếp trong Clash / Hiddify / sing-box. Có thể thêm <code>/clash</code> hoặc <code>/singbox</code> nếu app yêu cầu. Vui lòng bảo mật liên kết.</small>
+                                    <small>Clash Meta: dùng link này hoặc thêm <code>/clash</code>. Hiddify: dùng <code>/trojan</code> (hoặc nút Mở trong app). Vui lòng bảo mật liên kết.</small>
                                 </p>
                             </div>
 
@@ -255,9 +255,12 @@
                                         {/if}
                                         {if $public_setting['enable_trojan_sub']}
                                         <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/trojan">
-                                            Trojan
+                                            Trojan / Hiddify
                                         </button>
                                         {/if}
+                                        <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/clash">
+                                            Clash Meta
+                                        </button>
                                     </div>
                                 </div>
                                 

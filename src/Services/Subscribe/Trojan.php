@@ -6,8 +6,13 @@ namespace App\Services\Subscribe;
 
 use App\Models\Config;
 use App\Services\Subscribe;
+use function filter_var;
+use function http_build_query;
 use function json_decode;
+use function rawurlencode;
+use const FILTER_VALIDATE_BOOLEAN;
 use const PHP_EOL;
+use const PHP_QUERY_RFC3986;
 
 final class Trojan extends Base
 {
@@ -36,10 +41,33 @@ final class Trojan extends Base
                 $servicename = $node_custom_config['servicename'] ?? '';
                 $path = $node_custom_config['path'] ?? '';
 
-                $links .= 'trojan://' . $user->uuid . '@' . $node_raw->server . ':' . $trojan_port . '?peer=' . $host . '&sni='
-                    . $host . '&obfs=' . $transport_plugin . '&path=' . $path . '&mux=' . $mux . '&allowInsecure='
-                    . $allow_insecure . '&obfsParam=' . $transport_method . '&type=' . $network . '&security='
-                    . $security . '&serviceName=' . $servicename . '#' . $node_raw->name . PHP_EOL;
+                $insecure = filter_var($allow_insecure, FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+                $query = http_build_query([
+                    'peer' => $host,
+                    'sni' => $host,
+                    'allowInsecure' => $insecure,
+                    'type' => $network !== '' ? $network : 'tcp',
+                    'security' => $security !== '' ? $security : 'tls',
+                ], '', '&', PHP_QUERY_RFC3986);
+
+                if ($path !== '') {
+                    $query .= '&path=' . rawurlencode($path);
+                }
+                if ($servicename !== '') {
+                    $query .= '&serviceName=' . rawurlencode($servicename);
+                }
+                if ($transport_plugin !== '') {
+                    $query .= '&obfs=' . rawurlencode($transport_plugin);
+                }
+                if ($transport_method !== '') {
+                    $query .= '&obfsParam=' . rawurlencode($transport_method);
+                }
+                if ((string) $mux !== '' && (string) $mux !== '0') {
+                    $query .= '&mux=' . rawurlencode((string) $mux);
+                }
+
+                $links .= 'trojan://' . $user->uuid . '@' . $node_raw->server . ':' . $trojan_port
+                    . '?' . $query . '#' . rawurlencode((string) $node_raw->name) . PHP_EOL;
             }
         }
 
