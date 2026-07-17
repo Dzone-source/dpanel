@@ -240,36 +240,63 @@ final class Cron
 
         foreach ($users as $user) {
             $user_id = $user->id;
-            // 获取用户账户已激活的TABP订单，一个用户同时只能有一个已激活的TABP订单
+            // Một user chỉ có 1 đơn TABP đang activated tại một thời điểm.
             $activated_order = (new Order())->where('user_id', $user_id)
                 ->where('status', 'activated')
                 ->where('product_type', 'tabp')
                 ->orderBy('id')
                 ->first();
-            // 获取用户账户等待激活的TABP订单
             $pending_activation_orders = (new Order())->where('user_id', $user_id)
                 ->where('status', 'pending_activation')
                 ->where('product_type', 'tabp')
                 ->orderBy('id')
                 ->get();
-            // 如果用户账户中有已激活的TABP订单，则判断是否过期
+
             if ($activated_order !== null) {
                 $content = json_decode($activated_order->product_content);
+                $duration_days = (int) ($content->time ?? 0);
 
-                if ($activated_order->update_time + $content->time * 86400 < time()) {
+                if ($duration_days > 0 && $activated_order->update_time + $duration_days * 86400 < time()) {
                     $activated_order->status = 'expired';
                     $activated_order->update_time = time();
                     $activated_order->save();
                     echo "TABP订单 #{$activated_order->id} 已过期。\n";
-                    $activated_order = null; // 先检查过期，再激活新订单，避免服务中断
+                    $activated_order = null;
                 }
             }
-            // 如果用户账户中没有已激活的TABP订单，且有等待激活的TABP订单，则激活最早的等待激活TABP订单
-            if ($activated_order === null && count($pending_activation_orders) > 0) {
-                $order = $pending_activation_orders[0];
-                // 获取TABP订单内容准备激活
-                $content = json_decode($order->product_content);
-                // 激活TABP
+
+            // Đổi gói (product/node_group khác): hết hạn gói cũ và kích hoạt đơn mới nhất.
+            // Gia hạn cùng gói: vẫn xếp hàng đến khi gói hiện tại hết hạn.
+            $order_to_activate = null;
+
+            if ($activated_order !== null && count($pending_activation_orders) > 0) {
+                $activated_content = json_decode($activated_order->product_content);
+                $activated_group = (int) ($activated_content->node_group ?? 0);
+
+                foreach ($pending_activation_orders->sortByDesc('id') as $pending_order) {
+                    $pending_content = json_decode($pending_order->product_content);
+                    $pending_group = (int) ($pending_content->node_group ?? 0);
+                    $is_switch = (int) $pending_order->product_id !== (int) $activated_order->product_id
+                        || $pending_group !== $activated_group;
+
+                    if ($is_switch) {
+                        $activated_order->status = 'expired';
+                        $activated_order->update_time = time();
+                        $activated_order->save();
+                        echo "TABP订单 #{$activated_order->id} 已因切换套餐而过期。\n";
+                        $activated_order = null;
+                        $order_to_activate = $pending_order;
+                        break;
+                    }
+                }
+            }
+
+            if ($order_to_activate === null && $activated_order === null && count($pending_activation_orders) > 0) {
+                $order_to_activate = $pending_activation_orders[0];
+            }
+
+            if ($order_to_activate !== null) {
+                $content = json_decode($order_to_activate->product_content);
                 $user->u = 0;
                 $user->d = 0;
                 $user->transfer_today = 0;
@@ -282,10 +309,10 @@ final class Cron
                 $user->node_speedlimit = $content->speed_limit;
                 $user->node_iplimit = $content->ip_limit;
                 $user->save();
-                $order->status = 'activated';
-                $order->update_time = time();
-                $order->save();
-                echo "TABP订单 #{$order->id} 已激活。\n";
+                $order_to_activate->status = 'activated';
+                $order_to_activate->update_time = time();
+                $order_to_activate->save();
+                echo "TABP订单 #{$order_to_activate->id} 已激活。\n";
             }
         }
 
