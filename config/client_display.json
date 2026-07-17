@@ -67,7 +67,7 @@
     },
     {
       "name": "Hiddify",
-      "description": "Dán link tab Hiddify / SFA (/singbox) — không dùng link Clash",
+      "description": "Dùng link /singbox (Hiddify / SFA) — không dùng link Clash",
       "format": "singbox",
       "importUrl": "sing-box://import-remote-profile?url={url}#{name}",
       "platforms": {

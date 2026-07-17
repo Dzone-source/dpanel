@@ -197,42 +197,64 @@
                                 <h4 class="mb-2">
                                     <i class="ti ti-link"></i> Link đăng ký
                                 </h4>
-                                <div class="gopass-sub-tabs" role="group" aria-label="Chọn loại app">
-                                    <button type="button" class="gopass-sub-tab active" data-sub-format="clash" data-sub-url="{$UniversalSub}/clash">
-                                        Clash Meta
-                                    </button>
-                                    <button type="button" class="gopass-sub-tab" data-sub-format="singbox" data-sub-url="{$UniversalSub}/singbox">
-                                        Hiddify / SFA
-                                    </button>
+                                <div class="gopass-sub-rows">
+                                    <div class="gopass-sub-row">
+                                        <div class="gopass-sub-row-head">
+                                            <strong>Hiddify / SFA</strong>
+                                            <span>Link /singbox — dùng cho Hiddify, SFA, SFI</span>
+                                        </div>
+                                        <div class="gopass-sub-row-controls">
+                                            <input type="text" class="form-control" value="{$UniversalSub}/singbox" readonly id="sub-link-hiddify">
+                                            <div class="gopass-sub-row-btns">
+                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/singbox">
+                                                    <i class="ti ti-copy"></i> Sao chép
+                                                </button>
+                                                <a class="btn btn-success" id="sub-open-hiddify" href="#" rel="noopener">
+                                                    <i class="ti ti-external-link"></i> Mở app
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="gopass-sub-row">
+                                        <div class="gopass-sub-row-head">
+                                            <strong>Clash Meta</strong>
+                                            <span>Link /clash — dùng cho Clash Verge, CMFA, ClashMi…</span>
+                                        </div>
+                                        <div class="gopass-sub-row-controls">
+                                            <input type="text" class="form-control" value="{$UniversalSub}/clash" readonly id="sub-link-clash">
+                                            <div class="gopass-sub-row-btns">
+                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/clash">
+                                                    <i class="ti ti-copy"></i> Sao chép
+                                                </button>
+                                                <a class="btn btn-success" id="sub-open-clash" href="#" rel="noopener">
+                                                    <i class="ti ti-external-link"></i> Mở app
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="input-group mt-2">
-                                    <input type="text" class="form-control" value="{$UniversalSub}/clash" readonly id="universal-sub-link">
-                                    <button class="btn btn-primary copy" type="button" id="sub-copy-btn" data-clipboard-text="{$UniversalSub}/clash">
-                                        <i class="ti ti-copy"></i> Sao chép
-                                    </button>
-                                </div>
-                                <p class="text-muted small mt-2 mb-0" id="sub-format-hint">Clash Meta: dùng tab Clash. Hiddify: bắt buộc tab Hiddify / SFA (không dán link Clash).</p>
-                            </div>
-
-                            <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
-                                <h4 class="mb-1">
-                                    App đề xuất cho <span id="detected-os" class="text-primary">Windows</span>
-                                </h4>
-                                <p class="text-muted small mb-3">Tải app → dán link đã sao chép ở trên</p>
-                                <div class="row g-3" id="recommended-clients">
-                                </div>
+                                <p class="text-muted small mt-2 mb-0">Sao chép đúng dòng rồi dán vào app, hoặc bấm <strong>Mở app</strong> để import nhanh.</p>
                             </div>
 
                             <div class="text-center">
-                                <button class="btn btn-ghost-primary" type="button" data-bs-toggle="collapse" 
-                                        data-bs-target="#all-platforms" aria-expanded="false">
-                                    <i class="ti ti-package"></i> 
+                                <button class="btn btn-ghost-primary gopass-advanced-toggle" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#all-platforms" aria-expanded="false" aria-controls="all-platforms">
+                                    <i class="ti ti-package"></i>
                                     App khác & định dạng nâng cao
-                                    <i class="ti ti-chevron-down ms-1"></i>
+                                    <i class="ti ti-chevron-down ms-1 gopass-advanced-chevron"></i>
                                 </button>
                             </div>
-                            
+
                             <div class="collapse mt-3" id="all-platforms">
+                                <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
+                                    <h4 class="mb-1">
+                                        App đề xuất cho <span id="detected-os" class="text-primary">Windows</span>
+                                    </h4>
+                                    <p class="text-muted small mb-3">Tải app → dán link đã sao chép ở trên</p>
+                                    <div class="row g-3" id="recommended-clients">
+                                    </div>
+                                </div>
+
                                 <div class="accordion" id="platform-accordion">
                                 </div>
                                 
@@ -836,63 +858,69 @@
         return picked.length ? picked : clients.slice(0, 2);
     }
 
-    function initSubLinkPicker() {
-        const input = document.getElementById('universal-sub-link');
-        const copyBtn = document.getElementById('sub-copy-btn');
-        const hint = document.getElementById('sub-format-hint');
-        const tabs = document.querySelectorAll('.gopass-sub-tab');
-        if (!input || !copyBtn || !tabs.length) return;
+    function findClientByNames(clients, names) {
+        for (let i = 0; i < names.length; i++) {
+            const found = clients.find((c) => c.name === names[i]);
+            if (found) return found;
+        }
+        return null;
+    }
 
-        const hints = {
-            clash: 'Clash Meta, Clash Verge, FlClash, CMFA…',
-            singbox: 'Chỉ dùng cho Hiddify / SFA — xóa profile cũ rồi import lại link /singbox'
-        };
+    function setQuickOpenLinks(os) {
+        const clients = clientRecommendations[os] || clientRecommendations.Windows || [];
+        const hiddify = findClientByNames(clients, ['Hiddify', 'SFA', 'SFI', 'SFM'])
+            || clients.find((c) => c.format === 'singbox');
+        const clash = findClientByNames(clients, ['Clash Verge Rev', 'CMFA', 'ClashMi', 'FlClash'])
+            || clients.find((c) => c.format === 'clash');
 
-        tabs.forEach((tab) => {
-            tab.addEventListener('click', () => {
-                tabs.forEach((t) => t.classList.remove('active'));
-                tab.classList.add('active');
-                const url = tab.getAttribute('data-sub-url');
-                const format = tab.getAttribute('data-sub-format');
-                input.value = url;
-                copyBtn.setAttribute('data-clipboard-text', url);
-                if (hint) hint.textContent = 'Dùng cho ' + (hints[format] || '');
-            });
-        });
+        const openHiddify = document.getElementById('sub-open-hiddify');
+        const openClash = document.getElementById('sub-open-clash');
+
+        if (openHiddify && hiddify && hiddify.importUrl) {
+            openHiddify.href = hiddify.importUrl;
+            openHiddify.title = 'Mở ' + hiddify.name;
+        }
+        if (openClash && clash && clash.importUrl) {
+            openClash.href = clash.importUrl;
+            openClash.title = 'Mở ' + clash.name;
+        }
     }
 
     function initClientSelector() {
         const os = detectOS();
-        document.getElementById('detected-os').textContent = os;
+        const detectedOs = document.getElementById('detected-os');
+        if (detectedOs) detectedOs.textContent = os;
+
+        setQuickOpenLinks(os);
 
         const allForOs = clientRecommendations[os] || clientRecommendations["Windows"] || [];
         const recommendations = pickPreferredClients(os, allForOs);
         const recommendedContainer = document.getElementById('recommended-clients');
-        
+
         if (recommendedContainer) {
             recommendations.forEach(function(client) {
                 const clientHtml = generateClientHtml(client, true);
                 recommendedContainer.insertAdjacentHTML('beforeend', clientHtml);
             });
         }
-        
+
         const accordionContainer = document.getElementById('platform-accordion');
-        
+
         if (accordionContainer) {
             Object.keys(clientRecommendations).forEach(function(platform) {
                 const clients = clientRecommendations[platform];
                 const platformId = 'platform-' + platform.toLowerCase();
                 const icon = platformIcons[platform] || CONFIG.BUTTONS.download.icon.replace('ti-', 'ti-device-');
-                
+
                 const accordionHtml = `
                     <div class="accordion-item">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" 
+                            <button class="accordion-button collapsed" type="button"
                                     data-bs-toggle="collapse" data-bs-target="#${platformId}">
                                 <i class="ti ${icon} me-2"></i> ${platform}
                             </button>
                         </h2>
-                        <div id="${platformId}" class="accordion-collapse collapse" 
+                        <div id="${platformId}" class="accordion-collapse collapse"
                              data-bs-parent="#platform-accordion">
                             <div class="accordion-body">
                                 <div class="row g-3">
@@ -901,20 +929,20 @@
                             </div>
                         </div>
                     </div>`;
-                    
+
                 accordionContainer.insertAdjacentHTML('beforeend', accordionHtml.trim());
             });
         }
     }
-    
+
     function initClipboard() {
         if (typeof ClipboardJS === 'undefined') {
             console.warn('ClipboardJS chưa được tải');
             return;
         }
-        
+
         const clipboard = new ClipboardJS('.copy');
-        
+
         clipboard.on('success', function(e) {
             e.clearSelection();
             const originalText = e.trigger.innerHTML;
@@ -926,40 +954,35 @@
                 e.trigger.innerHTML = originalText;
             }, CONFIG.FEEDBACK_TIMEOUT);
         });
-        
+
         clipboard.on('error', function(e) {
             console.error('Sao chép thất bại:', e.action);
             alert(CONFIG.CLIPBOARD_ERROR_TEXT);
         });
     }
-    
-    function initCollapseAnimations() {
-        const allPlatforms = document.getElementById('all-platforms');
-        const recommendedSection = document.querySelector('.recommended-section');
-        
-        if (!allPlatforms || !recommendedSection) return;
-        
-        recommendedSection.classList.add('collapsible-section');
-        
-        allPlatforms.addEventListener('show.bs.collapse', function (e) {
-            if (e.target !== allPlatforms) return;
-            recommendedSection.classList.add('collapsing');
+
+    function initAdvancedCollapse() {
+        const panel = document.getElementById('all-platforms');
+        const toggle = document.querySelector('.gopass-advanced-toggle');
+        if (!panel || !toggle) return;
+
+        panel.addEventListener('show.bs.collapse', function (e) {
+            if (e.target !== panel) return;
+            toggle.setAttribute('aria-expanded', 'true');
+            toggle.classList.add('is-open');
         });
-        
-        allPlatforms.addEventListener('hide.bs.collapse', function (e) {
-            if (e.target !== allPlatforms) return;
-            recommendedSection.classList.remove('collapsing');
-            setTimeout(function() {
-                recommendedSection.classList.add('expanded');
-            }, CONFIG.ANIMATION_DURATION);
+
+        panel.addEventListener('hide.bs.collapse', function (e) {
+            if (e.target !== panel) return;
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.classList.remove('is-open');
         });
     }
-    
+
     document.addEventListener('DOMContentLoaded', function() {
-        safeInit(initSubLinkPicker, 'Bộ chọn link đăng ký');
         safeInit(initClientSelector, 'Bộ chọn ứng dụng khách');
         safeInit(initClipboard, 'Chức năng clipboard');
-        safeInit(initCollapseAnimations, 'Hiệu ứng thu gọn');
+        safeInit(initAdvancedCollapse, 'Thu gọn app nâng cao');
     });
     {/literal}
     </script>

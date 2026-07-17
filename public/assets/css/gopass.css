@@ -703,38 +703,84 @@ body.gopass-auth .border-top-wide {
     background: linear-gradient(105deg, #5b21b6, #7c3aed);
 }
 
-.gopass-sub-tabs {
+.gopass-sub-rows {
+    display: grid;
+    gap: 0.85rem;
+}
+
+.gopass-sub-row {
+    display: grid;
+    gap: 0.55rem;
+    padding: 0.85rem 0.9rem;
+    border: 1px solid var(--gopass-border);
+    border-radius: 0.9rem;
+    background: color-mix(in srgb, var(--gopass-primary) 4%, var(--gopass-surface-elevated));
+}
+
+.gopass-sub-row-head {
+    display: grid;
+    gap: 0.1rem;
+}
+
+.gopass-sub-row-head strong {
+    font-size: 0.92rem;
+    font-weight: 750;
+    color: var(--gopass-text);
+}
+
+.gopass-sub-row-head span {
+    font-size: 0.78rem;
+    color: var(--gopass-muted);
+    line-height: 1.35;
+}
+
+.gopass-sub-row-controls {
+    display: grid;
+    gap: 0.5rem;
+}
+
+.gopass-sub-row-controls .form-control {
+    min-width: 0;
+    font-size: 0.82rem;
+}
+
+.gopass-sub-row-btns {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.4rem;
-    padding: 0.35rem;
-    border-radius: 0.85rem;
-    background: color-mix(in srgb, var(--gopass-primary) 6%, var(--gopass-surface));
-    border: 1px solid var(--gopass-border);
+    gap: 0.45rem;
 }
 
-.gopass-sub-tab {
-    border: 0;
-    border-radius: 0.65rem;
-    min-height: 2.4rem;
-    padding: 0.45rem 0.75rem;
-    font-size: 0.86rem;
+.gopass-sub-row-btns .btn {
+    min-height: 2.5rem;
     font-weight: 700;
-    color: var(--gopass-muted);
-    background: transparent;
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    white-space: nowrap;
 }
 
-.gopass-sub-tab:hover {
-    color: var(--gopass-text);
-    background: color-mix(in srgb, var(--gopass-primary) 8%, transparent);
+.gopass-advanced-toggle .gopass-advanced-chevron {
+    transition: transform 0.2s ease;
 }
 
-.gopass-sub-tab.active {
-    color: #fff;
-    background: linear-gradient(105deg, #6d28d9, #7c3aed 55%, #9333ea);
-    box-shadow: 0 8px 16px rgba(109, 40, 217, 0.2);
+.gopass-advanced-toggle.is-open .gopass-advanced-chevron {
+    transform: rotate(180deg);
+}
+
+@media (min-width: 576px) {
+    .gopass-sub-row-controls {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: stretch;
+    }
+
+    .gopass-sub-row-btns {
+        display: flex;
+        grid-template-columns: none;
+        align-items: stretch;
+    }
+
+    .gopass-sub-row-btns .btn {
+        flex: 0 0 auto;
+        padding-left: 0.9rem;
+        padding-right: 0.9rem;
+    }
 }
 
 .gopass-theme .recommended-section {
