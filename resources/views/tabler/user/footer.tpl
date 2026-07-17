@@ -153,13 +153,10 @@
 {include file='telemetry.tpl'}
 
 <!-- Zalo floating button -->
-<a href="https://zalo.me/0796969444" target="_blank" rel="noopener" class="gopass-zalo-fab" aria-label="Chat Zalo hỗ trợ">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" aria-hidden="true">
-        <rect width="64" height="64" rx="18" fill="#0068FF"/>
-        <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle"
-              font-family="Arial,sans-serif" font-size="26" font-weight="900" fill="#fff">Z</text>
-    </svg>
-    <span class="gopass-zalo-fab-label">Zalo hỗ trợ</span>
+<a href="https://zalo.me/0796969444" target="_blank" rel="noopener noreferrer"
+   class="gopass-zalo-fab" aria-label="Chat Zalo 0796969444">
+    <span class="gopass-zalo-fab-icon" aria-hidden="true">Z</span>
+    <span class="gopass-zalo-fab-label">Zalo</span>
 </a>
 
 </body>
