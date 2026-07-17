@@ -703,6 +703,40 @@ body.gopass-auth .border-top-wide {
     background: linear-gradient(105deg, #5b21b6, #7c3aed);
 }
 
+.gopass-sub-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    padding: 0.35rem;
+    border-radius: 0.85rem;
+    background: color-mix(in srgb, var(--gopass-primary) 6%, var(--gopass-surface));
+    border: 1px solid var(--gopass-border);
+}
+
+.gopass-sub-tab {
+    border: 0;
+    border-radius: 0.65rem;
+    min-height: 2.4rem;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--gopass-muted);
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.gopass-sub-tab:hover {
+    color: var(--gopass-text);
+    background: color-mix(in srgb, var(--gopass-primary) 8%, transparent);
+}
+
+.gopass-sub-tab.active {
+    color: #fff;
+    background: linear-gradient(105deg, #6d28d9, #7c3aed 55%, #9333ea);
+    box-shadow: 0 8px 16px rgba(109, 40, 217, 0.2);
+}
+
 .gopass-theme .recommended-section {
     background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(192, 38, 211, 0.05)) !important;
     border: 1px solid rgba(124, 58, 237, 0.14) !important;

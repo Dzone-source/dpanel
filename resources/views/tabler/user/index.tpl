@@ -193,34 +193,32 @@
                             <h3 class="card-title">Cấu hình nhanh</h3>
                         </div>
                         <div class="card-body">
-                            <div class="mb-3">
-                                <h4 class="mb-3">
-                                    <i class="ti ti-link"></i> Địa chỉ đăng ký node dành riêng cho bạn
+                            <div class="mb-4 gopass-sub-block">
+                                <h4 class="mb-2">
+                                    <i class="ti ti-link"></i> Link đăng ký
                                 </h4>
-                                <label class="form-label mb-1">Clash Meta / Clash Verge</label>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" value="{$UniversalSub}/clash" readonly id="clash-sub-link">
-                                    <button class="btn btn-primary copy" data-clipboard-text="{$UniversalSub}/clash">
+                                <div class="gopass-sub-tabs" role="group" aria-label="Chọn loại app">
+                                    <button type="button" class="gopass-sub-tab active" data-sub-format="clash" data-sub-url="{$UniversalSub}/clash">
+                                        Clash Meta
+                                    </button>
+                                    <button type="button" class="gopass-sub-tab" data-sub-format="singbox" data-sub-url="{$UniversalSub}/singbox">
+                                        Hiddify / SFA
+                                    </button>
+                                </div>
+                                <div class="input-group mt-2">
+                                    <input type="text" class="form-control" value="{$UniversalSub}/clash" readonly id="universal-sub-link">
+                                    <button class="btn btn-primary copy" type="button" id="sub-copy-btn" data-clipboard-text="{$UniversalSub}/clash">
                                         <i class="ti ti-copy"></i> Sao chép
                                     </button>
                                 </div>
-                                <label class="form-label mb-1">Hiddify / SFA (Sing-box)</label>
-                                <div class="input-group mb-2">
-                                    <input type="text" class="form-control" value="{$UniversalSub}/singbox" readonly id="universal-sub-link">
-                                    <button class="btn btn-primary copy" data-clipboard-text="{$UniversalSub}/singbox">
-                                        <i class="ti ti-copy"></i> Sao chép
-                                    </button>
-                                </div>
-                                <p class="text-muted mb-0">
-                                    <small>Mỗi app một link — đừng dùng nhầm. Vui lòng bảo mật liên kết.</small>
-                                </p>
+                                <p class="text-muted small mt-2 mb-0" id="sub-format-hint">Dùng cho Clash Meta, Clash Verge, FlClash…</p>
                             </div>
 
                             <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
-                                <h4 class="mb-3">
-                                    <i class="ti ti-rocket"></i> 
-                                    Ứng dụng khách <span id="detected-os" class="text-primary">Windows</span> được đề xuất cho bạn
+                                <h4 class="mb-1">
+                                    App đề xuất cho <span id="detected-os" class="text-primary">Windows</span>
                                 </h4>
+                                <p class="text-muted small mb-3">Tải app → dán link đã sao chép ở trên</p>
                                 <div class="row g-3" id="recommended-clients">
                                 </div>
                             </div>
@@ -229,7 +227,7 @@
                                 <button class="btn btn-ghost-primary" type="button" data-bs-toggle="collapse" 
                                         data-bs-target="#all-platforms" aria-expanded="false">
                                     <i class="ti ti-package"></i> 
-                                    Xem ứng dụng khách cho nền tảng khác
+                                    App khác & định dạng nâng cao
                                     <i class="ti ti-chevron-down ms-1"></i>
                                 </button>
                             </div>
@@ -618,11 +616,19 @@
             DESKTOP_SM: 'd-none d-sm-flex'
         },
         BUTTONS: {
-            download: { icon: 'ti-download', text: 'Tải xuống', class: 'btn-primary' },
+            download: { icon: 'ti-download', text: 'Tải app', class: 'btn-primary' },
             downloadAppStore: { icon: 'ti-brand-appstore', text: 'App Store', class: 'btn-primary' },
-            copy: { icon: 'ti-copy', text: 'Sao chép đăng ký', class: 'btn-info copy' },
-            import: { icon: 'ti-external-link', text: 'Mở trong app', class: 'btn-success' },
-            importRecommended: { icon: 'ti-external-link', text: 'Mở trong app', class: 'btn-success' }
+            copy: { icon: 'ti-copy', text: 'Sao chép link', class: 'btn-info copy' },
+            import: { icon: 'ti-external-link', text: 'Mở app', class: 'btn-success' },
+            importRecommended: { icon: 'ti-external-link', text: 'Mở app', class: 'btn-success' }
+        },
+        // Chỉ hiện 2 app chính trên dashboard — phần còn lại nằm ở "App khác"
+        PREFERRED_CLIENTS: {
+            Windows: ['Clash Verge Rev', 'Hiddify'],
+            macOS: ['Clash Verge Rev', 'Hiddify'],
+            Android: ['CMFA', 'Hiddify'],
+            iOS: ['ClashMi', 'SFI'],
+            Linux: ['Clash Verge Rev', 'Hiddify']
         }
     };
 
@@ -677,12 +683,18 @@
     function createResponsiveButtonGroups(client, urls, isRecommended = false) {
         const { downloadUrl, subUrl, importUrl } = urls;
         const buttons = [];
-        
-        const buttonConfigs = [
-            { type: 'download', url: downloadUrl, needsClient: true },
-            { type: 'copy', url: subUrl },
-            { type: 'import', url: importUrl }
-        ];
+
+        // Recommended cards: download + open only (link already copied above)
+        const buttonConfigs = isRecommended
+            ? [
+                { type: 'download', url: downloadUrl, needsClient: true },
+                { type: 'import', url: importUrl }
+            ]
+            : [
+                { type: 'download', url: downloadUrl, needsClient: true },
+                { type: 'copy', url: subUrl },
+                { type: 'import', url: importUrl }
+            ];
         
         const variants = [
             { 
@@ -781,17 +793,51 @@
         return container.outerHTML;
     }
     
+    function pickPreferredClients(os, clients) {
+        const preferred = CONFIG.PREFERRED_CLIENTS[os] || CONFIG.PREFERRED_CLIENTS.Windows;
+        const picked = preferred
+            .map((name) => clients.find((c) => c.name === name))
+            .filter(Boolean);
+        return picked.length ? picked : clients.slice(0, 2);
+    }
+
+    function initSubLinkPicker() {
+        const input = document.getElementById('universal-sub-link');
+        const copyBtn = document.getElementById('sub-copy-btn');
+        const hint = document.getElementById('sub-format-hint');
+        const tabs = document.querySelectorAll('.gopass-sub-tab');
+        if (!input || !copyBtn || !tabs.length) return;
+
+        const hints = {
+            clash: 'Clash Meta, Clash Verge, FlClash, CMFA…',
+            singbox: 'Hiddify, SFA (Sing-box)…'
+        };
+
+        tabs.forEach((tab) => {
+            tab.addEventListener('click', () => {
+                tabs.forEach((t) => t.classList.remove('active'));
+                tab.classList.add('active');
+                const url = tab.getAttribute('data-sub-url');
+                const format = tab.getAttribute('data-sub-format');
+                input.value = url;
+                copyBtn.setAttribute('data-clipboard-text', url);
+                if (hint) hint.textContent = 'Dùng cho ' + (hints[format] || '');
+            });
+        });
+    }
+
     function initClientSelector() {
         const os = detectOS();
         document.getElementById('detected-os').textContent = os;
 
-        const recommendations = clientRecommendations[os] || clientRecommendations["Windows"];
+        const allForOs = clientRecommendations[os] || clientRecommendations["Windows"] || [];
+        const recommendations = pickPreferredClients(os, allForOs);
         const recommendedContainer = document.getElementById('recommended-clients');
         
         if (recommendedContainer) {
             recommendations.forEach(function(client) {
                 const clientHtml = generateClientHtml(client, true);
-            recommendedContainer.insertAdjacentHTML('beforeend', clientHtml);
+                recommendedContainer.insertAdjacentHTML('beforeend', clientHtml);
             });
         }
         
@@ -875,6 +921,7 @@
     }
     
     document.addEventListener('DOMContentLoaded', function() {
+        safeInit(initSubLinkPicker, 'Bộ chọn link đăng ký');
         safeInit(initClientSelector, 'Bộ chọn ứng dụng khách');
         safeInit(initClipboard, 'Chức năng clipboard');
         safeInit(initCollapseAnimations, 'Hiệu ứng thu gọn');
