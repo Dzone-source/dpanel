@@ -8,6 +8,7 @@ use App\Controllers\BaseController;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Paylist;
+use App\Models\User;
 use App\Utils\Tools;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
@@ -23,7 +24,7 @@ final class OrderController extends BaseController
         'field' => [
             'op' => 'Thao tác',
             'id' => 'ID đơn hàng',
-            'user_id' => 'Người dùng gửi',
+            'user_id' => 'Email người gửi',
             'product_id' => 'ID sản phẩm',
             'product_type' => 'Loại sản phẩm',
             'product_name' => 'Tên sản phẩm',
@@ -91,11 +92,13 @@ final class OrderController extends BaseController
         $invoice->update_time = Tools::toDateTime($invoice->update_time);
         $invoice->pay_time = Tools::toDateTime($invoice->pay_time);
         $invoice->content = json_decode($invoice->content);
+        $owner = (new User())->find($order->user_id);
 
         return $response->write(
             $this->view()
                 ->assign('order', $order)
                 ->assign('invoice', $invoice)
+                ->assign('owner_email', $owner?->email ?? ('#' . $order->user_id))
                 ->fetch('admin/order/view.tpl')
         );
     }
@@ -188,6 +191,8 @@ final class OrderController extends BaseController
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
         $orders = (new Order())->orderBy('id', 'desc')->get();
+        $emails = (new User())->whereIn('id', $orders->pluck('user_id')->unique()->filter()->all())
+            ->pluck('email', 'id');
 
         foreach ($orders as $order) {
             $order->op = '<button class="btn btn-red" id="delete-order-' . $order->id . '"
@@ -206,6 +211,7 @@ final class OrderController extends BaseController
             $order->create_time = Tools::toDateTime($order->create_time);
             $order->update_time = Tools::toDateTime($order->update_time);
             $order->price = Tools::formatVnd((float) $order->price, 0);
+            $order->user_id = $emails[$order->user_id] ?? ('#' . $order->user_id);
         }
 
         return $response->withJson([

@@ -43,8 +43,10 @@
                 <div class="card-body">
                     <div class="datagrid">
                         <div class="datagrid-item">
-                            <div class="datagrid-title">Người dùng gửi</div>
-                            <div class="datagrid-content">{$order->user_id}</div>
+                            <div class="datagrid-title">Email người gửi</div>
+                            <div class="datagrid-content">
+                                <a href="/admin/user/{$order->user_id}/edit">{$owner_email}</a>
+                            </div>
                         </div>
                         <div class="datagrid-item">
                             <div class="datagrid-title">ID sản phẩm</div>
