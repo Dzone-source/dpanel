@@ -45,7 +45,7 @@
                         </div>
                         <div class="datagrid-item">
                             <div class="datagrid-title">Số tiền đơn hàng</div>
-                            <div class="datagrid-content">{$order->price|format_vnd:2} VNĐ</div>
+                            <div class="datagrid-content">{$order->price|format_vnd:0} VNĐ</div>
                         </div>
                         <div class="datagrid-item">
                             <div class="datagrid-title">Trạng thái đơn hàng</div>
@@ -146,7 +146,7 @@
                         </div>
                         <div class="datagrid-item">
                             <div class="datagrid-title">Số tiền hóa đơn</div>
-                            <div class="datagrid-content">{$invoice->price|format_vnd:2} VNĐ</div>
+                            <div class="datagrid-content">{$invoice->price|format_vnd:0} VNĐ</div>
                         </div>
                         <div class="datagrid-item">
                             <div class="datagrid-title">Trạng thái hóa đơn</div>
