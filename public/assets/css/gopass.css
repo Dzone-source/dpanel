@@ -1660,6 +1660,52 @@ body.gopass-auth .modal-content {
     }
 }
 
+/* ===================== Zalo floating button ===================== */
+.gopass-zalo-fab {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: #0068FF;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 0.55rem 1rem 0.55rem 0.55rem;
+    box-shadow: 0 4px 24px rgba(0,104,255,.38);
+    font-weight: 700;
+    font-size: 0.88rem;
+    letter-spacing: 0.01em;
+    transition: box-shadow .2s, transform .2s;
+    animation: gopass-zalo-pulse 2.6s infinite;
+}
+
+.gopass-zalo-fab:hover,
+.gopass-zalo-fab:focus {
+    color: #fff;
+    text-decoration: none;
+    box-shadow: 0 8px 32px rgba(0,104,255,.55);
+    transform: translateY(-2px) scale(1.04);
+}
+
+.gopass-zalo-fab svg {
+    width: 2.1rem;
+    height: 2.1rem;
+    flex-shrink: 0;
+    border-radius: 12px;
+}
+
+.gopass-zalo-fab-label {
+    white-space: nowrap;
+}
+
+@keyframes gopass-zalo-pulse {
+    0%, 100% { box-shadow: 0 4px 24px rgba(0,104,255,.38); }
+    50%       { box-shadow: 0 4px 32px rgba(0,104,255,.65), 0 0 0 6px rgba(0,104,255,.12); }
+}
+
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce) {
     *,

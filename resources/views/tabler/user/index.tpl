@@ -339,12 +339,13 @@
                                     {/if}
                                 </div>
 
-                                <div class="gopass-traffic-bar progress progress-separated" role="progressbar"
+                                {if $user->transfer_enable > 0}
+                                {assign var=last_pct value=$user->lastUsedTrafficPercent()}
+                                {assign var=today_pct value=$user->todayUsedTrafficPercent()}
+                                <div class="gopass-traffic-bar progress" role="progressbar"
                                      aria-label="Tiến độ lưu lượng"
-                                     aria-valuenow="{$user->unusedTrafficPercent()|string_format:'%.0f'}"
+                                     aria-valuenow="{math equation='a+b' a=$last_pct b=$today_pct}"
                                      aria-valuemin="0" aria-valuemax="100">
-                                    {assign var=last_pct value=$user->lastUsedTrafficPercent()}
-                                    {assign var=today_pct value=$user->todayUsedTrafficPercent()}
                                     {if $last_pct > 0}
                                     <div class="progress-bar gopass-traffic-bar-used"
                                          style="width: {$last_pct}%"></div>
@@ -353,7 +354,11 @@
                                     <div class="progress-bar gopass-traffic-bar-today"
                                          style="width: {$today_pct}%"></div>
                                     {/if}
+                                    {if $last_pct == 0 && $today_pct == 0}
+                                    <div style="width:100%"></div>
+                                    {/if}
                                 </div>
+                                {/if}
 
                                 <div class="gopass-traffic-stats">
                                     <div class="gopass-traffic-stat gopass-traffic-stat--used">
