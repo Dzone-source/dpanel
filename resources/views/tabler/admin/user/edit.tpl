@@ -213,14 +213,25 @@
                                 </span>
                             </div>
                             <div class="form-group mb-3 row">
-                                <span class="col">Xác thực hai bước</span>
+                                <span class="col">Xác thực hai bước (MFA)</span>
+                                <span class="col-auto">
+                                    {if $mfa_enabled}
+                                    <span class="badge bg-green-lt">Đã bật</span>
+                                    {else}
+                                    <span class="badge bg-secondary-lt">Chưa bật</span>
+                                    {/if}
+                                </span>
+                            </div>
+                            {if $mfa_enabled}
+                            <div class="form-group mb-3 row">
+                                <span class="col">Xóa thiết bị MFA của user</span>
                                 <span class="col-auto">
                                     <label class="form-check form-check-single form-switch">
-                                        <input id="ga_enable" class="form-check-input" type="checkbox"
-                                               {if $edit_user->ga_enable}checked="" {/if}>
+                                        <input id="clear_mfa" class="form-check-input" type="checkbox">
                                     </label>
                                 </span>
                             </div>
+                            {/if}
                             <div class="form-group mb-3 row">
                                 <span class="col">Trạng thái bất thường tài khoản (Shadow Banned)</span>
                                 <span class="col-auto form-check-single form-switch">
@@ -273,7 +284,7 @@
             {$key}: $('#{$key}').val(),
             {/foreach}
             is_admin: $("#is_admin").is(":checked"),
-            ga_enable: $("#ga_enable").is(":checked"),
+            clear_mfa: $("#clear_mfa").is(":checked"),
             is_shadow_banned: $("#is_shadow_banned").is(":checked"),
             is_banned: $("#is_banned").is(":checked"),
         };

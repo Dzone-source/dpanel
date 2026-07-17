@@ -7,6 +7,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\AuthController;
 use App\Controllers\BaseController;
 use App\Models\Config;
+use App\Models\MFADevice;
 use App\Models\User;
 use App\Models\UserMoneyLog;
 use App\Utils\Hash;
@@ -158,11 +159,13 @@ final class UserController extends BaseController
         $user->last_use_time = Tools::toDateTime($user->last_use_time);
         $user->last_check_in_time = Tools::toDateTime($user->last_check_in_time);
         $user->last_login_time = Tools::toDateTime($user->last_login_time);
+        $mfa_enabled = (new MFADevice())->where('userid', $user->id)->exists();
 
         return $response->write(
             $this->view()
                 ->assign('update_field', self::$update_field)
                 ->assign('edit_user', $user)
+                ->assign('mfa_enabled', $mfa_enabled)
                 ->assign('ss_methods', Tools::getSsMethod())
                 ->fetch('admin/user/edit.tpl')
         );
@@ -207,11 +210,15 @@ final class UserController extends BaseController
         $user->node_iplimit = $request->getParam('node_iplimit');
         $user->locale = 'vi_VN';
         $user->is_admin = $request->getParam('is_admin') === 'true' ? 1 : 0;
-        $user->ga_enable = $request->getParam('ga_enable') === 'true' ? 1 : 0;
         $user->is_shadow_banned = $request->getParam('is_shadow_banned') === 'true' ? 1 : 0;
         $user->is_banned = $request->getParam('is_banned') === 'true' ? 1 : 0;
         $user->banned_reason = $request->getParam('banned_reason');
         $user->remark = $request->getParam('remark');
+
+        // MFA moved to mfa_devices — clear devices when admin requests reset.
+        if ($request->getParam('clear_mfa') === 'true') {
+            (new MFADevice())->where('userid', $id)->delete();
+        }
 
         if (! $user->save()) {
             return $response->withJson([
