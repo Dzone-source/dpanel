@@ -192,6 +192,31 @@ final class InvoiceController extends BaseController
         return $response->withHeader('HX-Refresh', 'true');
     }
 
+    public function status(ServerRequest $request, Response $response, array $args): ResponseInterface
+    {
+        $id = $args['id'];
+        $invoice = (new Invoice())->where('user_id', $this->user->id)->where('id', $id)->first();
+
+        if ($invoice === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Hóa đơn không tồn tại',
+            ]);
+        }
+
+        $paid = in_array($invoice->status, ['paid_gateway', 'paid_balance', 'paid_admin'], true);
+
+        return $response->withJson([
+            'ret' => 1,
+            'id' => (int) $invoice->id,
+            'status' => (string) $invoice->status,
+            'status_text' => $invoice->status(),
+            'paid' => $paid,
+            'update_time' => (int) $invoice->update_time,
+            'pay_time' => (int) $invoice->pay_time,
+        ]);
+    }
+
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
         $invoices = (new Invoice())->orderBy('id', 'desc')->where('user_id', $this->user->id)->get();

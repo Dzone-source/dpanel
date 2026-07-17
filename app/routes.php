@@ -100,6 +100,7 @@ return static function (Slim\App $app): void {
         // 账单页面
         $group->get('/invoice', App\Controllers\User\InvoiceController::class . ':index');
         $group->get('/invoice/{id:[0-9]+}/view', App\Controllers\User\InvoiceController::class . ':detail');
+        $group->get('/invoice/{id:[0-9]+}/status', App\Controllers\User\InvoiceController::class . ':status');
         $group->post('/invoice/pay_balance', App\Controllers\User\InvoiceController::class . ':payBalance');
         $group->post('/invoice/ajax', App\Controllers\User\InvoiceController::class . ':ajax');
         // 新优惠码系统
@@ -144,6 +145,8 @@ return static function (Slim\App $app): void {
     $app->group('/admin', static function (RouteCollectorProxy $group): void {
         $group->get('', App\Controllers\AdminController::class . ':index');
         $group->get('/', App\Controllers\AdminController::class . ':index');
+        // Live status polling for admin UI auto-refresh
+        $group->get('/live/status', App\Controllers\Admin\LiveController::class . ':status');
         // Node
         $group->get('/node', App\Controllers\Admin\NodeController::class . ':index');
         $group->get('/node/create', App\Controllers\Admin\NodeController::class . ':create');

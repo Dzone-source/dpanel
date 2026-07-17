@@ -23,6 +23,13 @@
         <div class="container-xl">
             <div class="row row-cards">
                 {if $invoice->status === 'unpaid' || $invoice->status === 'partially_paid'}
+                <div class="col-12">
+                    <div class="alert alert-info" id="gopass-invoice-wait-hint" role="status">
+                        Trang sẽ tự cập nhật khi hóa đơn được xác nhận thanh toán.
+                    </div>
+                </div>
+                {/if}
+                {if $invoice->status === 'unpaid' || $invoice->status === 'partially_paid'}
                 <div class="col-sm-12 col-md-6 col-lg-9">
                 {else}
                 <div class="col-md-12">
@@ -204,5 +211,41 @@
             </div>
         </div>
     </div>
+
+    {if $invoice->status === 'unpaid' || $invoice->status === 'partially_paid'}
+    <script>
+    (function () {
+        const invoiceId = {$invoice->id};
+        const POLL_MS = 10000;
+        let busy = false;
+
+        async function pollInvoiceStatus() {
+            if (busy || document.hidden) return;
+            busy = true;
+            try {
+                const res = await fetch('/user/invoice/' + invoiceId + '/status', {
+                    credentials: 'same-origin',
+                    headers: { 'Accept': 'application/json' }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (data && data.ret === 1 && data.paid) {
+                    window.location.reload();
+                }
+            } catch (e) {
+                // ignore
+            } finally {
+                busy = false;
+            }
+        }
+
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) pollInvoiceStatus();
+        });
+
+        setInterval(pollInvoiceStatus, POLL_MS);
+    })();
+    </script>
+    {/if}
 
     {include file='user/footer.tpl'}

@@ -62,6 +62,12 @@
         function loadTable() {
             table;
         }
+
+        function reloadTableAjax() {
+            table.ajax.reload(null, false);
+        }
+
+        loadTable();
     </script>
 
     {include file='admin/footer.tpl'}

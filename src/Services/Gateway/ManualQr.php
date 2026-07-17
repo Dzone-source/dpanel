@@ -100,7 +100,7 @@ final class ManualQr extends Base
                 }
             }
 
-            return $response->withHeader('HX-Redirect', '/user');
+            return $response->withHeader('HX-Redirect', '/user/invoice/' . $invoice->id . '/view');
         }
 
         return $response->withHeader('HX-Redirect', '/user/invoice/' . $invoice->id . '/view');

@@ -66,6 +66,14 @@
                      class="navbar-brand-image" style="filter: none;">
             </h1>
             <div class="navbar-nav flex-row order-md-last">
+                <div class="nav-item d-none d-md-flex me-2">
+                    <a href="/admin/ticket" class="nav-link px-2 position-relative" id="gopass-live-bell"
+                       title="Cập nhật trực tiếp" aria-label="Thông báo trực tiếp">
+                        <i class="ti ti-bell" style="font-size:1.25rem;"></i>
+                        <span id="gopass-live-badge" class="badge bg-red text-red-fg badge-notification badge-pill"
+                              style="display:none;">0</span>
+                    </a>
+                </div>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
                        aria-label="Open user menu">
@@ -191,6 +199,7 @@
                                 <a class="dropdown-item" href="/admin/ticket">
                                     <i class="ti ti-messages"></i>&nbsp;
                                     Phiếu hỗ trợ
+                                    <span id="gopass-live-ticket-badge" class="badge bg-red ms-1" style="display:none;">0</span>
                                 </a>
                                 <a class="dropdown-item" href="/admin/docs">
                                     <i class="ti ti-notes"></i>&nbsp;
