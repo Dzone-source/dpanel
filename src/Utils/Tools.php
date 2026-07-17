@@ -51,33 +51,32 @@ final class Tools
      */
     public static function getIpLocation(string $ip): string
     {
-        $data = 'Chưa cấu hình GeoIP';
+        if (! GeoIP2::isAvailable()) {
+            return 'Chưa có database GeoIP (cần file .mmdb trong storage/GeoLite2-*)';
+        }
+
         $city = null;
         $country = null;
 
-        if (GeoIP2::isAvailable()) {
-            try {
-                $geoip = new GeoIP2();
-            } catch (InvalidDatabaseException) {
-                return $data;
-            }
-
-            try {
-                $city = $geoip->getCity($ip);
-            } catch (AddressNotFoundException|InvalidDatabaseException) {
-                $city = 'Unknown city';
-            }
-
-            try {
-                $country = $geoip->getCountry($ip);
-            } catch (AddressNotFoundException|InvalidDatabaseException) {
-                $country = 'Unknown country';
-            }
+        try {
+            $geoip = new GeoIP2();
+        } catch (InvalidDatabaseException) {
+            return 'Database GeoIP không đọc được (file hỏng hoặc sai phiên bản)';
         }
 
-        if ($country !== null) {
-            $data = $country;
+        try {
+            $city = $geoip->getCity($ip);
+        } catch (AddressNotFoundException|InvalidDatabaseException) {
+            $city = 'Unknown city';
         }
+
+        try {
+            $country = $geoip->getCountry($ip);
+        } catch (AddressNotFoundException|InvalidDatabaseException) {
+            $country = 'Unknown country';
+        }
+
+        $data = $country ?? 'Không xác định';
 
         if ($city !== null) {
             $data = $city . ', ' . $country;

@@ -18,12 +18,12 @@ afterEach(function () {
 describe('Tools::getIpLocation', function () {
     it('returns a message when GeoIP database is not available', function () {
         if (GeoIP2::isAvailable()) {
-            expect(Tools::getIpLocation('8.8.8.8'))->not->toBe('Chưa cấu hình GeoIP');
+            expect(Tools::getIpLocation('8.8.8.8'))->not->toContain('Chưa có database GeoIP');
 
             return;
         }
 
-        expect(Tools::getIpLocation('8.8.8.8'))->toBe('Chưa cấu hình GeoIP');
+        expect(Tools::getIpLocation('8.8.8.8'))->toContain('Chưa có database GeoIP');
     });
 });
 
