@@ -203,6 +203,7 @@ return static function (Slim\App $app): void {
         $group->get('/user', App\Controllers\Admin\UserController::class . ':index');
         $group->get('/user/{id:[0-9]+}/edit', App\Controllers\Admin\UserController::class . ':edit');
         $group->put('/user/{id:[0-9]+}', App\Controllers\Admin\UserController::class . ':update');
+        $group->post('/user/{id:[0-9]+}', App\Controllers\Admin\UserController::class . ':update');
         $group->post('/user/create', App\Controllers\Admin\UserController::class . ':create');
         $group->delete('/user/{id}', App\Controllers\Admin\UserController::class . ':delete');
         $group->post('/user/ajax', App\Controllers\Admin\UserController::class . ':ajax');

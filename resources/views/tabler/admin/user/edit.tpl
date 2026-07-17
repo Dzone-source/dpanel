@@ -14,10 +14,10 @@
                 </div>
                 <div class="col-auto">
                     <div class="btn-list">
-                        <a id="save_changes" href="#" class="btn btn-primary">
+                        <button type="button" id="save_changes" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
-                            Lưu
-                        </a>
+                            Lưu thay đổi
+                        </button>
                     </div>
                 </div>
             </div>
@@ -48,8 +48,10 @@
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">Mật khẩu tài khoản</label>
                                 <div class="col">
-                                    <input id="pass" type="text" class="form-control"
-                                           placeholder="Điền vào đây nếu cần đặt lại mật khẩu cho người dùng này">
+                                    <input id="pass" type="text" class="form-control" value=""
+                                           autocomplete="new-password"
+                                           placeholder="Nhập mật khẩu mới rồi bấm Lưu (để trống = không đổi)">
+                                    <small class="form-hint text-muted">Không hiện mật khẩu hiện tại. Chỉ điền khi muốn đặt lại.</small>
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
@@ -253,36 +255,75 @@
                     </div>
                 </div>
             </div>
+
+            <div class="mt-3 mb-4 d-flex justify-content-end gap-2">
+                <button type="button" id="save_changes_bottom" class="btn btn-primary btn-lg">
+                    <i class="icon ti ti-device-floppy"></i>
+                    Lưu thay đổi
+                </button>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    $("#save_changes").click(function () {
+    function saveUserChanges() {
+        const payload = {
+            {foreach $update_field as $key}
+            {$key}: $('#{$key}').val(),
+            {/foreach}
+            is_admin: $("#is_admin").is(":checked"),
+            ga_enable: $("#ga_enable").is(":checked"),
+            is_shadow_banned: $("#is_shadow_banned").is(":checked"),
+            is_banned: $("#is_banned").is(":checked"),
+        };
+
         $.ajax({
             url: '/admin/user/{$edit_user->id}',
-            type: 'PUT',
-            dataType: "json",
-            data: {
-                {foreach $update_field as $key}
-                {$key}: $('#{$key}').val(),
-                {/foreach}
-                is_admin: $("#is_admin").is(":checked"),
-                ga_enable: $("#ga_enable").is(":checked"),
-                is_shadow_banned: $("#is_shadow_banned").is(":checked"),
-                is_banned: $("#is_banned").is(":checked"),
-            },
+            type: 'POST',
+            dataType: 'json',
+            data: payload,
             success: function (data) {
                 if (data.ret === 1) {
                     $('#success-message').text(data.msg);
-                    $('#success-dialog').modal('show');
-                    window.setTimeout("location.href=top.document.referrer", {$config['jump_delay']});
+                    if (typeof successDialog !== 'undefined') {
+                        successDialog.show();
+                    } else {
+                        alert(data.msg);
+                    }
+                    window.setTimeout(function () {
+                        location.href = '/admin/user';
+                    }, {$config['jump_delay']});
                 } else {
-                    $('#fail-message').text(data.msg);
-                    $('#fail-dialog').modal('show');
+                    $('#fail-message').text(data.msg || 'Cập nhật thất bại');
+                    if (typeof failDialog !== 'undefined') {
+                        failDialog.show();
+                    } else {
+                        alert(data.msg || 'Cập nhật thất bại');
+                    }
+                }
+            },
+            error: function (xhr) {
+                let msg = 'Không gửi được yêu cầu lưu (HTTP ' + xhr.status + ')';
+                try {
+                    const body = JSON.parse(xhr.responseText);
+                    if (body && body.msg) {
+                        msg = body.msg;
+                    }
+                } catch (e) {}
+                $('#fail-message').text(msg);
+                if (typeof failDialog !== 'undefined') {
+                    failDialog.show();
+                } else {
+                    alert(msg);
                 }
             }
-        })
+        });
+    }
+
+    $('#save_changes, #save_changes_bottom').on('click', function (e) {
+        e.preventDefault();
+        saveUserChanges();
     });
 </script>
 

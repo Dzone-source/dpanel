@@ -31,6 +31,7 @@ $guzzle_factory = new HttpFactory();
 $response_factory = new DecoratedResponseFactory($guzzle_factory, $guzzle_factory);
 $app = AppFactory::create($response_factory);
 
+$app->addBodyParsingMiddleware();
 $app->add(new ErrorHandler());
 
 $routes = require __DIR__ . '/../app/routes.php';
