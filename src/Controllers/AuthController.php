@@ -126,7 +126,7 @@ final class AuthController extends BaseController
                     ]);
             }
 
-            $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600;
+            $time = self::loginCookieLifetime((bool) $rememberMe);
 
             Auth::login($user->id, $time);
 
@@ -323,7 +323,7 @@ final class AuthController extends BaseController
                 Reward::issueRegReward($user->id, $user->ref_by);
             }
 
-            Auth::login($user->id, 3600);
+            Auth::login($user->id, self::loginCookieLifetime(false));
             (new LoginIp())->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
 
             return $response->withHeader('HX-Redirect', $redir);
@@ -440,7 +440,7 @@ final class AuthController extends BaseController
                 ]);
             }
             $rememberMe = $request->getParam('remember_me') === 'true';
-            $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600;
+            $time = self::loginCookieLifetime($rememberMe);
             Auth::login($user->id, $time);
             $loginIp = new LoginIp();
             $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
@@ -472,7 +472,7 @@ final class AuthController extends BaseController
         if ($result['ret'] === 1) {
             $redis->del('mfa_login_' . session_id());
             $rememberMe = $login_session['remember_me'];
-            $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600;
+            $time = self::loginCookieLifetime((bool) $rememberMe);
             Auth::login($user->id, $time);
             $loginIp = new LoginIp();
             $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
@@ -517,7 +517,7 @@ final class AuthController extends BaseController
         if ($result['ret'] === 1) {
             $redis->del('mfa_login_' . session_id());
             $rememberMe = $login_session['remember_me'];
-            $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600;
+            $time = self::loginCookieLifetime((bool) $rememberMe);
             Auth::login($user->id, $time);
             $loginIp = new LoginIp();
             $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
@@ -526,5 +526,22 @@ final class AuthController extends BaseController
             return $response->withJson(['ret' => 1, 'msg' => 'Đăng nhập thành công', 'redir' => $login_session['redir']]);
         }
         return $response->withJson($result);
+    }
+
+    /**
+     * Cookie login lifetime in seconds.
+     * Default session: 7 days. Remember-me: 30 days (configurable).
+     */
+    private static function loginCookieLifetime(bool $rememberMe): int
+    {
+        $days = $rememberMe
+            ? (int) ($_ENV['rememberMeDuration'] ?? 30)
+            : (int) ($_ENV['sessionDuration'] ?? 7);
+
+        if ($days < 1) {
+            $days = 1;
+        }
+
+        return 86400 * $days;
     }
 }

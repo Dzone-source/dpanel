@@ -93,9 +93,10 @@ $_ENV['detect_gfw_url'] = 'https://example.com/v1/tcping?ip={ip}&port={port}'; /
 $_ENV['enable_detect_offline'] = true;
 
 //高级设置---------------------------------------------------------------------------------------------------------------
-$_ENV['enable_login_bind_ip'] = true;     //是否将登陆线程和IP绑定
-$_ENV['enable_login_bind_device'] = true; //是否将登陆线程和设备绑定
-$_ENV['rememberMeDuration'] = 7;          //登录时记住账号时长天数
+$_ENV['enable_login_bind_ip'] = false;    // IP đổi (mobile/proxy) sẽ bị đăng xuất nếu bật
+$_ENV['enable_login_bind_device'] = true; // Gắn phiên đăng nhập với thiết bị (User-Agent)
+$_ENV['sessionDuration'] = 7;             // Thời gian phiên đăng nhập (ngày), không tick "Ghi nhớ"
+$_ENV['rememberMeDuration'] = 30;         // Thời gian khi tick "Ghi nhớ thiết bị" (ngày)
 $_ENV['timeZone'] = 'Asia/Ho_Chi_Minh';  //需使用 PHP 兼容的时区格式
 $_ENV['theme'] = 'tabler';                //默认主题
 $_ENV['locale'] = 'vi_VN';

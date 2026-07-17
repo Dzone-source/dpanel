@@ -32,7 +32,7 @@
                     </div>
                     <div class="mb-2">
                         <label class="form-check">
-                            <input id="remember_me" name="remember_me" type="checkbox" class="form-check-input" value="true"/>
+                            <input id="remember_me" name="remember_me" type="checkbox" class="form-check-input" value="true" checked/>
                             <span class="form-check-label">Ghi nhớ thiết bị</span>
                         </label>
                     </div>

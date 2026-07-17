@@ -266,13 +266,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="mt-3 mb-4 d-flex justify-content-end gap-2">
-                <button type="button" id="save_changes_bottom" class="btn btn-primary btn-lg">
-                    <i class="icon ti ti-device-floppy"></i>
-                    Lưu thay đổi
-                </button>
-            </div>
         </div>
     </div>
 </div>
@@ -332,7 +325,7 @@
         });
     }
 
-    $('#save_changes, #save_changes_bottom').on('click', function (e) {
+    $('#save_changes').on('click', function (e) {
         e.preventDefault();
         saveUserChanges();
     });
