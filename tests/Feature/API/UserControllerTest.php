@@ -9,6 +9,7 @@ declare(strict_types=1);
  */
 
 use App\Models\Node;
+use App\Models\OnlineLog;
 use App\Models\User;
 
 beforeEach(function () {
@@ -30,6 +31,7 @@ beforeEach(function () {
 
 afterEach(function () {
     if (isset($this->node)) {
+        OnlineLog::where('node_id', $this->node->id)->delete();
         $this->node->delete();
     }
     User::where('email', 'LIKE', 'test%@example.com')->delete();
@@ -54,9 +56,85 @@ describe('UserController API - Trojan Node', function () {
             $userData = findUserData($data['data'], $user->id);
 
             expect($userData)
-                ->not->toHaveKeys(['u', 'd', 'transfer_enable', 'method', 'port', 'passwd', 'node_iplimit'])
-                ->toHaveKeys(['id', 'uuid', 'node_speedlimit']);
+                ->not->toHaveKeys(['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'])
+                ->toHaveKeys(['id', 'uuid', 'node_speedlimit', 'node_iplimit', 'alive_ip'])
+                ->and($userData['node_iplimit'])->toBe(0)
+                ->and($userData['alive_ip'])->toBe(0);
         }
+    });
+});
+
+describe('UserController API - IP online limit', function () {
+    it('returns node_iplimit and alive_ip for xrayr device limiting', function () {
+        $user = createUsers(1)[0];
+        $user->node_iplimit = 2;
+        $user->save();
+
+        OnlineLog::upsert(
+            [
+                'user_id' => $user->id,
+                'ip' => '::ffff:1.1.1.1',
+                'node_id' => $this->node->id,
+                'first_time' => time(),
+                'last_time' => time(),
+            ],
+            ['user_id', 'ip'],
+            ['node_id', 'last_time']
+        );
+
+        $response = $this->get('/mod_mu/users?node_id=' . $this->node->id . '&key=' . $_ENV['muKey']);
+        assertResponseStatus(200, $response);
+
+        $userData = findUserData(getJsonData($response)['data'], $user->id);
+        expect($userData['node_iplimit'])->toBe(2)
+            ->and($userData['alive_ip'])->toBe(1);
+    });
+
+    it('excludes users that exceed package ip limit', function () {
+        $user = createUsers(1)[0];
+        $user->node_iplimit = 1;
+        $user->save();
+
+        foreach (['::ffff:1.1.1.1', '::ffff:2.2.2.2'] as $ip) {
+            OnlineLog::upsert(
+                [
+                    'user_id' => $user->id,
+                    'ip' => $ip,
+                    'node_id' => $this->node->id,
+                    'first_time' => time(),
+                    'last_time' => time(),
+                ],
+                ['user_id', 'ip'],
+                ['node_id', 'last_time']
+            );
+        }
+
+        $response = $this->get('/mod_mu/users?node_id=' . $this->node->id . '&key=' . $_ENV['muKey']);
+        assertResponseStatus(200, $response);
+
+        $ids = array_column(getJsonData($response)['data'], 'id');
+        expect($ids)->not->toContain($user->id);
+    });
+
+    it('accepts alive ip reports from nodes', function () {
+        $user = createUsers(1)[0];
+
+        $response = $this->post('/mod_mu/users/aliveip?node_id=' . $this->node->id . '&key=' . $_ENV['muKey'], [
+            'data' => [
+                [
+                    'user_id' => $user->id,
+                    'ip' => '8.8.8.8',
+                ],
+            ],
+        ]);
+
+        assertResponseStatus(200, $response);
+        expect(getJsonData($response)['msg'])->toBe('ok');
+
+        $log = OnlineLog::where('user_id', $user->id)->first();
+        expect($log)->not->toBeNull()
+            ->and($log->ip())->toBe('8.8.8.8')
+            ->and((int) $log->node_id)->toBe((int) $this->node->id);
     });
 });
 
