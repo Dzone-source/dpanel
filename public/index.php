@@ -21,7 +21,9 @@ use Slim\Factory\AppFactory;
 use Slim\Http\Factory\DecoratedResponseFactory;
 
 Boot::setTime();
-Boot::normalizeClientIp();
+if (method_exists(Boot::class, 'normalizeClientIp')) {
+    Boot::normalizeClientIp();
+}
 Boot::bootSentry();
 Boot::bootDb();
 

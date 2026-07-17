@@ -18,6 +18,7 @@ use function ceil;
 use function closedir;
 use function count;
 use function date;
+use function explode;
 use function filter_var;
 use function floor;
 use function hash;
