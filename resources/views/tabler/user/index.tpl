@@ -211,7 +211,7 @@
                                         <i class="ti ti-copy"></i> Sao chép
                                     </button>
                                 </div>
-                                <p class="text-muted small mt-2 mb-0" id="sub-format-hint">Dùng cho Clash Meta, Clash Verge, FlClash…</p>
+                                <p class="text-muted small mt-2 mb-0" id="sub-format-hint">Clash Meta: dùng tab Clash. Hiddify: bắt buộc tab Hiddify / SFA (không dán link Clash).</p>
                             </div>
 
                             <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
@@ -845,7 +845,7 @@
 
         const hints = {
             clash: 'Clash Meta, Clash Verge, FlClash, CMFA…',
-            singbox: 'Hiddify, SFA (Sing-box)…'
+            singbox: 'Chỉ dùng cho Hiddify / SFA — xóa profile cũ rồi import lại link /singbox'
         };
 
         tabs.forEach((tab) => {

@@ -35,6 +35,10 @@ final class Trojan extends Base
                 $host = $node_custom_config['host'] ?? '';
                 $allow_insecure = $node_custom_config['allow_insecure'] ?? '0';
                 $security = $node_custom_config['security'] ?? 'tls';
+                // Trojan on 443 always needs TLS — panel "none" / "0" breaks Hiddify share links.
+                if ($security === '' || $security === 'none' || $security === '0') {
+                    $security = 'tls';
+                }
                 $mux = $node_custom_config['mux'] ?? '0';
                 $network = $node_custom_config['network'] ?? 'tcp';
                 $transport_plugin = $node_custom_config['transport_plugin'] ?? '';
@@ -43,6 +47,11 @@ final class Trojan extends Base
                 $path = $node_custom_config['path'] ?? '';
 
                 $insecure = filter_var($allow_insecure, FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
+                if ($insecure === '0' && $host !== '' &&
+                    strcasecmp((string) $host, (string) $node_raw->server) !== 0
+                ) {
+                    $insecure = '1';
+                }
                 $query = http_build_query([
                     'peer' => $host,
                     'sni' => $host,

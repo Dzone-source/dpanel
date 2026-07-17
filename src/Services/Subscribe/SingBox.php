@@ -8,14 +8,16 @@ use App\Services\Subscribe;
 use App\Utils\Tools;
 use function array_filter;
 use function array_merge;
+use function filter_var;
 use function json_decode;
 use function json_encode;
+use const FILTER_VALIDATE_BOOLEAN;
 
 /**
  * Sing-box / Hiddify subscription.
  *
- * Aligned with Xboard: emit a Hiddify-friendly config (legacy DNS address
- * format, no remote rule-set downloads during import, clean trojan outbounds).
+ * Keep the profile Hiddify-friendly: no TLS-DNS-over-proxy bootstrap,
+ * plain TCP Trojan without empty transport, Chrome uTLS fingerprint.
  */
 final class SingBox extends Base
 {
@@ -56,7 +58,7 @@ final class SingBox extends Base
     }
 
     /**
-     * Minimal Xboard-like template — no remote rule-set fetch on import.
+     * Minimal template — avoid chicken-egg DNS (tls:// DNS via proxy causes Hiddify timeouts).
      */
     private function baseConfig(array $node_names): array
     {
@@ -70,12 +72,14 @@ final class SingBox extends Base
                 'servers' => [
                     [
                         'tag' => 'remote',
-                        'address' => 'tls://1.1.1.1',
+                        // Plain UDP DNS — tls:// + detour select often hangs Hiddify on first connect.
+                        'address' => '1.1.1.1',
                         'detour' => 'select',
                     ],
                     [
                         'tag' => 'local',
                         'address' => 'local',
+                        'detour' => 'direct',
                     ],
                 ],
                 'rules' => [
@@ -84,14 +88,15 @@ final class SingBox extends Base
                         'server' => 'local',
                     ],
                     [
-                        'clash_mode' => 'global',
-                        'server' => 'remote',
-                    ],
-                    [
-                        'clash_mode' => 'direct',
+                        'clash_mode' => 'Direct',
                         'server' => 'local',
                     ],
+                    [
+                        'clash_mode' => 'Global',
+                        'server' => 'remote',
+                    ],
                 ],
+                'final' => 'remote',
                 'strategy' => 'prefer_ipv4',
             ],
             'inbounds' => [
@@ -138,16 +143,12 @@ final class SingBox extends Base
                     'tag' => 'block',
                     'type' => 'block',
                 ],
-                [
-                    'tag' => 'dns-out',
-                    'type' => 'dns',
-                ],
             ],
             'route' => [
                 'rules' => [
                     [
                         'protocol' => 'dns',
-                        'outbound' => 'dns-out',
+                        'outbound' => 'direct',
                     ],
                     [
                         'clash_mode' => 'Direct',
@@ -247,7 +248,7 @@ final class SingBox extends Base
         $path = $cfg['header']['request']['path'][0] ?? $cfg['path'] ?? '';
         $headers = $cfg['header']['request']['headers'] ?? [];
         $service_name = $cfg['servicename'] ?? '';
-        $utls = filter_var($cfg['utls'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $utls = filter_var($cfg['utls'] ?? true, FILTER_VALIDATE_BOOLEAN);
 
         $node = [
             'type' => 'vmess',
@@ -285,12 +286,31 @@ final class SingBox extends Base
     private function buildTrojan($user, $node_raw, array $cfg): array
     {
         $port = $cfg['offset_port_user'] ?? ($cfg['offset_port_node'] ?? 443);
-        $host = $cfg['host'] ?? '';
+        $host = (string) ($cfg['host'] ?? '');
         $allow_insecure = filter_var($cfg['allow_insecure'] ?? false, FILTER_VALIDATE_BOOLEAN);
-        $network = $cfg['network'] ?? '';
+        $network = (string) ($cfg['network'] ?? '');
         $path = $cfg['header']['request']['path'][0] ?? $cfg['path'] ?? '';
         $headers = $cfg['header']['request']['headers'] ?? [];
         $service_name = $cfg['servicename'] ?? '';
+
+        // Fake-SNI setups (e.g. www.linemo.jp) often fail strict verify in Hiddify while
+        // Clash Meta still connects — enable insecure when panel asks, or when SNI ≠ server.
+        if (! $allow_insecure && $host !== '' && strcasecmp($host, (string) $node_raw->server) !== 0) {
+            $allow_insecure = true;
+        }
+
+        $tls = [
+            'enabled' => true,
+            'insecure' => $allow_insecure,
+            'utls' => [
+                'enabled' => true,
+                'fingerprint' => 'chrome',
+            ],
+        ];
+
+        if ($host !== '') {
+            $tls['server_name'] = $host;
+        }
 
         $node = [
             'type' => 'trojan',
@@ -298,14 +318,10 @@ final class SingBox extends Base
             'server' => $node_raw->server,
             'server_port' => (int) $port,
             'password' => $user->uuid,
-            'tls' => array_filter([
-                'enabled' => true,
-                'server_name' => $host !== '' ? $host : null,
-                'insecure' => $allow_insecure,
-            ], static fn ($v) => $v !== null && $v !== ''),
+            'tls' => $tls,
         ];
 
-        // Xboard omits transport for plain TCP — empty transport breaks Hiddify.
+        // Plain TCP: omit transport — empty transport breaks Hiddify.
         if ($network !== '' && $network !== 'tcp') {
             $transport = array_filter([
                 'type' => $network,

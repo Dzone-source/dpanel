@@ -8,8 +8,10 @@ use App\Services\Subscribe;
 use App\Utils\Tools;
 use function array_filter;
 use function array_merge;
+use function filter_var;
 use function json_decode;
 use function yaml_emit;
+use const FILTER_VALIDATE_BOOLEAN;
 use const YAML_UTF8_ENCODING;
 
 final class Clash extends Base
@@ -139,9 +141,18 @@ final class Clash extends Base
                         ($node_custom_config['offset_port_node'] ?? 443);
                     $network = $node_custom_config['header']['type'] ?? $node_custom_config['network'] ?? 'tcp';
                     $host = $node_custom_config['host'] ?? '';
-                    $allow_insecure = $node_custom_config['allow_insecure'] ?? false;
+                    $allow_insecure = filter_var(
+                        $node_custom_config['allow_insecure'] ?? false,
+                        FILTER_VALIDATE_BOOLEAN
+                    );
+                    // Clash Meta is lenient; Hiddify is not — skip verify when SNI ≠ connect host.
+                    if (! $allow_insecure && $host !== '' &&
+                        strcasecmp((string) $host, (string) $node_raw->server) !== 0
+                    ) {
+                        $allow_insecure = true;
+                    }
                     // Clash 特定配置
-                    $udp = $node_custom_config['udp'] ?? true;
+                    $udp = filter_var($node_custom_config['udp'] ?? true, FILTER_VALIDATE_BOOLEAN);
                     $ws_opts = $node_custom_config['ws-opts'] ?? $node_custom_config['ws_opts'] ?? null;
                     $grpc_opts = $node_custom_config['grpc-opts'] ?? $node_custom_config['grpc_opts'] ?? null;
                     // HTTPUpgrade 在 Clash.Meta 内核中属于 ws 类型
@@ -157,8 +168,8 @@ final class Clash extends Base
                         'port' => (int) $trojan_port,
                         'password' => $user->uuid,
                         'network' => $network,
-                        'udp' => (bool) $udp,
-                        'skip-cert-verify' => (bool) $allow_insecure,
+                        'udp' => $udp,
+                        'skip-cert-verify' => $allow_insecure,
                         'ws-opts' => $ws_opts,
                         'grpc-opts' => $grpc_opts,
                     ];
