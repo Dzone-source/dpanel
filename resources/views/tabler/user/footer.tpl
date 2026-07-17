@@ -97,6 +97,12 @@
     }
 
     htmx.on("htmx:afterRequest", function(evt) {
+        const redirect = evt.detail.xhr.getResponseHeader('HX-Redirect');
+        if (redirect) {
+            window.location.href = redirect;
+            return;
+        }
+
         if (evt.detail.xhr.getResponseHeader('HX-Refresh') === 'true' ||
             evt.detail.xhr.getResponseHeader('HX-Trigger'))
         {
@@ -104,7 +110,7 @@
         }
 
         try {
-            let res = JSON.parse(evt.detail.xhr.response);
+            let res = JSON.parse(evt.detail.xhr.response || '{}');
 
             if (typeof res.data !== 'undefined') {
                 for (let key in res.data) {
@@ -133,18 +139,65 @@
                 }
             }
 
+            if (res.redir) {
+                window.location.href = res.redir;
+                return;
+            }
+
+            if (typeof res.ret === 'undefined') {
+                return;
+            }
+
+            const payBtn = evt.detail.elt;
+            if (payBtn && payBtn.classList && payBtn.classList.contains('gopass-pay-submit') && res.ret !== 1) {
+                payBtn.disabled = false;
+                payBtn.removeAttribute('aria-busy');
+                if (payBtn.dataset.gopassOriginalHtml) {
+                    payBtn.innerHTML = payBtn.dataset.gopassOriginalHtml;
+                }
+            }
+
             const isSuccess = res.ret === 1;
             const messageId = isSuccess ? "success-message" : "fail-message";
             const dialog = isSuccess ? window.successDialog : window.failDialog;
 
-            document.getElementById(messageId).textContent = res.msg;
+            document.getElementById(messageId).textContent = res.msg || (isSuccess ? 'Thành công' : 'Thất bại');
             if (dialog) {
                 dialog.show();
             } else {
                 showToast(res.msg, isSuccess ? 'success' : 'danger');
             }
+
+            if (isSuccess && payBtn && payBtn.classList && payBtn.classList.contains('gopass-pay-submit')) {
+                window.setTimeout(function () {
+                    window.location.reload();
+                }, 800);
+            }
         } catch (e) {
             console.error("Failed to parse HTMX response:", e);
+        }
+    });
+
+    htmx.on('htmx:beforeRequest', function (evt) {
+        const el = evt.detail.elt;
+        if (!el || !el.classList || !el.classList.contains('gopass-pay-submit')) {
+            return;
+        }
+        el.dataset.gopassOriginalHtml = el.innerHTML;
+        el.disabled = true;
+        el.setAttribute('aria-busy', 'true');
+        el.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
+    });
+
+    htmx.on('htmx:responseError', function (evt) {
+        const el = evt.detail.elt;
+        if (!el || !el.classList || !el.classList.contains('gopass-pay-submit')) {
+            return;
+        }
+        el.disabled = false;
+        el.removeAttribute('aria-busy');
+        if (el.dataset.gopassOriginalHtml) {
+            el.innerHTML = el.dataset.gopassOriginalHtml;
         }
     });
 </script>

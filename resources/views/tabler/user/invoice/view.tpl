@@ -160,6 +160,7 @@
                                             <p class="gopass-pay-hint">Số dư đủ để thanh toán đầy đủ hóa đơn này.</p>
                                             <button class="btn btn-primary w-100 gopass-pay-submit" type="button"
                                                     hx-post="/user/invoice/pay_balance" hx-swap="none"
+                                                    hx-disabled-elt="this"
                                                     hx-vals='js:{ invoice_id: {$invoice->id} }'>
                                                 Thanh toán bằng số dư
                                             </button>
@@ -167,6 +168,7 @@
                                             <p class="gopass-pay-hint">Số dư chưa đủ. Bạn có thể thanh toán một phần bằng số dư, phần còn lại dùng cổng thanh toán.</p>
                                             <button class="btn btn-primary w-100 gopass-pay-submit" type="button"
                                                     hx-post="/user/invoice/pay_balance" hx-swap="none"
+                                                    hx-disabled-elt="this"
                                                     hx-vals='js:{ invoice_id: {$invoice->id} }'>
                                                 Thanh toán một phần bằng số dư
                                             </button>

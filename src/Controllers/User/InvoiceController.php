@@ -8,8 +8,10 @@ use App\Controllers\BaseController;
 use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Paylist;
+use App\Models\User;
 use App\Models\UserMoneyLog;
 use App\Services\Cron as CronService;
+use App\Services\DB;
 use App\Services\Gateway\ManualQr;
 use App\Services\Payment;
 use App\Utils\Tools;
@@ -18,7 +20,9 @@ use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
 use function array_values;
+use function count;
 use function in_array;
+use function is_array;
 use function json_decode;
 use function json_encode;
 use function ltrim;
@@ -106,9 +110,7 @@ final class InvoiceController extends BaseController
     {
         $invoice_id = $this->antiXss->xss_clean($request->getParam('invoice_id'));
 
-        $invoice = (new Invoice())->where('user_id', $this->user->id)->where('id', $invoice_id)->first();
-
-        if ($invoice === null) {
+        if ($invoice_id === null || $invoice_id === '') {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => 'Hóa đơn không tồn tại',
@@ -124,26 +126,71 @@ final class InvoiceController extends BaseController
             ]);
         }
 
-        // 账单是否为充值
-        if ($invoice->type === 'topup') {
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => 'Hóa đơn này không hỗ trợ thanh toán bằng số dư',
-            ]);
-        }
+        try {
+            DB::beginTransaction();
 
-        // 组合支付
-        if ($user->money > 0) {
-            $money_before = $user->money;
+            $invoice = (new Invoice())
+                ->where('user_id', $user->id)
+                ->where('id', $invoice_id)
+                ->lockForUpdate()
+                ->first();
 
-            if ($user->money >= $invoice->price) {
-                $paid = $invoice->price;
+            if ($invoice === null) {
+                DB::rollBack();
+
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Hóa đơn không tồn tại',
+                ]);
+            }
+
+            if (! in_array($invoice->status, ['unpaid', 'partially_paid'], true)) {
+                DB::rollBack();
+
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Hóa đơn này đã được thanh toán',
+                    'redir' => '/user/invoice/' . $invoice->id . '/view',
+                ])->withHeader('HX-Redirect', '/user/invoice/' . $invoice->id . '/view');
+            }
+
+            if ($invoice->type === 'topup') {
+                DB::rollBack();
+
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Hóa đơn này không hỗ trợ thanh toán bằng số dư',
+                ]);
+            }
+
+            $freshUser = (new User())
+                ->where('id', $user->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($freshUser === null || (float) $freshUser->money <= 0) {
+                DB::rollBack();
+
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Số dư không đủ',
+                ]);
+            }
+
+            $money_before = (float) $freshUser->money;
+            $invoice_price = (float) $invoice->price;
+
+            if ($money_before >= $invoice_price) {
+                $paid = $invoice_price;
                 $invoice->status = 'paid_balance';
             } else {
-                $paid = $user->money;
+                $paid = $money_before;
                 $invoice->status = 'partially_paid';
-                $invoice->price -= $paid;
+                $invoice->price = $invoice_price - $paid;
                 $invoice_content = json_decode($invoice->content);
+                if (! is_array($invoice_content)) {
+                    $invoice_content = [];
+                }
                 $invoice_content[] = [
                     'content_id' => count($invoice_content),
                     'name' => 'Thanh toán một phần bằng số dư',
@@ -152,13 +199,13 @@ final class InvoiceController extends BaseController
                 $invoice->content = json_encode($invoice_content);
             }
 
-            $user->money -= $paid;
-            $user->save();
+            $freshUser->money = $money_before - $paid;
+            $freshUser->save();
 
             (new UserMoneyLog())->add(
-                $user->id,
+                $freshUser->id,
                 $money_before,
-                (float) $user->money,
+                (float) $freshUser->money,
                 -$paid,
                 'Thanh toán hóa đơn #' . $invoice->id
             );
@@ -166,10 +213,21 @@ final class InvoiceController extends BaseController
             $invoice->update_time = time();
             $invoice->pay_time = time();
             $invoice->save();
-        } else {
+
+            DB::commit();
+
+            // Keep in-memory user in sync for this request.
+            $this->user->money = $freshUser->money;
+        } catch (Exception $e) {
+            try {
+                DB::rollBack();
+            } catch (Exception) {
+                // ignore rollback errors
+            }
+
             return $response->withJson([
                 'ret' => 0,
-                'msg' => 'Số dư không đủ',
+                'msg' => 'Thanh toán thất bại, vui lòng thử lại',
             ]);
         }
 
@@ -186,10 +244,18 @@ final class InvoiceController extends BaseController
                 // Cron will retry if immediate activation fails.
             }
 
-            return $response->withHeader('HX-Redirect', '/user/invoice');
+            return $response->withJson([
+                'ret' => 1,
+                'msg' => 'Thanh toán thành công',
+                'redir' => '/user/invoice',
+            ])->withHeader('HX-Redirect', '/user/invoice');
         }
 
-        return $response->withHeader('HX-Refresh', 'true');
+        return $response->withJson([
+            'ret' => 1,
+            'msg' => 'Đã thanh toán một phần bằng số dư',
+            'redir' => '/user/invoice/' . $invoice->id . '/view',
+        ])->withHeader('HX-Redirect', '/user/invoice/' . $invoice->id . '/view');
     }
 
     public function status(ServerRequest $request, Response $response, array $args): ResponseInterface
