@@ -112,6 +112,8 @@ $_ENV['sentry_dsn'] = '';
 $_ENV['maxmind_account_id'] = '';
 $_ENV['maxmind_license_key'] = '';
 $_ENV['geoip_locale'] = 'en';
+// Behind Docker / Caddy: trust X-Forwarded-For and CF-Connecting-IP for login IP & GeoIP
+$_ENV['trust_proxy'] = true;
 // ClientDownload 命令解决 API 访问频率高而被限制使用的 Github access token
 $_ENV['github_access_token'] = '';
 // use Cloudflare R2 for clients download

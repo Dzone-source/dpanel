@@ -47,4 +47,9 @@ final class Boot
             ]);
         }
     }
+
+    public static function normalizeClientIp(): void
+    {
+        $_SERVER['REMOTE_ADDR'] = \App\Utils\Tools::getClientIp();
+    }
 }

@@ -37,8 +37,11 @@ use function shuffle;
 use function strlen;
 use function strpos;
 use function substr;
+use function trim;
 use const FILTER_FLAG_IPV4;
 use const FILTER_FLAG_IPV6;
+use const FILTER_FLAG_NO_PRIV_RANGE;
+use const FILTER_FLAG_NO_RES_RANGE;
 use const FILTER_VALIDATE_EMAIL;
 use const FILTER_VALIDATE_INT;
 use const FILTER_VALIDATE_IP;
@@ -47,10 +50,59 @@ use const PHP_INT_MAX;
 final class Tools
 {
     /**
+     * Resolve the client IP (respects reverse-proxy headers when trust_proxy is enabled).
+     */
+    public static function getClientIp(): string
+    {
+        $remote = (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+        $trustProxy = filter_var($_ENV['trust_proxy'] ?? true, FILTER_VALIDATE_BOOLEAN);
+
+        if (! $trustProxy) {
+            return $remote;
+        }
+
+        $candidates = [];
+
+        if (! empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            $candidates[] = (string) $_SERVER['HTTP_CF_CONNECTING_IP'];
+        }
+
+        if (! empty($_SERVER['HTTP_X_REAL_IP'])) {
+            $candidates[] = (string) $_SERVER['HTTP_X_REAL_IP'];
+        }
+
+        if (! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            foreach (explode(',', (string) $_SERVER['HTTP_X_FORWARDED_FOR']) as $part) {
+                $candidates[] = trim($part);
+            }
+        }
+
+        foreach ($candidates as $ip) {
+            if (self::isPublicIp($ip)) {
+                return $ip;
+            }
+        }
+
+        return $remote;
+    }
+
+    public static function isPublicIp(string $ip): bool
+    {
+        return filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        ) !== false;
+    }
+
+    /**
      * Get IP location
      */
     public static function getIpLocation(string $ip): string
     {
+        if ($ip === '' || $ip === '0.0.0.0' || ! self::isPublicIp($ip)) {
+            return 'IP nội bộ / không tra cứu GeoIP';
+        }
         if (! GeoIP2::isAvailable()) {
             return 'Chưa có database GeoIP (cần file .mmdb trong storage/GeoLite2-*)';
         }

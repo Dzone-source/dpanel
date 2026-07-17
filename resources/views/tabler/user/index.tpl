@@ -361,7 +361,7 @@
                                             <span class="gopass-traffic-dot"></span>
                                             Đã dùng
                                         </div>
-                                        <div class="gopass-traffic-stat-value">{$user->lastUsedTraffic()}</div>
+                                        <div class="gopass-traffic-stat-value">{$user->usedTraffic()}</div>
                                     </div>
                                     <div class="gopass-traffic-stat gopass-traffic-stat--today">
                                         <div class="gopass-traffic-stat-label">
