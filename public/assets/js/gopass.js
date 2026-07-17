@@ -97,10 +97,45 @@
         toggle.setAttribute('title', isDark ? 'Chế độ sáng' : 'Chế độ tối');
     }
 
+    function initPaymentPicker() {
+        const root = document.querySelector('.gopass-pay-card');
+        if (!root) {
+            return;
+        }
+
+        const methods = root.querySelectorAll('[data-gopass-pay]');
+        const panels = root.querySelectorAll('[data-gopass-panel]');
+
+        function selectMethod(method) {
+            methods.forEach(function (btn) {
+                const active = btn.getAttribute('data-gopass-pay') === method;
+                btn.classList.toggle('is-active', active);
+                btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+
+            panels.forEach(function (panel) {
+                panel.classList.toggle('is-active', panel.getAttribute('data-gopass-panel') === method);
+            });
+        }
+
+        methods.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                selectMethod(btn.getAttribute('data-gopass-pay'));
+            });
+        });
+
+        root.querySelectorAll('[data-gopass-pay-switch]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                selectMethod(btn.getAttribute('data-gopass-pay-switch'));
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         initSidebar();
         markActiveNav();
         syncThemeUI();
+        initPaymentPicker();
 
         if (document.body.getAttribute('data-gopass-theme-mode') === '2') {
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeUI);

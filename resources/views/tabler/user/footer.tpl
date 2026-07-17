@@ -56,7 +56,7 @@
 </div>
 
 <script src="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
-<script src="/assets/js/gopass.js?v=20260715e"></script>
+<script src="/assets/js/gopass.js?v=20260717c"></script>
 <script>
     function showToast(message, type = 'success') {
         const toast = document.createElement('div');
