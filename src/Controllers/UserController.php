@@ -93,7 +93,7 @@ final class UserController extends BaseController
             ],
             [
                 'title' => 'Số dư ví',
-                'value' => $this->user->money . ' VND',
+                'value' => $this->user->displayMoney() . ' VNĐ',
                 'icon' => 'ti-wallet',
                 'gradient' => 'gopass-gradient-2',
                 'action_url' => '/user/money',

@@ -83,7 +83,7 @@
                                         {foreach $invoice_content as $invoice_content_detail}
                                         <tr>
                                             <td>{$invoice_content_detail->name}</td>
-                                            <td>{$invoice_content_detail->price|number_format:0:',':'.'} VNĐ</td>
+                                            <td>{$invoice_content_detail->price|format_vnd:0} VNĐ</td>
                                         </tr>
                                         {/foreach}
                                     </tbody>
@@ -118,7 +118,7 @@
                                 {if $invoice->type !== 'topup'}
                                 <div class="tab-pane active show" id="balance">
                                     <div class="mb-3">
-                                        Số dư khả dụng: <code>{$user->money}</code> VND
+                                        Số dư khả dụng: <code>{$user->displayMoney(2)}</code> VNĐ
                                     </div>
                                     <div class="d-flex">
                                         <button class="btn btn-primary" type="button"

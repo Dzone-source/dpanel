@@ -22,7 +22,6 @@ use function in_array;
 use function json_decode;
 use function json_encode;
 use function ltrim;
-use function number_format;
 use function round;
 use function time;
 
@@ -97,7 +96,7 @@ final class InvoiceController extends BaseController
                 ->assign('invoice_content', $invoice_content)
                 ->assign('paylist', $paylist)
                 ->assign('payments', $payments)
-                ->assign('invoice_price_vnd', number_format((float) $invoice->price, 0, ',', '.') . ' VNĐ')
+                ->assign('invoice_price_vnd', Tools::formatVnd((float) $invoice->price, 0, true))
                 ->assign('invoice_price_qr', (string) (int) round((float) $invoice->price))
                 ->fetch('user/invoice/view.tpl')
         );
@@ -203,6 +202,7 @@ final class InvoiceController extends BaseController
             $invoice->create_time = Tools::toDateTime($invoice->create_time);
             $invoice->update_time = Tools::toDateTime($invoice->update_time);
             $invoice->pay_time = Tools::toDateTime($invoice->pay_time);
+            $invoice->price = Tools::formatVnd((float) $invoice->price, 2);
         }
 
         return $response->withJson([

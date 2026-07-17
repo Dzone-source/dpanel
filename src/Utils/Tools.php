@@ -28,6 +28,7 @@ use function json_decode;
 use function log;
 use function max;
 use function mb_strcut;
+use function number_format;
 use function opendir;
 use function pow;
 use function random_bytes;
@@ -136,6 +137,16 @@ final class Tools
         }
 
         return $data;
+    }
+
+    /**
+     * Format currency (VND): thousands separator "," — e.g. 109999 → 109,999
+     */
+    public static function formatVnd(float|int|string $amount, int $decimals = 0, bool $with_suffix = false): string
+    {
+        $formatted = number_format((float) $amount, $decimals, '.', ',');
+
+        return $with_suffix ? $formatted . ' VNĐ' : $formatted;
     }
 
     /**

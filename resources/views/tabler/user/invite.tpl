@@ -76,7 +76,7 @@
                                         <td>{$payback->id}</td>
                                         <td>{$payback->userid}</td>
                                         <td>{$payback->user_name}</td>
-                                        <td>{$payback->ref_get} VND</td>
+                                        <td>{$payback->ref_get|format_vnd:0} VNĐ</td>
                                         <td>{$payback->datetime}</td>
                                     </tr>
                                 {/foreach}

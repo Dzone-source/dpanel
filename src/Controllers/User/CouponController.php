@@ -8,13 +8,13 @@ use App\Controllers\BaseController;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\UserCoupon;
+use App\Utils\Tools;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
 use function explode;
 use function in_array;
 use function json_decode;
-use function number_format;
 use function time;
 
 final class CouponController extends BaseController
@@ -103,8 +103,8 @@ final class CouponController extends BaseController
             'msg' => 'Mã giảm giá khả dụng',
             'data' => [
                 'coupon-code' => $coupon->code,
-                'product-buy-discount' => number_format((float) $discount, 0, ',', '.') . ' VNĐ',
-                'product-buy-total' => number_format((float) $buy_price, 0, ',', '.') . ' VNĐ',
+                'product-buy-discount' => Tools::formatVnd((float) $discount, 0, true),
+                'product-buy-total' => Tools::formatVnd((float) $buy_price, 0, true),
             ],
         ]);
     }

@@ -88,7 +88,7 @@
                             <table class="table table-transparent table-responsive">
                                 <tr>
                                     <td>Giá sản phẩm</td>
-                                    <td class="text-end">{$product->price|number_format:0:',':'.'} VNĐ</td>
+                                    <td class="text-end">{$product->price|format_vnd:0} VNĐ</td>
                                 </tr>
                                 <tr>
                                     <td>Mã giảm giá</td>
@@ -100,7 +100,7 @@
                                 </tr>
                                 <tr>
                                     <td>Thanh toán thực tế</td>
-                                    <td class="text-end" id="product-buy-total">{$product->price|number_format:0:',':'.'} VNĐ</td>
+                                    <td class="text-end" id="product-buy-total">{$product->price|format_vnd:0} VNĐ</td>
                                 </tr>
                             </table>
                         </div>

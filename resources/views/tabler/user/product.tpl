@@ -2,7 +2,7 @@
 
 {function name=product_price price=0}
     <div class="gopass-product-price">
-        <span class="gopass-product-amount">{$price|number_format:0:',':'.'}</span>
+        <span class="gopass-product-amount">{$price|format_vnd:0}</span>
         <span class="gopass-product-currency">VNĐ</span>
     </div>
 {/function}

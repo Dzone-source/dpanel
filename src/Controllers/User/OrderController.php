@@ -358,6 +358,7 @@ final class OrderController extends BaseController
             $order->status = $order->status();
             $order->create_time = Tools::toDateTime($order->create_time);
             $order->update_time = Tools::toDateTime($order->update_time);
+            $order->price = Tools::formatVnd((float) $order->price, 2);
         }
 
         return $response->withJson([

@@ -27,7 +27,19 @@ describe('Tools::getIpLocation', function () {
     });
 });
 
-describe('Tools::autoBytes', function () {
+describe('Tools::formatVnd', function () {
+    it('formats thousands with commas', function () {
+        expect(Tools::formatVnd(109999))->toBe('109,999')
+            ->and(Tools::formatVnd(100000.5, 2))->toBe('100,000.50')
+            ->and(Tools::formatVnd(0))->toBe('0');
+    });
+
+    it('can append VNĐ suffix', function () {
+        expect(Tools::formatVnd(1000, 0, true))->toBe('1,000 VNĐ');
+    });
+});
+
+
     it('converts bytes to human readable format', function () {
         $size = 1024;
         $bytes = Tools::autoBytes($size);

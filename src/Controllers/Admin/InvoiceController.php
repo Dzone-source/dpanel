@@ -127,6 +127,7 @@ final class InvoiceController extends BaseController
             $invoice->create_time = Tools::toDateTime($invoice->create_time);
             $invoice->update_time = Tools::toDateTime($invoice->update_time);
             $invoice->pay_time = Tools::toDateTime($invoice->pay_time);
+            $invoice->price = Tools::formatVnd((float) $invoice->price, 2);
         }
 
         return $response->withJson([

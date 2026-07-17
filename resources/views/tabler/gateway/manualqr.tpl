@@ -13,7 +13,7 @@
         {if isset($invoice_price_vnd)}
             {$amount_vnd = $invoice_price_vnd}
         {else}
-            {$amount_vnd = "{$invoice->price|number_format:0:',':'.'} VNĐ"}
+            {$amount_vnd = "{$invoice->price|format_vnd:0} VNĐ"}
         {/if}
         {if isset($invoice_price_qr)}
             {$amount_qr = $invoice_price_qr}

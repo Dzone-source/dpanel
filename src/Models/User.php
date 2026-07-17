@@ -142,6 +142,11 @@ final class User extends Model
         return Tools::autoBytes($this->transfer_enable);
     }
 
+    public function displayMoney(int $decimals = 0): string
+    {
+        return Tools::formatVnd((float) $this->money, $decimals);
+    }
+
     /*
      * 当期用量[自动单位]
      */
