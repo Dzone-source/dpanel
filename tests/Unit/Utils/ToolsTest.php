@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Services\GeoIP2;
 use App\Utils\Tools;
 
 beforeEach(function () {
@@ -15,14 +16,14 @@ afterEach(function () {
 });
 
 describe('Tools::getIpLocation', function () {
-    it('returns error message when maxmind service is not configured', function () {
-        $_ENV['maxmind_license_key'] = '';
-        
-        $msg = Tools::getIpLocation('8.8.8.8');
-        
-        expect($msg)
-            ->toBeString()
-            ->toBe('GeoIP2 service not configured');
+    it('returns a message when GeoIP database is not available', function () {
+        if (GeoIP2::isAvailable()) {
+            expect(Tools::getIpLocation('8.8.8.8'))->not->toBe('Chưa cấu hình GeoIP');
+
+            return;
+        }
+
+        expect(Tools::getIpLocation('8.8.8.8'))->toBe('Chưa cấu hình GeoIP');
     });
 });
 

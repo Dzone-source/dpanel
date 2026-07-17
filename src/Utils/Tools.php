@@ -51,11 +51,11 @@ final class Tools
      */
     public static function getIpLocation(string $ip): string
     {
-        $data = 'GeoIP2 service not configured';
+        $data = 'Chưa cấu hình GeoIP';
         $city = null;
         $country = null;
 
-        if ($_ENV['maxmind_license_key'] !== '') {
+        if (GeoIP2::isAvailable()) {
             try {
                 $geoip = new GeoIP2();
             } catch (InvalidDatabaseException) {

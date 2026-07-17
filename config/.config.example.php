@@ -107,7 +107,7 @@ $_ENV['keep_connect'] = false;            // 流量耗尽用户限速至 1Mbps
 $_ENV['jsdelivr_url'] = 'fastly.jsdelivr.net';
 // https://sentry.io for production debugging
 $_ENV['sentry_dsn'] = '';
-// Maxmind GeoIP2 database
+// Maxmind GeoIP2 database (storage/GeoLite2-*.mmdb). License key chỉ cần cho lệnh php xcat Tool updateGeoIP2
 //TODO: move these settings to DB
 $_ENV['maxmind_account_id'] = '';
 $_ENV['maxmind_license_key'] = '';

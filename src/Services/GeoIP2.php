@@ -14,13 +14,29 @@ final class GeoIP2
     private Reader $city_reader;
     private Reader $country_reader;
 
+    public static function isAvailable(): bool
+    {
+        return is_readable(self::cityDatabasePath())
+            && is_readable(self::countryDatabasePath());
+    }
+
+    public static function cityDatabasePath(): string
+    {
+        return BASE_PATH . '/storage/GeoLite2-City/GeoLite2-City.mmdb';
+    }
+
+    public static function countryDatabasePath(): string
+    {
+        return BASE_PATH . '/storage/GeoLite2-Country/GeoLite2-Country.mmdb';
+    }
+
     /**
      * @throws InvalidDatabaseException
      */
     public function __construct()
     {
-        $this->city_reader = new Reader(BASE_PATH . '/storage/GeoLite2-City/GeoLite2-City.mmdb');
-        $this->country_reader = new Reader(BASE_PATH . '/storage/GeoLite2-Country/GeoLite2-Country.mmdb');
+        $this->city_reader = new Reader(self::cityDatabasePath());
+        $this->country_reader = new Reader(self::countryDatabasePath());
     }
 
     /**
