@@ -28,9 +28,9 @@ describe('Tools::getIpLocation', function () {
 });
 
 describe('Tools::formatVnd', function () {
-    it('formats thousands with commas', function () {
+    it('formats thousands with commas as whole VND', function () {
         expect(Tools::formatVnd(109999))->toBe('109,999')
-            ->and(Tools::formatVnd(100000.5, 2))->toBe('100,000.50')
+            ->and(Tools::formatVnd(100000.5))->toBe('100,001')
             ->and(Tools::formatVnd(0))->toBe('0');
     });
 

@@ -19,7 +19,7 @@
                     ["reg_email", "{$user->email}"],
                     ["class_expire_time", "{$user->class_expire}"],
                     ["available_traffic", "{$user->unusedTraffic()}"],
-                    ["balance", "{$user->money}"]
+                    ["balance", "{$user->displayMoney()}"]
                 ]]
             ]);
     </script>
@@ -47,7 +47,7 @@
                 name: 'Lưu lượng còn lại', value: '{$user->unusedTraffic()}'
             },
             {
-                name: 'Số dư tài khoản', value: '{$user->money}'
+                name: 'Số dư tài khoản', value: '{$user->displayMoney()}'
             }
         ];
 

@@ -384,7 +384,7 @@ final class Callback
                 foreach ($paybacks as $payback) {
                     $text .= '<code>#' . $payback->id .
                         '：' . ($payback->user() !== null ? $payback->user()->user_name : 'Đã hủy') . '：' .
-                        $payback->ref_get . ' VND</code>' . PHP_EOL;
+                        Tools::formatVnd((float) $payback->ref_get, 0, true) . '</code>' . PHP_EOL;
                 }
 
                 $sendMessage = [
@@ -878,10 +878,10 @@ final class Callback
             '<strong>Mỗi khi bạn mời <code>1</code> người dùng đăng ký:</strong>',
             '',
             '- Bạn sẽ nhận được <code>' . Config::obtain('invite_reg_traffic_reward') . 'G</code> lưu lượng thưởng.',
-            '- Người được mời sẽ nhận <code>' . Config::obtain('invite_reg_money_reward') . ' VND</code> số dư tài khoản ban đầu.',
+            '- Người được mời sẽ nhận <code>' . Tools::formatVnd((float) Config::obtain('invite_reg_money_reward'), 0, true) . '</code> số dư tài khoản ban đầu.',
             '- Khi người được mời thanh toán hóa đơn, bạn sẽ nhận <code>' . Config::obtain('invite_reward_rate') * 100 . '%</code> hoàn tiền từ số tiền hóa đơn.',
             '',
-            'Hoàn tiền đã nhận: ' . $paybacks_sum . ' VND.',
+            'Hoàn tiền đã nhận: ' . Tools::formatVnd((float) $paybacks_sum, 0, true) . '.',
         ];
 
         $keyboard = [

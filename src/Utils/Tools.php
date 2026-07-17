@@ -140,13 +140,26 @@ final class Tools
     }
 
     /**
-     * Format currency (VND): thousands separator "," — e.g. 109999 → 109,999
+     * Format currency (VND): thousands "," — always whole đồng, e.g. 109999 → 109,999
      */
     public static function formatVnd(float|int|string $amount, int $decimals = 0, bool $with_suffix = false): string
     {
-        $formatted = number_format((float) $amount, $decimals, '.', ',');
+        unset($decimals);
+        $formatted = number_format(round((float) $amount), 0, '.', ',');
 
         return $with_suffix ? $formatted . ' VNĐ' : $formatted;
+    }
+
+    /**
+     * @param list<string> $fields
+     */
+    public static function formatVndOnObject(object $row, array $fields): void
+    {
+        foreach ($fields as $field) {
+            if (isset($row->{$field})) {
+                $row->{$field} = self::formatVnd($row->{$field});
+            }
+        }
     }
 
     /**

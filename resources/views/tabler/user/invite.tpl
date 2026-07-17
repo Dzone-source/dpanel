@@ -30,7 +30,7 @@
                                         </li>
                                         <li>Một số sản phẩm có tỷ lệ hoàn tiền khác</li>
                                     </ul>
-                                    <p>Tổng hoàn tiền từ mời bạn bè hiện tại: <code>{$paybacks_sum}</code> VND</p>
+                                    <p>Tổng hoàn tiền từ mời bạn bè hiện tại: <code>{$paybacks_sum}</code> VNĐ</p>
                                 </div>
                             </div>
                         </div>

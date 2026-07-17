@@ -118,7 +118,7 @@
                                 {if $invoice->type !== 'topup'}
                                 <div class="tab-pane active show" id="balance">
                                     <div class="mb-3">
-                                        Số dư khả dụng: <code>{$user->displayMoney(2)}</code> VNĐ
+                                        Số dư khả dụng: <code>{$user->displayMoney()}</code> VNĐ
                                     </div>
                                     <div class="d-flex">
                                         <button class="btn btn-primary" type="button"

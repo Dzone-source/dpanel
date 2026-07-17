@@ -54,6 +54,7 @@ final class PaybackController extends BaseController
             $payback->datetime = Tools::toDateTime((int) $payback->datetime);
             $payback->user_name = $payback->getAttributes();
             $payback->ref_user_name = $payback->getAttributes();
+            Tools::formatVndOnObject($payback, ['total', 'ref_get']);
         }
 
         return $response->withJson([

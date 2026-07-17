@@ -26,9 +26,7 @@ final class MoneyController extends BaseController
 
         foreach ($moneylogs as $moneylog) {
             $moneylog->create_time = Tools::toDateTime($moneylog->create_time);
-            $moneylog->before = Tools::formatVnd((float) $moneylog->before, 2);
-            $moneylog->after = Tools::formatVnd((float) $moneylog->after, 2);
-            $moneylog->amount = Tools::formatVnd((float) $moneylog->amount, 2);
+            Tools::formatVndOnObject($moneylog, ['before', 'after', 'amount']);
         }
 
         $moneylog_count = $moneylogs->count();

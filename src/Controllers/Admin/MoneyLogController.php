@@ -50,6 +50,7 @@ final class MoneyLogController extends BaseController
 
         foreach ($money_logs as $money_log) {
             $money_log->create_time = Tools::toDateTime((int) $money_log->create_time);
+            Tools::formatVndOnObject($money_log, ['before', 'after', 'amount']);
         }
 
         return $response->withJson([

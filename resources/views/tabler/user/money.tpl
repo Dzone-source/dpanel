@@ -50,9 +50,9 @@
                                 {foreach $moneylogs as $moneylog}
                                     <tr>
                                         <td>{$moneylog->id}</td>
-                                        <td>{$moneylog->before}</td>
-                                        <td>{$moneylog->after}</td>
-                                        <td>{$moneylog->amount}</td>
+                                        <td>{$moneylog->before|format_vnd:0}</td>
+                                        <td>{$moneylog->after|format_vnd:0}</td>
+                                        <td>{$moneylog->amount|format_vnd:0}</td>
                                         <td>{$moneylog->remark}</td>
                                         <td>{$moneylog->create_time}</td>
                                     </tr>

@@ -7,6 +7,7 @@ namespace App\Services\Bot\Telegram;
 use App\Models\Config;
 use App\Models\User;
 use App\Services\I18n;
+use App\Utils\Tools;
 use GuzzleHttp\Exception\GuzzleException;
 use Telegram\Bot\Api;
 use Telegram\Bot\Exceptions\TelegramSDKException;
@@ -180,7 +181,7 @@ final class Message
     public static function getUserInfo(User $user): string
     {
         $text = [
-            'Số dư hiện tại: ' . $user->money,
+            'Số dư hiện tại: ' . Tools::formatVnd((float) $user->money, 0, true),
             'Tốc độ cổng: ' . ($user->node_speedlimit > 0 ? $user->node_speedlimit . 'Mbps' : 'Không giới hạn'),
             'Lần sử dụng gần nhất: ' . $user->lastUseTime(),
             'Thời hạn hết hạn: ' . $user->class_expire,

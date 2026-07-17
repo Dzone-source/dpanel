@@ -359,6 +359,7 @@ final class ProductController extends BaseController
             $product->create_time = Tools::toDateTime($product->create_time);
             $product->update_time = Tools::toDateTime($product->update_time);
             $product->stock = $product->stock();
+            $product->price = Tools::formatVnd((float) $product->price);
         }
 
         return $response->withJson([

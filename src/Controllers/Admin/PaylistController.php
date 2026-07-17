@@ -52,6 +52,7 @@ final class PaylistController extends BaseController
         foreach ($paylists as $paylist) {
             $paylist->status = $paylist->status();
             $paylist->datetime = Tools::toDateTime((int) $paylist->datetime);
+            $paylist->total = Tools::formatVnd((float) $paylist->total);
         }
 
         return $response->withJson([

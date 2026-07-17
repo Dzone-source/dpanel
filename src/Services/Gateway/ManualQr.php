@@ -10,6 +10,7 @@ use App\Models\Ticket;
 use App\Services\Auth;
 use App\Services\Notification;
 use App\Services\View;
+use App\Utils\Tools;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -71,7 +72,7 @@ final class ManualQr extends Base
                 'commenter_name' => $user->user_name,
                 'comment' => $this->antiXss->xss_clean(
                     "Xác nhận đã chuyển khoản cho hóa đơn #{$invoice->id}." .
-                    " Số tiền: {$invoice->price} VND." .
+                    " Số tiền: " . Tools::formatVnd((float) $invoice->price, 0, true) . '.' .
                     " Nội dung chuyển khoản: INV{$invoice->id}."
                 ),
                 'datetime' => time(),

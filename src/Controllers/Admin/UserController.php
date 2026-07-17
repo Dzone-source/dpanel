@@ -257,6 +257,7 @@ final class UserController extends BaseController
             $user->is_admin = $user->is_admin === 1 ? 'Có' : 'Không';
             $user->is_banned = $user->is_banned === 1 ? 'Có' : 'Không';
             $user->is_inactive = $user->is_inactive === 1 ? 'Có' : 'Không';
+            $user->money = Tools::formatVnd((float) $user->money);
         }
 
         return $response->withJson([
