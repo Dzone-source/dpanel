@@ -27,6 +27,9 @@ services:
     volumes:
       - ./config/.config.php:/var/www/html/config/.config.php
       - ./config/appprofile.php:/var/www/html/config/appprofile.php
+      - ./app:/var/www/html/app:ro
+      - ./src:/var/www/html/src:ro
+      - ./resources:/var/www/html/resources:ro
       - ./public:/var/www/html/public:ro
       - ./storage:/var/www/html/storage
     depends_on:
@@ -52,6 +55,9 @@ services:
     volumes:
       - ./config/.config.php:/var/www/html/config/.config.php
       - ./config/appprofile.php:/var/www/html/config/appprofile.php
+      - ./app:/var/www/html/app:ro
+      - ./src:/var/www/html/src:ro
+      - ./resources:/var/www/html/resources:ro
       - ./public:/var/www/html/public:ro
       - ./storage:/var/www/html/storage
     depends_on:
