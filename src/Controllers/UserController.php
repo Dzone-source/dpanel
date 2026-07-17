@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Models\Ann;
 use App\Models\Config;
+use App\Models\OnlineLog;
 use App\Services\Analytics;
 use App\Services\Auth;
 use App\Services\Captcha;
@@ -99,11 +100,11 @@ final class UserController extends BaseController
             ],
             [
                 'title' => 'Thiết bị đồng thời',
-                'value' => $this->user->node_iplimit > 0
-                    ? $this->user->node_iplimit . ' thiết bị'
-                    : 'Không giới hạn',
+                'value' => $this->formatOnlineDevicesDisplay(),
                 'icon' => 'ti-devices',
                 'gradient' => 'gopass-gradient-3',
+                'live_id' => 'online-devices',
+                'action_url' => '/user/profile',
             ],
             [
                 'title' => 'Tốc độ cổng',
@@ -148,6 +149,36 @@ final class UserController extends BaseController
                 ->assign('anns', $anns)
                 ->fetch('user/announcement.tpl')
         );
+    }
+
+    /**
+     * Live online device count for the dashboard card (online / limit).
+     */
+    public function onlineDevices(ServerRequest $request, Response $response, array $args): ResponseInterface
+    {
+        return ResponseHelper::successWithData($response, '', $this->getOnlineDevicesData());
+    }
+
+    /**
+     * @return array{online: int, limit: int, display: string}
+     */
+    private function getOnlineDevicesData(): array
+    {
+        $online = (new OnlineLog())->where('user_id', $this->user->id)
+            ->where('last_time', '>', time() - 90)
+            ->count();
+        $limit = (int) $this->user->node_iplimit;
+
+        return [
+            'online' => $online,
+            'limit' => $limit,
+            'display' => $limit > 0 ? $online . '/' . $limit : $online . '/∞',
+        ];
+    }
+
+    private function formatOnlineDevicesDisplay(): string
+    {
+        return $this->getOnlineDevicesData()['display'];
     }
 
     public function checkin(ServerRequest $request, Response $response, array $args): ResponseInterface

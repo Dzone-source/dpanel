@@ -28,6 +28,8 @@ return static function (Slim\App $app): void {
     $app->group('/user', static function (RouteCollectorProxy $group): void {
         $group->get('', App\Controllers\UserController::class . ':index');
         $group->get('/', App\Controllers\UserController::class . ':index');
+        // Live online device count for dashboard
+        $group->get('/online-devices', App\Controllers\UserController::class . ':onlineDevices');
         // 签到
         $group->post('/checkin', App\Controllers\UserController::class . ':checkin');
         // 公告

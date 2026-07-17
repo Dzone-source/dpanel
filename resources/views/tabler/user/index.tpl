@@ -166,7 +166,7 @@
                                         </div>
                                         <div class="flex-fill min-w-0">
                                             <div class="gopass-stat-label">{$card.title}</div>
-                                            <div class="gopass-stat-value">{$card.value}</div>
+                                            <div class="gopass-stat-value"{if isset($card.live_id)} id="live-{$card.live_id}" data-live="{$card.live_id}"{/if}>{$card.value}</div>
                                         </div>
                                         {if isset($card.buy_new) && $card.buy_new}
                                         <a href="{$card.action_url}" class="btn btn-primary btn-sm gopass-stat-buy-new">
@@ -482,6 +482,36 @@
     {if $public_setting['enable_checkin_captcha'] && $user->isAbleToCheckin()}
         {include file='captcha/js.tpl'}
     {/if}
+
+    <script>
+        (function () {
+            const el = document.getElementById('live-online-devices');
+            if (!el) {
+                return;
+            }
+
+            const refreshOnlineDevices = () => {
+                fetch('/user/online-devices', {
+                    credentials: 'same-origin',
+                    headers: { 'Accept': 'application/json' }
+                })
+                    .then((res) => res.ok ? res.json() : null)
+                    .then((payload) => {
+                        if (payload && payload.ret === 1 && payload.data && payload.data.display) {
+                            el.textContent = payload.data.display;
+                        }
+                    })
+                    .catch(() => {});
+            };
+
+            setInterval(refreshOnlineDevices, 15000);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    refreshOnlineDevices();
+                }
+            });
+        })();
+    </script>
 
     {if $public_setting['traffic_log']}
     <script src="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/libs/apexcharts/dist/apexcharts.min.js"></script>
