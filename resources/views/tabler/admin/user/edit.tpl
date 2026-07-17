@@ -251,15 +251,14 @@
                             <div class="form-group mb-3 col-12">
                                 <span class="form-label col-12 col-form-label">Lý do khóa thủ công</span>
                                 <span class="col-auto">
-                                    <textarea id="banned_reason" class="form-control"
-                                              value="{$edit_user->banned_reason}"></textarea>
+                                    <textarea id="banned_reason" class="form-control">{$edit_user->banned_reason|escape}</textarea>
                                 </span>
                             </div>
                             <div class="form-group mb-3 col-12">
                                 <label class="form-label col-12 col-form-label">Ghi chú tài khoản</label>
                                 <div class="col">
-                                    <textarea id="remark" class="form-control" value="{$edit_user->remark}"
-                                              placeholder="Chỉ quản trị viên mới thấy"></textarea>
+                                    <textarea id="remark" class="form-control"
+                                              placeholder="Chỉ quản trị viên mới thấy">{$edit_user->remark|escape}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -271,64 +270,101 @@
 </div>
 
 <script>
-    function saveUserChanges() {
-        const payload = {
-            {foreach $update_field as $key}
-            {$key}: $('#{$key}').val(),
-            {/foreach}
-            is_admin: $("#is_admin").is(":checked"),
-            clear_mfa: $("#clear_mfa").is(":checked"),
-            is_shadow_banned: $("#is_shadow_banned").is(":checked"),
-            is_banned: $("#is_banned").is(":checked"),
-        };
+    (function () {
+        const saveBtn = document.getElementById('save_changes');
+        const editUserId = {$edit_user->id};
+        const jumpDelay = Number({$config['jump_delay']|default:800}) || 800;
+        let saving = false;
 
-        $.ajax({
-            url: '/admin/user/{$edit_user->id}',
-            type: 'POST',
-            dataType: 'json',
-            data: payload,
-            success: function (data) {
-                if (data.ret === 1) {
-                    $('#success-message').text(data.msg);
-                    if (typeof successDialog !== 'undefined') {
-                        successDialog.show();
-                    } else {
-                        alert(data.msg);
-                    }
-                    window.setTimeout(function () {
-                        location.href = '/admin/user';
-                    }, {$config['jump_delay']});
-                } else {
-                    $('#fail-message').text(data.msg || 'Cập nhật thất bại');
-                    if (typeof failDialog !== 'undefined') {
-                        failDialog.show();
-                    } else {
-                        alert(data.msg || 'Cập nhật thất bại');
-                    }
-                }
-            },
-            error: function (xhr) {
-                let msg = 'Không gửi được yêu cầu lưu (HTTP ' + xhr.status + ')';
-                try {
-                    const body = JSON.parse(xhr.responseText);
-                    if (body && body.msg) {
-                        msg = body.msg;
-                    }
-                } catch (e) {}
-                $('#fail-message').text(msg);
-                if (typeof failDialog !== 'undefined') {
-                    failDialog.show();
-                } else {
-                    alert(msg);
-                }
+        function setSaving(isSaving) {
+            saving = isSaving;
+            if (!saveBtn) return;
+            saveBtn.disabled = isSaving;
+            if (isSaving) {
+                saveBtn.dataset.originalHtml = saveBtn.innerHTML;
+                saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang lưu...';
+            } else if (saveBtn.dataset.originalHtml) {
+                saveBtn.innerHTML = saveBtn.dataset.originalHtml;
             }
-        });
-    }
+        }
 
-    $('#save_changes').on('click', function (e) {
-        e.preventDefault();
-        saveUserChanges();
-    });
+        function showFail(msg) {
+            const el = document.getElementById('fail-message');
+            if (el) el.textContent = msg || 'Cập nhật thất bại';
+            if (typeof failDialog !== 'undefined' && failDialog) {
+                failDialog.show();
+            } else {
+                alert(msg || 'Cập nhật thất bại');
+            }
+        }
+
+        function showSuccess(msg) {
+            const el = document.getElementById('success-message');
+            if (el) el.textContent = msg || 'Cập nhật thành công';
+            try {
+                if (typeof successDialog !== 'undefined' && successDialog) {
+                    successDialog.show();
+                }
+            } catch (e) {}
+        }
+
+        function saveUserChanges() {
+            if (saving) return;
+            setSaving(true);
+
+            const payload = {
+                {foreach $update_field as $key}
+                {$key}: $('#{$key}').val(),
+                {/foreach}
+                is_admin: $("#is_admin").is(":checked"),
+                clear_mfa: $("#clear_mfa").is(":checked"),
+                is_shadow_banned: $("#is_shadow_banned").is(":checked"),
+                is_banned: $("#is_banned").is(":checked"),
+            };
+
+            $.ajax({
+                url: '/admin/user/' + editUserId,
+                type: 'POST',
+                dataType: 'json',
+                data: payload,
+                success: function (data) {
+                    if (data && data.ret === 1) {
+                        showSuccess(data.msg);
+                        window.setTimeout(function () {
+                            // Reload edit page so badges/status (MFA, etc.) reflect saved data.
+                            window.location.href = '/admin/user/' + editUserId + '/edit?saved=1';
+                        }, jumpDelay);
+                        return;
+                    }
+                    setSaving(false);
+                    showFail(data && data.msg ? data.msg : 'Cập nhật thất bại');
+                },
+                error: function (xhr) {
+                    setSaving(false);
+                    let msg = 'Không gửi được yêu cầu lưu (HTTP ' + xhr.status + ')';
+                    try {
+                        const body = JSON.parse(xhr.responseText);
+                        if (body && body.msg) msg = body.msg;
+                    } catch (e) {}
+                    showFail(msg);
+                }
+            });
+        }
+
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                saveUserChanges();
+            });
+        }
+
+        if (new URLSearchParams(window.location.search).get('saved') === '1') {
+            showSuccess('Cập nhật thành công');
+            if (window.history && window.history.replaceState) {
+                window.history.replaceState({}, '', '/admin/user/' + editUserId + '/edit');
+            }
+        }
+    })();
 </script>
 
 {include file='admin/footer.tpl'}

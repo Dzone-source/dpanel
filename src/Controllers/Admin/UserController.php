@@ -230,6 +230,7 @@ final class UserController extends BaseController
         return $response->withJson([
             'ret' => 1,
             'msg' => 'Cập nhật thành công',
+            'redir' => '/admin/user/' . $id . '/edit?saved=1',
         ]);
     }
 
