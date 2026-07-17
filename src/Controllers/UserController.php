@@ -7,6 +7,7 @@ namespace App\Controllers;
 use App\Models\Ann;
 use App\Models\Config;
 use App\Models\OnlineLog;
+use App\Models\Order;
 use App\Services\Analytics;
 use App\Services\Auth;
 use App\Services\Captcha;
@@ -19,7 +20,9 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use function date;
 use function json_encode;
+use function round;
 use function strtotime;
 use function time;
 
@@ -32,8 +35,10 @@ final class UserController extends BaseController
     {
         $captcha = [];
         $traffic_logs = [];
-        $class_expire_days = $this->user->class > 0 ?
-            round((strtotime($this->user->class_expire) - time()) / 86400) : 0;
+        $class_expire_ts = strtotime((string) $this->user->class_expire);
+        $class_expire_days = ($class_expire_ts !== false && $class_expire_ts > time())
+            ? (int) round(($class_expire_ts - time()) / 86400)
+            : 0;
         $ann = (new Ann())->where('status', '>', 0)
             ->orderBy('status', 'desc')
             ->orderBy('sort')
@@ -63,26 +68,42 @@ final class UserController extends BaseController
 
         // Bandwidth-only packages may leave class at 0 while transfer_enable > 0.
         $has_active_plan = $this->user->class > 0 || $this->user->transfer_enable > 0;
-        $class_expire_ts = strtotime((string) $this->user->class_expire);
         $expire_still_valid = $class_expire_ts !== false && $class_expire_ts > time();
 
-        if ($this->user->class > 0) {
-            $class_value = 'LV. ' . $this->user->class
-                . ($class_expire_days > 0 ? ' · còn ' . $class_expire_days . ' ngày' : '');
-        } elseif ($this->user->transfer_enable > 0) {
-            $class_value = $this->user->enableTraffic() . ' · đang dùng';
-            if ($expire_still_valid) {
-                $class_value = $this->user->enableTraffic()
-                    . ' · còn ' . (int) round(($class_expire_ts - time()) / 86400) . ' ngày';
-            }
+        $activated_order = (new Order())->where('user_id', $this->user->id)
+            ->where('status', 'activated')
+            ->whereIn('product_type', ['tabp', 'time', 'bandwidth'])
+            ->orderByDesc('id')
+            ->first();
+
+        $plan_name = $activated_order !== null
+            ? (string) $activated_order->product_name
+            : '';
+
+        if ($plan_name === '' && $has_active_plan) {
+            $plan_name = $this->user->class > 0
+                ? 'Gói LV.' . $this->user->class
+                : 'Gói đang dùng';
+        }
+
+        if ($has_active_plan && $expire_still_valid) {
+            $expire_date = date('d/m/Y', $class_expire_ts);
+            $class_value = $plan_name !== '' ? $plan_name : 'Đang dùng';
+            $class_subvalue = 'Hết hạn: ' . $expire_date
+                . ($class_expire_days > 0 ? ' (còn ' . (int) $class_expire_days . ' ngày)' : '');
+        } elseif ($has_active_plan) {
+            $class_value = $plan_name !== '' ? $plan_name : 'Đang dùng';
+            $class_subvalue = 'Đã hết hạn hoặc không có ngày hết hạn';
         } else {
             $class_value = 'Chưa kích hoạt';
+            $class_subvalue = 'Chưa có gói dịch vụ';
         }
 
         $info_cards = [
             [
                 'title' => 'Gói dịch vụ',
                 'value' => $class_value,
+                'subvalue' => $class_subvalue,
                 'icon' => 'ti-crown',
                 'gradient' => 'gopass-gradient-1',
                 'action_url' => '/user/product',

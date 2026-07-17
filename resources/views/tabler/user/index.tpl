@@ -152,6 +152,9 @@
                                             <div class="flex-fill min-w-0">
                                                 <div class="gopass-stat-label mb-0">{$card.title}</div>
                                                 <div class="gopass-stat-hint">{$card.value}</div>
+                                                {if isset($card.subvalue) && $card.subvalue ne ''}
+                                                <div class="gopass-stat-subhint">{$card.subvalue}</div>
+                                                {/if}
                                             </div>
                                         </div>
                                         <a href="{$card.action_url}" class="btn btn-primary w-100 gopass-stat-cta-btn">
@@ -167,6 +170,9 @@
                                         <div class="flex-fill min-w-0">
                                             <div class="gopass-stat-label">{$card.title}</div>
                                             <div class="gopass-stat-value"{if isset($card.live_id)} id="live-{$card.live_id}" data-live="{$card.live_id}"{/if}>{$card.value}</div>
+                                            {if isset($card.subvalue) && $card.subvalue ne ''}
+                                            <div class="gopass-stat-subvalue">{$card.subvalue}</div>
+                                            {/if}
                                         </div>
                                         {if isset($card.buy_new) && $card.buy_new}
                                         <a href="{$card.action_url}" class="btn btn-primary btn-sm gopass-stat-buy-new">

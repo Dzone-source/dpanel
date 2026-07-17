@@ -603,6 +603,15 @@ body.gopass-auth .border-top-wide {
     line-height: 1.3;
 }
 
+.gopass-stat-subvalue,
+.gopass-stat-subhint {
+    margin-top: 0.15rem;
+    font-size: 0.75rem;
+    font-weight: 550;
+    color: var(--gopass-muted);
+    line-height: 1.35;
+}
+
 .gopass-stat-cta-btn {
     min-height: 48px;
     font-size: 1.05rem !important;
