@@ -55,7 +55,7 @@ final class V2RayJson extends Base
                         'settings' => [
                             'address' => $node_raw->server,
                             'port' => (int) $ss_2022_port,
-                            'method' => $user->method,
+                            'method' => $method,
                             'psk' => $server_key === '' ? $user_pk : $server_key . ':' .$user_pk,
                         ],
                         'tag' => $node_raw->name,
@@ -72,6 +72,16 @@ final class V2RayJson extends Base
                     $headers = $node_custom_config['header']['request']['headers'] ?? [];
                     $service_name = $node_custom_config['servicename'] ?? '';
                     $meek_url = $node_custom_config['meek_url'] ?? '';
+                    $tls_on = $security === 'tls' || $security === 'auto';
+                    $allow_insecure = filter_var(
+                        $node_custom_config['allow_insecure'] ?? false,
+                        FILTER_VALIDATE_BOOLEAN
+                    );
+                    if ($tls_on && ! $allow_insecure && $host !== '' &&
+                        strcasecmp((string) $host, (string) $node_raw->server) !== 0
+                    ) {
+                        $allow_insecure = true;
+                    }
 
                     $node = [
                         'protocol' => 'vmess',
@@ -103,7 +113,8 @@ final class V2RayJson extends Base
                             'security' => $security,
                             'securitySettings' => [
                                 'tls' => [
-                                    'server_name' => ($security === 'tls' || $security === 'auto') ? $host : '',
+                                    'server_name' => $tls_on ? $host : '',
+                                    'allow_insecure' => $tls_on ? $allow_insecure : false,
                                 ],
                             ],
                         ],

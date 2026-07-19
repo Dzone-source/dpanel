@@ -157,7 +157,12 @@ final class Clash extends Base
                 case 14:
                     $trojan_port = $node_custom_config['offset_port_user'] ??
                         ($node_custom_config['offset_port_node'] ?? 443);
-                    $network = $node_custom_config['header']['type'] ?? $node_custom_config['network'] ?? 'tcp';
+                    $network = $node_custom_config['network']
+                        ?? $node_custom_config['header']['type']
+                        ?? 'tcp';
+                    if ($network === '' || $network === 'none') {
+                        $network = 'tcp';
+                    }
                     $host = $node_custom_config['host'] ?? '';
                     $allow_insecure = filter_var(
                         $node_custom_config['allow_insecure'] ?? false,

@@ -212,7 +212,7 @@ $_ENV['SingBox_Config'] = [
                 'auto',
             ],
             'default' => 'auto',
-            'interrupt_exist_connections' => true,
+            'interrupt_exist_connections' => false,
         ],
         [
             'type' => 'urltest',
@@ -222,7 +222,7 @@ $_ENV['SingBox_Config'] = [
             'interval' => '3m',
             'tolerance' => 50,
             'idle_timeout' => '30m',
-            'interrupt_exist_connections' => true,
+            'interrupt_exist_connections' => false,
         ],
         [
             'type' => 'direct',

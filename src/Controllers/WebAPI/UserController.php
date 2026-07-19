@@ -43,8 +43,10 @@ final class UserController extends BaseController
 
         $node->update(['node_heartbeat' => time()]);
 
+        // Soft-offline: empty success list instead of error — XrayR treats API errors as
+        // auth failures and may drop all sessions on the node.
         if ($node->node_bandwidth_limit !== 0 && $node->node_bandwidth_limit <= $node->node_bandwidth) {
-            return ResponseHelper::error($response, 'Node out of bandwidth.');
+            return ResponseHelper::successWithDataEtag($request, $response, []);
         }
 
         $users_raw = (new User())->where(
@@ -105,11 +107,16 @@ final class UserController extends BaseController
 
         foreach ($users_raw as $user_raw) {
             if ($user_raw->transfer_enable <= $user_raw->u + $user_raw->d) {
-                if ($_ENV['keep_connect']) {
-                    // 流量耗尽用户限速至 1Mbps
-                    $user_raw->node_speedlimit = 1;
-                } else {
+                // Hard-removing exhausted users causes client timeouts. Prefer keep_connect
+                // throttle; if keep_connect is off, still omit (policy), but default is on.
+                if (! ($_ENV['keep_connect'] ?? true)) {
                     continue;
+                }
+                // Soft throttle — 1 Mbps is often so low apps look "disconnected".
+                $floor = (float) ($_ENV['keep_connect_speedlimit'] ?? 5);
+                $user_raw->node_speedlimit = max($floor, (float) $user_raw->node_speedlimit);
+                if ($user_raw->node_speedlimit <= 0) {
+                    $user_raw->node_speedlimit = $floor;
                 }
             }
 

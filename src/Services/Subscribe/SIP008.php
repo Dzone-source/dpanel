@@ -6,6 +6,7 @@ namespace App\Services\Subscribe;
 
 use App\Models\Config;
 use App\Services\Subscribe;
+use function is_array;
 use function json_decode;
 use function json_encode;
 
@@ -22,24 +23,27 @@ final class SIP008 extends Base
         $nodes_raw = Subscribe::getUserNodes($user);
 
         foreach ($nodes_raw as $node_raw) {
-            $node_custom_config = json_decode($node_raw->custom_config, true);
-
-            if ((int) $node_raw->sort === 0) {
-                $plugin = $node_custom_config['plugin'] ?? '';
-                $plugin_option = $node_custom_config['plugin_option'] ?? '';
-                $node = [
-                    'id' => $node_raw->id,
-                    'remarks' => $node_raw->name,
-                    'server' => $node_raw->server,
-                    'server_port' => (int) $user->port,
-                    'password' => $user->passwd,
-                    'method' => $user->method,
-                    'plugin' => $plugin,
-                    'plugin_opts' => $plugin_option,
-                ];
+            if ((int) $node_raw->sort !== 0) {
+                continue;
             }
 
-            $nodes[] = $node;
+            $node_custom_config = json_decode($node_raw->custom_config, true);
+            if (! is_array($node_custom_config)) {
+                $node_custom_config = [];
+            }
+
+            $plugin = $node_custom_config['plugin'] ?? '';
+            $plugin_option = $node_custom_config['plugin_option'] ?? '';
+            $nodes[] = [
+                'id' => $node_raw->id,
+                'remarks' => $node_raw->name,
+                'server' => $node_raw->server,
+                'server_port' => (int) $user->port,
+                'password' => $user->passwd,
+                'method' => $user->method,
+                'plugin' => $plugin,
+                'plugin_opts' => $plugin_option,
+            ];
         }
 
         return json_encode([
