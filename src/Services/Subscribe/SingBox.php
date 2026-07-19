@@ -16,8 +16,8 @@ use const FILTER_VALIDATE_BOOLEAN;
 /**
  * Sing-box / Hiddify subscription.
  *
- * Keep the profile Hiddify-friendly: no TLS-DNS-over-proxy bootstrap,
- * plain TCP Trojan without empty transport, Chrome uTLS fingerprint.
+ * Keep the profile Hiddify-friendly: DNS must not depend on the proxy
+ * (chicken-egg hang), plain TCP Trojan without empty transport, Chrome uTLS.
  */
 final class SingBox extends Base
 {
@@ -58,7 +58,7 @@ final class SingBox extends Base
     }
 
     /**
-     * Minimal template — avoid chicken-egg DNS (tls:// DNS via proxy causes Hiddify timeouts).
+     * Minimal template — DNS via direct only (never detour=select on first hop).
      */
     private function baseConfig(array $node_names): array
     {
@@ -71,14 +71,15 @@ final class SingBox extends Base
             'dns' => [
                 'servers' => [
                     [
-                        'tag' => 'remote',
-                        // Plain UDP DNS — tls:// + detour select often hangs Hiddify on first connect.
-                        'address' => '1.1.1.1',
-                        'detour' => 'select',
-                    ],
-                    [
                         'tag' => 'local',
                         'address' => 'local',
+                        'detour' => 'direct',
+                    ],
+                    [
+                        'tag' => 'remote',
+                        // Plain UDP + direct: detour=select causes first-connect chicken-egg
+                        // (DNS needs proxy, proxy needs DNS) → intermittent timeout in Hiddify.
+                        'address' => '1.1.1.1',
                         'detour' => 'direct',
                     ],
                 ],
@@ -120,30 +121,7 @@ final class SingBox extends Base
                     'sniff_override_destination' => true,
                 ],
             ],
-            'outbounds' => [
-                [
-                    'tag' => 'select',
-                    'type' => 'selector',
-                    'outbounds' => array_merge(['auto'], $node_names),
-                    'default' => 'auto',
-                ],
-                [
-                    'tag' => 'auto',
-                    'type' => 'urltest',
-                    'outbounds' => $node_names,
-                    'url' => 'https://www.gstatic.com/generate_204',
-                    'interval' => '3m',
-                    'tolerance' => 50,
-                ],
-                [
-                    'tag' => 'direct',
-                    'type' => 'direct',
-                ],
-                [
-                    'tag' => 'block',
-                    'type' => 'block',
-                ],
-            ],
+            'outbounds' => $this->baseOutbounds($node_names),
             'route' => [
                 'rules' => [
                     [
@@ -174,6 +152,52 @@ final class SingBox extends Base
                 ],
             ],
         ];
+    }
+
+    /**
+     * Selector/urltest with an empty proxy list breaks some clients on import.
+     */
+    private function baseOutbounds(array $node_names): array
+    {
+        $outbounds = [];
+
+        if ($node_names !== []) {
+            $outbounds[] = [
+                'tag' => 'select',
+                'type' => 'selector',
+                'outbounds' => array_merge(['auto'], $node_names),
+                'default' => 'auto',
+                // Avoid killing live sessions when urltest rotates nodes.
+                'interrupt_exist_connections' => false,
+            ];
+            $outbounds[] = [
+                'tag' => 'auto',
+                'type' => 'urltest',
+                'outbounds' => $node_names,
+                'url' => 'https://www.gstatic.com/generate_204',
+                'interval' => '3m',
+                'tolerance' => 50,
+                'interrupt_exist_connections' => false,
+            ];
+        } else {
+            $outbounds[] = [
+                'tag' => 'select',
+                'type' => 'selector',
+                'outbounds' => ['direct'],
+                'default' => 'direct',
+            ];
+        }
+
+        $outbounds[] = [
+            'tag' => 'direct',
+            'type' => 'direct',
+        ];
+        $outbounds[] = [
+            'tag' => 'block',
+            'type' => 'block',
+        ];
+
+        return $outbounds;
     }
 
     private function buildShadowsocks($user, $node_raw): array
@@ -220,6 +244,10 @@ final class SingBox extends Base
         $host = $cfg['host'] ?? '';
         $allow_insecure = filter_var($cfg['allow_insecure'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
+        if (! $allow_insecure && $host !== '' && strcasecmp($host, (string) $node_raw->server) !== 0) {
+            $allow_insecure = true;
+        }
+
         $tls = array_filter([
             'enabled' => true,
             'server_name' => $host !== '' ? $host : null,
@@ -234,7 +262,8 @@ final class SingBox extends Base
             'uuid' => $user->uuid,
             'password' => $user->passwd,
             'congestion_control' => $cfg['congestion_control'] ?? 'bbr',
-            'zero_rtt_handshake' => true,
+            // 0-RTT can cause intermittent handshake failures on some networks.
+            'zero_rtt_handshake' => filter_var($cfg['zero_rtt_handshake'] ?? false, FILTER_VALIDATE_BOOLEAN),
             'tls' => $tls,
         ];
     }
@@ -249,6 +278,14 @@ final class SingBox extends Base
         $headers = $cfg['header']['request']['headers'] ?? [];
         $service_name = $cfg['servicename'] ?? '';
         $utls = filter_var($cfg['utls'] ?? true, FILTER_VALIDATE_BOOLEAN);
+        $security = (string) ($cfg['security'] ?? 'none');
+        $tls_enabled = $security === 'tls' || $security === 'auto';
+        $allow_insecure = filter_var($cfg['allow_insecure'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        if ($tls_enabled && ! $allow_insecure && $host !== '' &&
+            strcasecmp((string) $host, (string) $node_raw->server) !== 0
+        ) {
+            $allow_insecure = true;
+        }
 
         $node = [
             'type' => 'vmess',
@@ -258,16 +295,20 @@ final class SingBox extends Base
             'uuid' => $user->uuid,
             'security' => 'auto',
             'alter_id' => 0,
-            'tls' => array_filter([
+            'packet_encoding' => 'xudp',
+        ];
+
+        if ($tls_enabled) {
+            $node['tls'] = array_filter([
                 'enabled' => true,
                 'server_name' => $host !== '' ? $host : null,
+                'insecure' => $allow_insecure,
                 'utls' => $utls ? [
                     'enabled' => true,
                     'fingerprint' => 'chrome',
                 ] : null,
-            ], static fn ($v) => $v !== null),
-            'packet_encoding' => 'xudp',
-        ];
+            ], static fn ($v) => $v !== null);
+        }
 
         $transport = array_filter([
             'type' => $transport_type !== '' ? $transport_type : null,

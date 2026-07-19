@@ -80,6 +80,15 @@ final class Clash extends Base
                         ($node_custom_config['offset_port_node'] ?? 443);
                     $host = $node_custom_config['host'] ?? '';
                     $congestion_control = $node_custom_config['congestion_control'] ?? 'bbr';
+                    $allow_insecure = filter_var(
+                        $node_custom_config['allow_insecure'] ?? false,
+                        FILTER_VALIDATE_BOOLEAN
+                    );
+                    if (! $allow_insecure && $host !== '' &&
+                        strcasecmp((string) $host, (string) $node_raw->server) !== 0
+                    ) {
+                        $allow_insecure = true;
+                    }
                     // Only Clash.Meta core has TUIC support
                     // Tuic V5 Only
                     $node = [
@@ -91,7 +100,8 @@ final class Clash extends Base
                         'uuid' => $user->uuid,
                         'sni' => $host,
                         'congestion-controller' => $congestion_control,
-                        'reduce-rtt' => true,
+                        'reduce-rtt' => false,
+                        'skip-cert-verify' => $allow_insecure,
                     ];
 
                     break;
@@ -103,10 +113,18 @@ final class Clash extends Base
                     $network = $node_custom_config['network'] ?? '';
                     $host = $node_custom_config['header']['request']['headers']['Host'][0] ??
                         $node_custom_config['host'] ?? '';
-                    $allow_insecure = $node_custom_config['allow_insecure'] ?? false;
-                    $tls = $security === 'tls';
+                    $allow_insecure = filter_var(
+                        $node_custom_config['allow_insecure'] ?? false,
+                        FILTER_VALIDATE_BOOLEAN
+                    );
+                    $tls = $security === 'tls' || $security === 'auto';
+                    if ($tls && ! $allow_insecure && $host !== '' &&
+                        strcasecmp((string) $host, (string) $node_raw->server) !== 0
+                    ) {
+                        $allow_insecure = true;
+                    }
                     // Clash 特定配置
-                    $udp = $node_custom_config['udp'] ?? true;
+                    $udp = filter_var($node_custom_config['udp'] ?? true, FILTER_VALIDATE_BOOLEAN);
                     $ws_opts = $node_custom_config['ws-opts'] ?? $node_custom_config['ws_opts'] ?? null;
                     $h2_opts = $node_custom_config['h2-opts'] ?? $node_custom_config['h2_opts'] ?? null;
                     $http_opts = $node_custom_config['http-opts'] ?? $node_custom_config['http_opts'] ?? null;
@@ -124,9 +142,9 @@ final class Clash extends Base
                         'uuid' => $user->uuid,
                         'alterId' => 0,
                         'cipher' => $encryption,
-                        'udp' => (bool) $udp,
+                        'udp' => $udp,
                         'tls' => $tls,
-                        'skip-cert-verify' => (bool) $allow_insecure,
+                        'skip-cert-verify' => $allow_insecure,
                         'servername' => $host,
                         'network' => $network,
                         'ws-opts' => $ws_opts,

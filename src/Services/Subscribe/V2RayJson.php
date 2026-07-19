@@ -8,8 +8,10 @@ use App\Services\Subscribe;
 use App\Utils\Tools;
 use function array_filter;
 use function array_merge;
+use function filter_var;
 use function json_decode;
 use function json_encode;
+use const FILTER_VALIDATE_BOOLEAN;
 
 final class V2RayJson extends Base
 {
@@ -101,7 +103,7 @@ final class V2RayJson extends Base
                             'security' => $security,
                             'securitySettings' => [
                                 'tls' => [
-                                    'server_name' => $security === ('tls' || 'auto') ? $host : '',
+                                    'server_name' => ($security === 'tls' || $security === 'auto') ? $host : '',
                                 ],
                             ],
                         ],
@@ -119,7 +121,15 @@ final class V2RayJson extends Base
                 case 14:
                     $trojan_port = $node_custom_config['offset_port_user'] ?? ($node_custom_config['offset_port_node'] ?? 443);
                     $host = $node_custom_config['host'] ?? $node_raw->server;
-                    $allow_insecure = $node_custom_config['allow_insecure'] ?? '0';
+                    $allow_insecure = filter_var(
+                        $node_custom_config['allow_insecure'] ?? false,
+                        FILTER_VALIDATE_BOOLEAN
+                    );
+                    if (! $allow_insecure && $host !== '' &&
+                        strcasecmp((string) $host, (string) $node_raw->server) !== 0
+                    ) {
+                        $allow_insecure = true;
+                    }
                     $transport = $node_custom_config['network'] ?? '';
                     $path = $node_custom_config['header']['request']['path'][0] ?? $node_custom_config['path'] ?? '';
                     $headers = $node_custom_config['header']['request']['headers'] ?? [];
@@ -152,7 +162,7 @@ final class V2RayJson extends Base
                             'security' => 'tls',
                             'securitySettings' => [
                                 'tls' => [
-                                    'allow_insecure' => (bool) $allow_insecure,
+                                    'allow_insecure' => $allow_insecure,
                                     'server_name' => $host,
                                 ],
                             ],

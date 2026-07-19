@@ -90,7 +90,7 @@ describe('UserController API - IP online limit', function () {
             ->and($userData['alive_ip'])->toBe(1);
     });
 
-    it('excludes users that exceed package ip limit', function () {
+    it('keeps over-limit users in the list so XrayR can soft-kick instead of timing out', function () {
         $user = createUsers(1)[0];
         $user->node_iplimit = 1;
         $user->save();
@@ -112,8 +112,10 @@ describe('UserController API - IP online limit', function () {
         $response = $this->get('/mod_mu/users?node_id=' . $this->node->id . '&key=' . $_ENV['muKey']);
         assertResponseStatus(200, $response);
 
-        $ids = array_column(getJsonData($response)['data'], 'id');
-        expect($ids)->not->toContain($user->id);
+        $userData = findUserData(getJsonData($response)['data'], $user->id);
+        expect($userData)->not->toBeNull()
+            ->and($userData['node_iplimit'])->toBe(1)
+            ->and($userData['alive_ip'])->toBe(2);
     });
 
     it('accepts alive ip reports from nodes', function () {

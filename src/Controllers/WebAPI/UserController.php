@@ -79,7 +79,9 @@ final class UserController extends BaseController
             'uuid',
         ]);
 
-        // Keep node_iplimit so XrayR can enforce device/IP limits in real time.
+        // Keep node_iplimit + alive_ip so XrayR can enforce DeviceLimit softly.
+        // Do not hard-remove over-limit users here — that causes client timeouts when
+        // OnlineLog still holds a previous IP after Wi‑Fi/cellular or NAT rebind.
         $keys_unset = match ($node->sort) {
             14, 11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'],
             2 => ['u', 'd', 'transfer_enable', 'method', 'port'],
@@ -114,10 +116,10 @@ final class UserController extends BaseController
             $ip_limit = (int) $user_raw->node_iplimit;
             $alive_ip = (int) ($alive_ip_counts[$user_raw->id] ?? 0);
 
-            // Hard kick when online IPs already exceed package limit.
-            if ($ip_limit !== 0 && $ip_limit < $alive_ip) {
-                continue;
-            }
+            // Do NOT hard-remove users from this list when over IP limit.
+            // Stale OnlineLog rows (Wi‑Fi↔cellular, NAT rebind) within the 90s window
+            // would make the whole account vanish from XrayR → client "timeout".
+            // XrayR enforces DeviceLimit using node_iplimit + alive_ip below.
 
             if ($node->sort === 1) {
                 $method = json_decode($node->custom_config)->method ?? '2022-blake3-aes-128-gcm';
