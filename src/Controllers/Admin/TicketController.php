@@ -210,7 +210,8 @@ final class TicketController extends BaseController
         $ticket->status = 'closed';
         $ticket->save();
 
-        return ResponseHelper::success($response, 'Đóng phiếu hỗ trợ thành công');
+        return ResponseHelper::success($response, 'Đóng phiếu hỗ trợ thành công')
+            ->withHeader('HX-Redirect', '/admin/ticket');
     }
 
     /**

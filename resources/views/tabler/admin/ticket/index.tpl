@@ -67,7 +67,7 @@
             $('#notice-confirm').off('click').on('click', function () {
                 $.ajax({
                     url: "/admin/ticket/" + ticket_id + '/close',
-                    type: 'PUT',
+                    type: 'POST',
                     dataType: "json",
                     success: function (data) {
                         if (data.ret === 1) {
@@ -78,6 +78,10 @@
                             $('#fail-message').text(data.msg);
                             $('#fail-dialog').modal('show');
                         }
+                    },
+                    error: function () {
+                        $('#fail-message').text('Không thể đóng phiếu hỗ trợ. Vui lòng thử lại.');
+                        $('#fail-dialog').modal('show');
                     }
                 });
             });
