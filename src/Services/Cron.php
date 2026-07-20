@@ -19,6 +19,7 @@ use App\Models\User;
 use App\Models\UserMoneyLog;
 use App\Utils\Tools;
 use DateTime;
+use DateTimeZone;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Client\ClientExceptionInterface;
@@ -526,61 +527,79 @@ final class Cron
 
     public static function sendDailyFinanceMail(): void
     {
-        $today = strtotime('00:00:00');
-        $paylists = (new Paylist())->where('status', 1)
-            ->whereBetween('datetime', [strtotime('-1 day', $today), $today])->get();
+        $yesterday = Analytics::getIncome('yesterday');
+        [$start, $end] = self::financeDayBounds(-1);
 
-        if (count($paylists) > 0) {
-            $text_html = '<table><tr><td>Số tiền</td><td>ID người dùng</td><td>Tên người dùng</td><td>Thời gian nạp tiền</td></tr>';
+        $invoices = (new Invoice())
+            ->whereIn('status', ['paid_gateway', 'paid_balance', 'paid_admin'])
+            ->where('type', 'product')
+            ->where('price', '>', 0)
+            ->where('pay_time', '>', 0)
+            ->whereBetween('pay_time', [$start, $end])
+            ->orderBy('pay_time')
+            ->get();
 
-            foreach ($paylists as $paylist) {
-                $text_html .= '<tr>';
-                $text_html .= '<td>' . $paylist->total . '</td>';
-                $text_html .= '<td>' . $paylist->userid . '</td>';
-                $text_html .= '<td>' . (new User())->find($paylist->userid)->user_name . '</td>';
-                $text_html .= '<td>' . Tools::toDateTime((int) $paylist->datetime) . '</td>';
-                $text_html .= '</tr>';
-            }
+        if (count($invoices) === 0) {
+            echo 'No paid product invoices found for yesterday' . PHP_EOL;
 
-            $text_html .= '</table>';
-            $text_html .= '<br>Tổng số giao dịch hôm qua: ' . count($paylists) . '<br>Tổng doanh thu hôm qua: ' . $paylists->sum('total');
-
-            $text_html = str_replace([
-                '<table>',
-                '<tr>',
-                '<td>',
-            ], [
-                '<table style="width: 100%;border: 1px solid black;border-collapse: collapse;">',
-                '<tr style="border: 1px solid black;padding: 5px;">',
-                '<td style="border: 1px solid black;padding: 5px;">',
-            ], $text_html);
-
-            echo 'Sending daily finance email to admin user' . PHP_EOL;
-
-            try {
-                Notification::notifyAdmin(
-                    'Báo cáo tài chính hàng ngày',
-                    $text_html,
-                    'finance.tpl'
-                );
-            } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
-                echo $e->getMessage() . PHP_EOL;
-            }
-
-            echo Tools::toDateTime(time()) . ' Successfully sent daily finance email' . PHP_EOL;
-        } else {
-            echo 'No paylist found' . PHP_EOL;
+            return;
         }
+
+        $text_html = '<table><tr><td>Số tiền</td><td>Hóa đơn</td><td>User ID</td><td>Trạng thái</td><td>Thời gian thanh toán</td></tr>';
+
+        foreach ($invoices as $invoice) {
+            $text_html .= '<tr>';
+            $text_html .= '<td>' . Tools::formatVnd((float) $invoice->price, 0, true) . '</td>';
+            $text_html .= '<td>#' . $invoice->id . '</td>';
+            $text_html .= '<td>' . $invoice->user_id . '</td>';
+            $text_html .= '<td>' . $invoice->status . '</td>';
+            $text_html .= '<td>' . Tools::toDateTime((int) $invoice->pay_time) . '</td>';
+            $text_html .= '</tr>';
+        }
+
+        $text_html .= '</table>';
+        $text_html .= '<br>Tổng số hóa đơn hôm qua: ' . count($invoices)
+            . '<br>Tổng doanh thu hôm qua: ' . Tools::formatVnd($yesterday, 0, true);
+
+        $text_html = str_replace([
+            '<table>',
+            '<tr>',
+            '<td>',
+        ], [
+            '<table style="width: 100%;border: 1px solid black;border-collapse: collapse;">',
+            '<tr style="border: 1px solid black;padding: 5px;">',
+            '<td style="border: 1px solid black;padding: 5px;">',
+        ], $text_html);
+
+        echo 'Sending daily finance email to admin user' . PHP_EOL;
+
+        try {
+            Notification::notifyAdmin(
+                'Báo cáo tài chính hàng ngày',
+                $text_html,
+                'finance.tpl'
+            );
+        } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
+            echo $e->getMessage() . PHP_EOL;
+        }
+
+        echo Tools::toDateTime(time()) . ' Successfully sent daily finance email' . PHP_EOL;
     }
 
     public static function sendWeeklyFinanceMail(): void
     {
-        $today = strtotime('00:00:00');
-        $paylists = (new Paylist())->where('status', 1)
-            ->whereBetween('datetime', [strtotime('-1 week', $today), $today])
-            ->get();
+        [$start, $end] = self::financeDayBounds(-7, -1);
+        $total = self::sumProductRevenueBetween($start, $end);
+        $count = (new Invoice())
+            ->whereIn('status', ['paid_gateway', 'paid_balance', 'paid_admin'])
+            ->where('type', 'product')
+            ->where('price', '>', 0)
+            ->where('pay_time', '>', 0)
+            ->whereBetween('pay_time', [$start, $end])
+            ->count();
 
-        $text_html = '<br>Tổng số giao dịch tuần trước: ' . count($paylists) . '<br>Tổng doanh thu tuần trước: ' . $paylists->sum('total');
+        $text_html = '<br>Tổng số hóa đơn 7 ngày qua: ' . $count
+            . '<br>Tổng doanh thu 7 ngày qua: ' . Tools::formatVnd($total, 0, true);
         echo 'Sending weekly finance email to admin user' . PHP_EOL;
 
         try {
@@ -593,17 +612,23 @@ final class Cron
             echo $e->getMessage() . PHP_EOL;
         }
 
-        echo Tools::toDateTime(time()) . ' 成功发送财务周报' . PHP_EOL;
+        echo Tools::toDateTime(time()) . ' Successfully sent weekly finance email' . PHP_EOL;
     }
 
     public static function sendMonthlyFinanceMail(): void
     {
-        $today = strtotime('00:00:00');
-        $paylists = (new Paylist())->where('status', 1)
-            ->whereBetween('datetime', [strtotime('-1 month', $today), $today])
-            ->get();
+        [$start, $end] = self::financeMonthBounds();
+        $total = self::sumProductRevenueBetween($start, $end);
+        $count = (new Invoice())
+            ->whereIn('status', ['paid_gateway', 'paid_balance', 'paid_admin'])
+            ->where('type', 'product')
+            ->where('price', '>', 0)
+            ->where('pay_time', '>', 0)
+            ->whereBetween('pay_time', [$start, $end])
+            ->count();
 
-        $text_html = '<br>Tổng số giao dịch tháng trước: ' . count($paylists) . '<br>Tổng doanh thu tháng trước: ' . $paylists->sum('total');
+        $text_html = '<br>Tổng số hóa đơn tháng trước: ' . $count
+            . '<br>Tổng doanh thu tháng trước: ' . Tools::formatVnd($total, 0, true);
         echo 'Sending monthly finance email to admin user' . PHP_EOL;
 
         try {
@@ -616,7 +641,61 @@ final class Cron
             echo $e->getMessage() . PHP_EOL;
         }
 
-        echo Tools::toDateTime(time()) . ' 成功发送财务月报' . PHP_EOL;
+        echo Tools::toDateTime(time()) . ' Successfully sent monthly finance email' . PHP_EOL;
+    }
+
+    /**
+     * @return array{0: int, 1: int}
+     */
+    private static function financeDayBounds(int $fromDaysAgo, ?int $toDaysAgo = null): array
+    {
+        $toDaysAgo ??= $fromDaysAgo;
+        $tzName = (string) ($_ENV['timeZone'] ?? 'Asia/Ho_Chi_Minh');
+
+        try {
+            $tz = new DateTimeZone($tzName);
+        } catch (Exception) {
+            $tz = new DateTimeZone('Asia/Ho_Chi_Minh');
+        }
+
+        $todayStart = (new DateTime('now', $tz))->setTime(0, 0, 0);
+        $start = (clone $todayStart)->modify($fromDaysAgo . ' day')->getTimestamp();
+        $end = (clone $todayStart)->modify($toDaysAgo . ' day')->modify('+1 day')->getTimestamp() - 1;
+
+        return [$start, $end];
+    }
+
+    /**
+     * @return array{0: int, 1: int}
+     */
+    private static function financeMonthBounds(): array
+    {
+        $tzName = (string) ($_ENV['timeZone'] ?? 'Asia/Ho_Chi_Minh');
+
+        try {
+            $tz = new DateTimeZone($tzName);
+        } catch (Exception) {
+            $tz = new DateTimeZone('Asia/Ho_Chi_Minh');
+        }
+
+        $now = new DateTime('now', $tz);
+        $start = (clone $now)->modify('first day of last month')->setTime(0, 0, 0)->getTimestamp();
+        $end = (clone $now)->modify('first day of this month')->setTime(0, 0, 0)->getTimestamp() - 1;
+
+        return [$start, $end];
+    }
+
+    private static function sumProductRevenueBetween(int $start, int $end): float
+    {
+        $number = (new Invoice())
+            ->whereIn('status', ['paid_gateway', 'paid_balance', 'paid_admin'])
+            ->where('type', 'product')
+            ->where('price', '>', 0)
+            ->where('pay_time', '>', 0)
+            ->whereBetween('pay_time', [$start, $end])
+            ->sum('price');
+
+        return round((float) ($number ?? 0), 0);
     }
 
     public static function sendPaidUserUsageLimitNotification(): void

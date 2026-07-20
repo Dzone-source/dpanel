@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\HourlyUsage;
+use App\Models\Invoice;
 use App\Models\Node;
-use App\Models\Paylist;
 use App\Models\User;
 use App\Utils\Tools;
+use DateTime;
+use DateTimeZone;
+use Throwable;
 use function array_fill;
 use function date;
 use function floatval;
@@ -21,26 +24,71 @@ use function time;
 final class Analytics
 {
     /**
-     * 获取累计收入
+     * Paid invoice statuses that count as real revenue.
+     * Manual QR is marked paid_admin (no paylist row) — old paylist-only sum missed it.
+     *
+     * @var list<string>
+     */
+    private const PAID_INVOICE_STATUSES = ['paid_gateway', 'paid_balance', 'paid_admin'];
+
+    /**
+     * Revenue from paid product invoices (package sales).
+     * Excludes topup so balance top-up + later balance purchase is not double-counted.
      */
     public static function getIncome(string $req): float
     {
-        $today = strtotime('00:00:00');
-        $paylist = new Paylist();
-        $number = match ($req) {
-            'today' => $paylist->where('status', 1)
-                ->whereBetween('datetime', [$today, time()])
-                ->sum('total'),
-            'yesterday' => $paylist->where('status', 1)
-                ->whereBetween('datetime', [strtotime('-1 day', $today), $today])
-                ->sum('total'),
-            'this month' => $paylist->where('status', 1)
-                ->whereBetween('datetime', [strtotime('first day of this month 00:00:00'), time()])
-                ->sum('total'),
-            default => $paylist->where('status', 1)->sum('total'),
-        };
+        [$start, $end] = self::incomeRange($req);
 
-        return is_null($number) ? 0.00 : round(floatval($number), 2);
+        $query = (new Invoice())
+            ->whereIn('status', self::PAID_INVOICE_STATUSES)
+            ->where('type', 'product')
+            ->where('price', '>', 0)
+            ->where('pay_time', '>', 0);
+
+        if ($start !== null && $end !== null) {
+            $query->whereBetween('pay_time', [$start, $end]);
+        }
+
+        $number = $query->sum('price');
+
+        return is_null($number) ? 0.00 : round(floatval($number), 0);
+    }
+
+    /**
+     * @return array{0: ?int, 1: ?int} unix [start, end] inclusive-ish; nulls = all time
+     */
+    private static function incomeRange(string $req): array
+    {
+        if ($req === 'total' || $req === 'default') {
+            return [null, null];
+        }
+
+        $tzName = (string) ($_ENV['timeZone'] ?? 'Asia/Ho_Chi_Minh');
+
+        try {
+            $tz = new DateTimeZone($tzName);
+        } catch (Throwable) {
+            $tz = new DateTimeZone('Asia/Ho_Chi_Minh');
+        }
+
+        $now = new DateTime('now', $tz);
+        $todayStart = (clone $now)->setTime(0, 0, 0);
+
+        return match ($req) {
+            'today' => [
+                $todayStart->getTimestamp(),
+                $now->getTimestamp(),
+            ],
+            'yesterday' => [
+                (clone $todayStart)->modify('-1 day')->getTimestamp(),
+                $todayStart->getTimestamp() - 1,
+            ],
+            'this month' => [
+                (clone $todayStart)->modify('first day of this month')->getTimestamp(),
+                $now->getTimestamp(),
+            ],
+            default => [null, null],
+        };
     }
 
     public static function getTotalUser(): int
