@@ -125,7 +125,8 @@ final class Analytics
 
     public static function getTotalNode(): int
     {
-        return (new Node())->where('node_heartbeat', '>', 0)->count();
+        // All enabled nodes — not only ones that have ever heartbeated.
+        return (new Node())->where('type', 1)->count();
     }
 
     public static function getAliveNode(): int

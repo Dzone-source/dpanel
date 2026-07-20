@@ -1,5 +1,12 @@
 {include file='admin/header.tpl'}
 
+{assign var=never_checkin value=$total_user-$checkin_user}
+{assign var=past_checkin value=$checkin_user-$today_checkin_user}
+{assign var=offline_node value=$total_node-$alive_node}
+{if $never_checkin < 0}{assign var=never_checkin value=0}{/if}
+{if $past_checkin < 0}{assign var=past_checkin value=0}{/if}
+{if $offline_node < 0}{assign var=offline_node value=0}{/if}
+
 <div class="page-wrapper">
     <div class="container-xl">
         <div class="page-header d-print-none text-white">
@@ -31,7 +38,7 @@
                                         </div>
                                         <div class="col">
                                             <div class="font-weight-medium">
-                                                ￥{$today_income}
+                                                {$today_income|format_vnd:0} VNĐ
                                             </div>
                                             <div class="text-secondary">
                                                 Doanh thu hôm nay
@@ -52,7 +59,7 @@
                                         </div>
                                         <div class="col">
                                             <div class="font-weight-medium">
-                                                ￥{$yesterday_income}
+                                                {$yesterday_income|format_vnd:0} VNĐ
                                             </div>
                                             <div class="text-secondary">
                                                 Doanh thu hôm qua
@@ -73,7 +80,7 @@
                                         </div>
                                         <div class="col">
                                             <div class="font-weight-medium">
-                                                ￥{$this_month_income}
+                                                {$this_month_income|format_vnd:0} VNĐ
                                             </div>
                                             <div class="text-secondary">
                                                 Doanh thu tháng này
@@ -94,7 +101,7 @@
                                         </div>
                                         <div class="col">
                                             <div class="font-weight-medium">
-                                                ￥{$total_income}
+                                                {$total_income|format_vnd:0} VNĐ
                                             </div>
                                             <div class="text-secondary">
                                                 Doanh thu tích lũy
@@ -109,7 +116,7 @@
                 <div class="col-sm-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Tình trạng điểm danh của {$total_user} người dùng</h3>
+                            <h3 class="card-title">Điểm danh · {$total_user} người dùng</h3>
                         </div>
                         <div class="card-body">
                             <div id="check-in"></div>
@@ -119,7 +126,7 @@
                 <div class="col-sm-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Tình trạng trực tuyến của {$total_node} máy chủ</h3>
+                            <h3 class="card-title">Máy chủ · {$total_node} node</h3>
                         </div>
                         <div class="card-body">
                             <div id="node-online"></div>
@@ -129,7 +136,7 @@
                 <div class="col-sm-12 col-md-6">
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Tài khoản không hoạt động</h3>
+                            <h3 class="card-title">Trạng thái tài khoản</h3>
                         </div>
                         <div class="card-body">
                             <div id="user-inactive"></div>
@@ -142,6 +149,11 @@
                             <h3 class="card-title">Lưu lượng sử dụng</h3>
                         </div>
                         <div class="card-body">
+                            <div class="mb-2 text-secondary small">
+                                Còn lại: <strong>{$unused_traffic}</strong>
+                                · Tổng đã dùng hôm nay: <strong>{$today_traffic}</strong>
+                                · Trước đó: <strong>{$last_traffic}</strong>
+                            </div>
                             <div id="traffic-usage"></div>
                         </div>
                     </div>
@@ -152,164 +164,149 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            window.ApexCharts && (new ApexCharts(document.getElementById('check-in'), {
+            const donutBase = {
                 chart: {
                     type: "donut",
                     fontFamily: 'inherit',
                     height: 300,
-                    sparkline: {
-                        enabled: true
+                    animations: { enabled: true },
+                },
+                fill: { opacity: 1 },
+                stroke: { width: 0 },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (val) {
+                        return Math.round(val) + "%";
                     },
-                    animations: {
-                        enabled: false
-                    },
                 },
-                fill: {
-                    opacity: 1,
-                },
-                series: [{$total_user-$checkin_user}, {$checkin_user-$today_checkin_user}, {$today_checkin_user}],
-                labels: ["Chưa điểm danh", "Đã từng điểm danh", "Điểm danh hôm nay"],
-                grid: {
-                    strokeDashArray: 3,
-                },
-                colors: ["#0080FF", "#00FFFF", "#FF4500"],
                 legend: {
                     show: true,
                     position: 'bottom',
-                    offsetY: 12,
-                    markers: {
-                        width: 10,
-                        height: 10,
-                        radius: 100,
-                    },
-                    itemMargin: {
-                        horizontal: 8,
-                        vertical: 15
-                    },
+                    offsetY: 8,
+                    markers: { width: 10, height: 10, radius: 100 },
+                    itemMargin: { horizontal: 8, vertical: 8 },
                 },
                 tooltip: {
-                    fillSeriesColor: false
+                    fillSeriesColor: false,
+                    y: {
+                        formatter: function (val) {
+                            return val;
+                        },
+                    },
                 },
+                plotOptions: {
+                    pie: {
+                        donut: {
+                            size: '65%',
+                            labels: {
+                                show: true,
+                                total: {
+                                    show: true,
+                                    label: 'Tổng',
+                                    formatter: function (w) {
+                                        return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            };
+
+            window.ApexCharts && (new ApexCharts(document.getElementById('check-in'), {
+                ...donutBase,
+                series: [{$never_checkin}, {$past_checkin}, {$today_checkin_user}],
+                labels: [
+                    "Chưa điểm danh ({$never_checkin})",
+                    "Đã từng điểm danh ({$past_checkin})",
+                    "Điểm danh hôm nay ({$today_checkin_user})"
+                ],
+                colors: ["#94a3b8", "#3b82f6", "#16a34a"],
             })).render();
 
             window.ApexCharts && (new ApexCharts(document.getElementById('node-online'), {
-                chart: {
-                    type: "donut",
-                    fontFamily: 'inherit',
-                    height: 300,
-                    sparkline: {
-                        enabled: true
-                    },
-                    animations: {
-                        enabled: false
-                    },
-                },
-                fill: {
-                    opacity: 1,
-                },
-                series: [{$alive_node}, {$total_node-$alive_node}],
-                labels: ["Trực tuyến", "Ngoại tuyến"],
-                grid: {
-                    strokeDashArray: 2,
-                },
-                colors: ["#BFFF00", "#FF0000"],
-                legend: {
-                    show: true,
-                    position: 'bottom',
-                    offsetY: 12,
-                    markers: {
-                        width: 10,
-                        height: 10,
-                        radius: 100,
-                    },
-                    itemMargin: {
-                        horizontal: 8,
-                        vertical: 15
-                    },
-                },
-                tooltip: {
-                    fillSeriesColor: false
-                },
+                ...donutBase,
+                series: [{$alive_node}, {$offline_node}],
+                labels: [
+                    "Trực tuyến ({$alive_node})",
+                    "Ngoại tuyến ({$offline_node})"
+                ],
+                colors: ["#16a34a", "#ef4444"],
             })).render();
 
             window.ApexCharts && (new ApexCharts(document.getElementById('user-inactive'), {
-                chart: {
-                    type: "donut",
-                    fontFamily: 'inherit',
-                    height: 300,
-                    sparkline: {
-                        enabled: true
-                    },
-                    animations: {
-                        enabled: false
-                    },
-                },
-                fill: {
-                    opacity: 1,
-                },
-                series: [{$inactive_user}, {$active_user}],
-                labels: ["Tài khoản không hoạt động", "Tài khoản hoạt động"],
-                grid: {
-                    strokeDashArray: 4,
-                },
-                colors: ["#FFFF00", "#BFFF00"],
-                legend: {
-                    show: true,
-                    position: 'bottom',
-                    offsetY: 12,
-                    markers: {
-                        width: 10,
-                        height: 10,
-                        radius: 100,
-                    },
-                    itemMargin: {
-                        horizontal: 8,
-                        vertical: 15
-                    },
-                },
-                tooltip: {
-                    fillSeriesColor: false
-                },
+                ...donutBase,
+                series: [{$active_user}, {$inactive_user}],
+                labels: [
+                    "Đang hoạt động ({$active_user})",
+                    "Không hoạt động ({$inactive_user})"
+                ],
+                colors: ["#0ea5e9", "#f59e0b"],
             })).render();
 
+            // Bar chart: unused TB dwarfs used GB on a donut — bars stay readable.
             window.ApexCharts && (new ApexCharts(document.getElementById('traffic-usage'), {
                 chart: {
-                    type: "donut",
+                    type: "bar",
                     fontFamily: 'inherit',
-                    height: 300,
-                    sparkline: {
-                        enabled: true
-                    },
-                    animations: {
-                        enabled: false
-                    },
+                    height: 280,
+                    toolbar: { show: false },
+                    animations: { enabled: true },
                 },
-                fill: {
-                    opacity: 1,
-                },
-                series: [{$raw_today_traffic}, {$raw_last_traffic}, {$raw_unused_traffic}],
-                labels: ["Đã dùng hôm nay ({$today_traffic})", "Đã dùng trước đó ({$last_traffic})", "Lưu lượng còn lại ({$unused_traffic})"],
-                grid: {
-                    strokeDashArray: 3,
-                },
-                colors: ["#00FF00", "#BFFF00", "#FFFF00"],
-                legend: {
-                    show: true,
-                    position: 'bottom',
-                    offsetY: 12,
-                    markers: {
-                        width: 10,
-                        height: 10,
-                        radius: 100,
-                    },
-                    itemMargin: {
-                        horizontal: 8,
-                        vertical: 15
+                plotOptions: {
+                    bar: {
+                        horizontal: true,
+                        borderRadius: 4,
+                        barHeight: '55%',
+                        distributed: true,
                     },
                 },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function (_val, opts) {
+                        const labels = [
+                            "{$today_traffic}",
+                            "{$last_traffic}",
+                            "{$unused_traffic}"
+                        ];
+                        return labels[opts.dataPointIndex] || '';
+                    },
+                    style: { fontSize: '12px' },
+                },
+                series: [{
+                    name: 'Lưu lượng (GB)',
+                    data: [
+                        {$raw_today_traffic|default:0},
+                        {$raw_last_traffic|default:0},
+                        {$raw_unused_traffic|default:0}
+                    ],
+                }],
+                xaxis: {
+                    categories: ['Hôm nay', 'Trước đó', 'Còn lại'],
+                    labels: {
+                        formatter: function (val) {
+                            const n = Number(val);
+                            if (!isFinite(n)) return val;
+                            if (n >= 1024) return (n / 1024).toFixed(1) + ' TB';
+                            return n.toFixed(1) + ' GB';
+                        },
+                    },
+                },
+                yaxis: {
+                    labels: { style: { fontSize: '12px' } },
+                },
+                colors: ["#16a34a", "#0ea5e9", "#94a3b8"],
+                legend: { show: false },
                 tooltip: {
-                    fillSeriesColor: false
+                    y: {
+                        formatter: function (val) {
+                            const n = Number(val);
+                            if (n >= 1024) return (n / 1024).toFixed(2) + ' TB';
+                            return n.toFixed(2) + ' GB';
+                        },
+                    },
                 },
+                grid: { strokeDashArray: 3 },
             })).render();
         });
     </script>
