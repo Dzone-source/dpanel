@@ -187,30 +187,25 @@
                                     </div>
                                 </div>
                                 <div class="tab-pane" id="login_security" role="tabpanel">
-                                    <div class="row row-deck row-cards">
-                                        <div class="col-sm-12 col-md-6">
+                                    <div class="row row-cards">
+                                        <div class="col-12 col-lg-6">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <h3 class="card-title">Đổi mật khẩu đăng nhập</h3>
+                                                    <h3 class="card-title mb-3">Đổi mật khẩu đăng nhập</h3>
                                                     <div class="mb-3">
-                                                        <form>
-                                                            <input id="password" type="password" class="form-control"
-                                                                   placeholder="Mật khẩu đăng nhập hiện tại" autocomplete="off">
-                                                        </form>
+                                                        <label class="form-label" for="password">Mật khẩu hiện tại</label>
+                                                        <input id="password" type="password" class="form-control"
+                                                               placeholder="Nhập mật khẩu hiện tại" autocomplete="current-password">
                                                     </div>
                                                     <div class="mb-3">
-                                                        <form>
-                                                            <input id="new_password" type="password"
-                                                                   class="form-control" placeholder="Nhập mật khẩu mới"
-                                                                   autocomplete="off">
-                                                        </form>
+                                                        <label class="form-label" for="new_password">Mật khẩu mới</label>
+                                                        <input id="new_password" type="password" class="form-control"
+                                                               placeholder="Nhập mật khẩu mới" autocomplete="new-password">
                                                     </div>
-                                                    <div class="mb-3">
-                                                        <form>
-                                                            <input id="confirm_new_password" type="password"
-                                                                   class="form-control" placeholder="Nhập lại mật khẩu mới"
-                                                                   autocomplete="off">
-                                                        </form>
+                                                    <div class="mb-0">
+                                                        <label class="form-label" for="confirm_new_password">Xác nhận mật khẩu mới</label>
+                                                        <input id="confirm_new_password" type="password" class="form-control"
+                                                               placeholder="Nhập lại mật khẩu mới" autocomplete="new-password">
                                                     </div>
                                                 </div>
                                                 <div class="card-footer">
@@ -222,25 +217,26 @@
                                                                     confirm_new_password: document.getElementById("confirm_new_password").value,
                                                                     password: document.getElementById("password").value
                                                                 }'>
-                                                            Chỉnh sửa
+                                                            Cập nhật mật khẩu
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 col-md-6">
+                                        <div class="col-12 col-lg-6">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <h3 class="card-title">TOTP
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <h3 class="card-title mb-0">TOTP</h3>
                                                         {if $totpDevices}
                                                             <span class="badge bg-green text-green-fg">Đã bật</span>
                                                         {else}
                                                             <span class="badge bg-red text-red-fg">Chưa bật</span>
                                                         {/if}
-                                                    </h3>
-                                                    <p class="card-subtitle">TOTP là thuật toán mật khẩu một lần dựa trên thời gian, có thể dùng
-                                                        Google Authenticator hoặc Authy
-                                                        và các ứng dụng khách tương tự để xác minh</p>
+                                                    </div>
+                                                    <p class="text-secondary mb-0">
+                                                        Mật khẩu một lần theo thời gian. Dùng Google Authenticator, Authy hoặc ứng dụng tương tự để xác minh.
+                                                    </p>
                                                 </div>
                                                 <div class="card-footer">
                                                     <div class="d-flex">
@@ -260,72 +256,82 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 col-md-12">
+                                        <div class="col-12 col-lg-6">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <h3 class="card-title">Passkey</h3>
-                                                    <p class="card-subtitle">Passkey là tiêu chuẩn xác thực mới, dùng sinh trắc học hoặc khóa bảo mật thay cho mật khẩu truyền thống.</p>
-                                                    <div class="row row-cols-1 row-cols-md-4 g-4">
-                                                        {foreach $webauthnDevices as $device}
-                                                            <div class="col">
-                                                                <div class="card">
-                                                                    <div class="card-body">
-                                                                        <h5 class="card-title">{$device->name|default:'Chưa đặt tên'}</h5>
-                                                                        <p class="card-text">
-                                                                            Thời gian thêm: {$device->created_at}</p>
-                                                                        <p class="card-text">
-                                                                            Lần dùng cuối: {$device->used_at|default:'Chưa từng dùng'}</p>
-                                                                        <button class="btn btn-danger"
-                                                                                hx-delete="/user/webauthn/{$device->id}"
-                                                                                hx-swap="none"
-                                                                                hx-confirm="Xác nhận xóa thiết bị này?"
-                                                                        >Xóa
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        {/foreach}
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <h3 class="card-title mb-0">Passkey</h3>
+                                                        {if $webauthnDevices}
+                                                            <span class="badge bg-green text-green-fg">{$webauthnDevices|@count} thiết bị</span>
+                                                        {else}
+                                                            <span class="badge bg-secondary-lt">Chưa đăng ký</span>
+                                                        {/if}
                                                     </div>
+                                                    <p class="text-secondary mb-0">
+                                                        Đăng nhập bằng sinh trắc học hoặc khóa bảo mật, không cần mật khẩu truyền thống.
+                                                    </p>
+                                                    {if $webauthnDevices}
+                                                        <div class="list-group list-group-flush mt-3">
+                                                            {foreach $webauthnDevices as $device}
+                                                                <div class="list-group-item px-0 d-flex align-items-center justify-content-between gap-3">
+                                                                    <div class="min-w-0">
+                                                                        <div class="fw-medium text-truncate">{$device->name|default:'Chưa đặt tên'}</div>
+                                                                        <div class="text-secondary small">
+                                                                            Thêm: {$device->created_at}
+                                                                            · Dùng cuối: {$device->used_at|default:'Chưa từng dùng'}
+                                                                        </div>
+                                                                    </div>
+                                                                    <button class="btn btn-sm btn-outline-danger flex-shrink-0"
+                                                                            hx-delete="/user/webauthn/{$device->id}"
+                                                                            hx-swap="none"
+                                                                            hx-confirm="Xác nhận xóa thiết bị này?">
+                                                                        Xóa
+                                                                    </button>
+                                                                </div>
+                                                            {/foreach}
+                                                        </div>
+                                                    {/if}
                                                 </div>
                                                 <div class="card-footer">
                                                     <div class="d-flex">
                                                         <button class="btn btn-primary ms-auto" id="webauthnReg">
-                                                            Đăng ký thiết bị Passkey
+                                                            Đăng ký Passkey
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-sm-12 col-md-12">
+                                        <div class="col-12 col-lg-6">
                                             <div class="card">
                                                 <div class="card-body">
-                                                    <h3 class="card-title">FIDO
+                                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                                        <h3 class="card-title mb-0">FIDO</h3>
                                                         {if $fidoDevices}
                                                             <span class="badge bg-green text-green-fg">Đã bật</span>
                                                         {else}
                                                             <span class="badge bg-red text-red-fg">Chưa bật</span>
                                                         {/if}
-                                                    </h3>
-                                                    <p class="card-subtitle">FIDO2 là tiêu chuẩn xác thực dựa trên mã hóa khóa công khai, mang lại đăng nhập an toàn hơn. Hỗ trợ khóa phần cứng như Yubikey.</p>
+                                                    </div>
+                                                    <p class="text-secondary mb-0">
+                                                        Xác thực khóa công khai FIDO2. Hỗ trợ khóa phần cứng như YubiKey.
+                                                    </p>
                                                     {if $fidoDevices}
-                                                        <div class="row row-cols-1 row-cols-md-4 g-4">
+                                                        <div class="list-group list-group-flush mt-3">
                                                             {foreach $fidoDevices as $device}
-                                                                <div class="col">
-                                                                    <div class="card">
-                                                                        <div class="card-body">
-                                                                            <h5 class="card-title">{$device->name|default:'Chưa đặt tên'}</h5>
-                                                                            <p class="card-text">
-                                                                                Thời gian thêm: {$device->created_at}</p>
-                                                                            <p class="card-text">
-                                                                                Lần dùng cuối: {$device->used_at|default:'Chưa từng dùng'}</p>
-                                                                            <button class="btn btn-danger"
-                                                                                    hx-delete="/user/fido/{$device->id}"
-                                                                                    hx-swap="none"
-                                                                                    hx-confirm="Xác nhận xóa thiết bị này?"
-                                                                            >Xóa
-                                                                            </button>
+                                                                <div class="list-group-item px-0 d-flex align-items-center justify-content-between gap-3">
+                                                                    <div class="min-w-0">
+                                                                        <div class="fw-medium text-truncate">{$device->name|default:'Chưa đặt tên'}</div>
+                                                                        <div class="text-secondary small">
+                                                                            Thêm: {$device->created_at}
+                                                                            · Dùng cuối: {$device->used_at|default:'Chưa từng dùng'}
                                                                         </div>
                                                                     </div>
+                                                                    <button class="btn btn-sm btn-outline-danger flex-shrink-0"
+                                                                            hx-delete="/user/fido/{$device->id}"
+                                                                            hx-swap="none"
+                                                                            hx-confirm="Xác nhận xóa thiết bị này?">
+                                                                        Xóa
+                                                                    </button>
                                                                 </div>
                                                             {/foreach}
                                                         </div>
@@ -334,7 +340,7 @@
                                                 <div class="card-footer">
                                                     <div class="d-flex">
                                                         <button class="btn btn-primary ms-auto" id="fidoReg">
-                                                            Đăng ký thiết bị FIDO
+                                                            Đăng ký FIDO
                                                         </button>
                                                     </div>
                                                 </div>
