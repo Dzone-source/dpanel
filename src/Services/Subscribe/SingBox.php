@@ -352,7 +352,8 @@ final class SingBox extends Base
             'password' => $user->uuid,
             'connect_timeout' => '15s',
             'tcp_fast_open' => false,
-            'tcp_keep_alive' => true,
+            // Hiddify/sing-box expect a duration string, not bool.
+            'tcp_keep_alive' => '30s',
             'tls' => $tls,
         ];
 
