@@ -14,7 +14,7 @@ use App\Models\User;
 
 beforeEach(function () {
     // Clear previous test data
-    Node::where('name', 'Test Node')->delete();
+    Node::where('name', 'LIKE', 'Test Node%')->delete();
     User::where('email', 'LIKE', 'test%@example.com')->delete();
     
     // Create test node
@@ -91,7 +91,7 @@ describe('UserController API - IP online limit', function () {
             ->and($userData['alive_ip'])->toBe(0);
     });
 
-    it('keeps over-limit users in the list so XrayR can soft-kick instead of timing out', function () {
+    it('keeps over-limit users in the list so XrayR does not drop them entirely', function () {
         $user = createUsers(1)[0];
         $user->node_iplimit = 1;
         $user->save();
@@ -116,8 +116,45 @@ describe('UserController API - IP online limit', function () {
         $userData = findUserData(getJsonData($response)['data'], $user->id);
         expect($userData)->not->toBeNull()
             ->and($userData['node_iplimit'])->toBe(1)
-            // 2 raw IPs − 1 grace = 1 reported to XrayR
-            ->and($userData['alive_ip'])->toBe(1);
+            // Capped below limit so XrayR ParseUserListResponse never continues (removes user)
+            ->and($userData['alive_ip'])->toBe(0);
+    });
+
+    it('counts alive_ip per node only', function () {
+        $user = createUsers(1)[0];
+        $user->node_iplimit = 2;
+        $user->save();
+
+        $otherNode = new Node();
+        $otherNode->name = 'Test Node Other';
+        $otherNode->server = 'other.example.com';
+        $otherNode->password = bin2hex(random_bytes(32));
+        $otherNode->type = 1;
+        $otherNode->sort = 14;
+        $otherNode->node_class = 0;
+        $otherNode->node_group = 0;
+        $otherNode->save();
+
+        OnlineLog::upsert(
+            [
+                'user_id' => $user->id,
+                'ip' => '::ffff:9.9.9.9',
+                'node_id' => $otherNode->id,
+                'first_time' => time(),
+                'last_time' => time(),
+            ],
+            ['user_id', 'ip'],
+            ['node_id', 'last_time']
+        );
+
+        $response = $this->get('/mod_mu/users?node_id=' . $this->node->id . '&key=' . $_ENV['muKey']);
+        assertResponseStatus(200, $response);
+
+        $userData = findUserData(getJsonData($response)['data'], $user->id);
+        expect($userData['alive_ip'])->toBe(0);
+
+        OnlineLog::where('node_id', $otherNode->id)->delete();
+        $otherNode->delete();
     });
 
     it('accepts alive ip reports from nodes', function () {

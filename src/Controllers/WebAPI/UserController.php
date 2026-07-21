@@ -91,11 +91,12 @@ final class UserController extends BaseController
             default => ['u', 'd', 'transfer_enable', 'uuid']
         };
 
-        // Batch online IP counts. Short window + grace slot: SoftBank/4G often rotates IP
-        // and briefly leaves an old OnlineLog row → XrayR soft-kick looks like random timeout.
+        // Per-node counts only — global totals made Japan/VN nodes share one IP budget and
+        // triggered XrayR ParseUserListResponse "continue" (not a valid user).
         $alive_ip_counts = [];
         if ($users_raw->isNotEmpty()) {
             $alive_ip_counts = (new OnlineLog())
+                ->where('node_id', (int) $node_id)
                 ->whereIn('user_id', $users_raw->pluck('id'))
                 ->where('last_time', '>', time() - 30)
                 ->groupBy('user_id')
@@ -122,15 +123,12 @@ final class UserController extends BaseController
             }
 
             $ip_limit = (int) $user_raw->node_iplimit;
-            $alive_ip = (int) ($alive_ip_counts[$user_raw->id] ?? 0);
-            // One grace slot for NAT / SoftBank IP rebind so XrayR does not drop the only
-            // live session when a stale IP is still counted.
-            if ($alive_ip > 0) {
-                $alive_ip = max(0, $alive_ip - 1);
-            }
+            $alive_ip = self::reportedAliveIpForXrayR(
+                (int) ($alive_ip_counts[$user_raw->id] ?? 0),
+                $ip_limit
+            );
 
             // Do NOT hard-remove users from this list when over IP limit.
-            // XrayR enforces DeviceLimit using node_iplimit + alive_ip below.
 
             if ($node->sort === 1) {
                 $method = json_decode($node->custom_config)->method ?? '2022-blake3-aes-128-gcm';
@@ -327,5 +325,25 @@ final class UserController extends BaseController
         }
 
         return ResponseHelper::success($response, 'ok');
+    }
+
+    /**
+     * alive_ip for XrayR DeviceLimit. Must stay strictly below node_iplimit or XrayR
+     * drops the user from its trojan list ("not a valid user") in ParseUserListResponse.
+     */
+    private static function reportedAliveIpForXrayR(int $raw_count, int $ip_limit): int
+    {
+        $alive_ip = $raw_count;
+
+        // One grace slot for NAT / SoftBank IP rebind while a stale OnlineLog row exists.
+        if ($alive_ip > 0) {
+            $alive_ip = max(0, $alive_ip - 1);
+        }
+
+        if ($ip_limit > 0) {
+            $alive_ip = min($alive_ip, max(0, $ip_limit - 1));
+        }
+
+        return $alive_ip;
     }
 }
