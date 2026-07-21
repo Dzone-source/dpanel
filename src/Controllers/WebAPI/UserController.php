@@ -43,8 +43,10 @@ final class UserController extends BaseController
 
         $node->update(['node_heartbeat' => time()]);
 
+        // Soft-offline: empty success list instead of error — XrayR treats API errors as
+        // auth failures and may drop all sessions on the node.
         if ($node->node_bandwidth_limit !== 0 && $node->node_bandwidth_limit <= $node->node_bandwidth) {
-            return ResponseHelper::error($response, 'Node out of bandwidth.');
+            return ResponseHelper::successWithDataEtag($request, $response, []);
         }
 
         $users_raw = (new User())->where(
@@ -80,33 +82,46 @@ final class UserController extends BaseController
         ]);
 
         $keys_unset = match ($node->sort) {
-            14, 11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd', 'node_iplimit'],
-            2 => ['u', 'd', 'transfer_enable', 'method', 'port', 'node_iplimit'],
-            1 => ['u', 'd', 'transfer_enable', 'method', 'port', 'uuid', 'node_iplimit'],
-            default => ['u', 'd', 'transfer_enable', 'uuid', 'node_iplimit']
+            14, 11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'],
+            2 => ['u', 'd', 'transfer_enable', 'method', 'port'],
+            1 => ['u', 'd', 'transfer_enable', 'method', 'port', 'uuid'],
+            default => ['u', 'd', 'transfer_enable', 'uuid']
         };
+
+        // Per-node counts only — global totals made Japan/VN nodes share one IP budget and
+        // triggered XrayR ParseUserListResponse "continue" (not a valid user).
+        $alive_ip_counts = [];
+        if ($users_raw->isNotEmpty()) {
+            $alive_ip_counts = (new OnlineLog())
+                ->where('node_id', (int) $node_id)
+                ->whereIn('user_id', $users_raw->pluck('id'))
+                ->where('last_time', '>', time() - 30)
+                ->groupBy('user_id')
+                ->selectRaw('user_id, COUNT(*) AS cnt')
+                ->pluck('cnt', 'user_id')
+                ->all();
+        }
 
         $users = [];
 
         foreach ($users_raw as $user_raw) {
             if ($user_raw->transfer_enable <= $user_raw->u + $user_raw->d) {
-                if ($_ENV['keep_connect']) {
-                    // 流量耗尽用户限速至 1Mbps
-                    $user_raw->node_speedlimit = 1;
-                } else {
+                if (! ($_ENV['keep_connect'] ?? true)) {
                     continue;
+                }
+
+                $floor = (float) ($_ENV['keep_connect_speedlimit'] ?? 5);
+                $user_raw->node_speedlimit = max($floor, (float) $user_raw->node_speedlimit);
+                if ($user_raw->node_speedlimit <= 0) {
+                    $user_raw->node_speedlimit = $floor;
                 }
             }
 
-            if ($user_raw->node_iplimit !== 0 &&
-                $user_raw->node_iplimit <
-                (new OnlineLog())
-                    ->where('user_id', $user_raw->id)
-                    ->where('last_time', '>', time() - 90)
-                    ->count()
-            ) {
-                continue;
-            }
+            $ip_limit = (int) $user_raw->node_iplimit;
+            $alive_ip = self::reportedAliveIpForXrayR(
+                (int) ($alive_ip_counts[$user_raw->id] ?? 0),
+                $ip_limit
+            );
 
             if ($node->sort === 1) {
                 $method = json_decode($node->custom_config)->method ?? '2022-blake3-aes-128-gcm';
@@ -122,6 +137,9 @@ final class UserController extends BaseController
             foreach ($keys_unset as $key) {
                 unset($user_raw->$key);
             }
+
+            $user_raw->node_iplimit = $ip_limit;
+            $user_raw->alive_ip = $alive_ip;
 
             $users[] = $user_raw;
         }
@@ -299,5 +317,25 @@ final class UserController extends BaseController
         }
 
         return ResponseHelper::success($response, 'ok');
+    }
+
+    /**
+     * alive_ip for XrayR DeviceLimit. Must stay strictly below node_iplimit or XrayR
+     * drops the user from its trojan list ("not a valid user") in ParseUserListResponse.
+     */
+    private static function reportedAliveIpForXrayR(int $raw_count, int $ip_limit): int
+    {
+        $alive_ip = $raw_count;
+
+        // One grace slot for NAT / SoftBank IP rebind while a stale OnlineLog row exists.
+        if ($alive_ip > 0) {
+            $alive_ip = max(0, $alive_ip - 1);
+        }
+
+        if ($ip_limit > 0) {
+            $alive_ip = min($alive_ip, max(0, $ip_limit - 1));
+        }
+
+        return $alive_ip;
     }
 }
