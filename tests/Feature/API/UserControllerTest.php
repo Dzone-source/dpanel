@@ -87,7 +87,8 @@ describe('UserController API - IP online limit', function () {
 
         $userData = findUserData(getJsonData($response)['data'], $user->id);
         expect($userData['node_iplimit'])->toBe(2)
-            ->and($userData['alive_ip'])->toBe(1);
+            // 1 raw online IP − 1 grace slot for SoftBank/NAT rebind
+            ->and($userData['alive_ip'])->toBe(0);
     });
 
     it('keeps over-limit users in the list so XrayR can soft-kick instead of timing out', function () {
@@ -115,7 +116,8 @@ describe('UserController API - IP online limit', function () {
         $userData = findUserData(getJsonData($response)['data'], $user->id);
         expect($userData)->not->toBeNull()
             ->and($userData['node_iplimit'])->toBe(1)
-            ->and($userData['alive_ip'])->toBe(2);
+            // 2 raw IPs − 1 grace = 1 reported to XrayR
+            ->and($userData['alive_ip'])->toBe(1);
     });
 
     it('accepts alive ip reports from nodes', function () {

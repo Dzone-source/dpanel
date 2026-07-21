@@ -156,31 +156,20 @@ final class SingBox extends Base
     }
 
     /**
-     * Prefer a concrete node as default — urltest "auto" shows red X until probes finish
-     * and fails often on SoftBank before the first hop is up.
+     * Manual node pick only — no urltest "auto".
+     * Periodic probes often fail briefly on SoftBank 4G (red X / reconnect),
+     * even while the selected node is still usable.
      */
     private function baseOutbounds(array $node_names): array
     {
         $outbounds = [];
 
         if ($node_names !== []) {
-            $default = $node_names[0];
             $outbounds[] = [
                 'tag' => 'select',
                 'type' => 'selector',
-                'outbounds' => array_merge($node_names, ['auto']),
-                'default' => $default,
-                'interrupt_exist_connections' => false,
-            ];
-            $outbounds[] = [
-                'tag' => 'auto',
-                'type' => 'urltest',
                 'outbounds' => $node_names,
-                // HTTP (not HTTPS) probe is more reliable for SoftBank / captive networks.
-                'url' => 'http://www.gstatic.com/generate_204',
-                'interval' => '5m',
-                'tolerance' => 100,
-                'idle_timeout' => '30m',
+                'default' => $node_names[0],
                 'interrupt_exist_connections' => false,
             ];
         } else {
@@ -361,8 +350,9 @@ final class SingBox extends Base
             'server' => $node_raw->server,
             'server_port' => (int) $port,
             'password' => $user->uuid,
-            'connect_timeout' => '10s',
+            'connect_timeout' => '15s',
             'tcp_fast_open' => false,
+            'tcp_keep_alive' => true,
             'tls' => $tls,
         ];
 

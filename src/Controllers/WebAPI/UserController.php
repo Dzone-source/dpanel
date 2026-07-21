@@ -91,13 +91,13 @@ final class UserController extends BaseController
             default => ['u', 'd', 'transfer_enable', 'uuid']
         };
 
-        // Batch online IP counts. Use a short window so SoftBank/4G IP churn does not
-        // inflate alive_ip and soft-kick the only active connection.
+        // Batch online IP counts. Short window + grace slot: SoftBank/4G often rotates IP
+        // and briefly leaves an old OnlineLog row → XrayR soft-kick looks like random timeout.
         $alive_ip_counts = [];
         if ($users_raw->isNotEmpty()) {
             $alive_ip_counts = (new OnlineLog())
                 ->whereIn('user_id', $users_raw->pluck('id'))
-                ->where('last_time', '>', time() - 45)
+                ->where('last_time', '>', time() - 30)
                 ->groupBy('user_id')
                 ->selectRaw('user_id, COUNT(*) AS cnt')
                 ->pluck('cnt', 'user_id')
@@ -123,10 +123,13 @@ final class UserController extends BaseController
 
             $ip_limit = (int) $user_raw->node_iplimit;
             $alive_ip = (int) ($alive_ip_counts[$user_raw->id] ?? 0);
+            // One grace slot for NAT / SoftBank IP rebind so XrayR does not drop the only
+            // live session when a stale IP is still counted.
+            if ($alive_ip > 0) {
+                $alive_ip = max(0, $alive_ip - 1);
+            }
 
             // Do NOT hard-remove users from this list when over IP limit.
-            // Stale OnlineLog rows (Wi‑Fi↔cellular, NAT rebind) within the 90s window
-            // would make the whole account vanish from XrayR → client "timeout".
             // XrayR enforces DeviceLimit using node_iplimit + alive_ip below.
 
             if ($node->sort === 1) {
