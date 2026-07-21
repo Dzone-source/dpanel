@@ -91,20 +91,9 @@ final class UserController extends BaseController
             default => ['u', 'd', 'transfer_enable', 'uuid']
         };
 
-        // Per-node counts only — global totals made Japan/VN nodes share one IP budget and
-        // triggered XrayR ParseUserListResponse "continue" (not a valid user).
-        $alive_ip_counts = [];
-        if ($users_raw->isNotEmpty()) {
-            $alive_ip_counts = (new OnlineLog())
-                ->where('node_id', (int) $node_id)
-                ->whereIn('user_id', $users_raw->pluck('id'))
-                ->where('last_time', '>', time() - 30)
-                ->groupBy('user_id')
-                ->selectRaw('user_id, COUNT(*) AS cnt')
-                ->pluck('cnt', 'user_id')
-                ->all();
-        }
-
+        // Do not send live alive_ip counts to XrayR: ParseUserListResponse removes users when
+        // alive_ip >= DeviceLimit (panel limit OR XrayR config DeviceLimit override) → trojan
+        // "not a valid user". Panel still tracks IPs via /aliveip for the user dashboard.
         $users = [];
 
         foreach ($users_raw as $user_raw) {
@@ -123,10 +112,7 @@ final class UserController extends BaseController
             }
 
             $ip_limit = (int) $user_raw->node_iplimit;
-            $alive_ip = self::reportedAliveIpForXrayR(
-                (int) ($alive_ip_counts[$user_raw->id] ?? 0),
-                $ip_limit
-            );
+            $alive_ip = self::reportedAliveIpForXrayR();
 
             // Do NOT hard-remove users from this list when over IP limit.
 
@@ -328,22 +314,12 @@ final class UserController extends BaseController
     }
 
     /**
-     * alive_ip for XrayR DeviceLimit. Must stay strictly below node_iplimit or XrayR
-     * drops the user from its trojan list ("not a valid user") in ParseUserListResponse.
+     * XrayR drops users from its trojan list when alive_ip >= DeviceLimit (see
+     * api/sspanel ParseUserListResponse). Any non-zero value risks "not a valid user"
+     * when XrayR config DeviceLimit differs from panel node_iplimit or after NAT rebind.
      */
-    private static function reportedAliveIpForXrayR(int $raw_count, int $ip_limit): int
+    private static function reportedAliveIpForXrayR(): int
     {
-        $alive_ip = $raw_count;
-
-        // One grace slot for NAT / SoftBank IP rebind while a stale OnlineLog row exists.
-        if ($alive_ip > 0) {
-            $alive_ip = max(0, $alive_ip - 1);
-        }
-
-        if ($ip_limit > 0) {
-            $alive_ip = min($alive_ip, max(0, $ip_limit - 1));
-        }
-
-        return $alive_ip;
+        return 0;
     }
 }

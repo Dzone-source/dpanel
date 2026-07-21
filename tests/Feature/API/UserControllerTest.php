@@ -87,7 +87,7 @@ describe('UserController API - IP online limit', function () {
 
         $userData = findUserData(getJsonData($response)['data'], $user->id);
         expect($userData['node_iplimit'])->toBe(2)
-            // 1 raw online IP − 1 grace slot for SoftBank/NAT rebind
+            // Always 0 for XrayR — live counts trigger ParseUserListResponse user removal
             ->and($userData['alive_ip'])->toBe(0);
     });
 
@@ -120,26 +120,16 @@ describe('UserController API - IP online limit', function () {
             ->and($userData['alive_ip'])->toBe(0);
     });
 
-    it('counts alive_ip per node only', function () {
+    it('always reports alive_ip zero to xrayr even with many online ips', function () {
         $user = createUsers(1)[0];
         $user->node_iplimit = 2;
         $user->save();
-
-        $otherNode = new Node();
-        $otherNode->name = 'Test Node Other';
-        $otherNode->server = 'other.example.com';
-        $otherNode->password = bin2hex(random_bytes(32));
-        $otherNode->type = 1;
-        $otherNode->sort = 14;
-        $otherNode->node_class = 0;
-        $otherNode->node_group = 0;
-        $otherNode->save();
 
         OnlineLog::upsert(
             [
                 'user_id' => $user->id,
                 'ip' => '::ffff:9.9.9.9',
-                'node_id' => $otherNode->id,
+                'node_id' => $this->node->id,
                 'first_time' => time(),
                 'last_time' => time(),
             ],
@@ -152,9 +142,6 @@ describe('UserController API - IP online limit', function () {
 
         $userData = findUserData(getJsonData($response)['data'], $user->id);
         expect($userData['alive_ip'])->toBe(0);
-
-        OnlineLog::where('node_id', $otherNode->id)->delete();
-        $otherNode->delete();
     });
 
     it('accepts alive ip reports from nodes', function () {
