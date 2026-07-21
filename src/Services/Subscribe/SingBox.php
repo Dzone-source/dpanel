@@ -58,7 +58,7 @@ final class SingBox extends Base
     }
 
     /**
-     * Minimal template — DNS via direct only (never detour=select on first hop).
+     * Minimal mobile-friendly template for Hiddify / SoftBank 4G.
      */
     private function baseConfig(array $node_names): array
     {
@@ -77,9 +77,8 @@ final class SingBox extends Base
                     ],
                     [
                         'tag' => 'remote',
-                        // Plain UDP + direct: detour=select causes first-connect chicken-egg
-                        // (DNS needs proxy, proxy needs DNS) → intermittent timeout in Hiddify.
-                        'address' => '1.1.1.1',
+                        // SoftBank/Linemo often break UDP/1.1.1.1 — prefer TCP DNS on direct.
+                        'address' => 'tcp://8.8.8.8',
                         'detour' => 'direct',
                     ],
                 ],
@@ -99,18 +98,20 @@ final class SingBox extends Base
                 ],
                 'final' => 'remote',
                 'strategy' => 'prefer_ipv4',
+                'independent_cache' => true,
             ],
             'inbounds' => [
                 [
                     'type' => 'tun',
                     'tag' => 'tun-in',
                     'inet4_address' => '172.19.0.1/30',
-                    'mtu' => 9000,
+                    // 9000 causes PMTU black-holes on mobile 4G → intermittent disconnect.
+                    'mtu' => 1400,
                     'auto_route' => true,
-                    'strict_route' => true,
-                    'stack' => 'system',
+                    'strict_route' => false,
+                    'stack' => 'mixed',
                     'sniff' => true,
-                    'sniff_override_destination' => true,
+                    'sniff_override_destination' => false,
                 ],
                 [
                     'type' => 'mixed',
@@ -118,7 +119,7 @@ final class SingBox extends Base
                     'listen' => '127.0.0.1',
                     'listen_port' => 2080,
                     'sniff' => true,
-                    'sniff_override_destination' => true,
+                    'sniff_override_destination' => false,
                 ],
             ],
             'outbounds' => $this->baseOutbounds($node_names),
@@ -155,28 +156,31 @@ final class SingBox extends Base
     }
 
     /**
-     * Selector/urltest with an empty proxy list breaks some clients on import.
+     * Prefer a concrete node as default — urltest "auto" shows red X until probes finish
+     * and fails often on SoftBank before the first hop is up.
      */
     private function baseOutbounds(array $node_names): array
     {
         $outbounds = [];
 
         if ($node_names !== []) {
+            $default = $node_names[0];
             $outbounds[] = [
                 'tag' => 'select',
                 'type' => 'selector',
-                'outbounds' => array_merge(['auto'], $node_names),
-                'default' => 'auto',
-                // Avoid killing live sessions when urltest rotates nodes.
+                'outbounds' => array_merge($node_names, ['auto']),
+                'default' => $default,
                 'interrupt_exist_connections' => false,
             ];
             $outbounds[] = [
                 'tag' => 'auto',
                 'type' => 'urltest',
                 'outbounds' => $node_names,
-                'url' => 'https://www.gstatic.com/generate_204',
-                'interval' => '3m',
-                'tolerance' => 50,
+                // HTTP (not HTTPS) probe is more reliable for SoftBank / captive networks.
+                'url' => 'http://www.gstatic.com/generate_204',
+                'interval' => '5m',
+                'tolerance' => 100,
+                'idle_timeout' => '30m',
                 'interrupt_exist_connections' => false,
             ];
         } else {
@@ -328,21 +332,19 @@ final class SingBox extends Base
     {
         $port = $cfg['offset_port_user'] ?? ($cfg['offset_port_node'] ?? 443);
         $host = (string) ($cfg['host'] ?? '');
-        $allow_insecure = filter_var($cfg['allow_insecure'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $network = (string) ($cfg['network'] ?? '');
         $path = $cfg['header']['request']['path'][0] ?? $cfg['path'] ?? '';
         $headers = $cfg['header']['request']['headers'] ?? [];
         $service_name = $cfg['servicename'] ?? '';
 
-        // Fake-SNI setups (e.g. www.linemo.jp) often fail strict verify in Hiddify while
-        // Clash Meta still connects — enable insecure when panel asks, or when SNI ≠ server.
-        if (! $allow_insecure && $host !== '' && strcasecmp($host, (string) $node_raw->server) !== 0) {
-            $allow_insecure = true;
-        }
+        // SoftBank / Linemo / Y!mobile unlock nodes almost always use fake-SNI or
+        // non-matching certs — force skip-verify so Hiddify does not red-X the node.
+        $allow_insecure = true;
 
         $tls = [
             'enabled' => true,
             'insecure' => $allow_insecure,
+            'alpn' => ['h2', 'http/1.1'],
             'utls' => [
                 'enabled' => true,
                 'fingerprint' => 'chrome',
@@ -359,6 +361,8 @@ final class SingBox extends Base
             'server' => $node_raw->server,
             'server_port' => (int) $port,
             'password' => $user->uuid,
+            'connect_timeout' => '10s',
+            'tcp_fast_open' => false,
             'tls' => $tls,
         ];
 

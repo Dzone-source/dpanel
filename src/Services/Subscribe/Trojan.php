@@ -46,18 +46,15 @@ final class Trojan extends Base
                 $servicename = $node_custom_config['servicename'] ?? '';
                 $path = $node_custom_config['path'] ?? '';
 
-                $insecure = filter_var($allow_insecure, FILTER_VALIDATE_BOOLEAN) ? '1' : '0';
-                if ($insecure === '0' && $host !== '' &&
-                    strcasecmp((string) $host, (string) $node_raw->server) !== 0
-                ) {
-                    $insecure = '1';
-                }
+                $insecure = '1';
                 $query = http_build_query([
                     'peer' => $host,
                     'sni' => $host,
                     'allowInsecure' => $insecure,
                     'type' => $network !== '' ? $network : 'tcp',
                     'security' => $security !== '' ? $security : 'tls',
+                    'fp' => 'chrome',
+                    'alpn' => 'h2,http/1.1',
                 ], '', '&', PHP_QUERY_RFC3986);
 
                 if ($path !== '') {

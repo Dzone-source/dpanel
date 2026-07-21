@@ -164,16 +164,8 @@ final class Clash extends Base
                         $network = 'tcp';
                     }
                     $host = $node_custom_config['host'] ?? '';
-                    $allow_insecure = filter_var(
-                        $node_custom_config['allow_insecure'] ?? false,
-                        FILTER_VALIDATE_BOOLEAN
-                    );
-                    // Clash Meta is lenient; Hiddify is not — skip verify when SNI ≠ connect host.
-                    if (! $allow_insecure && $host !== '' &&
-                        strcasecmp((string) $host, (string) $node_raw->server) !== 0
-                    ) {
-                        $allow_insecure = true;
-                    }
+                    // SoftBank unlock nodes: always skip cert verify (fake-SNI / carrier TLS).
+                    $allow_insecure = true;
                     // Clash 特定配置
                     $udp = filter_var($node_custom_config['udp'] ?? true, FILTER_VALIDATE_BOOLEAN);
                     $ws_opts = $node_custom_config['ws-opts'] ?? $node_custom_config['ws_opts'] ?? null;
@@ -193,6 +185,8 @@ final class Clash extends Base
                         'network' => $network,
                         'udp' => $udp,
                         'skip-cert-verify' => $allow_insecure,
+                        'alpn' => ['h2', 'http/1.1'],
+                        'client-fingerprint' => 'chrome',
                         'ws-opts' => $ws_opts,
                         'grpc-opts' => $grpc_opts,
                     ];

@@ -91,12 +91,13 @@ final class UserController extends BaseController
             default => ['u', 'd', 'transfer_enable', 'uuid']
         };
 
-        // Batch online IP counts (active within last 90 seconds) for multi-node coordination.
+        // Batch online IP counts. Use a short window so SoftBank/4G IP churn does not
+        // inflate alive_ip and soft-kick the only active connection.
         $alive_ip_counts = [];
         if ($users_raw->isNotEmpty()) {
             $alive_ip_counts = (new OnlineLog())
                 ->whereIn('user_id', $users_raw->pluck('id'))
-                ->where('last_time', '>', time() - 90)
+                ->where('last_time', '>', time() - 45)
                 ->groupBy('user_id')
                 ->selectRaw('user_id, COUNT(*) AS cnt')
                 ->pluck('cnt', 'user_id')
