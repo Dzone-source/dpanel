@@ -50,19 +50,17 @@ final class Trojan extends Base
                 $path = $node_custom_config['path'] ?? '';
 
                 $insecure = '1';
-                $query_params = [
+                // Hiddify shared.py: tcp → http/1.1; grpc/h2 → h2
+                $alpn = ($network === 'grpc' || $network === 'h2') ? 'h2' : 'http/1.1';
+                $query = http_build_query([
                     'peer' => $host,
                     'sni' => $host,
                     'allowInsecure' => $insecure,
                     'type' => $network,
                     'security' => $security !== '' ? $security : 'tls',
                     'fp' => 'chrome',
-                ];
-                // Plain TCP: omit ALPN (h2 stalls Hiddify Connecting). Non-TCP keeps http/1.1.
-                if ($network !== 'tcp') {
-                    $query_params['alpn'] = 'http/1.1';
-                }
-                $query = http_build_query($query_params, '', '&', PHP_QUERY_RFC3986);
+                    'alpn' => $alpn,
+                ], '', '&', PHP_QUERY_RFC3986);
 
                 if ($path !== '') {
                     $query .= '&path=' . rawurlencode($path);

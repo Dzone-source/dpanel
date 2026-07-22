@@ -175,6 +175,9 @@ final class Clash extends Base
                         $network = 'ws';
                     }
 
+                    // Hiddify shared.py: tcp → http/1.1; grpc/h2 → h2 (never bare h2,http/1.1 on tcp).
+                    $alpn = ($network === 'grpc' || $network === 'h2') ? ['h2'] : ['http/1.1'];
+
                     $node = [
                         'name' => $node_raw->name,
                         'type' => 'trojan',
@@ -185,14 +188,11 @@ final class Clash extends Base
                         'network' => $network,
                         'udp' => $udp,
                         'skip-cert-verify' => $allow_insecure,
+                        'alpn' => $alpn,
                         'client-fingerprint' => 'chrome',
                         'ws-opts' => $ws_opts,
                         'grpc-opts' => $grpc_opts,
                     ];
-                    // Plain TCP: omit ALPN (h2 stalls SoftBank TLS). Non-TCP keeps http/1.1.
-                    if ($network !== 'tcp') {
-                        $node['alpn'] = ['http/1.1'];
-                    }
 
                     break;
                 default:
