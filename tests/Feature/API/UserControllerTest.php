@@ -86,8 +86,8 @@ describe('UserController API - IP online limit', function () {
         assertResponseStatus(200, $response);
 
         $userData = findUserData(getJsonData($response)['data'], $user->id);
-        expect($userData['node_iplimit'])->toBe(2)
-            // Always 0 for XrayR — live counts trigger ParseUserListResponse user removal
+        expect($userData['node_iplimit'])->toBe(0)
+            // IP online limit temporarily disabled for XrayR
             ->and($userData['alive_ip'])->toBe(0);
     });
 
@@ -115,8 +115,7 @@ describe('UserController API - IP online limit', function () {
 
         $userData = findUserData(getJsonData($response)['data'], $user->id);
         expect($userData)->not->toBeNull()
-            ->and($userData['node_iplimit'])->toBe(1)
-            // Capped below limit so XrayR ParseUserListResponse never continues (removes user)
+            ->and($userData['node_iplimit'])->toBe(0)
             ->and($userData['alive_ip'])->toBe(0);
     });
 

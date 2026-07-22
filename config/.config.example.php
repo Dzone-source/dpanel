@@ -103,6 +103,7 @@ $_ENV['locale'] = 'vi_VN';
 $_ENV['jump_delay'] = 1000;               //跳转延时，单位ms
 $_ENV['keep_connect'] = true;             // Hết traffic: giữ kết nối + giảm tốc (tránh timeout)
 $_ENV['keep_connect_speedlimit'] = 5;     // Mbps khi keep_connect (1 Mbps quá chậm, app tưởng disconnect)
+$_ENV['disable_ip_online_limit'] = true;  // Tạm tắt limit IP online gửi XrayR (true = không giới hạn)
 
 //Other-----------------------------------------------------------------------------------------------------------------
 // cdn.jsdelivr.net / fastly.jsdelivr.net / testingcf.jsdelivr.net
