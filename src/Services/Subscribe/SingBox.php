@@ -29,7 +29,6 @@ final class SingBox extends Base
     public function getContent($user): string
     {
         $nodes = [];
-        $node_names = [];
         // base_singbox_config.json.j2 dns.rules[0].domain (+ each node domain appended like Panel)
         $dns_direct_domains = [
             'github.com',
@@ -59,7 +58,6 @@ final class SingBox extends Base
             }
 
             $nodes[] = $node;
-            $node_names[] = $node['tag'];
 
             $server = (string) ($node['server'] ?? $node_raw->server);
             if ($server !== '' && filter_var($server, FILTER_VALIDATE_IP) === false) {
