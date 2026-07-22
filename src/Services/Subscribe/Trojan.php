@@ -41,6 +41,9 @@ final class Trojan extends Base
                 }
                 $mux = $node_custom_config['mux'] ?? '0';
                 $network = $node_custom_config['network'] ?? 'tcp';
+                if ($network === '' || $network === 'none') {
+                    $network = 'tcp';
+                }
                 $transport_plugin = $node_custom_config['transport_plugin'] ?? '';
                 $transport_method = $node_custom_config['transport_method'] ?? '';
                 $servicename = $node_custom_config['servicename'] ?? '';
@@ -51,10 +54,11 @@ final class Trojan extends Base
                     'peer' => $host,
                     'sni' => $host,
                     'allowInsecure' => $insecure,
-                    'type' => $network !== '' ? $network : 'tcp',
+                    'type' => $network,
                     'security' => $security !== '' ? $security : 'tls',
                     'fp' => 'chrome',
-                    'alpn' => 'h2,http/1.1',
+                    // Plain TCP: prefer http/1.1 — h2 often hangs Connecting on Hiddify.
+                    'alpn' => $network === 'tcp' ? 'http/1.1' : 'h2,http/1.1',
                 ], '', '&', PHP_QUERY_RFC3986);
 
                 if ($path !== '') {

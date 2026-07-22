@@ -185,7 +185,8 @@ final class Clash extends Base
                         'network' => $network,
                         'udp' => $udp,
                         'skip-cert-verify' => $allow_insecure,
-                        'alpn' => ['h2', 'http/1.1'],
+                        // Plain TCP: h2 ALPN can stall SoftBank/Hiddify TLS handshake.
+                        'alpn' => ($network === 'tcp') ? ['http/1.1'] : ['h2', 'http/1.1'],
                         'client-fingerprint' => 'chrome',
                         'ws-opts' => $ws_opts,
                         'grpc-opts' => $grpc_opts,

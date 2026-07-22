@@ -142,6 +142,9 @@ final class V2RayJson extends Base
                         $allow_insecure = true;
                     }
                     $transport = $node_custom_config['network'] ?? '';
+                    if ($transport === '' || $transport === 'none') {
+                        $transport = 'tcp';
+                    }
                     $path = $node_custom_config['header']['request']['path'][0] ?? $node_custom_config['path'] ?? '';
                     $headers = $node_custom_config['header']['request']['headers'] ?? [];
                     $service_name = $node_custom_config['servicename'] ?? '';

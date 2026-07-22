@@ -84,15 +84,17 @@ final class SingBox extends Base
                 ],
                 'rules' => [
                     [
-                        'outbound' => ['any'],
-                        'server' => 'local',
-                    ],
-                    [
                         'clash_mode' => 'Direct',
                         'server' => 'local',
                     ],
                     [
                         'clash_mode' => 'Global',
+                        'server' => 'remote',
+                    ],
+                    // Resolve proxy hostnames via TCP DNS on direct — NOT system DNS.
+                    // SoftBank TUN + local DNS chicken-egg leaves Hiddify stuck on Connecting.
+                    [
+                        'outbound' => ['any'],
                         'server' => 'remote',
                     ],
                 ],
@@ -322,6 +324,9 @@ final class SingBox extends Base
         $port = $cfg['offset_port_user'] ?? ($cfg['offset_port_node'] ?? 443);
         $host = (string) ($cfg['host'] ?? '');
         $network = (string) ($cfg['network'] ?? '');
+        if ($network === '' || $network === 'none') {
+            $network = 'tcp';
+        }
         $path = $cfg['header']['request']['path'][0] ?? $cfg['path'] ?? '';
         $headers = $cfg['header']['request']['headers'] ?? [];
         $service_name = $cfg['servicename'] ?? '';
@@ -330,10 +335,11 @@ final class SingBox extends Base
         // non-matching certs — force skip-verify so Hiddify does not red-X the node.
         $allow_insecure = true;
 
+        // Plain TCP Trojan: h2 ALPN often stalls the handshake on sing-box/Hiddify.
         $tls = [
             'enabled' => true,
             'insecure' => $allow_insecure,
-            'alpn' => ['h2', 'http/1.1'],
+            'alpn' => ($network === 'tcp') ? ['http/1.1'] : ['h2', 'http/1.1'],
             'utls' => [
                 'enabled' => true,
                 'fingerprint' => 'chrome',
@@ -357,8 +363,8 @@ final class SingBox extends Base
             'tls' => $tls,
         ];
 
-        // Plain TCP: omit transport — empty transport breaks Hiddify.
-        if ($network !== '' && $network !== 'tcp') {
+        // Plain TCP: omit transport — empty/"none" transport breaks Hiddify.
+        if ($network !== 'tcp') {
             $transport = array_filter([
                 'type' => $network,
                 'path' => $path !== '' ? $path : null,
