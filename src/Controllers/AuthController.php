@@ -368,14 +368,22 @@ final class AuthController extends BaseController
         $invite_code = $this->antiXss->xss_clean(trim($request->getParam('invite_code')));
 
         if (! $tos) {
-            return ResponseHelper::error($response, 'Vui lòng đồng ý với điều khoản dịch vụ');
+            return ResponseHelper::error($response, 'Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật');
         }
 
-        if (strlen($password) < 8) {
-            return ResponseHelper::error($response, 'Mật khẩu phải dài hơn 8 ký tự');
+        if ($name === null || trim((string) $name) === '') {
+            return ResponseHelper::error($response, 'Vui lòng nhập biệt danh');
         }
 
-        if ($password !== $confirm_password) {
+        if ($password === null || $password === '') {
+            return ResponseHelper::error($response, 'Vui lòng nhập mật khẩu');
+        }
+
+        if (strlen((string) $password) < 8) {
+            return ResponseHelper::error($response, 'Mật khẩu phải có ít nhất 8 ký tự');
+        }
+
+        if ((string) $password !== (string) $confirm_password) {
             return ResponseHelper::error($response, 'Hai lần nhập mật khẩu không khớp');
         }
 
