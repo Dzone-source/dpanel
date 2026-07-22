@@ -132,15 +132,8 @@ final class V2RayJson extends Base
                 case 14:
                     $trojan_port = $node_custom_config['offset_port_user'] ?? ($node_custom_config['offset_port_node'] ?? 443);
                     $host = $node_custom_config['host'] ?? $node_raw->server;
-                    $allow_insecure = filter_var(
-                        $node_custom_config['allow_insecure'] ?? false,
-                        FILTER_VALIDATE_BOOLEAN
-                    );
-                    if (! $allow_insecure && $host !== '' &&
-                        strcasecmp((string) $host, (string) $node_raw->server) !== 0
-                    ) {
-                        $allow_insecure = true;
-                    }
+                    // SoftBank unlock / fake-SNI: always skip verify (same as SingBox/Clash).
+                    $allow_insecure = true;
                     $transport = $node_custom_config['network'] ?? '';
                     if ($transport === '' || $transport === 'none') {
                         $transport = 'tcp';

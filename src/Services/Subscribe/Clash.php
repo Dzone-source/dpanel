@@ -185,12 +185,14 @@ final class Clash extends Base
                         'network' => $network,
                         'udp' => $udp,
                         'skip-cert-verify' => $allow_insecure,
-                        // Plain TCP: h2 ALPN can stall SoftBank/Hiddify TLS handshake.
-                        'alpn' => ($network === 'tcp') ? ['http/1.1'] : ['h2', 'http/1.1'],
                         'client-fingerprint' => 'chrome',
                         'ws-opts' => $ws_opts,
                         'grpc-opts' => $grpc_opts,
                     ];
+                    // Plain TCP: omit ALPN (h2 stalls SoftBank TLS). Non-TCP keeps http/1.1.
+                    if ($network !== 'tcp') {
+                        $node['alpn'] = ['http/1.1'];
+                    }
 
                     break;
                 default:

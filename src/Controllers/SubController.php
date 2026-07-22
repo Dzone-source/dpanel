@@ -98,11 +98,15 @@ final class SubController extends BaseController
         }
 
         // Keep headers minimal — Content-Disposition / base64 Profile-Title break some Hiddify builds.
+        // no-store so Hiddify/Clash do not keep a stale SingBox/Clash profile after panel fixes.
         return $response
             ->withHeader('Subscription-Userinfo', $sub_details)
-            ->withHeader('Profile-Update-Interval', '24')
+            ->withHeader('Profile-Update-Interval', '1')
             ->withHeader('Profile-Web-Page-Url', (string) $_ENV['baseUrl'])
             ->withHeader('Profile-Title', $profile_title)
+            ->withHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->withHeader('Pragma', 'no-cache')
+            ->withHeader('Expires', '0')
             ->withHeader('Content-Type', $content_type)
             ->write($sub_info);
     }

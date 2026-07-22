@@ -58,7 +58,7 @@ final class SingBox extends Base
     }
 
     /**
-     * Minimal mobile-friendly template for Hiddify / SoftBank 4G.
+     * Minimal mobile-friendly template for Hiddify / SoftBank 4G/5G.
      */
     private function baseConfig(array $node_names): array
     {
@@ -71,14 +71,19 @@ final class SingBox extends Base
             'dns' => [
                 'servers' => [
                     [
-                        'tag' => 'local',
-                        'address' => 'local',
+                        'tag' => 'remote',
+                        // SoftBank often breaks UDP DNS — TCP + IP (no extra resolve).
+                        'address' => 'tcp://8.8.8.8',
                         'detour' => 'direct',
                     ],
                     [
-                        'tag' => 'remote',
-                        // SoftBank/Linemo often break UDP/1.1.1.1 — prefer TCP DNS on direct.
-                        'address' => 'tcp://8.8.8.8',
+                        'tag' => 'remote-backup',
+                        'address' => 'tcp://1.1.1.1',
+                        'detour' => 'direct',
+                    ],
+                    [
+                        'tag' => 'local',
+                        'address' => 'local',
                         'detour' => 'direct',
                     ],
                 ],
@@ -91,8 +96,7 @@ final class SingBox extends Base
                         'clash_mode' => 'Global',
                         'server' => 'remote',
                     ],
-                    // Resolve proxy hostnames via TCP DNS on direct — NOT system DNS.
-                    // SoftBank TUN + local DNS chicken-egg leaves Hiddify stuck on Connecting.
+                    // Resolve proxy hostnames via TCP DNS on direct — NEVER system DNS under TUN.
                     [
                         'outbound' => ['any'],
                         'server' => 'remote',
@@ -107,13 +111,14 @@ final class SingBox extends Base
                     'type' => 'tun',
                     'tag' => 'tun-in',
                     'inet4_address' => '172.19.0.1/30',
-                    // 9000 causes PMTU black-holes on mobile 4G → intermittent disconnect.
-                    'mtu' => 1400,
+                    // Conservative MTU for SoftBank/Linemo/Y!mobile 4G/5G (avoid PMTU black-hole).
+                    'mtu' => 1280,
                     'auto_route' => true,
                     'strict_route' => false,
                     'stack' => 'mixed',
                     'sniff' => true,
                     'sniff_override_destination' => false,
+                    'endpoint_independent_nat' => true,
                 ],
                 [
                     'type' => 'mixed',
@@ -129,6 +134,11 @@ final class SingBox extends Base
                 'rules' => [
                     [
                         'protocol' => 'dns',
+                        'outbound' => 'direct',
+                    ],
+                    // Keep DNS resolvers off the proxy path.
+                    [
+                        'ip_cidr' => ['8.8.8.8/32', '1.1.1.1/32'],
                         'outbound' => 'direct',
                     ],
                     [
@@ -335,16 +345,19 @@ final class SingBox extends Base
         // non-matching certs — force skip-verify so Hiddify does not red-X the node.
         $allow_insecure = true;
 
-        // Plain TCP Trojan: h2 ALPN often stalls the handshake on sing-box/Hiddify.
         $tls = [
             'enabled' => true,
             'insecure' => $allow_insecure,
-            'alpn' => ($network === 'tcp') ? ['http/1.1'] : ['h2', 'http/1.1'],
             'utls' => [
                 'enabled' => true,
                 'fingerprint' => 'chrome',
             ],
         ];
+
+        // Plain TCP: omit ALPN (h2 stalls Connecting). Non-TCP keeps http/1.1 only.
+        if ($network !== 'tcp') {
+            $tls['alpn'] = ['http/1.1'];
+        }
 
         if ($host !== '') {
             $tls['server_name'] = $host;
@@ -356,7 +369,8 @@ final class SingBox extends Base
             'server' => $node_raw->server,
             'server_port' => (int) $port,
             'password' => $user->uuid,
-            'connect_timeout' => '15s',
+            'domain_strategy' => 'prefer_ipv4',
+            'connect_timeout' => '20s',
             'tcp_fast_open' => false,
             // Hiddify/sing-box expect a duration string, not bool.
             'tcp_keep_alive' => '30s',
