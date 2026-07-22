@@ -15,6 +15,7 @@
                     <p class="text-secondary text-center mb-4" style="margin-top:-0.75rem;font-size:0.9rem">
                         Tạo tài khoản {$config['appName']}
                     </p>
+                    <div id="register-alert" class="alert alert-danger d-none" role="alert"></div>
                     <div class="mb-3">
                         <input id="name" type="text" class="form-control" placeholder="Biệt danh">
                     </div>
@@ -50,7 +51,7 @@
                                    value="{$invite_code|default:''}">
                         </div>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3" id="tos-wrap">
                         <label class="form-check">
                             <input id="tos" type="checkbox" class="form-check-input"/>
                             <span class="form-check-label">
@@ -66,7 +67,7 @@
                         </div>
                     </div>
                     <div class="form-footer">
-                        <button class="btn btn-primary w-100"
+                        <button id="register-btn" class="btn btn-primary w-100"
                                 hx-post="/auth/register" hx-swap="none" hx-vals='js:{
                                     {if $public_setting['reg_email_verify']|default:false}
                                         emailcode: document.getElementById("emailcode").value,
@@ -102,3 +103,62 @@
 {/if}
 
 {include file='footer.tpl'}
+
+<script>
+(function () {
+    const alertBox = document.getElementById('register-alert');
+    const tos = document.getElementById('tos');
+    const tosWrap = document.getElementById('tos-wrap');
+
+    function showRegisterError(msg) {
+        if (alertBox) {
+            alertBox.textContent = msg;
+            alertBox.classList.remove('d-none');
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        if (window.failDialog && document.getElementById('fail-message')) {
+            document.getElementById('fail-message').textContent = msg;
+            try { failDialog.show(); } catch (e) {}
+        }
+        if (tosWrap) {
+            tosWrap.classList.add('border', 'border-danger', 'rounded', 'p-2');
+        }
+    }
+
+    function clearRegisterError() {
+        if (alertBox) {
+            alertBox.classList.add('d-none');
+            alertBox.textContent = '';
+        }
+        if (tosWrap) {
+            tosWrap.classList.remove('border', 'border-danger', 'rounded', 'p-2');
+        }
+    }
+
+    if (tos) {
+        tos.addEventListener('change', function () {
+            if (tos.checked) {
+                clearRegisterError();
+            }
+        });
+    }
+
+    if (typeof htmx === 'undefined') {
+        return;
+    }
+
+    htmx.on('htmx:beforeRequest', function (evt) {
+        const el = evt.detail.elt;
+        if (!el || el.id !== 'register-btn') {
+            return;
+        }
+        if (!tos || !tos.checked) {
+            evt.preventDefault();
+            showRegisterError('Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật');
+            if (tos) {
+                tos.focus();
+            }
+        }
+    });
+})();
+</script>
