@@ -65,7 +65,9 @@
     }
 
     htmx.on("htmx:afterRequest", function(evt) {
-        if (evt.detail.xhr.getResponseHeader('HX-Redirect')) {
+        const redirect = evt.detail.xhr.getResponseHeader('HX-Redirect');
+        if (redirect) {
+            window.location.href = redirect;
             return;
         }
 
@@ -78,6 +80,11 @@
 
         if (evt.detail.elt && evt.detail.elt.id === 'send-verify-email') {
             document.getElementById('send-verify-email').disabled = true;
+        }
+
+        if (res.redir) {
+            window.location.href = res.redir;
+            return;
         }
 
         if (res.ret === 1) {

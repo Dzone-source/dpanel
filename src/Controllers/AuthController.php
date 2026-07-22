@@ -261,7 +261,8 @@ final class AuthController extends BaseController
         $money,
         $is_admin_reg
     ): ResponseInterface {
-        $redir = $this->antiXss->xss_clean(Cookie::get('redir')) ?? '/user';
+        $redirRaw = $this->antiXss->xss_clean(Cookie::get('redir'));
+        $redir = (is_string($redirRaw) && $redirRaw !== '') ? $redirRaw : '/user';
         $configs = Config::getClass('reg');
         // do reg user
         $user = new User();
@@ -271,7 +272,7 @@ final class AuthController extends BaseController
         $user->remark = '';
         $user->pass = Hash::passwordHash($password);
         $user->passwd = Tools::genRandomChar(16);
-        $user->uuid = Uuid::uuid4();
+        $user->uuid = Uuid::uuid4()->toString();
         $user->api_token = Tools::genRandomChar(32);
         $user->port = Tools::getSsPort();
         $user->u = 0;
@@ -283,6 +284,9 @@ final class AuthController extends BaseController
         $user->auto_reset_day = Config::obtain('free_user_reset_day');
         $user->auto_reset_bandwidth = Config::obtain('free_user_reset_bandwidth');
         $user->daily_mail_enable = $configs['reg_daily_report'];
+        $user->is_banned = 0;
+        $user->is_shadow_banned = 0;
+        $user->is_inactive = 0;
 
         if ($money > 0) {
             $user->money = $money;
@@ -326,7 +330,17 @@ final class AuthController extends BaseController
             Auth::login($user->id, self::loginCookieLifetime(false));
             (new LoginIp())->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
 
-            return $response->withHeader('HX-Redirect', $redir);
+            return $response
+                ->withHeader('HX-Redirect', $redir)
+                ->withJson([
+                    'ret' => 1,
+                    'msg' => 'Đăng ký thành công',
+                    'redir' => $redir,
+                ]);
+        }
+
+        if ($user->id > 0 && $is_admin_reg) {
+            return ResponseHelper::success($response, 'Tạo tài khoản thành công');
         }
 
         return ResponseHelper::error($response, 'Lỗi không xác định');
@@ -429,7 +443,8 @@ final class AuthController extends BaseController
     public function webauthnHandle(ServerRequest $request, Response $response, $next): ResponseInterface
     {
         $data = $this->antiXss->xss_clean((array) $request->getParsedBody());
-        $redir = $this->antiXss->xss_clean(Cookie::get('redir')) ?? '/user';
+        $redirRaw = $this->antiXss->xss_clean(Cookie::get('redir'));
+        $redir = (is_string($redirRaw) && $redirRaw !== '') ? $redirRaw : '/user';
         $result = WebAuthn::assertHandle($data);
         if ($result['ret'] === 1) {
             $user = $result['user'];

@@ -262,7 +262,7 @@
                                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                                         <h3 class="card-title mb-0">Passkey</h3>
                                                         {if $webauthnDevices}
-                                                            <span class="badge bg-green text-green-fg">{$webauthnDevices|@count} thiết bị</span>
+                                                            <span class="badge bg-green text-green-fg">Đã đăng ký</span>
                                                         {else}
                                                             <span class="badge bg-secondary-lt">Chưa đăng ký</span>
                                                         {/if}
