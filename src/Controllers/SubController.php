@@ -97,20 +97,14 @@ final class SubController extends BaseController
             );
         }
 
-        // Headers aligned with Hiddify-Panel add_headers() for Hiddify Next.
+        // Exact Hiddify-Panel add_headers() (user.py).
         $profile_title_b64 = 'base64:' . base64_encode($profile_title);
 
         return $response
             ->withHeader('Subscription-Userinfo', $sub_details)
+            ->withHeader('profile-web-page-url', rtrim((string) $_ENV['baseUrl'], '/') . '/')
             ->withHeader('profile-update-interval', '1')
-            ->withHeader('Profile-Update-Interval', '1')
-            ->withHeader('profile-web-page-url', (string) $_ENV['baseUrl'])
-            ->withHeader('Profile-Web-Page-Url', (string) $_ENV['baseUrl'])
             ->withHeader('profile-title', $profile_title_b64)
-            ->withHeader('Profile-Title', $profile_title_b64)
-            ->withHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-            ->withHeader('Pragma', 'no-cache')
-            ->withHeader('Expires', '0')
             ->withHeader('Content-Type', $content_type)
             ->write($sub_info);
     }
