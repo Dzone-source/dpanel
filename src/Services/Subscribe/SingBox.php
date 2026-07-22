@@ -18,23 +18,24 @@ use const FILTER_VALIDATE_BOOLEAN;
 use const FILTER_VALIDATE_IP;
 
 /**
- * Sing-box / Hiddify subscription — faithful port of Hiddify-Panel:
- * - panel/user/templates/base_singbox_config.json.j2 (modern / Hiddify Next)
- * - hutils/proxy/singbox.py (configs_as_json, to_singbox, add_tls, add_transport)
+ * Sing-box / Hiddify subscription.
  *
- * No SoftBank / DPanel-specific deviations.
+ * Base layout from Hiddify-Panel (base_singbox_config.json.j2 + singbox.py),
+ * with XrayR SoftBank-safe Trojan: plain TCP must NOT use HTTP transport
+ * (Hiddify server maps tcp→http; SoftBank/XrayR Trojan is raw TLS — that mismatch
+ * leaves Hiddify stuck on "Connecting...").
  */
 final class SingBox extends Base
 {
     public function getContent($user): string
     {
         $nodes = [];
-        // base_singbox_config.json.j2 dns.rules[0].domain (+ each node domain appended like Panel)
         $dns_direct_domains = [
             'github.com',
             'githubusercontent.com',
             'raw.githubusercontent.com',
             '1.1.1.1',
+            '8.8.8.8',
         ];
         $nodes_raw = Subscribe::getUserNodes($user);
 
@@ -74,55 +75,54 @@ final class SingBox extends Base
             static fn ($d): bool => is_string($d) && $d !== ''
         )));
 
-        // Panel: base outbounds first, append proxies, then insert Select + Auto at front.
         $config = $this->baseConfig($dns_direct_domains);
         $config['outbounds'] = array_merge($config['outbounds'], $nodes);
 
-        $select_outbounds = [];
+        $proxy_tags = [];
         foreach ($nodes as $n) {
             $tag = (string) ($n['tag'] ?? '');
             if ($tag !== '' && ! str_contains($tag, 'shadowtls-out')) {
-                $select_outbounds[] = $tag;
+                $proxy_tags[] = $tag;
             }
         }
-        array_unshift($select_outbounds, 'Auto');
 
-        $auto_outbounds = [];
-        foreach ($nodes as $n) {
-            $tag = (string) ($n['tag'] ?? '');
-            if ($tag !== '' && ! str_contains($tag, 'shadowtls-out')) {
-                $auto_outbounds[] = $tag;
-            }
-        }
+        // Default to first node (not Auto): SoftBank urltest probes often hang Connecting.
+        $default_tag = $proxy_tags[0] ?? 'direct';
+        $select_outbounds = $proxy_tags === [] ? ['direct'] : array_merge(['Auto'], $proxy_tags);
 
         $select = [
             'type' => 'selector',
             'tag' => 'Select',
-            'outbounds' => $select_outbounds === ['Auto'] ? ['Auto', 'direct'] : $select_outbounds,
-            'default' => 'Auto',
+            'outbounds' => $select_outbounds,
+            'default' => $default_tag,
+            'interrupt_exist_connections' => false,
         ];
         $auto = [
             'type' => 'urltest',
             'tag' => 'Auto',
-            'outbounds' => $auto_outbounds === [] ? ['direct'] : $auto_outbounds,
+            'outbounds' => $proxy_tags === [] ? ['direct'] : $proxy_tags,
             'url' => 'https://www.gstatic.com/generate_204',
             'interval' => '10m',
             'tolerance' => 200,
         ];
 
         array_unshift($config['outbounds'], $select, $auto);
-        $config['experimental']['cache_file']['cache_id'] = (string) ($user->uuid ?? '');
+        $config['experimental']['cache_file']['cache_id'] = (string) ($user->uuid ?? ($_ENV['appName'] ?? 'DPanel'));
 
         return (string) json_encode($config, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     /**
-     * Exact modern branch of base_singbox_config.json.j2
-     * (not V1_7 / V1_9 / V1_10 — Hiddify Next / sing-box >= 1.11).
+     * Hiddify-Panel base template + SoftBank mobile-safe TUN/DNS.
      */
     private function baseConfig(array $dns_direct_domains): array
     {
         return [
+            'log' => [
+                'disabled' => false,
+                'level' => 'warn',
+                'timestamp' => true,
+            ],
             'outbounds' => [
                 [
                     'tag' => 'direct',
@@ -132,7 +132,6 @@ final class SingBox extends Base
                     'tag' => 'bypass',
                     'type' => 'direct',
                 ],
-                // Referenced by multicast rule in the same template.
                 [
                     'tag' => 'block',
                     'type' => 'block',
@@ -158,6 +157,11 @@ final class SingBox extends Base
                         'action' => 'sniff',
                         'timeout' => '1s',
                     ],
+                    // Keep DNS resolvers off the proxy path (bootstrap).
+                    [
+                        'ip_cidr' => ['8.8.8.8/32', '1.1.1.1/32'],
+                        'outbound' => 'direct',
+                    ],
                     [
                         'protocol' => 'quic',
                         'port' => [443],
@@ -167,6 +171,10 @@ final class SingBox extends Base
                         'ip_cidr' => ['224.0.0.0/3', 'ff00::/8'],
                         'outbound' => 'block',
                         'source_ip_cidr' => ['224.0.0.0/3', 'ff00::/8'],
+                    ],
+                    [
+                        'ip_is_private' => true,
+                        'outbound' => 'direct',
                     ],
                 ],
             ],
@@ -184,21 +192,28 @@ final class SingBox extends Base
             ],
             'dns' => [
                 'servers' => [
+                    // Bootstrap / node hostnames — TCP DNS on direct (SoftBank UDP DNS often broken).
                     [
+                        'tag' => 'dns-local',
+                        'address' => 'tcp://8.8.8.8',
+                        'detour' => 'direct',
+                    ],
+                    [
+                        'tag' => 'dns-local-backup',
+                        'address' => 'tcp://1.1.1.1',
+                        'detour' => 'direct',
+                    ],
+                    // Optional remote via proxy (Hiddify); final stays dns-local to avoid chicken-egg.
+                    [
+                        'tag' => 'dns-remote',
                         'address' => 'tcp://1.1.1.1',
                         'address_resolver' => 'dns-local',
                         'strategy' => 'prefer_ipv4',
-                        'tag' => 'dns-remote',
                         'detour' => 'Select',
                     ],
                     [
-                        'address' => '8.8.8.8',
-                        'detour' => 'direct',
-                        'tag' => 'dns-local',
-                    ],
-                    [
-                        'address' => 'rcode://success',
                         'tag' => 'dns-block',
+                        'address' => 'rcode://success',
                     ],
                 ],
                 'rules' => [
@@ -208,6 +223,11 @@ final class SingBox extends Base
                     ],
                     [
                         'outbound' => 'direct',
+                        'server' => 'dns-local',
+                    ],
+                    // Resolve proxy dial hostnames via direct TCP DNS (never system under TUN).
+                    [
+                        'outbound' => ['any'],
                         'server' => 'dns-local',
                     ],
                 ],
@@ -229,12 +249,16 @@ final class SingBox extends Base
                     'type' => 'tun',
                     'tag' => 'tun-in',
                     'interface_name' => 'tun0',
-                    'address' => ['172.19.0.1/30'],
-                    'mtu' => 9000,
+                    'inet4_address' => '172.19.0.1/30',
+                    // SoftBank 4G/5G: Hiddify default 9000 often PMTU black-holes → timeout.
+                    'mtu' => 1400,
                     'auto_route' => true,
-                    'strict_route' => true,
-                    'stack' => 'system',
+                    'strict_route' => false,
+                    'stack' => 'mixed',
+                    'sniff' => true,
+                    'sniff_override_destination' => false,
                     'endpoint_independent_nat' => true,
+                    'domain_strategy' => 'prefer_ipv4',
                 ],
                 [
                     'domain_strategy' => 'prefer_ipv4',
@@ -280,7 +304,6 @@ final class SingBox extends Base
             'password' => $server_key === '' ? $user_pk : $server_key . ':' . $user_pk,
         ];
 
-        // singbox.py add_udp_over_tcp
         if (! empty($cfg['uot'])) {
             $node['udp_over_tcp'] = [
                 'enabled' => true,
@@ -297,7 +320,6 @@ final class SingBox extends Base
         $host = (string) ($cfg['host'] ?? '');
         $allow_insecure = $this->resolveInsecure($cfg, $host, (string) $node_raw->server);
 
-        // singbox.py add_tuic + add_tls
         $tls = [
             'enabled' => true,
             'insecure' => $allow_insecure,
@@ -313,10 +335,10 @@ final class SingBox extends Base
             'server' => $node_raw->server,
             'server_port' => (int) $port,
             'uuid' => $user->uuid,
-            'password' => $user->uuid,
-            'congestion_control' => 'cubic',
+            'password' => $user->passwd,
+            'congestion_control' => $cfg['congestion_control'] ?? 'cubic',
             'udp_relay_mode' => 'native',
-            'zero_rtt_handshake' => true,
+            'zero_rtt_handshake' => false,
             'heartbeat' => '10s',
             'tls' => $tls,
         ];
@@ -334,8 +356,7 @@ final class SingBox extends Base
         $headers = $cfg['header']['request']['headers'] ?? [];
         $service_name = (string) ($cfg['servicename'] ?? $cfg['grpc_service_name'] ?? '');
         $security = (string) ($cfg['security'] ?? 'none');
-        $tls_enabled = $security === 'tls' || $security === 'auto' || $security === '';
-        // Panel always TLS for typical nodes; keep cfg-driven.
+        $tls_enabled = $security === 'tls' || $security === 'auto';
         if ($security === 'none') {
             $tls_enabled = false;
         }
@@ -360,9 +381,6 @@ final class SingBox extends Base
         return $node;
     }
 
-    /**
-     * singbox.py to_singbox (trojan) + add_tls + add_transport.
-     */
     private function buildTrojan($user, $node_raw, array $cfg): array
     {
         $port = $cfg['offset_port_user'] ?? ($cfg['offset_port_node'] ?? 443);
@@ -381,6 +399,10 @@ final class SingBox extends Base
             'server' => $node_raw->server,
             'server_port' => (int) $port,
             'password' => $user->uuid,
+            'domain_strategy' => 'prefer_ipv4',
+            'connect_timeout' => '20s',
+            'tcp_fast_open' => false,
+            'tcp_keep_alive' => '30s',
         ];
 
         $this->applyTls($node, $cfg, $host, $network, (string) $node_raw->server);
@@ -389,9 +411,6 @@ final class SingBox extends Base
         return $node;
     }
 
-    /**
-     * singbox.py add_tls — always sets alpn + utls for trojan/vmess.
-     */
     private function applyTls(array &$node, array $cfg, string $host, string $network, string $server): void
     {
         $fingerprint = (string) ($cfg['fingerprint'] ?? $cfg['fp'] ?? 'chrome');
@@ -399,15 +418,25 @@ final class SingBox extends Base
             $fingerprint = 'chrome';
         }
 
+        // SoftBank fake-SNI: always insecure. Plain TCP: omit ALPN (h2 stalls Connecting).
         $tls = [
             'enabled' => true,
-            'insecure' => $this->resolveInsecure($cfg, $host, $server),
-            'alpn' => $this->resolveAlpn($cfg, $this->defaultAlpnForNetwork($network)),
+            'insecure' => true,
             'utls' => [
                 'enabled' => true,
                 'fingerprint' => $fingerprint,
             ],
         ];
+
+        if ($network === 'tcp') {
+            // Only set ALPN if admin explicitly configured it.
+            if (isset($cfg['alpn']) && $cfg['alpn'] !== '' && $cfg['alpn'] !== []) {
+                $tls['alpn'] = $this->resolveAlpn($cfg, 'http/1.1');
+            }
+        } else {
+            $tls['alpn'] = $this->resolveAlpn($cfg, $this->defaultAlpnForNetwork($network));
+        }
+
         if ($host !== '') {
             $tls['server_name'] = $host;
         }
@@ -416,7 +445,9 @@ final class SingBox extends Base
     }
 
     /**
-     * singbox.py add_transport — including tcp/h2 → type "http".
+     * XrayR SoftBank: plain TCP = no transport object.
+     * HTTP transport only when network is explicitly h2/http, or tcp WITH a path
+     * (Hiddify-style HTTP camouflage). Empty-path tcp→http causes Connecting timeout.
      */
     private function applyTransport(
         array &$node,
@@ -429,7 +460,7 @@ final class SingBox extends Base
         if ($network === 'ws' || $network === 'WS') {
             $transport = [
                 'type' => 'ws',
-                'path' => $path,
+                'path' => $path !== '' ? $path : '/',
                 'early_data_header_name' => 'Sec-WebSocket-Protocol',
             ];
             if ($host !== '') {
@@ -445,7 +476,7 @@ final class SingBox extends Base
         if ($network === 'httpupgrade') {
             $transport = [
                 'type' => 'httpupgrade',
-                'path' => $path,
+                'path' => $path !== '' ? $path : '/',
             ];
             if ($host !== '') {
                 $transport['headers'] = ['Host' => $host];
@@ -455,8 +486,7 @@ final class SingBox extends Base
             return;
         }
 
-        // Hiddify: transport in ["tcp", "h2"] → type "http"
-        if ($network === 'tcp' || $network === 'h2') {
+        if ($network === 'h2' || $network === 'http' || ($network === 'tcp' && $path !== '')) {
             $transport = [
                 'type' => 'http',
                 'path' => $path,
@@ -471,6 +501,11 @@ final class SingBox extends Base
             return;
         }
 
+        // Plain tcp with empty path: omit transport (raw Trojan/VMess over TLS).
+        if ($network === 'tcp') {
+            return;
+        }
+
         if ($network === 'grpc') {
             $node['transport'] = [
                 'type' => 'grpc',
@@ -481,9 +516,6 @@ final class SingBox extends Base
         }
     }
 
-    /**
-     * Hiddify shared.py alpn defaults for non-reality TLS.
-     */
     private function defaultAlpnForNetwork(string $network): string
     {
         if ($network === 'grpc' || $network === 'h2') {
@@ -503,10 +535,6 @@ final class SingBox extends Base
         return array_values(array_filter(array_map('trim', explode(',', (string) $alpn))));
     }
 
-    /**
-     * Hiddify: allow_insecure or mode == Fake.
-     * Fake-SNI (host ≠ server) treated as Fake.
-     */
     private function resolveInsecure(array $cfg, string $host, string $server): bool
     {
         if (filter_var($cfg['allow_insecure'] ?? false, FILTER_VALIDATE_BOOLEAN)) {

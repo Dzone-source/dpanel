@@ -97,7 +97,7 @@ final class SubController extends BaseController
             );
         }
 
-        // Exact Hiddify-Panel add_headers() (user.py).
+        // Hiddify-Panel headers + no-store so clients pick up Connecting fixes immediately.
         $profile_title_b64 = 'base64:' . base64_encode($profile_title);
 
         return $response
@@ -105,6 +105,8 @@ final class SubController extends BaseController
             ->withHeader('profile-web-page-url', rtrim((string) $_ENV['baseUrl'], '/') . '/')
             ->withHeader('profile-update-interval', '1')
             ->withHeader('profile-title', $profile_title_b64)
+            ->withHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->withHeader('Pragma', 'no-cache')
             ->withHeader('Content-Type', $content_type)
             ->write($sub_info);
     }
