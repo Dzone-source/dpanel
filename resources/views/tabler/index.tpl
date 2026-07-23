@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
-    <meta name="description" content="{$config['appName']} — dịch vụ mạng trung kế toàn cầu, ổn định, đa nền tảng."/>
+    <meta name="description" content="{$config['appName']} — nâng cấp tốc độ không giới hạn cho SIM SoftBank / LINEMO / Y!mobile và mạng di động Nhật Bản; ổn định, đa nền tảng."/>
     <link rel="icon" type="image/png" href="/favicon.ico"/>
     <title>{$config['appName']}</title>
 
@@ -57,14 +57,13 @@
         <div class="row align-items-center hero-content">
             <div class="col-lg-5">
                 <h1 class="text-white display-4 font-weight-bold mb-4 hero-1-title">
-                    Dịch vụ mạng trung kế toàn cầu, dùng mọi lúc mọi nơi
+                    Nâng cấp tốc độ không giới hạn — SoftBank / LINEMO / Y!mobile
                 </h1>
                 <p class="text-white-70 mb-4">
-                    Hệ thống phân luồng thông minh, trang nội địa đi thẳng để trải nghiệm mượt hơn;
-                    tăng tốc dịch vụ Apple; tăng tốc các trang quốc tế phổ biến
-                    (Google / YouTube / Twitter / Instagram / GitHub…);
-                    mã hóa mạnh trong quá trình truyền tải để bảo vệ dữ liệu và quyền riêng tư;
-                    tương thích nhiều ứng dụng trên mọi nền tảng.
+                    Khi SIM Nhật bị giới hạn tốc độ sau khi hết data, {$config['appName']} giúp bạn
+                    lấy lại trải nghiệm cao tốc ổn định trên SoftBank, LINEMO, Y!mobile và các mạng tương tự.
+                    Node tối ưu cho mạng di động Nhật, tương thích Hiddify / Clash / Sing-box;
+                    dùng được trên điện thoại, máy tính và tablet — mọi lúc, mọi nơi.
                 </p>
                 <a class="btn btn-lg btn-light rounded-pill mb-2" href="/auth/register">
                     <strong>Bắt đầu sử dụng</strong> <i class="fa fa-plane" aria-hidden="true"></i>
@@ -100,10 +99,10 @@
     <div class="container">
         <div class="row justify-content-center mb-5">
             <div class="col-lg-7 text-center">
-                <h2 class="fw-bold">Công cụ cho xem phim quốc tế &amp; công việc xuyên biên giới</h2>
+                <h2 class="fw-bold">Dành cho SIM Nhật bị slow — lấy lại tốc độ cao</h2>
                 <p class="text-muted">
-                    Thiết kế cho nhu cầu ra nước ngoài số — mọi lúc, mọi nơi, tốc độ cao trên mọi nền tảng.
-                    Hạ tầng ổn định, nhiều tính năng tiện lợi.
+                    Tập trung tối ưu SoftBank, LINEMO, Y!mobile và các gói data Nhật phổ biến.
+                    Kết nối nhanh, ổn định trên 4G/5G; phù hợp xem video, làm việc và dùng app hàng ngày.
                 </p>
             </div>
         </div>
@@ -115,8 +114,10 @@
                         <div class="icon-mono service-icon avatar-md mx-auto mb-4">
                             <i data-feather="box" class="icon-dual-primary"></i>
                         </div>
-                        <h4 class="mb-3 font-size-22">Tốc độ ổn định</h4>
-                        <p class="text-muted mb-0">Trải nghiệm như đang ở nước ngoài, phù hợp Wi‑Fi và mạng di động.</p>
+                        <h4 class="mb-3 font-size-22">Bỏ giới hạn tốc độ</h4>
+                        <p class="text-muted mb-0">
+                            Hết data tốc độ cao? Tiếp tục lướt web, xem YouTube / TikTok mượt trên SoftBank, LINEMO, Y!mobile.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -128,7 +129,9 @@
                             <i data-feather="layers" class="icon-dual-primary"></i>
                         </div>
                         <h4 class="mb-3 font-size-22 text-white-90">Đa nền tảng</h4>
-                        <p class="text-white mb-0 text-white-90">Hỗ trợ macOS, iOS, Android, Windows.</p>
+                        <p class="text-white mb-0 text-white-90">
+                            Hiddify, Clash, Sing-box trên iOS, Android, Windows, macOS — một tài khoản dùng nhiều thiết bị.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -139,8 +142,10 @@
                         <div class="icon-mono service-icon avatar-md mx-auto mb-4">
                             <i data-feather="server" class="icon-dual-primary"></i>
                         </div>
-                        <h4 class="mb-3 font-size-22">Kết nối toàn cầu</h4>
-                        <p class="text-muted mb-0">Kết nối đến nhà cung cấp nội dung toàn cầu qua IXP — nhanh hơn.</p>
+                        <h4 class="mb-3 font-size-22">Node Nhật &amp; VN</h4>
+                        <p class="text-muted mb-0">
+                            Tuyến tối ưu cho mạng di động Nhật; có thêm node Việt Nam khi cần truy cập nội địa ổn định.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -152,11 +157,12 @@
     <div class="container">
         <div class="row align-items-center mb-5">
             <div class="col-md-5 order-2 order-md-1 mt-md-0 mt-5">
-                <span class="badge badge-pill badge-primary mb-4">CROSS DEVICES &amp; PLATFORMS</span>
-                <h2 class="mb-4">Dùng trên thiết bị yêu thích — điện thoại hay máy tính, mọi lúc mọi nơi.</h2>
+                <span class="badge badge-pill badge-primary mb-4">SOFTBANK · LINEMO · Y!MOBILE</span>
+                <h2 class="mb-4">Nâng cấp tốc độ cao không giới hạn trên SIM Nhật</h2>
                 <p class="text-muted mb-5">
-                    {$config['appName']} hỗ trợ macOS, iOS, Android, Windows và Linux.
-                    Qua ứng dụng bên thứ ba, dùng được trên điện thoại, máy tính, router, máy chơi game và TV box.
+                    Nhiều gói SoftBank / LINEMO / Y!mobile (và các MVNO tương tự) sẽ giảm tốc độ sau khi hết dung lượng.
+                    {$config['appName']} giúp bạn kết nối lại với tốc độ cao ổn định trên 4G/5G — phù hợp điện thoại,
+                    hotspot chia sẻ Wi‑Fi, máy tính bảng và laptop. Cấu hình đơn giản qua subscription Hiddify / Clash.
                 </p>
                 <a href="/auth/register" class="btn btn-primary">
                     Tìm hiểu thêm
@@ -184,11 +190,12 @@
                 </div>
             </div>
             <div class="col-md-5 ml-md-auto ms-md-auto">
-                <span class="badge badge-pill badge-primary mb-4">UNBLOCK STREAMING MEDIA</span>
-                <h2 class="mb-4">Mở khóa streaming — xem và nghe nội dung chất lượng cao</h2>
+                <span class="badge badge-pill badge-primary mb-4">XEM PHIM · LÀM VIỆC · MẠNG XÃ HỘI</span>
+                <h2 class="mb-4">Xem phim, gọi video và làm việc không còn “giật từng KB”</h2>
                 <p class="text-muted mb-5">
-                    Qua dịch vụ của {$config['appName']}, bạn có thể xem Netflix, Hulu, HBO, TVB và nhiều nền tảng khác,
-                    cũng như nghe nhạc trên Spotify, Pandora và các dịch vụ phổ biến.
+                    Duy trì tốc độ đủ để YouTube / Netflix / TikTok mượt, Zoom / Meet ổn định, và dùng app hàng ngày
+                    ngay cả khi SIM đã vào chế độ tốc độ thấp. Mã hóa truyền tải, tương thích đa client —
+                    tập trung vào trải nghiệm thực tế trên mạng SoftBank, LINEMO, Y!mobile.
                 </p>
                 <a href="/auth/register" class="btn btn-primary">
                     Tìm hiểu thêm
@@ -205,10 +212,10 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="text-center">
-                    <h1 class="text-white mb-4">Hỗ trợ khách hàng</h1>
+                    <h1 class="text-white mb-4">Hỗ trợ cấu hình SoftBank / LINEMO / Y!mobile</h1>
                     <p class="text-white mb-5 font-size-16">
-                        Có thắc mắc về gói thành viên? Đội ngũ tư vấn sẵn sàng giải đáp.
-                        Chúng tôi hỗ trợ kỹ thuật trong suốt chu kỳ đăng ký của bạn.
+                        Chưa biết chọn node hay app nào? Đăng ký và liên hệ hỗ trợ — chúng tôi hướng dẫn cấu hình
+                        Hiddify / Clash trên iOS &amp; Android, tối ưu cho SIM Nhật trong suốt chu kỳ gói của bạn.
                     </p>
                     <a href="/auth/register" class="btn btn-lg btn-light fw-bold">Liên hệ chúng tôi</a>
                 </div>
@@ -221,10 +228,10 @@
     <div class="container">
         <div class="row justify-content-center mb-5">
             <div class="col-lg-7 text-center">
-                <h2 class="fw-bold">Trải nghiệm tốt — mức giá bất ngờ</h2>
+                <h2 class="fw-bold">Gói nâng cấp tốc độ — rõ ràng, dễ dùng</h2>
                 <p class="text-muted">
-                    Đừng lãng phí thời gian chờ đợi. Bật dịch vụ mạng trung kế toàn cầu ngay,
-                    truy cập internet toàn cầu mọi lúc mọi nơi.
+                    Chọn gói phù hợp để duy trì tốc độ cao trên SoftBank / LINEMO / Y!mobile.
+                    Đăng ký nhanh, import subscription vào app — dùng ngay không cần chờ.
                 </p>
             </div>
         </div>
@@ -289,12 +296,12 @@
                 <div class="mb-4">
                     <a href="/"><h2 class="logo-dark"><i class="fa fa-globe"></i>&nbsp;{$config['appName']}</h2></a>
                     <p class="text-white-50 mt-4 mb-1" style="font-size:1rem;line-height:1.6rem;">
-                        Cam kết mang đến dịch vụ mạng trung kế tốc độ cao, ổn định, giá hợp lý —
-                        trải nghiệm như đang ở nước ngoài trên mọi thiết bị và mọi mạng.
+                        Chuyên tối ưu tốc độ cao không giới hạn cho SIM SoftBank, LINEMO, Y!mobile và mạng di động Nhật —
+                        ổn định, dễ cấu hình, dùng được trên mọi thiết bị.
                     </p>
                     <p style="font-size:0.8rem;line-height:1.2rem;">
-                        We dedicate to providing the finest network proxy service.
-                        Easy to use on any device and any network.
+                        Built for SoftBank / LINEMO / Y!mobile users who need stable high-speed after data throttle.
+                        Works with Hiddify, Clash and major platforms.
                     </p>
                     <p class="text-white-50 mb-0" style="font-size:0.8rem!important;">
                         © {$landing_year} {$config['appName']}
