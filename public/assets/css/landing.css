@@ -11,8 +11,8 @@
     --ld-radius: 1.1rem;
     --ld-max: 1080px;
     --ld-gutter: 1.25rem;
-    --ld-font: "Manrope", "Be Vietnam Pro", system-ui, sans-serif;
-    --ld-display: "Syne", "Manrope", system-ui, sans-serif;
+    --ld-font: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --ld-display: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     --ld-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
