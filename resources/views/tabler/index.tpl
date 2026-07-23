@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-    <link href="/assets/css/landing.css?v=20260723a" rel="stylesheet"/>
+    <link href="/assets/css/landing.css?v=20260723b" rel="stylesheet"/>
 </head>
 <body class="landing-page">
 <div class="ld-atmosphere" aria-hidden="true"></div>
@@ -18,7 +18,7 @@
 <header class="ld-nav" id="ld-nav">
     <div class="ld-wrap ld-nav-inner">
         <a class="ld-brand" href="/">
-            <img src="/images/uim-logo-round_96x96.png" width="36" height="36" alt="{$config['appName']}"/>
+            <img src="/images/uim-logo-round_96x96.png" width="30" height="30" alt="{$config['appName']}"/>
             <span>{$config['appName']}</span>
         </a>
         <div class="ld-nav-actions">
@@ -57,18 +57,18 @@
                 <p>Thiết kế cho người cần đường truyền ổn định trên mạng cố định lẫn 4G/5G, mọi lúc mọi nơi.</p>
             </div>
             <div class="ld-features">
-                <article class="ld-feature ld-reveal" style="transition-delay: 0.05s">
-                    <div class="ld-feature-icon"><i class="ti ti-bolt"></i></div>
+                <article class="ld-feature ld-reveal">
+                    <div class="ld-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></div>
                     <h3>Nhanh &amp; ổn định</h3>
                     <p>Tốc độ gần như đang ở nước ngoài, phù hợp Wi‑Fi gia đình và mạng di động SoftBank / nhà mạng Việt Nam.</p>
                 </article>
-                <article class="ld-feature ld-reveal" style="transition-delay: 0.12s">
-                    <div class="ld-feature-icon"><i class="ti ti-devices"></i></div>
+                <article class="ld-feature ld-reveal">
+                    <div class="ld-feature-icon" aria-hidden="true"><i class="ti ti-devices"></i></div>
                     <h3>Đa nền tảng</h3>
                     <p>Dùng trên macOS, iOS, Android, Windows và Linux với các ứng dụng bên thứ ba quen thuộc.</p>
                 </article>
-                <article class="ld-feature ld-reveal" style="transition-delay: 0.19s">
-                    <div class="ld-feature-icon"><i class="ti ti-world"></i></div>
+                <article class="ld-feature ld-reveal">
+                    <div class="ld-feature-icon" aria-hidden="true"><i class="ti ti-world"></i></div>
                     <h3>Kết nối toàn cầu</h3>
                     <p>Hạ tầng node đa khu vực, ưu tiên độ trễ thấp và trải nghiệm xem phim / làm việc mượt mà.</p>
                 </article>
@@ -124,7 +124,7 @@
                 <div class="ld-pricing">
                     {foreach $pricing_products as $product}
                         {$is_featured = $product@index == 1 || ($pricing_products|@count == 1)}
-                        <article class="ld-price-card ld-reveal{if $is_featured} is-featured{/if}" style="transition-delay: {$product@index * 0.08}s">
+                        <article class="ld-price-card ld-reveal{if $is_featured} is-featured{/if}">
                             {if $is_featured}
                                 <span class="ld-price-badge">Phổ biến</span>
                             {/if}
@@ -203,25 +203,44 @@
     const nav = document.getElementById('ld-nav');
     const onScroll = () => {
         if (!nav) return;
-        nav.classList.toggle('is-scrolled', window.scrollY > 12);
+        nav.classList.toggle('is-scrolled', window.scrollY > 8);
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const nodes = document.querySelectorAll('.ld-reveal');
+    const nodes = Array.from(document.querySelectorAll('.ld-reveal'));
+
+    // Stagger siblings in the same parent for smoother cascade.
+    const groups = new Map();
+    nodes.forEach((el) => {
+        const parent = el.parentElement;
+        if (!parent) return;
+        if (!groups.has(parent)) groups.set(parent, []);
+        groups.get(parent).push(el);
+    });
+    groups.forEach((items) => {
+        items.forEach((el, i) => {
+            el.style.transitionDelay = `${Math.min(i * 0.07, 0.28)}s`;
+        });
+    });
+
     if (reduce || !('IntersectionObserver' in window)) {
         nodes.forEach((el) => el.classList.add('is-visible'));
         return;
     }
+
     const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-                io.unobserve(entry.target);
-            }
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
         });
-    }, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+    }, {
+        threshold: 0.08,
+        rootMargin: '0px 0px -6% 0px',
+    });
+
     nodes.forEach((el) => io.observe(el));
 })();
 </script>
