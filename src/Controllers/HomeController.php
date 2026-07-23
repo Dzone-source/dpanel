@@ -97,6 +97,7 @@ final class HomeController extends BaseController
         return $response->write(
             $this->view()
                 ->assign('pricing_products', $pricing)
+                ->assign('has_pricing', $pricing !== [])
                 ->assign('landing_year', date('Y'))
                 ->fetch('index.tpl')
         );

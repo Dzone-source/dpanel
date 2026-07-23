@@ -120,21 +120,21 @@
                 <p>Đừng lãng phí thời gian chờ đợi. Chọn gói phù hợp và kích hoạt ngay trong tài khoản.</p>
             </div>
 
-            {if $pricing_products|@count > 0}
+            {if $has_pricing}
                 <div class="ld-pricing">
-                    {foreach $pricing_products as $product}
+                    {foreach from=$pricing_products item=product}
                         <article class="ld-price-card ld-reveal{if $product.featured} is-featured{/if}">
                             {if $product.featured}
                                 <span class="ld-price-badge">Phổ biến</span>
                             {/if}
-                            <h3 class="ld-price-name">{$product.name|escape}</h3>
+                            <h3 class="ld-price-name">{$product.name|escape:'html'}</h3>
                             <div class="ld-price-amount">
                                 <strong>{$product.price|format_vnd:0}</strong>
                                 <span>VNĐ</span>
                             </div>
                             <ul class="ld-price-list">
-                                {foreach $product.features as $feature}
-                                    <li>{$feature|escape}</li>
+                                {foreach from=$product.features item=feature}
+                                    <li>{$feature|escape:'html'}</li>
                                 {/foreach}
                             </ul>
                             <a class="ld-btn ld-btn-primary" href="/auth/register">Đăng ký &amp; mua gói</a>
@@ -174,6 +174,7 @@
 </footer>
 
 <script>
+{literal}
 (() => {
     const nav = document.getElementById('ld-nav');
     const onScroll = () => {
@@ -186,7 +187,6 @@
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const nodes = Array.from(document.querySelectorAll('.ld-reveal'));
 
-    // Stagger siblings in the same parent for smoother cascade.
     const groups = new Map();
     nodes.forEach((el) => {
         const parent = el.parentElement;
@@ -196,7 +196,7 @@
     });
     groups.forEach((items) => {
         items.forEach((el, i) => {
-            el.style.transitionDelay = `${Math.min(i * 0.07, 0.28)}s`;
+            el.style.transitionDelay = (Math.min(i * 0.07, 0.28)) + 's';
         });
     });
 
@@ -218,6 +218,7 @@
 
     nodes.forEach((el) => io.observe(el));
 })();
+{/literal}
 </script>
 </body>
 </html>
