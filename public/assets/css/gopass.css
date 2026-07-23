@@ -2021,11 +2021,14 @@ body.gopass-auth .modal-content {
     border-radius: 50%;
     background: #fff;
     color: #0068ff;
-    font-size: 1.15rem;
-    font-weight: 900;
-    font-family: "Be Vietnam Pro", "Noto Sans", system-ui, sans-serif;
     line-height: 1;
     box-sizing: border-box;
+}
+
+.gopass-zalo-fab-icon svg {
+    display: block;
+    width: 1.35rem;
+    height: 1.35rem;
 }
 
 .gopass-zalo-fab-label {
@@ -2052,7 +2055,11 @@ body.gopass-auth .modal-content {
         border-radius: 50%;
         background: transparent;
         color: #fff;
-        font-size: 1.35rem;
+    }
+
+    .gopass-zalo-fab-icon svg {
+        width: 1.45rem;
+        height: 1.45rem;
     }
 
     .gopass-zalo-fab-label {
