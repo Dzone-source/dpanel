@@ -167,4 +167,58 @@ h1, h2, h3, h4, h5, h6,
     .landing-zalo-fab {
         transition: none;
     }
+
+    .reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+        filter: none !important;
+    }
 }
+
+/* Scroll reveal — fade + slide up (mobile & desktop) */
+.reveal {
+    opacity: 0;
+    transform: translate3d(0, 36px, 0);
+    transition:
+        opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+        filter 0.7s ease;
+    transition-delay: var(--reveal-delay, 0s);
+    filter: blur(2px);
+    will-change: opacity, transform;
+}
+
+.reveal.reveal-left {
+    transform: translate3d(-28px, 28px, 0);
+}
+
+.reveal.reveal-right {
+    transform: translate3d(28px, 28px, 0);
+}
+
+.reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+}
+
+/* Stagger pricing cards in a row without inline delays */
+#pricing .row.mt-5 > .reveal:nth-child(1) { --reveal-delay: 0.05s; }
+#pricing .row.mt-5 > .reveal:nth-child(2) { --reveal-delay: 0.15s; }
+#pricing .row.mt-5 > .reveal:nth-child(3) { --reveal-delay: 0.25s; }
+#pricing .row.mt-5 > .reveal:nth-child(4) { --reveal-delay: 0.32s; }
+#pricing .row.mt-5 > .reveal:nth-child(5) { --reveal-delay: 0.38s; }
+#pricing .row.mt-5 > .reveal:nth-child(6) { --reveal-delay: 0.44s; }
+
+@media (max-width: 767.98px) {
+    .reveal {
+        transform: translate3d(0, 28px, 0);
+    }
+
+    .reveal.reveal-left,
+    .reveal.reveal-right {
+        transform: translate3d(0, 28px, 0);
+    }
+}
+

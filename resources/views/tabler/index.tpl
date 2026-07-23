@@ -17,7 +17,7 @@
 
     <link rel="stylesheet" href="/assets/landing/cool/css/style.css"/>
     <link rel="stylesheet" href="/assets/landing/cool/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="/assets/css/landing.css?v=20260723zalo"/>
+    <link rel="stylesheet" href="/assets/css/landing.css?v=20260723anim"/>
 </head>
 <body>
 
@@ -55,7 +55,7 @@
          style="background-image: url(/assets/landing/cool/img/hero-g-bg.png);" id="home">
     <div class="container">
         <div class="row align-items-center hero-content">
-            <div class="col-lg-5">
+            <div class="col-lg-5 reveal reveal-left reveal-hero">
                 <h1 class="text-white display-4 font-weight-bold mb-4 hero-1-title">
                     Nâng cấp tốc độ không giới hạn — SoftBank / LINEMO / Y!mobile
                 </h1>
@@ -71,8 +71,9 @@
             </div>
 
             <div id="carouselExampleIndicators"
-                 class="col-lg-6 col-sm-12 mx-auto ml-lg-auto mr-lg-0 ms-lg-auto me-lg-0 carousel slide"
-                 data-ride="carousel">
+                 class="col-lg-6 col-sm-12 mx-auto ml-lg-auto mr-lg-0 ms-lg-auto me-lg-0 carousel slide reveal reveal-right reveal-hero"
+                 data-ride="carousel"
+                 style="--reveal-delay: 0.15s">
                 <div class="swiper-container">
                     <div class="swiper-wrapper">
                         <div class="swiper-slide">
@@ -98,7 +99,7 @@
 <section class="section" id="services">
     <div class="container">
         <div class="row justify-content-center mb-5">
-            <div class="col-lg-7 text-center">
+            <div class="col-lg-7 text-center reveal">
                 <h2 class="fw-bold">Dành cho SIM Nhật bị slow — lấy lại tốc độ cao</h2>
                 <p class="text-muted">
                     Tập trung tối ưu SoftBank, LINEMO, Y!mobile và các gói data Nhật phổ biến.
@@ -108,7 +109,7 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-4">
+            <div class="col-lg-4 reveal" style="--reveal-delay: 0.05s">
                 <div class="service-box text-center px-4 py-5 position-relative mb-4">
                     <div class="service-box-content p-4">
                         <div class="icon-mono service-icon avatar-md mx-auto mb-4">
@@ -122,7 +123,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-4 reveal" style="--reveal-delay: 0.15s">
                 <div class="service-box text-center px-4 py-5 position-relative mb-4 active">
                     <div class="service-box-content p-4">
                         <div class="icon-mono service-icon avatar-md mx-auto mb-4">
@@ -136,7 +137,7 @@
                 </div>
             </div>
 
-            <div class="col-lg-4">
+            <div class="col-lg-4 reveal" style="--reveal-delay: 0.25s">
                 <div class="service-box text-center px-4 py-5 position-relative mb-4">
                     <div class="service-box-content p-4">
                         <div class="icon-mono service-icon avatar-md mx-auto mb-4">
@@ -156,7 +157,7 @@
 <section class="section bg-light" id="features">
     <div class="container">
         <div class="row align-items-center mb-5">
-            <div class="col-md-5 order-2 order-md-1 mt-md-0 mt-5">
+            <div class="col-md-5 order-2 order-md-1 mt-md-0 mt-5 reveal reveal-left">
                 <span class="badge badge-pill badge-primary mb-4">SOFTBANK · LINEMO · Y!MOBILE</span>
                 <h2 class="mb-4">Nâng cấp tốc độ cao không giới hạn trên SIM Nhật</h2>
                 <p class="text-muted mb-5">
@@ -169,7 +170,7 @@
                     <i data-feather="arrow-right" class="icon-xs ml-1 ms-2"></i>
                 </a>
             </div>
-            <div class="col-md-6 ml-md-auto ms-md-auto order-1 order-md-2">
+            <div class="col-md-6 ml-md-auto ms-md-auto order-1 order-md-2 reveal reveal-right" style="--reveal-delay: 0.12s">
                 <div class="position-relative">
                     <div class="ml-5 ms-5 features-img">
                         <img src="/assets/landing/cool/img/top-hbo-movies.jpg" alt="" class="img-fluid d-block mx-auto"/>
@@ -180,7 +181,7 @@
         </div>
 
         <div class="row align-items-center section pb-0">
-            <div class="col-md-6">
+            <div class="col-md-6 reveal reveal-left">
                 <div class="position-relative mb-md-0 mb-5">
                     <div class="mr-5 me-5 features-img">
                         <img src="/assets/landing/cool/img/halloween-movies.jpg" alt=""
@@ -189,7 +190,7 @@
                     <img src="/assets/landing/cool/img/dot-img.png" alt="" class="dot-img-right"/>
                 </div>
             </div>
-            <div class="col-md-5 ml-md-auto ms-md-auto">
+            <div class="col-md-5 ml-md-auto ms-md-auto reveal reveal-right" style="--reveal-delay: 0.12s">
                 <span class="badge badge-pill badge-primary mb-4">XEM PHIM · LÀM VIỆC · MẠNG XÃ HỘI</span>
                 <h2 class="mb-4">Xem phim, gọi video và làm việc không còn “giật từng KB”</h2>
                 <p class="text-muted mb-5">
@@ -211,7 +212,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="text-center">
+                <div class="text-center reveal">
                     <h1 class="text-white mb-4">Hỗ trợ cấu hình SoftBank / LINEMO / Y!mobile</h1>
                     <p class="text-white mb-5 font-size-16">
                         Chưa biết chọn node hay app nào? Đăng ký và liên hệ hỗ trợ — chúng tôi hướng dẫn cấu hình
@@ -227,7 +228,7 @@
 <section class="section" id="pricing">
     <div class="container">
         <div class="row justify-content-center mb-5">
-            <div class="col-lg-7 text-center">
+            <div class="col-lg-7 text-center reveal">
                 <h2 class="fw-bold">Gói nâng cấp tốc độ — rõ ràng, dễ dùng</h2>
                 <p class="text-muted">
                     Chọn gói phù hợp để duy trì tốc độ cao trên SoftBank / LINEMO / Y!mobile.
@@ -237,7 +238,7 @@
         </div>
         <div class="row">
             <div class="col-lg-12">
-                <div class="text-center mb-4 pricing-tab">
+                <div class="text-center mb-4 pricing-tab reveal" style="--reveal-delay: 0.08s">
                     <ul class="nav nav-pills rounded-pill justify-content-center d-inline-block shadow-sm" role="tablist">
                         <li class="nav-item d-inline-block">
                             <a class="nav-link rounded-pill active" href="#pricing">Gói đang bán</a>
@@ -249,7 +250,7 @@
                         {if $has_pricing}
                             <div class="row mt-5">
                                 {foreach from=$pricing_products item=product}
-                                    <div class="col-12 col-md-4 col-lg-4">
+                                    <div class="col-12 col-md-4 col-lg-4 reveal">
                                         <div class="pricing shadow rounded-lg">
                                             <div class="pricing-title">{$product.name|escape:'html'}</div>
                                             <div class="pricing-padding">
@@ -292,7 +293,7 @@
     <div class="container">
         <div class="row">
             <div class="bg-overlay-img" style="background-image: url(/assets/landing/cool/img/footer-bg.png);"></div>
-            <div class="col-lg-5">
+            <div class="col-lg-5 reveal">
                 <div class="mb-4">
                     <a href="/"><h2 class="logo-dark"><i class="fa fa-globe"></i>&nbsp;{$config['appName']}</h2></a>
                     <p class="text-white-50 mt-4 mb-1" style="font-size:1rem;line-height:1.6rem;">
@@ -370,6 +371,41 @@ var mySwiper = new Swiper('.swiper-container', {
         disableOnInteraction: true,
     },
 });
+
+(function () {
+    var nodes = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function showAll() {
+        nodes.forEach(function (el) { el.classList.add('is-visible'); });
+    }
+
+    if (!nodes.length) return;
+    if (reduce || !('IntersectionObserver' in window)) {
+        showAll();
+        return;
+    }
+
+    // Hero: show immediately for first paint feel
+    nodes.filter(function (el) { return el.classList.contains('reveal-hero'); })
+        .forEach(function (el) { el.classList.add('is-visible'); });
+
+    var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+        });
+    }, {
+        threshold: 0.12,
+        rootMargin: '0px 0px -6% 0px'
+    });
+
+    nodes.forEach(function (el) {
+        if (el.classList.contains('is-visible')) return;
+        io.observe(el);
+    });
+})();
 {/literal}
 </script>
 </body>
