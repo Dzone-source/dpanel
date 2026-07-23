@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-    <link href="/assets/css/landing.css?v=20260723b" rel="stylesheet"/>
+    <link href="/assets/css/landing.css?v=20260723c" rel="stylesheet"/>
 </head>
 <body class="landing-page">
 <div class="ld-atmosphere" aria-hidden="true"></div>
