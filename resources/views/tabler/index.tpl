@@ -123,44 +123,19 @@
             {if $pricing_products|@count > 0}
                 <div class="ld-pricing">
                     {foreach $pricing_products as $product}
-                        {$is_featured = $product@index == 1 || ($pricing_products|@count == 1)}
-                        <article class="ld-price-card ld-reveal{if $is_featured} is-featured{/if}">
-                            {if $is_featured}
+                        <article class="ld-price-card ld-reveal{if $product.featured} is-featured{/if}">
+                            {if $product.featured}
                                 <span class="ld-price-badge">Phổ biến</span>
                             {/if}
-                            <h3 class="ld-price-name">{$product->name}</h3>
+                            <h3 class="ld-price-name">{$product.name|escape}</h3>
                             <div class="ld-price-amount">
-                                <strong>{$product->price|format_vnd:0}</strong>
+                                <strong>{$product.price|format_vnd:0}</strong>
                                 <span>VNĐ</span>
                             </div>
                             <ul class="ld-price-list">
-                                {if isset($product->content->class)}
-                                    <li>Cấp độ thành viên Lv. {$product->content->class}</li>
-                                {/if}
-                                {if isset($product->content->class_time)}
-                                    <li>Thời hạn {$product->content->class_time} ngày</li>
-                                {/if}
-                                {if isset($product->content->bandwidth)}
-                                    <li>Lưu lượng {$product->content->bandwidth} GB</li>
-                                {/if}
-                                {if isset($product->content->time)}
-                                    <li>Gia hạn {$product->content->time} ngày</li>
-                                {/if}
-                                {if isset($product->content->speed_limit)}
-                                    {if $product->content->speed_limit == '0' || $product->content->speed_limit == 0}
-                                        <li>Tốc độ không giới hạn</li>
-                                    {else}
-                                        <li>Giới hạn tốc độ {$product->content->speed_limit} Mbps</li>
-                                    {/if}
-                                {/if}
-                                {if isset($product->content->ip_limit)}
-                                    {if $product->content->ip_limit == '0' || $product->content->ip_limit == 0}
-                                        <li>Thiết bị đồng thời không giới hạn</li>
-                                    {else}
-                                        <li>Tối đa {$product->content->ip_limit} thiết bị đồng thời</li>
-                                    {/if}
-                                {/if}
-                                <li>Hỗ trợ kỹ thuật qua hệ thống ticket</li>
+                                {foreach $product.features as $feature}
+                                    <li>{$feature|escape}</li>
+                                {/foreach}
                             </ul>
                             <a class="ld-btn ld-btn-primary" href="/auth/register">Đăng ký &amp; mua gói</a>
                         </article>
@@ -191,7 +166,7 @@
 
 <footer class="ld-footer">
     <div class="ld-wrap ld-footer-inner">
-        <div>© {$smarty.now|date_format:"%Y"} {$config['appName']}. Tất cả các quyền được bảo lưu.</div>
+        <div>© {$landing_year} {$config['appName']}. Tất cả các quyền được bảo lưu.</div>
         <div>
             <a href="/tos">Điều khoản dịch vụ</a>
         </div>
