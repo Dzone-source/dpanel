@@ -7,7 +7,7 @@ h1, h2, h3, h4, h5, h6,
 .navbar-brand,
 .pricing,
 .footer {
-    font-family: "Be Vietnam Pro", "Open Sans", "Assistant", system-ui, -apple-system, sans-serif !important;
+    font-family: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif !important;
 }
 
 /* Bootstrap 4 toggler visibility (Cool mixes BS4/BS5) */
