@@ -52,13 +52,15 @@
                                                             data-days="{$opt.days}"
                                                             data-price="{$opt.price}"
                                                             data-label="{$opt.label|escape:'html'}">
-                                                        <span class="gopass-order-option-days">{$opt.days} ngày</span>
-                                                        <span class="gopass-order-option-meta">
+                                                        <span class="gopass-order-option-left">
                                                             {if $opt.label != '' && $opt.label != $opt.days && $opt.label != ($opt.days|cat:' ngày')}
                                                                 <span class="gopass-order-option-label">{$opt.label|escape:'html'}</span>
+                                                                <span class="gopass-order-option-days">{$opt.days} ngày</span>
+                                                            {else}
+                                                                <span class="gopass-order-option-label">{$opt.days} ngày</span>
                                                             {/if}
-                                                            <span class="gopass-order-option-price">{$opt.price|format_vnd:0} VNĐ</span>
                                                         </span>
+                                                        <span class="gopass-order-option-price">{$opt.price|format_vnd:0} VNĐ</span>
                                                     </button>
                                                 {/foreach}
                                             </div>
@@ -66,14 +68,19 @@
                                     </tr>
                                 {/if}
                                 {if $product->type === 'tabp' || $product->type === 'time'}
-                                    <tr>
-                                        <td>Thời hạn sản phẩm</td>
-                                        <td class="text-end"><span id="display-time">{$product->content->time}</span> ngày</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Thời hạn cấp độ</td>
-                                        <td class="text-end"><span id="display-class-time">{$product->content->class_time}</span> ngày</td>
-                                    </tr>
+                                    {if $product->has_options}
+                                        <span id="display-time" hidden>{$product->content->time}</span>
+                                        <span id="display-class-time" hidden>{$product->content->class_time}</span>
+                                    {else}
+                                        <tr>
+                                            <td>Thời hạn sản phẩm</td>
+                                            <td class="text-end"><span id="display-time">{$product->content->time}</span> ngày</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Thời hạn cấp độ</td>
+                                            <td class="text-end"><span id="display-class-time">{$product->content->class_time}</span> ngày</td>
+                                        </tr>
+                                    {/if}
                                     <tr>
                                         <td>Cấp độ</td>
                                         <td class="text-end">Lv. {$product->content->class}</td>
