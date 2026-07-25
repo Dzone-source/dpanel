@@ -39,18 +39,27 @@
                                 </tr>
                                 {if $product->has_options}
                                     <tr>
-                                        <td>Chọn thời hạn</td>
-                                        <td class="text-end" style="min-width:220px">
-                                            <select id="option-index" class="form-select">
-                                                {foreach from=$product_options item=opt}
-                                                    <option value="{$opt.index}"
+                                        <td colspan="2" class="gopass-order-options-cell">
+                                            <div class="gopass-order-options-label">Chọn thời hạn</div>
+                                            <input type="hidden" id="option-index" value="0">
+                                            <div class="gopass-order-options" role="radiogroup" aria-label="Chọn thời hạn">
+                                                {foreach from=$product_options item=opt name=prod_opts}
+                                                    <button type="button"
+                                                            class="gopass-order-option{if $smarty.foreach.prod_opts.first} is-selected{/if}"
+                                                            role="radio"
+                                                            aria-checked="{if $smarty.foreach.prod_opts.first}true{else}false{/if}"
+                                                            data-index="{$opt.index}"
                                                             data-days="{$opt.days}"
                                                             data-price="{$opt.price}"
                                                             data-label="{$opt.label|escape:'html'}">
-                                                        {$opt.label|escape:'html'} — {$opt.price|format_vnd:0} VNĐ
-                                                    </option>
+                                                        <span class="gopass-order-option-days">{$opt.days} ngày</span>
+                                                        {if $opt.label != '' && $opt.label != $opt.days && $opt.label != ($opt.days|cat:' ngày')}
+                                                            <span class="gopass-order-option-label">{$opt.label|escape:'html'}</span>
+                                                        {/if}
+                                                        <span class="gopass-order-option-price">{$opt.price|format_vnd:0} VNĐ</span>
+                                                    </button>
                                                 {/foreach}
-                                            </select>
+                                            </div>
                                         </td>
                                     </tr>
                                 {/if}
@@ -166,8 +175,9 @@
 <script>
 {literal}
 (function () {
-    var select = document.getElementById('option-index');
-    if (!select) return;
+    var input = document.getElementById('option-index');
+    var buttons = document.querySelectorAll('.gopass-order-option');
+    if (!input || !buttons.length) return;
 
     function formatVnd(n) {
         var num = Number(n);
@@ -175,11 +185,19 @@
         return num.toLocaleString('vi-VN') + ' VNĐ';
     }
 
-    function syncOption() {
-        var opt = select.options[select.selectedIndex];
-        if (!opt) return;
-        var days = opt.getAttribute('data-days');
-        var price = opt.getAttribute('data-price');
+    function applyOption(btn) {
+        if (!btn) return;
+        var days = btn.getAttribute('data-days');
+        var price = btn.getAttribute('data-price');
+        var index = btn.getAttribute('data-index');
+        input.value = index;
+
+        buttons.forEach(function (el) {
+            var on = el === btn;
+            el.classList.toggle('is-selected', on);
+            el.setAttribute('aria-checked', on ? 'true' : 'false');
+        });
+
         var timeEl = document.getElementById('display-time');
         var classTimeEl = document.getElementById('display-class-time');
         var basePriceEl = document.getElementById('product-base-price');
@@ -194,8 +212,14 @@
         if (couponCodeEl) couponCodeEl.textContent = '';
     }
 
-    select.addEventListener('change', syncOption);
-    syncOption();
+    buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            applyOption(btn);
+        });
+    });
+
+    var selected = document.querySelector('.gopass-order-option.is-selected') || buttons[0];
+    applyOption(selected);
 })();
 {/literal}
 </script>
