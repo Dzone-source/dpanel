@@ -53,10 +53,12 @@
                                                             data-price="{$opt.price}"
                                                             data-label="{$opt.label|escape:'html'}">
                                                         <span class="gopass-order-option-days">{$opt.days} ngày</span>
-                                                        {if $opt.label != '' && $opt.label != $opt.days && $opt.label != ($opt.days|cat:' ngày')}
-                                                            <span class="gopass-order-option-label">{$opt.label|escape:'html'}</span>
-                                                        {/if}
-                                                        <span class="gopass-order-option-price">{$opt.price|format_vnd:0} VNĐ</span>
+                                                        <span class="gopass-order-option-meta">
+                                                            {if $opt.label != '' && $opt.label != $opt.days && $opt.label != ($opt.days|cat:' ngày')}
+                                                                <span class="gopass-order-option-label">{$opt.label|escape:'html'}</span>
+                                                            {/if}
+                                                            <span class="gopass-order-option-price">{$opt.price|format_vnd:0} VNĐ</span>
+                                                        </span>
                                                     </button>
                                                 {/foreach}
                                             </div>
