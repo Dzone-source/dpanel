@@ -154,10 +154,17 @@
                                             <div class="gopass-product-card-accent" aria-hidden="true"></div>
                                             <div class="gopass-product-card-body">
                                                 <div class="gopass-product-name">{$time->name}</div>
-                                                {product_price price=$time->price}
+                                                {product_price price=$time->price_min}
+                                                {if $time->has_options}
+                                                    <div class="text-secondary small mb-2">Nhiều thời hạn — chọn khi mua</div>
+                                                {/if}
                                                 <div class="gopass-product-features">
                                                     {product_feature icon='ti-crown' value="Lv. `$time->content->class`" label='Cấp độ'}
-                                                    {product_feature icon='ti-calendar' value="`$time->content->class_time` ngày" label='Thời hạn'}
+                                                    {if $time->has_options}
+                                                        {product_feature icon='ti-calendar' value='Tùy chọn khi mua' label='Thời hạn'}
+                                                    {else}
+                                                        {product_feature icon='ti-calendar' value="`$time->content->class_time` ngày" label='Thời hạn'}
+                                                    {/if}
                                                     {if $time->content->speed_limit == '0'}
                                                         {product_feature icon='ti-bolt' value='Không giới hạn' label='Tốc độ'}
                                                     {else}

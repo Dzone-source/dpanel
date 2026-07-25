@@ -309,6 +309,7 @@ return static function (Slim\App $app): void {
         $group->get('/product/{id:[0-9]+}/edit', App\Controllers\Admin\ProductController::class . ':edit');
         $group->post('/product/{id:[0-9]+}/copy', App\Controllers\Admin\ProductController::class . ':copy');
         $group->put('/product/{id:[0-9]+}', App\Controllers\Admin\ProductController::class . ':update');
+        $group->post('/product/{id:[0-9]+}', App\Controllers\Admin\ProductController::class . ':update');
         $group->delete('/product/{id:[0-9]+}', App\Controllers\Admin\ProductController::class . ':delete');
         $group->post('/product/ajax', App\Controllers\Admin\ProductController::class . ':ajax');
         // 订单

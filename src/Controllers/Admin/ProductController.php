@@ -233,19 +233,19 @@ final class ProductController extends BaseController
     {
         $product_id = $args['id'];
         // base product
-        $type = $request->getParam('type') ?? '';
-        $name = $request->getParam('name') ?? '';
-        $price = $request->getParam('price') ?? 0;
-        $status = $request->getParam('status') ?? 1;
-        $stock = $request->getParam('stock') ?? -1;
+        $type = (string) ($request->getParam('type') ?? '');
+        $name = (string) ($request->getParam('name') ?? '');
+        $price = (float) ($request->getParam('price') ?? 0);
+        $status = (int) ($request->getParam('status') ?? 1);
+        $stock = (int) ($request->getParam('stock') ?? -1);
         // content
-        $time = $request->getParam('time') ?? 0;
-        $bandwidth = $request->getParam('bandwidth') ?? 0;
-        $class = $request->getParam('class') ?? 0;
-        $class_time = $request->getParam('class_time') ?? 0;
-        $node_group = $request->getParam('node_group') ?? 0;
-        $speed_limit = $request->getParam('speed_limit') ?? 0;
-        $ip_limit = $request->getParam('ip_limit') ?? 0;
+        $time = (int) ($request->getParam('time') ?? 0);
+        $bandwidth = (float) ($request->getParam('bandwidth') ?? 0);
+        $class = (int) ($request->getParam('class') ?? 0);
+        $class_time = (int) ($request->getParam('class_time') ?? 0);
+        $node_group = (int) ($request->getParam('node_group') ?? 0);
+        $speed_limit = (float) ($request->getParam('speed_limit') ?? 0);
+        $ip_limit = (int) ($request->getParam('ip_limit') ?? 0);
         // limit
         $class_required = $request->getParam('class_required') ?? '';
         $node_group_required = $request->getParam('node_group_required') ?? '';
@@ -254,11 +254,25 @@ final class ProductController extends BaseController
 
         $product = (new Product())->find($product_id);
 
+        if ($product === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Sản phẩm không tồn tại',
+            ]);
+        }
+
         if ($options === null) {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => 'Tùy chọn thời hạn/giá không hợp lệ',
             ]);
+        }
+
+        // Apply first option before validation so duration/price stay consistent
+        if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
+            $time = (int) $options[0]['days'];
+            $class_time = (int) $options[0]['days'];
+            $price = (float) $options[0]['price'];
         }
 
         if ($price < 0) {
@@ -322,9 +336,6 @@ final class ProductController extends BaseController
 
         if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
             $content['options'] = $options;
-            $content['time'] = $options[0]['days'];
-            $content['class_time'] = $options[0]['days'];
-            $price = $options[0]['price'];
         }
 
         $limit = [
@@ -336,8 +347,8 @@ final class ProductController extends BaseController
         $product->type = $type;
         $product->name = $name;
         $product->price = $price;
-        $product->content = json_encode($content);
-        $product->limit = json_encode($limit);
+        $product->content = json_encode($content, JSON_UNESCAPED_UNICODE);
+        $product->limit = json_encode($limit, JSON_UNESCAPED_UNICODE);
         $product->stock = $stock;
         $product->status = $status;
         $product->update_time = time();

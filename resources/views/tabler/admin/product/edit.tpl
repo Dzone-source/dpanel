@@ -199,6 +199,7 @@
     </div>
 </div>
 
+<script type="application/json" id="product-options-json">{if isset($product_options_json)}{$product_options_json}{else}[]{/if}</script>
 <script>
 {literal}
     function optionRowHtml(opt) {
@@ -249,7 +250,14 @@
 
     $(function () {
         $("#type").change();
-        initProductOptions({if isset($product_options_json)}{$product_options_json}{else}[]{/if});
+        var raw = document.getElementById('product-options-json');
+        var list = [];
+        try {
+            list = raw ? JSON.parse(raw.textContent || '[]') : [];
+        } catch (e) {
+            list = [];
+        }
+        initProductOptions(list);
     });
 
     $('#add-product-option').on('click', function () {
@@ -312,44 +320,78 @@
         }
     });
 
-    $("#save-product").click(function () {
-        let emptyFields = $('input[required]').filter(function () {
-            return $(this).val() === '';
-        });
-
-        if (emptyFields.length > 0) {
-            $("#fail-message").text("Vui lòng điền đầy đủ các trường bắt buộc");
-            $("#fail-dialog").modal("show");
+    function showFail(msg) {
+        $("#fail-message").text(msg || "Thất bại");
+        if (typeof failDialog !== "undefined") {
+            failDialog.show();
         } else {
-            var options = collectProductOptions();
-            if (options.length > 0) {
-                $('#time').val(options[0].days);
-                $('#class_time').val(options[0].days);
-                $('#price').val(options[0].price);
-            }
-            $.ajax({
-                url: '/admin/product/{$product->id}',
-                type: 'PUT',
-                dataType: "json",
-                data: {
-                    {foreach $update_field as $key}
-                    {$key}: $('#{$key}').val(),
-                    {/foreach}
-                    new_user_required: $("#new_user_required").is(":checked"),
-                    options_json: JSON.stringify(options),
-                },
-                success: function (data) {
-                    if (data.ret === 1) {
-                        $('#success-message').text(data.msg);
-                        $('#success-dialog').modal('show');
-                        window.setTimeout("location.href=top.document.referrer", {$config['jump_delay']});
-                    } else {
-                        $('#fail-message').text(data.msg);
-                        $('#fail-dialog').modal('show');
-                    }
-                }
-            })
+            alert(msg || "Thất bại");
         }
+    }
+
+    function showSuccess(msg) {
+        $("#success-message").text(msg || "Thành công");
+        if (typeof successDialog !== "undefined") {
+            successDialog.show();
+        }
+    }
+
+    $("#save-product").on("click", function (e) {
+        e.preventDefault();
+
+        var options = collectProductOptions();
+        if (options.length > 0) {
+            $("#time").val(options[0].days);
+            $("#class_time").val(options[0].days);
+            $("#price").val(options[0].price);
+        }
+
+        var emptyFields = $("input[required]").filter(function () {
+            return $.trim($(this).val()) === "";
+        });
+        if (emptyFields.length > 0) {
+            showFail("Vui lòng điền đầy đủ các trường bắt buộc");
+            return;
+        }
+        if ($.trim($("#name").val()) === "") {
+            showFail("Vui lòng nhập tên sản phẩm");
+            return;
+        }
+        if ($.trim($("#price").val()) === "" || isNaN(parseFloat($("#price").val()))) {
+            showFail("Vui lòng nhập giá hợp lệ");
+            return;
+        }
+
+        $.ajax({
+            url: "/admin/product/{$product->id}",
+            type: "POST",
+            dataType: "json",
+            data: {
+                {foreach $update_field as $key}
+                {$key}: $("#{$key}").val(),
+                {/foreach}
+                new_user_required: $("#new_user_required").is(":checked"),
+                options_json: JSON.stringify(options)
+            },
+            success: function (data) {
+                if (data && data.ret === 1) {
+                    showSuccess(data.msg);
+                    window.setTimeout(function () {
+                        location.href = "/admin/product";
+                    }, {$config['jump_delay']|default:1500});
+                } else {
+                    showFail((data && data.msg) ? data.msg : "Cập nhật thất bại");
+                }
+            },
+            error: function (xhr) {
+                var msg = "Không gửi được yêu cầu lưu";
+                try {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data && data.msg) msg = data.msg;
+                } catch (err) {}
+                showFail(msg);
+            }
+        });
     });
 </script>
 
