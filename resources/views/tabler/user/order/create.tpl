@@ -37,14 +37,31 @@
                                     <td>Loại sản phẩm</td>
                                     <td class="text-end">{$product->type_text}</td>
                                 </tr>
+                                {if $product->has_options}
+                                    <tr>
+                                        <td>Chọn thời hạn</td>
+                                        <td class="text-end" style="min-width:220px">
+                                            <select id="option-index" class="form-select">
+                                                {foreach from=$product_options item=opt}
+                                                    <option value="{$opt.index}"
+                                                            data-days="{$opt.days}"
+                                                            data-price="{$opt.price}"
+                                                            data-label="{$opt.label|escape:'html'}">
+                                                        {$opt.label|escape:'html'} — {$opt.price|format_vnd:0} VNĐ
+                                                    </option>
+                                                {/foreach}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                {/if}
                                 {if $product->type === 'tabp' || $product->type === 'time'}
                                     <tr>
                                         <td>Thời hạn sản phẩm</td>
-                                        <td class="text-end">{$product->content->time} ngày</td>
+                                        <td class="text-end"><span id="display-time">{$product->content->time}</span> ngày</td>
                                     </tr>
                                     <tr>
                                         <td>Thời hạn cấp độ</td>
-                                        <td class="text-end">{$product->content->class_time} ngày</td>
+                                        <td class="text-end"><span id="display-class-time">{$product->content->class_time}</span> ngày</td>
                                     </tr>
                                     <tr>
                                         <td>Cấp độ</td>
@@ -60,7 +77,7 @@
                                 {if $product->type === 'tabp' || $product->type === 'time'}
                                     <tr>
                                         <td>Giới hạn tốc độ</td>
-                                        {if $product->content->speed_limit === '0'}
+                                        {if $product->content->speed_limit === '0' || $product->content->speed_limit === 0}
                                             <td class="text-end">Không giới hạn</td>
                                         {else}
                                             <td class="text-end">{$product->content->speed_limit} Mbps</td>
@@ -68,7 +85,7 @@
                                     </tr>
                                     <tr>
                                         <td>Giới hạn IP kết nối đồng thời</td>
-                                        {if $product->content->ip_limit === '0'}
+                                        {if $product->content->ip_limit === '0' || $product->content->ip_limit === 0}
                                             <td class="text-end">Không giới hạn</td>
                                         {else}
                                             <td class="text-end">{$product->content->ip_limit}</td>
@@ -88,7 +105,7 @@
                             <table class="table table-transparent table-responsive">
                                 <tr>
                                     <td>Giá sản phẩm</td>
-                                    <td class="text-end">{$product->price|format_vnd:0} VNĐ</td>
+                                    <td class="text-end" id="product-base-price">{$product->price|format_vnd:0} VNĐ</td>
                                 </tr>
                                 <tr>
                                     <td>Mã giảm giá</td>
@@ -114,11 +131,12 @@
                                 <div class="input-group mb-2">
                                     <input id="coupon" type="text" class="form-control"
                                            placeholder="Nhập mã giảm giá, để trống nếu không có">
-                                    <button class="btn" type="button"
+                                    <button class="btn" type="button" id="apply-coupon-btn"
                                             hx-post="/user/coupon" hx-swap="none"
                                             hx-vals='js:{
                                                 coupon: document.getElementById("coupon").value,
                                                 product_id: {$product->id},
+                                                option_index: (document.getElementById("option-index") ? document.getElementById("option-index").value : "")
                                             }'>
                                         Áp dụng
                                     </button>
@@ -134,6 +152,7 @@
                                         type: "product",
                                         coupon: document.getElementById("coupon").value,
                                         product_id: {$product->id},
+                                        option_index: (document.getElementById("option-index") ? document.getElementById("option-index").value : "")
                                     }'>
                                 Tạo đơn hàng
                             </button>
@@ -143,5 +162,42 @@
             </div>
         </div>
     </div>
+
+<script>
+{literal}
+(function () {
+    var select = document.getElementById('option-index');
+    if (!select) return;
+
+    function formatVnd(n) {
+        var num = Number(n);
+        if (isNaN(num)) return String(n);
+        return num.toLocaleString('vi-VN') + ' VNĐ';
+    }
+
+    function syncOption() {
+        var opt = select.options[select.selectedIndex];
+        if (!opt) return;
+        var days = opt.getAttribute('data-days');
+        var price = opt.getAttribute('data-price');
+        var timeEl = document.getElementById('display-time');
+        var classTimeEl = document.getElementById('display-class-time');
+        var basePriceEl = document.getElementById('product-base-price');
+        var totalEl = document.getElementById('product-buy-total');
+        if (timeEl) timeEl.textContent = days;
+        if (classTimeEl) classTimeEl.textContent = days;
+        if (basePriceEl) basePriceEl.textContent = formatVnd(price);
+        if (totalEl) totalEl.textContent = formatVnd(price);
+        var discountEl = document.getElementById('product-buy-discount');
+        var couponCodeEl = document.getElementById('coupon-code');
+        if (discountEl) discountEl.textContent = '';
+        if (couponCodeEl) couponCodeEl.textContent = '';
+    }
+
+    select.addEventListener('change', syncOption);
+    syncOption();
+})();
+{/literal}
+</script>
 
     {include file='user/footer.tpl'}

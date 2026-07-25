@@ -71,6 +71,8 @@ final class ProductController extends BaseController
         return $response->write(
             $this->view()
                 ->assign('update_field', self::$update_field)
+                ->assign('product_options', [])
+                ->assign('product_options_json', '[]')
                 ->fetch('admin/product/create.tpl')
         );
     }
@@ -92,12 +94,15 @@ final class ProductController extends BaseController
         $content->node_group = $content->node_group ?? 0;
         $content->speed_limit = $content->speed_limit ?? 0;
         $content->ip_limit = $content->ip_limit ?? 0;
+        $product_options = Product::normalizeOptions($content);
 
         return $response->write(
             $this->view()
                 ->assign('product', $product)
                 ->assign('content', $content)
                 ->assign('limit', $limit)
+                ->assign('product_options', $product_options)
+                ->assign('product_options_json', json_encode($product_options, JSON_UNESCAPED_UNICODE))
                 ->assign('update_field', self::$update_field)
                 ->fetch('admin/product/edit.tpl')
         );
@@ -123,8 +128,16 @@ final class ProductController extends BaseController
         $class_required = $request->getParam('class_required') ?? '';
         $node_group_required = $request->getParam('node_group_required') ?? '';
         $new_user_required = $request->getParam('new_user_required') === 'true' ? 1 : 0;
+        $options = Product::parseOptionsPayload($request->getParam('options_json') ?? '[]');
 
         $product = new Product();
+
+        if ($options === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Tùy chọn thời hạn/giá không hợp lệ',
+            ]);
+        }
 
         if ($price < 0) {
             return $response->withJson([
@@ -177,11 +190,19 @@ final class ProductController extends BaseController
             $content = [
                 'bandwidth' => $bandwidth,
             ];
+            $options = [];
         } else {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => self::$invalid_data_msg,
             ]);
+        }
+
+        if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
+            $content['options'] = $options;
+            $content['time'] = $options[0]['days'];
+            $content['class_time'] = $options[0]['days'];
+            $price = $options[0]['price'];
         }
 
         $limit = [
@@ -229,8 +250,16 @@ final class ProductController extends BaseController
         $class_required = $request->getParam('class_required') ?? '';
         $node_group_required = $request->getParam('node_group_required') ?? '';
         $new_user_required = $request->getParam('new_user_required') === 'true' ? 1 : 0;
+        $options = Product::parseOptionsPayload($request->getParam('options_json') ?? '[]');
 
         $product = (new Product())->find($product_id);
+
+        if ($options === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Tùy chọn thời hạn/giá không hợp lệ',
+            ]);
+        }
 
         if ($price < 0) {
             return $response->withJson([
@@ -283,11 +312,19 @@ final class ProductController extends BaseController
             $content = [
                 'bandwidth' => $bandwidth,
             ];
+            $options = [];
         } else {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => self::$invalid_data_msg,
             ]);
+        }
+
+        if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
+            $content['options'] = $options;
+            $content['time'] = $options[0]['days'];
+            $content['class_time'] = $options[0]['days'];
+            $price = $options[0]['price'];
         }
 
         $limit = [
