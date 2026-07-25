@@ -12,13 +12,17 @@
                         <span class="home-subtitle">Chi tiết hóa đơn</span>
                     </div>
                 </div>
-                {if $invoice->status === 'unpaid'}
+                {if $invoice->status === 'unpaid' || $invoice->status === 'partially_paid'}
                     <div class="col-auto">
                         <div class="btn-list">
-                            <button href="#" class="btn btn-primary" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                     data-bs-target="#mark_paid_confirm_dialog">
                                 <i class="icon ti ti-checklist"></i>
-                                Đánh dấu đã thanh toán
+                                {if $invoice->status === 'partially_paid'}
+                                    Duyệt đơn hàng
+                                {else}
+                                    Đánh dấu đã thanh toán
+                                {/if}
                             </button>
                         </div>
                     </div>
@@ -101,18 +105,32 @@
         </div>
     </div>
 
+    {if $invoice->status === 'unpaid' || $invoice->status === 'partially_paid'}
     <div class="modal modal-blur fade" id="mark_paid_confirm_dialog" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Đánh dấu đã thanh toán</h5>
+                    <h5 class="modal-title">
+                        {if $invoice->status === 'partially_paid'}
+                            Duyệt đơn hàng
+                        {else}
+                            Đánh dấu đã thanh toán
+                        {/if}
+                    </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <p>
-                            Xác nhận đánh dấu hóa đơn này là đã thanh toán?
-                        <p>
+                        {if $invoice->status === 'partially_paid'}
+                            <p>
+                                Hóa đơn đã thanh toán một phần bằng số dư.
+                                Xác nhận duyệt phần còn lại và kích hoạt đơn hàng?
+                            </p>
+                        {else}
+                            <p>
+                                Xác nhận đánh dấu hóa đơn này là đã thanh toán?
+                            </p>
+                        {/if}
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -134,6 +152,9 @@
                     if (data.ret === 1) {
                         $('#success-message').text(data.msg);
                         $('#success-dialog').modal('show');
+                        window.setTimeout(function () {
+                            location.reload();
+                        }, 1200);
                     } else {
                         $('#fail-message').text(data.msg);
                         $('#fail-dialog').modal('show');
@@ -142,5 +163,6 @@
             })
         });
     </script>
+    {/if}
 
     {include file='admin/footer.tpl'}

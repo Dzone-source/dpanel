@@ -82,7 +82,7 @@ final class InvoiceController extends BaseController
         $invoice_id = $args['id'];
         $invoice = (new Invoice())->find($invoice_id);
 
-        if (in_array($invoice->status, ['paid_gateway', 'paid_balance', 'paid_admin'])) {
+        if (! in_array($invoice->status, ['unpaid', 'partially_paid'], true)) {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => 'Không thể đánh dấu hóa đơn đã thanh toán',
