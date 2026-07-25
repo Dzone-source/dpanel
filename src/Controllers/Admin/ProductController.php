@@ -95,6 +95,19 @@ final class ProductController extends BaseController
         $content->speed_limit = $content->speed_limit ?? 0;
         $content->ip_limit = $content->ip_limit ?? 0;
         $product_options = Product::normalizeOptions($content);
+        if ($product_options === [] && ($product->type === 'tabp' || $product->type === 'time')) {
+            $days = (int) ($content->time ?? 0);
+            if ($days <= 0) {
+                $days = (int) ($content->class_time ?? 0);
+            }
+            if ($days > 0) {
+                $product_options = [[
+                    'days' => $days,
+                    'price' => (float) $product->price,
+                    'label' => $days . ' ngày',
+                ]];
+            }
+        }
 
         return $response->write(
             $this->view()
@@ -146,7 +159,13 @@ final class ProductController extends BaseController
 
         $product = new Product();
 
-        if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
+        if ($type === 'tabp' || $type === 'time') {
+            if ($options === []) {
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Vui lòng thêm ít nhất một tùy chọn thời hạn & giá',
+                ]);
+            }
             $time = (int) $options[0]['days'];
             $class_time = (int) $options[0]['days'];
             $price = (float) $options[0]['price'];
@@ -288,8 +307,14 @@ final class ProductController extends BaseController
             ]);
         }
 
-        // Apply first option before validation so duration/price stay consistent
-        if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
+        // Duration/price come from options for time packages
+        if ($type === 'tabp' || $type === 'time') {
+            if ($options === []) {
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Vui lòng thêm ít nhất một tùy chọn thời hạn & giá',
+                ]);
+            }
             $time = (int) $options[0]['days'];
             $class_time = (int) $options[0]['days'];
             $price = (float) $options[0]['price'];

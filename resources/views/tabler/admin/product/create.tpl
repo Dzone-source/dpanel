@@ -38,13 +38,14 @@
                                     <input id="name" type="text" class="form-control" value="" required>
                                 </div>
                             </div>
-                            <div class="form-group mb-3 row">
+                            <div class="form-group mb-3 row" id="price_option">
                                 <label class="form-label col-3 col-form-label required">Giá</label>
                                 <div class="col">
-                                    <input id="price" type="text" class="form-control" value="" required>
-                                    <small class="form-hint">Nếu có tùy chọn thời hạn bên dưới, giá mặc định sẽ lấy theo tùy chọn đầu tiên.</small>
+                                    <input id="price" type="text" class="form-control" value="">
                                 </div>
                             </div>
+                            <input type="hidden" id="time" value="">
+                            <input type="hidden" id="class_time" value="">
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Tồn kho (-1 là không giới hạn)</label>
                                 <div class="col">
@@ -79,22 +80,10 @@
                             <h3 class="card-title">Nội dung sản phẩm</h3>
                         </div>
                         <div class="card-body">
-                            <div id="time_option" class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label required">Thời hạn sản phẩm (ngày)</label>
-                                <div class="col">
-                                    <input id="time" type="text" class="form-control" value="">
-                                </div>
-                            </div>
                             <div id="class_option" class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Cấp</label>
                                 <div class="col">
-                                    <input id="class" type="text" class="form-control" value="">
-                                </div>
-                            </div>
-                            <div id="class_time_option" class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label required">Thời hạn cấp (ngày)</label>
-                                <div class="col">
-                                    <input id="class_time" type="text" class="form-control" value="">
+                                    <input id="product_class" type="text" class="form-control" value="">
                                 </div>
                             </div>
                             <div id="bandwidth_option" class="form-group mb-3 row">
@@ -160,8 +149,8 @@
                         </div>
                         <div class="card-body">
                             <p class="text-secondary mb-3">
-                                Thêm nhiều gói thời gian (ví dụ 30 / 90 / 180 ngày) với giá riêng.
-                                Khi mua, người dùng sẽ chọn một tùy chọn. Để trống nếu chỉ dùng 1 mức giá như cũ.
+                                Thêm các gói thời gian (ví dụ 30 / 90 / 180 ngày) kèm giá.
+                                Khách sẽ chọn một tùy chọn khi mua. Gói thời gian bắt buộc có ít nhất một tùy chọn.
                             </p>
                             <div class="table-responsive">
                                 <table class="table table-vcenter">
@@ -209,67 +198,65 @@
     }
 
     function collectProductOptions() {
-        var options = [];
+        var days = [];
+        var prices = [];
+        var labels = [];
         $('#product-options-body .product-option-row').each(function () {
-            var days = parseInt($(this).find('.option-days').val(), 10);
-            var price = parseFloat($(this).find('.option-price').val());
-            var label = $.trim($(this).find('.option-label').val() || '');
-            if (!days || days <= 0 || isNaN(price) || price < 0) {
+            var d = parseInt($(this).find('.option-days').val(), 10);
+            var p = parseFloat($(this).find('.option-price').val());
+            var l = $.trim($(this).find('.option-label').val() || '');
+            if (!d || d <= 0 || isNaN(p) || p < 0) {
                 return;
             }
-            if (!label) {
-                label = days + ' ngày';
+            if (!l) {
+                l = d + ' ngày';
             }
-            options.push({ days: days, price: price, label: label });
+            days.push(d);
+            prices.push(p);
+            labels.push(l);
         });
-        return options;
+        return { days: days, prices: prices, labels: labels };
     }
 
     function syncTypeFields(value) {
         if (value === "bandwidth") {
-            $("#time_option").hide();
+            $("#price_option").show();
             $("#class_option").hide();
-            $("#class_time_option").hide();
             $("#bandwidth_option").show();
             $("#node_group_option").hide();
             $("#speed_limit_option").hide();
             $("#ip_limit_option").hide();
             $("#product_options_card").hide();
-            $("#time").prop("required", false);
-            $("#class").prop("required", false);
-            $("#class_time").prop("required", false);
+            $("#price").prop("required", true);
+            $("#product_class").prop("required", false);
             $("#bandwidth").prop("required", true);
             $("#node_group").prop("required", false);
             $("#speed_limit").prop("required", false);
             $("#ip_limit").prop("required", false);
         } else if (value === "time") {
-            $("#time_option").show();
+            $("#price_option").hide();
             $("#class_option").show();
-            $("#class_time_option").show();
             $("#bandwidth_option").hide();
             $("#node_group_option").show();
             $("#speed_limit_option").show();
             $("#ip_limit_option").show();
             $("#product_options_card").show();
-            $("#time").prop("required", true);
-            $("#class").prop("required", true);
-            $("#class_time").prop("required", true);
+            $("#price").prop("required", false);
+            $("#product_class").prop("required", true);
             $("#bandwidth").prop("required", false);
             $("#node_group").prop("required", true);
             $("#speed_limit").prop("required", true);
             $("#ip_limit").prop("required", true);
         } else {
-            $("#time_option").show();
+            $("#price_option").hide();
             $("#class_option").show();
-            $("#class_time_option").show();
             $("#bandwidth_option").show();
             $("#node_group_option").show();
             $("#speed_limit_option").show();
             $("#ip_limit_option").show();
             $("#product_options_card").show();
-            $("#time").prop("required", true);
-            $("#class").prop("required", true);
-            $("#class_time").prop("required", true);
+            $("#price").prop("required", false);
+            $("#product_class").prop("required", true);
             $("#bandwidth").prop("required", true);
             $("#node_group").prop("required", true);
             $("#speed_limit").prop("required", true);
@@ -295,8 +282,14 @@
 
     $(function () {
         syncTypeFields($("#type").val());
+        if ($("#type").val() !== "bandwidth" && $('#product-options-body .product-option-row').length === 0) {
+            $('#product-options-body').append(optionRowHtml());
+        }
         $("#type").on("change", function () {
             syncTypeFields(this.value);
+            if (this.value !== "bandwidth" && $('#product-options-body .product-option-row').length === 0) {
+                $('#product-options-body').append(optionRowHtml());
+            }
         });
 
         $('#add-product-option').on('click', function () {
@@ -314,15 +307,20 @@
             var jumpDelay = cfg ? parseInt(cfg.getAttribute('data-jump-delay'), 10) : 1500;
             if (!jumpDelay || jumpDelay < 0) jumpDelay = 1500;
 
-            var options = collectProductOptions();
-            if (options.length > 0) {
-                $("#time").val(options[0].days);
-                $("#class_time").val(options[0].days);
-                $("#price").val(options[0].price);
+            var type = $("#type").val();
+            var opts = collectProductOptions();
+            if (type === "tabp" || type === "time") {
+                if (opts.days.length === 0) {
+                    showFail("Vui lòng thêm ít nhất một tùy chọn thời hạn & giá");
+                    return;
+                }
+                $("#time").val(opts.days[0]);
+                $("#class_time").val(opts.days[0]);
+                $("#price").val(opts.prices[0]);
             }
 
             var emptyFields = $("input[required]").filter(function () {
-                return $.trim($(this).val()) === "";
+                return $(this).is(":visible") && $.trim($(this).val()) === "";
             });
             if (emptyFields.length > 0) {
                 showFail("Vui lòng điền đầy đủ các trường bắt buộc");
@@ -330,22 +328,24 @@
             }
 
             var payload = {
-                type: $("#type").val(),
+                type: type,
                 name: $("#name").val(),
                 price: $("#price").val(),
                 status: $("#status").val(),
                 stock: $("#stock").val(),
                 time: $("#time").val(),
                 bandwidth: $("#bandwidth").val(),
-                class: $("#class").val(),
+                class: $("#product_class").val(),
                 class_time: $("#class_time").val(),
                 node_group: $("#node_group").val(),
                 speed_limit: $("#speed_limit").val(),
                 ip_limit: $("#ip_limit").val(),
                 class_required: $("#class_required").val(),
                 node_group_required: $("#node_group_required").val(),
-                new_user_required: $("#new_user_required").is(":checked"),
-                options_json: JSON.stringify(options)
+                new_user_required: $("#new_user_required").is(":checked") ? "true" : "false",
+                option_days: opts.days,
+                option_prices: opts.prices,
+                option_labels: opts.labels
             };
 
             $.ajax({

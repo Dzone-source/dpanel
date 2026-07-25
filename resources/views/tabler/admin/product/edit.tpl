@@ -38,13 +38,14 @@
                                     <input id="name" type="text" class="form-control" value="{$product->name|escape:'html'}">
                                 </div>
                             </div>
-                            <div class="form-group mb-3 row">
+                            <div class="form-group mb-3 row" id="price_option">
                                 <label class="form-label col-3 col-form-label required">Giá</label>
                                 <div class="col">
                                     <input id="price" type="text" class="form-control" value="{$product->price}">
-                                    <small class="form-hint">Nếu có tùy chọn thời hạn bên dưới, giá mặc định sẽ lấy theo tùy chọn đầu tiên.</small>
                                 </div>
                             </div>
+                            <input type="hidden" id="time" value="{$content->time}">
+                            <input type="hidden" id="class_time" value="{$content->class_time}">
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Tồn kho (nhỏ hơn 0 là không giới hạn)</label>
                                 <div class="col">
@@ -79,22 +80,10 @@
                             <h3 class="card-title">Nội dung sản phẩm</h3>
                         </div>
                         <div class="card-body">
-                            <div id="time_option" class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label required">Thời hạn sản phẩm (ngày)</label>
-                                <div class="col">
-                                    <input id="time" type="text" class="form-control" value="{$content->time}">
-                                </div>
-                            </div>
                             <div id="class_option" class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Cấp</label>
                                 <div class="col">
                                     <input id="product_class" type="text" class="form-control" value="{$content->class}">
-                                </div>
-                            </div>
-                            <div id="class_time_option" class="form-group mb-3 row">
-                                <label class="form-label col-3 col-form-label required">Thời hạn cấp (ngày)</label>
-                                <div class="col">
-                                    <input id="class_time" type="text" class="form-control" value="{$content->class_time}">
                                 </div>
                             </div>
                             <div id="bandwidth_option" class="form-group mb-3 row">
@@ -157,8 +146,8 @@
                         </div>
                         <div class="card-body">
                             <p class="text-secondary mb-3">
-                                Thêm nhiều gói thời gian (ví dụ 30 / 90 / 180 ngày) với giá riêng.
-                                Khi mua, người dùng sẽ chọn một tùy chọn. Để trống nếu chỉ dùng 1 mức giá như cũ.
+                                Thêm các gói thời gian (ví dụ 30 / 90 / 180 ngày) kèm giá.
+                                Khách sẽ chọn một tùy chọn khi mua. Gói thời gian bắt buộc có ít nhất một tùy chọn.
                             </p>
                             <div class="table-responsive">
                                 <table class="table table-vcenter">
@@ -214,9 +203,8 @@
 
     function syncType(value) {
         var map = {
-            time_option: value !== 'bandwidth',
+            price_option: value === 'bandwidth',
             class_option: value !== 'bandwidth',
-            class_time_option: value !== 'bandwidth',
             bandwidth_option: value === 'bandwidth' || value === 'tabp',
             node_group_option: value !== 'bandwidth',
             speed_limit_option: value !== 'bandwidth',
@@ -277,8 +265,13 @@
     });
 
     document.getElementById('save-product').addEventListener('click', function () {
+        var type = fieldVal('type');
         var opts = collectOptions();
-        if (opts.days.length > 0) {
+        if (type === 'tabp' || type === 'time') {
+            if (opts.days.length === 0) {
+                notify(false, 'Vui lòng thêm ít nhất một tùy chọn thời hạn & giá');
+                return;
+            }
             document.getElementById('time').value = opts.days[0];
             document.getElementById('class_time').value = opts.days[0];
             document.getElementById('price').value = opts.prices[0];
@@ -288,13 +281,13 @@
             notify(false, 'Vui lòng nhập tên sản phẩm');
             return;
         }
-        if (fieldVal('price') === '' || isNaN(parseFloat(fieldVal('price')))) {
+        if (type === 'bandwidth' && (fieldVal('price') === '' || isNaN(parseFloat(fieldVal('price'))))) {
             notify(false, 'Vui lòng nhập giá hợp lệ');
             return;
         }
 
         var data = {
-            type: fieldVal('type'),
+            type: type,
             name: fieldVal('name'),
             price: fieldVal('price'),
             status: fieldVal('status'),
