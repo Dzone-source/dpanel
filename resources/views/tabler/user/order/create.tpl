@@ -19,7 +19,7 @@
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-sm-12 col-md-6 col-lg-9">
-                    <div class="card">
+                    <div class="card gopass-order-main-card">
                         <div class="card-header">
                             <h3 class="card-title">Nội dung đơn hàng</h3>
                         </div>

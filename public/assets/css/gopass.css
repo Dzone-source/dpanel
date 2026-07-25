@@ -2067,7 +2067,45 @@ body.gopass-auth .modal-content {
     }
 }
 
-/* Order create — visible duration / price options */
+/* Order create — elevated content + duration options */
+.gopass-order-main-card {
+    position: relative;
+    border: 1px solid rgba(124, 58, 237, 0.14) !important;
+    box-shadow:
+        0 1px 2px rgba(55, 30, 110, 0.04),
+        0 10px 28px rgba(55, 30, 110, 0.1),
+        0 24px 48px rgba(55, 30, 110, 0.08) !important;
+    overflow: hidden;
+}
+
+.gopass-order-main-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gopass-primary), var(--gopass-accent, #db2777));
+    pointer-events: none;
+}
+
+.gopass-order-main-card .card-header {
+    background: linear-gradient(180deg, rgba(124, 58, 237, 0.06), transparent);
+    border-bottom-color: rgba(124, 58, 237, 0.1);
+}
+
+[data-bs-theme="dark"] .gopass-order-main-card {
+    border-color: rgba(167, 139, 250, 0.22) !important;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.25),
+        0 12px 32px rgba(0, 0, 0, 0.35),
+        0 0 0 1px rgba(124, 58, 237, 0.12) !important;
+}
+
+[data-bs-theme="dark"] .gopass-order-main-card .card-header {
+    background: linear-gradient(180deg, rgba(124, 58, 237, 0.14), transparent);
+}
+
 .gopass-order-options-cell {
     padding-top: 1rem !important;
     padding-bottom: 1rem !important;
@@ -2080,18 +2118,27 @@ body.gopass-auth .modal-content {
 }
 
 .gopass-order-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-    gap: 0.75rem;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0.65rem;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding-bottom: 0.15rem;
 }
 
 .gopass-order-option {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.25rem;
-    width: 100%;
-    padding: 0.9rem 1rem;
+    justify-content: space-between;
+    gap: 0.2rem;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    padding: 0.85rem 0.9rem;
     margin: 0;
     border: 1.5px solid var(--gopass-border);
     border-radius: var(--gopass-radius-sm);
@@ -2099,6 +2146,7 @@ body.gopass-auth .modal-content {
     color: var(--gopass-text);
     text-align: left;
     cursor: pointer;
+    scroll-snap-align: start;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
 
@@ -2135,6 +2183,7 @@ body.gopass-auth .modal-content {
     font-size: 0.95rem;
     font-weight: 600;
     color: var(--gopass-primary);
+    word-break: break-word;
 }
 
 [data-bs-theme="dark"] .gopass-order-option.is-selected {
@@ -2145,9 +2194,53 @@ body.gopass-auth .modal-content {
     color: var(--gopass-primary-light);
 }
 
-@media (max-width: 575.98px) {
+@media (max-width: 767.98px) {
+    .gopass-order-main-card {
+        box-shadow:
+            0 2px 6px rgba(55, 30, 110, 0.06),
+            0 14px 36px rgba(55, 30, 110, 0.14) !important;
+        border-radius: 1rem !important;
+    }
+
     .gopass-order-options {
-        grid-template-columns: 1fr 1fr;
+        gap: 0.45rem;
+    }
+
+    .gopass-order-option {
+        flex: 1 1 0;
+        min-width: calc((100% - 0.9rem) / 3);
+        max-width: none;
+        padding: 0.7rem 0.55rem;
+        align-items: center;
+        text-align: center;
+    }
+
+    .gopass-order-option-days {
+        font-size: 0.92rem;
+    }
+
+    .gopass-order-option-label {
+        font-size: 0.72rem;
+    }
+
+    .gopass-order-option-price {
+        font-size: 0.8rem;
+        margin-top: 0.15rem;
+    }
+}
+
+@media (max-width: 399.98px) {
+    .gopass-order-option {
+        min-width: calc((100% - 0.9rem) / 3);
+        padding: 0.65rem 0.4rem;
+    }
+
+    .gopass-order-option-days {
+        font-size: 0.84rem;
+    }
+
+    .gopass-order-option-price {
+        font-size: 0.74rem;
     }
 }
 
