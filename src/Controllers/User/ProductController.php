@@ -36,14 +36,33 @@ final class ProductController extends BaseController
 
         foreach ($tabps as $tabp) {
             $tabp->content = json_decode($tabp->content);
+            $tabp->options = Product::normalizeOptions($tabp->content);
+            $tabp->has_options = $tabp->options !== [];
+            if ($tabp->has_options) {
+                $prices = array_column($tabp->options, 'price');
+                $tabp->price_display = min($prices) . ' ~ ' . max($prices);
+            } else {
+                $tabp->price_display = (string) $tabp->price;
+            }
         }
 
         foreach ($bandwidths as $bandwidth) {
             $bandwidth->content = json_decode($bandwidth->content);
+            $bandwidth->options = [];
+            $bandwidth->has_options = false;
+            $bandwidth->price_display = (string) $bandwidth->price;
         }
 
         foreach ($times as $time) {
             $time->content = json_decode($time->content);
+            $time->options = Product::normalizeOptions($time->content);
+            $time->has_options = $time->options !== [];
+            if ($time->has_options) {
+                $prices = array_column($time->options, 'price');
+                $time->price_display = min($prices) . ' ~ ' . max($prices);
+            } else {
+                $time->price_display = (string) $time->price;
+            }
         }
 
         return $response->write(

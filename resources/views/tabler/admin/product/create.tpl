@@ -42,6 +42,7 @@
                                 <label class="form-label col-3 col-form-label required">价格</label>
                                 <div class="col">
                                     <input id="price" type="text" class="form-control" value="" required>
+                                    <small class="form-hint">Nếu có tùy chọn thời hạn bên dưới, giá mặc định sẽ lấy theo tùy chọn đầu tiên.</small>
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
@@ -152,14 +153,87 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12 mt-3" id="product_options_card">
+                    <div class="card">
+                        <div class="card-header card-header-light">
+                            <h3 class="card-title">Tùy chọn thời hạn &amp; giá</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-secondary mb-3">
+                                Thêm nhiều gói thời gian (ví dụ 30 / 90 / 180 ngày) với giá riêng.
+                                Khi mua, người dùng sẽ chọn một tùy chọn. Để trống nếu chỉ dùng 1 mức giá như cũ.
+                            </p>
+                            <div class="table-responsive">
+                                <table class="table table-vcenter">
+                                    <thead>
+                                    <tr>
+                                        <th style="width:28%">Nhãn</th>
+                                        <th style="width:22%">Số ngày</th>
+                                        <th style="width:28%">Giá</th>
+                                        <th style="width:22%"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="product-options-body"></tbody>
+                                </table>
+                            </div>
+                            <button type="button" class="btn btn-outline-primary" id="add-product-option">
+                                <i class="icon ti ti-plus"></i> Thêm tùy chọn
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <script>
+{literal}
+    function optionRowHtml(opt) {
+        opt = opt || {};
+        var label = opt.label || '';
+        var days = opt.days || '';
+        var price = (opt.price !== undefined && opt.price !== null) ? opt.price : '';
+        var esc = function (s) {
+            return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        };
+        return '' +
+            '<tr class="product-option-row">' +
+            '<td><input type="text" class="form-control option-label" placeholder="VD: 30 ngày" value="' + esc(label) + '"></td>' +
+            '<td><input type="number" min="1" class="form-control option-days" placeholder="30" value="' + esc(days) + '"></td>' +
+            '<td><input type="number" min="0" step="0.01" class="form-control option-price" placeholder="30000" value="' + esc(price) + '"></td>' +
+            '<td><button type="button" class="btn btn-outline-danger remove-product-option">Xóa</button></td>' +
+            '</tr>';
+    }
+
+    function collectProductOptions() {
+        var options = [];
+        $('#product-options-body .product-option-row').each(function () {
+            var days = parseInt($(this).find('.option-days').val(), 10);
+            var price = parseFloat($(this).find('.option-price').val());
+            var label = $.trim($(this).find('.option-label').val() || '');
+            if (!days || days <= 0 || isNaN(price) || price < 0) {
+                return;
+            }
+            if (!label) {
+                label = days + ' ngày';
+            }
+            options.push({ days: days, price: price, label: label });
+        });
+        return options;
+    }
+{/literal}
+
     $(function () {
         $("#type").change();
+    });
+
+    $('#add-product-option').on('click', function () {
+        $('#product-options-body').append(optionRowHtml());
+    });
+
+    $(document).on('click', '.remove-product-option', function () {
+        $(this).closest('tr').remove();
     });
 
     $("#type").on("change", function () {
@@ -171,6 +245,7 @@
             $("#node_group_option").hide();
             $("#speed_limit_option").hide();
             $("#ip_limit_option").hide();
+            $("#product_options_card").hide();
             $("#time").prop("required", false);
             $("#class").prop("required", false);
             $("#class_time").prop("required", false);
@@ -186,6 +261,7 @@
             $("#node_group_option").show();
             $("#speed_limit_option").show();
             $("#ip_limit_option").show();
+            $("#product_options_card").show();
             $("#time").prop("required", true);
             $("#class").prop("required", true);
             $("#class_time").prop("required", true);
@@ -201,6 +277,7 @@
             $("#node_group_option").show();
             $("#speed_limit_option").show();
             $("#ip_limit_option").show();
+            $("#product_options_card").show();
             $("#time").prop("required", true);
             $("#class").prop("required", true);
             $("#class_time").prop("required", true);
@@ -220,6 +297,12 @@
             $("#fail-message").text("请填写所有必要栏位");
             $("#fail-dialog").modal("show");
         } else {
+            var options = collectProductOptions();
+            if (options.length > 0) {
+                $('#time').val(options[0].days);
+                $('#class_time').val(options[0].days);
+                $('#price').val(options[0].price);
+            }
             $.ajax({
                 url: "/admin/product",
                 type: "POST",
@@ -229,6 +312,7 @@
                     {$key}: $("#{$key}").val(),
                     {/foreach}
                     new_user_required: $("#new_user_required").is(":checked"),
+                    options_json: JSON.stringify(options),
                 },
                 success: function (data) {
                     if (data.ret === 1) {
