@@ -200,8 +200,13 @@
 </div>
 
 <script type="application/json" id="product-options-json">{if isset($product_options_json)}{$product_options_json}{else}[]{/if}</script>
+<div id="product-save-config"
+     data-product-id="{$product->id}"
+     data-jump-delay="{$config['jump_delay']|default:1500}"
+     hidden></div>
 <script>
 {literal}
+(function () {
     function optionRowHtml(opt) {
         opt = opt || {};
         var label = opt.label || '';
@@ -246,30 +251,25 @@
         });
         return options;
     }
-{/literal}
 
-    $(function () {
-        $("#type").change();
-        var raw = document.getElementById('product-options-json');
-        var list = [];
-        try {
-            list = raw ? JSON.parse(raw.textContent || '[]') : [];
-        } catch (e) {
-            list = [];
+    function showFail(msg) {
+        $("#fail-message").text(msg || "Thất bại");
+        if (typeof failDialog !== "undefined") {
+            failDialog.show();
+        } else {
+            window.alert(msg || "Thất bại");
         }
-        initProductOptions(list);
-    });
+    }
 
-    $('#add-product-option').on('click', function () {
-        $('#product-options-body').append(optionRowHtml());
-    });
+    function showSuccess(msg) {
+        $("#success-message").text(msg || "Thành công");
+        if (typeof successDialog !== "undefined") {
+            successDialog.show();
+        }
+    }
 
-    $(document).on('click', '.remove-product-option', function () {
-        $(this).closest('tr').remove();
-    });
-
-    $("#type").on("change", function () {
-        if (this.value === "bandwidth") {
+    function syncTypeFields(value) {
+        if (value === "bandwidth") {
             $("#time_option").hide();
             $("#class_option").hide();
             $("#class_time_option").hide();
@@ -285,7 +285,7 @@
             $("#node_group").prop("required", false);
             $("#speed_limit").prop("required", false);
             $("#ip_limit").prop("required", false);
-        } else if (this.value === "time") {
+        } else if (value === "time") {
             $("#time_option").show();
             $("#class_option").show();
             $("#class_time_option").show();
@@ -318,81 +318,111 @@
             $("#speed_limit").prop("required", true);
             $("#ip_limit").prop("required", true);
         }
-    });
-
-    function showFail(msg) {
-        $("#fail-message").text(msg || "Thất bại");
-        if (typeof failDialog !== "undefined") {
-            failDialog.show();
-        } else {
-            alert(msg || "Thất bại");
-        }
     }
 
-    function showSuccess(msg) {
-        $("#success-message").text(msg || "Thành công");
-        if (typeof successDialog !== "undefined") {
-            successDialog.show();
-        }
-    }
-
-    $("#save-product").on("click", function (e) {
-        e.preventDefault();
-
-        var options = collectProductOptions();
-        if (options.length > 0) {
-            $("#time").val(options[0].days);
-            $("#class_time").val(options[0].days);
-            $("#price").val(options[0].price);
-        }
-
-        var emptyFields = $("input[required]").filter(function () {
-            return $.trim($(this).val()) === "";
+    $(function () {
+        syncTypeFields($("#type").val());
+        $("#type").on("change", function () {
+            syncTypeFields(this.value);
         });
-        if (emptyFields.length > 0) {
-            showFail("Vui lòng điền đầy đủ các trường bắt buộc");
-            return;
-        }
-        if ($.trim($("#name").val()) === "") {
-            showFail("Vui lòng nhập tên sản phẩm");
-            return;
-        }
-        if ($.trim($("#price").val()) === "" || isNaN(parseFloat($("#price").val()))) {
-            showFail("Vui lòng nhập giá hợp lệ");
-            return;
-        }
 
-        $.ajax({
-            url: "/admin/product/{$product->id}",
-            type: "POST",
-            dataType: "json",
-            data: {
-                {foreach $update_field as $key}
-                {$key}: $("#{$key}").val(),
-                {/foreach}
+        var raw = document.getElementById('product-options-json');
+        var list = [];
+        try {
+            list = raw ? JSON.parse(raw.textContent || '[]') : [];
+        } catch (e) {
+            list = [];
+        }
+        initProductOptions(list);
+
+        $('#add-product-option').on('click', function () {
+            $('#product-options-body').append(optionRowHtml());
+        });
+
+        $(document).on('click', '.remove-product-option', function () {
+            $(this).closest('tr').remove();
+        });
+
+        $("#save-product").on("click", function (e) {
+            e.preventDefault();
+
+            var cfg = document.getElementById('product-save-config');
+            var productId = cfg ? cfg.getAttribute('data-product-id') : '';
+            var jumpDelay = cfg ? parseInt(cfg.getAttribute('data-jump-delay'), 10) : 1500;
+            if (!jumpDelay || jumpDelay < 0) jumpDelay = 1500;
+
+            var options = collectProductOptions();
+            if (options.length > 0) {
+                $("#time").val(options[0].days);
+                $("#class_time").val(options[0].days);
+                $("#price").val(options[0].price);
+            }
+
+            var emptyFields = $("input[required]").filter(function () {
+                return $.trim($(this).val()) === "";
+            });
+            if (emptyFields.length > 0) {
+                showFail("Vui lòng điền đầy đủ các trường bắt buộc");
+                return;
+            }
+            if ($.trim($("#name").val()) === "") {
+                showFail("Vui lòng nhập tên sản phẩm");
+                return;
+            }
+            if ($.trim($("#price").val()) === "" || isNaN(parseFloat($("#price").val()))) {
+                showFail("Vui lòng nhập giá hợp lệ");
+                return;
+            }
+
+            var payload = {
+                type: $("#type").val(),
+                name: $("#name").val(),
+                price: $("#price").val(),
+                status: $("#status").val(),
+                stock: $("#stock").val(),
+                time: $("#time").val(),
+                bandwidth: $("#bandwidth").val(),
+                class: $("#class").val(),
+                class_time: $("#class_time").val(),
+                node_group: $("#node_group").val(),
+                speed_limit: $("#speed_limit").val(),
+                ip_limit: $("#ip_limit").val(),
+                class_required: $("#class_required").val(),
+                node_group_required: $("#node_group_required").val(),
                 new_user_required: $("#new_user_required").is(":checked"),
                 options_json: JSON.stringify(options)
-            },
-            success: function (data) {
-                if (data && data.ret === 1) {
-                    showSuccess(data.msg);
-                    window.setTimeout(function () {
-                        location.href = "/admin/product";
-                    }, {$config['jump_delay']|default:1500});
-                } else {
-                    showFail((data && data.msg) ? data.msg : "Cập nhật thất bại");
+            };
+
+            $.ajax({
+                url: "/admin/product/" + productId,
+                type: "POST",
+                dataType: "json",
+                data: payload,
+                success: function (data) {
+                    if (data && data.ret === 1) {
+                        showSuccess(data.msg);
+                        window.setTimeout(function () {
+                            location.href = "/admin/product";
+                        }, jumpDelay);
+                    } else {
+                        showFail((data && data.msg) ? data.msg : "Cập nhật thất bại");
+                    }
+                },
+                error: function (xhr) {
+                    var msg = "Không gửi được yêu cầu lưu";
+                    try {
+                        var data = JSON.parse(xhr.responseText);
+                        if (data && data.msg) msg = data.msg;
+                    } catch (err) {
+                        // ignore parse error
+                    }
+                    showFail(msg);
                 }
-            },
-            error: function (xhr) {
-                var msg = "Không gửi được yêu cầu lưu";
-                try {
-                    var data = JSON.parse(xhr.responseText);
-                    if (data && data.msg) msg = data.msg;
-                } catch (err) {}
-                showFail(msg);
-            }
+            });
         });
     });
+})();
+{/literal}
 </script>
 
 {include file='admin/footer.tpl'}

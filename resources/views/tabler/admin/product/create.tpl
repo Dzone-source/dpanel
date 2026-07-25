@@ -288,44 +288,54 @@
         }
     });
 
-    $("#create-product").click(function () {
-        let emptyFields = $('input[required]').filter(function () {
-            return $(this).val() === '';
-        });
+    $("#create-product").on("click", function (e) {
+        e.preventDefault();
 
+        var options = collectProductOptions();
+        if (options.length > 0) {
+            $("#time").val(options[0].days);
+            $("#class_time").val(options[0].days);
+            $("#price").val(options[0].price);
+        }
+
+        var emptyFields = $("input[required]").filter(function () {
+            return $.trim($(this).val()) === "";
+        });
         if (emptyFields.length > 0) {
             $("#fail-message").text("Vui lòng điền đầy đủ các trường bắt buộc");
-            $("#fail-dialog").modal("show");
-        } else {
-            var options = collectProductOptions();
-            if (options.length > 0) {
-                $('#time').val(options[0].days);
-                $('#class_time').val(options[0].days);
-                $('#price').val(options[0].price);
-            }
-            $.ajax({
-                url: "/admin/product",
-                type: "POST",
-                dataType: "json",
-                data: {
-                    {foreach $update_field as $key}
-                    {$key}: $("#{$key}").val(),
-                    {/foreach}
-                    new_user_required: $("#new_user_required").is(":checked"),
-                    options_json: JSON.stringify(options),
-                },
-                success: function (data) {
-                    if (data.ret === 1) {
-                        $("#success-message").text(data.msg);
-                        $("#success-dialog").modal("show");
-                        window.setTimeout("location.href=top.document.referrer", {$config["jump_delay"]});
-                    } else {
-                        $("#fail-message").text(data.msg);
-                        $("#fail-dialog").modal("show");
-                    }
-                }
-            })
+            if (typeof failDialog !== "undefined") failDialog.show();
+            else alert("Vui lòng điền đầy đủ các trường bắt buộc");
+            return;
         }
+
+        $.ajax({
+            url: "/admin/product",
+            type: "POST",
+            dataType: "json",
+            data: {
+                {foreach $update_field as $key}
+                {$key}: $("#{$key}").val(),
+                {/foreach}
+                new_user_required: $("#new_user_required").is(":checked"),
+                options_json: JSON.stringify(options)
+            },
+            success: function (data) {
+                if (data && data.ret === 1) {
+                    $("#success-message").text(data.msg);
+                    if (typeof successDialog !== "undefined") successDialog.show();
+                    window.setTimeout(function () {
+                        location.href = "/admin/product";
+                    }, {$config["jump_delay"]|default:1500});
+                } else {
+                    $("#fail-message").text((data && data.msg) ? data.msg : "Thêm thất bại");
+                    if (typeof failDialog !== "undefined") failDialog.show();
+                }
+            },
+            error: function () {
+                $("#fail-message").text("Không gửi được yêu cầu lưu");
+                if (typeof failDialog !== "undefined") failDialog.show();
+            }
+        });
     });
 </script>
 
