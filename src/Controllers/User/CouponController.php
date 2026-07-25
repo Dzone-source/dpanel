@@ -22,6 +22,10 @@ final class CouponController extends BaseController
     {
         $coupon_raw = $this->antiXss->xss_clean($request->getParam('coupon'));
         $product_id = $this->antiXss->xss_clean($request->getParam('product_id'));
+        $option_index_raw = $this->antiXss->xss_clean($request->getParam('option_index'));
+        $option_index = ($option_index_raw === null || $option_index_raw === '')
+            ? null
+            : (int) $option_index_raw;
         $invalid_coupon_msg = '优惠码无效';
 
         if ($coupon_raw === '') {
@@ -48,6 +52,16 @@ final class CouponController extends BaseController
                 'msg' => $invalid_coupon_msg,
             ]);
         }
+
+        $resolved = $product->resolvePurchaseOption($option_index);
+        if ($resolved === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Vui lòng chọn thời hạn gói hợp lệ',
+            ]);
+        }
+
+        $base_price = $resolved['price'];
 
         $limit = json_decode($coupon->limit);
 
@@ -90,12 +104,15 @@ final class CouponController extends BaseController
         $content = json_decode($coupon->content);
 
         if ($content->type === 'percentage') {
-            $discount = $product->price * $content->value / 100;
+            $discount = $base_price * $content->value / 100;
         } else {
             $discount = $content->value;
         }
 
-        $buy_price = $product->price - $discount;
+        $buy_price = $base_price - $discount;
+        if ($buy_price < 0) {
+            $buy_price = 0;
+        }
 
         return $response->withJson([
             'ret' => 1,

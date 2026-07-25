@@ -69,11 +69,20 @@ final class OrderController extends BaseController
 
         $product = (new Product())->where('id', $product_id)->first();
         $product->type_text = $product->type();
-        $product->content = json_decode($product->content);
+        $content = json_decode($product->content);
+        $product->content = $content;
+        $product_options = Product::normalizeOptions($content);
+        foreach ($product_options as $i => &$opt) {
+            $opt['index'] = $i;
+        }
+        unset($opt);
+        $product->has_options = $product_options !== [];
+        $product->options = $product_options;
 
         return $response->write(
             $this->view()
                 ->assign('product', $product)
+                ->assign('product_options', $product_options)
                 ->fetch('user/order/create.tpl')
         );
     }
@@ -128,6 +137,10 @@ final class OrderController extends BaseController
     {
         $coupon_raw = $this->antiXss->xss_clean($request->getParam('coupon'));
         $product_id = $this->antiXss->xss_clean($request->getParam('product_id'));
+        $option_index_raw = $this->antiXss->xss_clean($request->getParam('option_index'));
+        $option_index = ($option_index_raw === null || $option_index_raw === '')
+            ? null
+            : (int) $option_index_raw;
 
         $product = (new Product())->find($product_id);
 
@@ -138,7 +151,17 @@ final class OrderController extends BaseController
             ]);
         }
 
-        $buy_price = $product->price;
+        $resolved = $product->resolvePurchaseOption($option_index);
+        if ($resolved === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Vui lòng chọn thời hạn gói hợp lệ',
+            ]);
+        }
+
+        $buy_price = $resolved['price'];
+        $product_content = $resolved['content'];
+        $base_price = $resolved['price'];
         $user = $this->user;
 
         if ($user->is_shadow_banned) {
@@ -149,6 +172,7 @@ final class OrderController extends BaseController
         }
 
         $coupon = null;
+        $discount = 0;
 
         if ($coupon_raw !== '') {
             $coupon = (new UserCoupon())->where('code', $coupon_raw)->first();
@@ -204,12 +228,12 @@ final class OrderController extends BaseController
             $content = json_decode($coupon->content);
 
             if ($content->type === 'percentage') {
-                $discount = $product->price * $content->value / 100;
+                $discount = $base_price * $content->value / 100;
             } else {
                 $discount = $content->value;
             }
 
-            $buy_price = $product->price - $discount;
+            $buy_price = $base_price - $discount;
         }
 
         $product_limit = json_decode($product->limit);
@@ -239,15 +263,24 @@ final class OrderController extends BaseController
             }
         }
 
+        if ($buy_price < 0) {
+            $buy_price = 0;
+        }
+
+        $order_name = $product->name;
+        if ($resolved['option'] !== null) {
+            $order_name .= ' · ' . $resolved['option']['label'];
+        }
+
         $order = new Order();
         $order->user_id = $user->id;
         $order->product_id = $product->id;
         $order->product_type = $product->type;
-        $order->product_name = $product->name;
-        $order->product_content = $product->content;
+        $order->product_name = $order_name;
+        $order->product_content = json_encode($product_content);
         $order->coupon = $coupon_raw;
         $order->price = $buy_price;
-        $order->status = $buy_price === 0 ? 'pending_activation' : 'pending_payment';
+        $order->status = $buy_price <= 0 ? 'pending_activation' : 'pending_payment';
         $order->create_time = time();
         $order->update_time = time();
         $order->save();
@@ -255,8 +288,8 @@ final class OrderController extends BaseController
         $invoice_content = [];
         $invoice_content[] = [
             'content_id' => 0,
-            'name' => $product->name,
-            'price' => $product->price,
+            'name' => $order_name,
+            'price' => $base_price,
         ];
 
         if ($coupon_raw !== '') {
@@ -272,7 +305,7 @@ final class OrderController extends BaseController
         $invoice->order_id = $order->id;
         $invoice->content = json_encode($invoice_content);
         $invoice->price = $buy_price;
-        $invoice->status = $buy_price === 0 ? 'paid_gateway' : 'unpaid';
+        $invoice->status = $buy_price <= 0 ? 'paid_gateway' : 'unpaid';
         $invoice->create_time = time();
         $invoice->update_time = time();
         $invoice->pay_time = 0;

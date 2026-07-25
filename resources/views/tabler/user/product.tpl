@@ -53,9 +53,14 @@
                                                             {$tabp->name}</div>
                                                         <div id="product-{$tabp->id}-price"
                                                              class="display-6 my-3">
-                                                            <p class="fw-bold">{$tabp->price}</p>
+                                                            <p class="fw-bold">{$tabp->price_display}</p>
                                                             <i class="ti ti-currency-yuan"></i>
                                                         </div>
+                                                        {if $tabp->has_options}
+                                                            <div class="text-secondary small mb-2">
+                                                                Nhiều thời hạn — chọn khi mua
+                                                            </div>
+                                                        {/if}
                                                         <div class="list-group list-group-flush">
                                                             <div class="list-group-item">
                                                                 <div class="row align-items-center">
@@ -71,8 +76,12 @@
                                                             <div class="list-group-item">
                                                                 <div class="row align-items-center">
                                                                     <div class="col text-truncate">
-                                                                        <div class="text-reset d-block">{$tabp->content->class_time}
-                                                                            天
+                                                                        <div class="text-reset d-block">
+                                                                            {if $tabp->has_options}
+                                                                                tùy chọn khi mua
+                                                                            {else}
+                                                                                {$tabp->content->class_time} 天
+                                                                            {/if}
                                                                         </div>
                                                                         <div class="d-block text-secondary text-truncate mt-n1">
                                                                             等级时长
@@ -201,9 +210,14 @@
                                                         </div>
                                                         <div id="product-{$time->id}-price"
                                                              class="display-6 my-3"><p
-                                                                    class="fw-bold">{$time->price}</p>
+                                                                    class="fw-bold">{$time->price_display}</p>
                                                             <i class="ti ti-currency-yuan"></i>
                                                         </div>
+                                                        {if $time->has_options}
+                                                            <div class="text-secondary small mb-2">
+                                                                Nhiều thời hạn — chọn khi mua
+                                                            </div>
+                                                        {/if}
                                                         <div class="list-group list-group-flush">
                                                             <div class="list-group-item">
                                                                 <div class="row align-items-center">
@@ -219,8 +233,12 @@
                                                             <div class="list-group-item">
                                                                 <div class="row align-items-center">
                                                                     <div class="col text-truncate">
-                                                                        <div class="text-reset d-block">{$time->content->class_time}
-                                                                            天
+                                                                        <div class="text-reset d-block">
+                                                                            {if $time->has_options}
+                                                                                tùy chọn khi mua
+                                                                            {else}
+                                                                                {$time->content->class_time} 天
+                                                                            {/if}
                                                                         </div>
                                                                         <div class="d-block text-secondary text-truncate mt-n1">
                                                                             等级时长
