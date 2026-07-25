@@ -14,10 +14,10 @@
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
-                        <a id="save-product" href="#" class="btn btn-primary">
+                        <button type="button" id="save-product" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
                             Lưu
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -35,23 +35,20 @@
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Tên</label>
                                 <div class="col">
-                                    <input id="name" type="text" class="form-control"
-                                           value="{$product->name}">
+                                    <input id="name" type="text" class="form-control" value="{$product->name|escape:'html'}">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Giá</label>
                                 <div class="col">
-                                    <input id="price" type="text" class="form-control"
-                                           value="{$product->price}">
+                                    <input id="price" type="text" class="form-control" value="{$product->price}">
                                     <small class="form-hint">Nếu có tùy chọn thời hạn bên dưới, giá mặc định sẽ lấy theo tùy chọn đầu tiên.</small>
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Tồn kho (nhỏ hơn 0 là không giới hạn)</label>
                                 <div class="col">
-                                    <input id="stock" type="text" class="form-control"
-                                           value="{$product->stock}">
+                                    <input id="stock" type="text" class="form-control" value="{$product->stock}">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
@@ -67,12 +64,9 @@
                                 <label class="form-label col-3 col-form-label">Loại</label>
                                 <div class="col">
                                     <select id="type" class="col form-select">
-                                        <option value="tabp" {if $product->type === "tabp"}selected{/if}>Gói thời gian và lưu lượng
-                                        </option>
+                                        <option value="tabp" {if $product->type === "tabp"}selected{/if}>Gói thời gian và lưu lượng</option>
                                         <option value="time" {if $product->type === "time"}selected{/if}>Gói thời gian</option>
-                                        <option value="bandwidth" {if $product->type === "bandwidth"}selected{/if}>
-                                            Gói lưu lượng
-                                        </option>
+                                        <option value="bandwidth" {if $product->type === "bandwidth"}selected{/if}>Gói lưu lượng</option>
                                     </select>
                                 </div>
                             </div>
@@ -88,50 +82,43 @@
                             <div id="time_option" class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Thời hạn sản phẩm (ngày)</label>
                                 <div class="col">
-                                    <input id="time" type="text" class="form-control"
-                                           value="{$content->time}">
+                                    <input id="time" type="text" class="form-control" value="{$content->time}">
                                 </div>
                             </div>
                             <div id="class_option" class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Cấp</label>
                                 <div class="col">
-                                    <input id="class" type="text" class="form-control"
-                                           value="{$content->class}">
+                                    <input id="product_class" type="text" class="form-control" value="{$content->class}">
                                 </div>
                             </div>
                             <div id="class_time_option" class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Thời hạn cấp (ngày)</label>
                                 <div class="col">
-                                    <input id="class_time" type="text" class="form-control"
-                                           value="{$content->class_time}">
+                                    <input id="class_time" type="text" class="form-control" value="{$content->class_time}">
                                 </div>
                             </div>
                             <div id="bandwidth_option" class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Lưu lượng khả dụng (GB)</label>
                                 <div class="col">
-                                    <input id="bandwidth" type="text" class="form-control"
-                                           value="{$content->bandwidth}">
+                                    <input id="bandwidth" type="text" class="form-control" value="{$content->bandwidth}">
                                 </div>
                             </div>
                             <div id="node_group_option" class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Nhóm người dùng</label>
                                 <div class="col">
-                                    <input id="node_group" type="text" class="form-control"
-                                           value="{$content->node_group}">
+                                    <input id="node_group" type="text" class="form-control" value="{$content->node_group}">
                                 </div>
                             </div>
                             <div id="speed_limit_option" class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Giới hạn tốc độ (Mbps)</label>
                                 <div class="col">
-                                    <input id="speed_limit" type="text" class="form-control"
-                                           value="{$content->speed_limit}">
+                                    <input id="speed_limit" type="text" class="form-control" value="{$content->speed_limit}">
                                 </div>
                             </div>
                             <div id="ip_limit_option" class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label required">Giới hạn IP kết nối đồng thời</label>
                                 <div class="col">
-                                    <input id="ip_limit" type="text" class="form-control"
-                                           value="{$content->ip_limit}">
+                                    <input id="ip_limit" type="text" class="form-control" value="{$content->ip_limit}">
                                 </div>
                             </div>
                             <div class="hr-text">
@@ -140,15 +127,13 @@
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">Yêu cầu cấp người dùng</label>
                                 <div class="col">
-                                    <input id="class_required" type="text" class="form-control"
-                                           value="{$limit->class_required}">
+                                    <input id="class_required" type="text" class="form-control" value="{$limit->class_required|escape:'html'}">
                                 </div>
                             </div>
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-3 col-form-label">Nhóm máy chủ của người dùng</label>
                                 <div class="col">
-                                    <input id="node_group_required" type="text" class="form-control"
-                                           value="{$limit->node_group_required}">
+                                    <input id="node_group_required" type="text" class="form-control" value="{$limit->node_group_required|escape:'html'}">
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -157,7 +142,7 @@
                                     <span class="col-auto">
                                         <label class="form-check form-check-single form-switch">
                                             <input id="new_user_required" class="form-check-input" type="checkbox"
-                                                   {if $limit->new_user_required === 1}checked="" {/if}>
+                                                   {if $limit->new_user_required === 1}checked{/if}>
                                         </label>
                                     </span>
                                 </label>
@@ -176,7 +161,7 @@
                                 Khi mua, người dùng sẽ chọn một tùy chọn. Để trống nếu chỉ dùng 1 mức giá như cũ.
                             </p>
                             <div class="table-responsive">
-                                <table class="table table-vcenter" id="product-options-table">
+                                <table class="table table-vcenter">
                                     <thead>
                                     <tr>
                                         <th style="width:28%">Nhãn</th>
@@ -185,7 +170,16 @@
                                         <th style="width:22%"></th>
                                     </tr>
                                     </thead>
-                                    <tbody id="product-options-body"></tbody>
+                                    <tbody id="product-options-body">
+                                    {foreach from=$product_options item=opt}
+                                        <tr class="product-option-row">
+                                            <td><input type="text" class="form-control option-label" value="{$opt.label|escape:'html'}" placeholder="VD: 30 ngày"></td>
+                                            <td><input type="number" min="1" class="form-control option-days" value="{$opt.days}" placeholder="30"></td>
+                                            <td><input type="number" min="0" step="0.01" class="form-control option-price" value="{$opt.price}" placeholder="30000"></td>
+                                            <td><button type="button" class="btn btn-outline-danger remove-product-option">Xóa</button></td>
+                                        </tr>
+                                    {/foreach}
+                                    </tbody>
                                 </table>
                             </div>
                             <button type="button" class="btn btn-outline-primary" id="add-product-option">
@@ -199,230 +193,152 @@
     </div>
 </div>
 
-<script type="application/json" id="product-options-json">{if isset($product_options_json)}{$product_options_json}{else}[]{/if}</script>
-<div id="product-save-config"
-     data-product-id="{$product->id}"
-     data-jump-delay="{$config['jump_delay']|default:1500}"
-     hidden></div>
+{include file='admin/footer.tpl'}
+
 <script>
 {literal}
 (function () {
-    function optionRowHtml(opt) {
-        opt = opt || {};
-        var label = opt.label || '';
-        var days = opt.days || '';
-        var price = (opt.price !== undefined && opt.price !== null) ? opt.price : '';
-        var esc = function (s) {
-            return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-        };
-        return '' +
-            '<tr class="product-option-row">' +
-            '<td><input type="text" class="form-control option-label" placeholder="VD: 30 ngày" value="' + esc(label) + '"></td>' +
-            '<td><input type="number" min="1" class="form-control option-days" placeholder="30" value="' + esc(days) + '"></td>' +
-            '<td><input type="number" min="0" step="0.01" class="form-control option-price" placeholder="30000" value="' + esc(price) + '"></td>' +
+    function optionRowHtml() {
+        return '<tr class="product-option-row">' +
+            '<td><input type="text" class="form-control option-label" placeholder="VD: 30 ngày"></td>' +
+            '<td><input type="number" min="1" class="form-control option-days" placeholder="30"></td>' +
+            '<td><input type="number" min="0" step="0.01" class="form-control option-price" placeholder="30000"></td>' +
             '<td><button type="button" class="btn btn-outline-danger remove-product-option">Xóa</button></td>' +
             '</tr>';
     }
 
-    function initProductOptions(list) {
-        var $body = $('#product-options-body');
-        $body.empty();
-        if (!list || !list.length) {
+    function fieldVal(id) {
+        var el = document.getElementById(id);
+        return el ? el.value : '';
+    }
+
+    function syncType(value) {
+        var map = {
+            time_option: value !== 'bandwidth',
+            class_option: value !== 'bandwidth',
+            class_time_option: value !== 'bandwidth',
+            bandwidth_option: value === 'bandwidth' || value === 'tabp',
+            node_group_option: value !== 'bandwidth',
+            speed_limit_option: value !== 'bandwidth',
+            ip_limit_option: value !== 'bandwidth',
+            product_options_card: value !== 'bandwidth'
+        };
+        Object.keys(map).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = map[id] ? '' : 'none';
+        });
+    }
+
+    function collectOptions() {
+        var days = [];
+        var prices = [];
+        var labels = [];
+        document.querySelectorAll('#product-options-body .product-option-row').forEach(function (row) {
+            var d = parseInt((row.querySelector('.option-days') || {}).value, 10);
+            var p = parseFloat((row.querySelector('.option-price') || {}).value);
+            var l = ((row.querySelector('.option-label') || {}).value || '').trim();
+            if (!d || d <= 0 || isNaN(p) || p < 0) return;
+            if (!l) l = d + ' ngày';
+            days.push(d);
+            prices.push(p);
+            labels.push(l);
+        });
+        return { days: days, prices: prices, labels: labels };
+    }
+
+    function notify(ok, msg) {
+        var msgEl = document.getElementById(ok ? 'success-message' : 'fail-message');
+        if (msgEl) msgEl.textContent = msg || (ok ? 'Thành công' : 'Thất bại');
+        if (ok && typeof successDialog !== 'undefined') {
+            successDialog.show();
             return;
         }
-        list.forEach(function (opt) {
-            $body.append(optionRowHtml(opt));
-        });
-    }
-
-    function collectProductOptions() {
-        var options = [];
-        $('#product-options-body .product-option-row').each(function () {
-            var days = parseInt($(this).find('.option-days').val(), 10);
-            var price = parseFloat($(this).find('.option-price').val());
-            var label = $.trim($(this).find('.option-label').val() || '');
-            if (!days || days <= 0 || isNaN(price) || price < 0) {
-                return;
-            }
-            if (!label) {
-                label = days + ' ngày';
-            }
-            options.push({ days: days, price: price, label: label });
-        });
-        return options;
-    }
-
-    function showFail(msg) {
-        $("#fail-message").text(msg || "Thất bại");
-        if (typeof failDialog !== "undefined") {
+        if (!ok && typeof failDialog !== 'undefined') {
             failDialog.show();
-        } else {
-            window.alert(msg || "Thất bại");
+            return;
         }
+        window.alert(msg || (ok ? 'Thành công' : 'Thất bại'));
     }
 
-    function showSuccess(msg) {
-        $("#success-message").text(msg || "Thành công");
-        if (typeof successDialog !== "undefined") {
-            successDialog.show();
+    document.getElementById('type').addEventListener('change', function () {
+        syncType(this.value);
+    });
+    syncType(document.getElementById('type').value);
+
+    document.getElementById('add-product-option').addEventListener('click', function () {
+        document.getElementById('product-options-body').insertAdjacentHTML('beforeend', optionRowHtml());
+    });
+
+    document.getElementById('product-options-body').addEventListener('click', function (e) {
+        var btn = e.target.closest('.remove-product-option');
+        if (!btn) return;
+        var row = btn.closest('tr');
+        if (row) row.remove();
+    });
+
+    document.getElementById('save-product').addEventListener('click', function () {
+        var opts = collectOptions();
+        if (opts.days.length > 0) {
+            document.getElementById('time').value = opts.days[0];
+            document.getElementById('class_time').value = opts.days[0];
+            document.getElementById('price').value = opts.prices[0];
         }
-    }
 
-    function syncTypeFields(value) {
-        if (value === "bandwidth") {
-            $("#time_option").hide();
-            $("#class_option").hide();
-            $("#class_time_option").hide();
-            $("#bandwidth_option").show();
-            $("#node_group_option").hide();
-            $("#speed_limit_option").hide();
-            $("#ip_limit_option").hide();
-            $("#product_options_card").hide();
-            $("#time").prop("required", false);
-            $("#class").prop("required", false);
-            $("#class_time").prop("required", false);
-            $("#bandwidth").prop("required", true);
-            $("#node_group").prop("required", false);
-            $("#speed_limit").prop("required", false);
-            $("#ip_limit").prop("required", false);
-        } else if (value === "time") {
-            $("#time_option").show();
-            $("#class_option").show();
-            $("#class_time_option").show();
-            $("#bandwidth_option").hide();
-            $("#node_group_option").show();
-            $("#speed_limit_option").show();
-            $("#ip_limit_option").show();
-            $("#product_options_card").show();
-            $("#time").prop("required", true);
-            $("#class").prop("required", true);
-            $("#class_time").prop("required", true);
-            $("#bandwidth").prop("required", false);
-            $("#node_group").prop("required", true);
-            $("#speed_limit").prop("required", true);
-            $("#ip_limit").prop("required", true);
-        } else {
-            $("#time_option").show();
-            $("#class_option").show();
-            $("#class_time_option").show();
-            $("#bandwidth_option").show();
-            $("#node_group_option").show();
-            $("#speed_limit_option").show();
-            $("#ip_limit_option").show();
-            $("#product_options_card").show();
-            $("#time").prop("required", true);
-            $("#class").prop("required", true);
-            $("#class_time").prop("required", true);
-            $("#bandwidth").prop("required", true);
-            $("#node_group").prop("required", true);
-            $("#speed_limit").prop("required", true);
-            $("#ip_limit").prop("required", true);
+        if (!fieldVal('name')) {
+            notify(false, 'Vui lòng nhập tên sản phẩm');
+            return;
         }
-    }
-
-    $(function () {
-        syncTypeFields($("#type").val());
-        $("#type").on("change", function () {
-            syncTypeFields(this.value);
-        });
-
-        var raw = document.getElementById('product-options-json');
-        var list = [];
-        try {
-            list = raw ? JSON.parse(raw.textContent || '[]') : [];
-        } catch (e) {
-            list = [];
+        if (fieldVal('price') === '' || isNaN(parseFloat(fieldVal('price')))) {
+            notify(false, 'Vui lòng nhập giá hợp lệ');
+            return;
         }
-        initProductOptions(list);
 
-        $('#add-product-option').on('click', function () {
-            $('#product-options-body').append(optionRowHtml());
-        });
+        var data = {
+            type: fieldVal('type'),
+            name: fieldVal('name'),
+            price: fieldVal('price'),
+            status: fieldVal('status'),
+            stock: fieldVal('stock'),
+            time: fieldVal('time'),
+            bandwidth: fieldVal('bandwidth'),
+            class: fieldVal('product_class'),
+            class_time: fieldVal('class_time'),
+            node_group: fieldVal('node_group'),
+            speed_limit: fieldVal('speed_limit'),
+            ip_limit: fieldVal('ip_limit'),
+            class_required: fieldVal('class_required'),
+            node_group_required: fieldVal('node_group_required'),
+            new_user_required: document.getElementById('new_user_required').checked ? 'true' : 'false',
+            option_days: opts.days,
+            option_prices: opts.prices,
+            option_labels: opts.labels
+        };
 
-        $(document).on('click', '.remove-product-option', function () {
-            $(this).closest('tr').remove();
-        });
-
-        $("#save-product").on("click", function (e) {
-            e.preventDefault();
-
-            var cfg = document.getElementById('product-save-config');
-            var productId = cfg ? cfg.getAttribute('data-product-id') : '';
-            var jumpDelay = cfg ? parseInt(cfg.getAttribute('data-jump-delay'), 10) : 1500;
-            if (!jumpDelay || jumpDelay < 0) jumpDelay = 1500;
-
-            var options = collectProductOptions();
-            if (options.length > 0) {
-                $("#time").val(options[0].days);
-                $("#class_time").val(options[0].days);
-                $("#price").val(options[0].price);
-            }
-
-            var emptyFields = $("input[required]").filter(function () {
-                return $.trim($(this).val()) === "";
-            });
-            if (emptyFields.length > 0) {
-                showFail("Vui lòng điền đầy đủ các trường bắt buộc");
-                return;
-            }
-            if ($.trim($("#name").val()) === "") {
-                showFail("Vui lòng nhập tên sản phẩm");
-                return;
-            }
-            if ($.trim($("#price").val()) === "" || isNaN(parseFloat($("#price").val()))) {
-                showFail("Vui lòng nhập giá hợp lệ");
-                return;
-            }
-
-            var payload = {
-                type: $("#type").val(),
-                name: $("#name").val(),
-                price: $("#price").val(),
-                status: $("#status").val(),
-                stock: $("#stock").val(),
-                time: $("#time").val(),
-                bandwidth: $("#bandwidth").val(),
-                class: $("#class").val(),
-                class_time: $("#class_time").val(),
-                node_group: $("#node_group").val(),
-                speed_limit: $("#speed_limit").val(),
-                ip_limit: $("#ip_limit").val(),
-                class_required: $("#class_required").val(),
-                node_group_required: $("#node_group_required").val(),
-                new_user_required: $("#new_user_required").is(":checked"),
-                options_json: JSON.stringify(options)
-            };
-
-            $.ajax({
-                url: "/admin/product/" + productId,
-                type: "POST",
-                dataType: "json",
-                data: payload,
-                success: function (data) {
-                    if (data && data.ret === 1) {
-                        showSuccess(data.msg);
-                        window.setTimeout(function () {
-                            location.href = "/admin/product";
-                        }, jumpDelay);
-                    } else {
-                        showFail((data && data.msg) ? data.msg : "Cập nhật thất bại");
-                    }
-                },
-                error: function (xhr) {
-                    var msg = "Không gửi được yêu cầu lưu";
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        if (data && data.msg) msg = data.msg;
-                    } catch (err) {
-                        // ignore parse error
-                    }
-                    showFail(msg);
+        $.ajax({
+            url: '/admin/product/' + {/literal}{$product->id}{literal},
+            type: 'PUT',
+            dataType: 'json',
+            data: data,
+            success: function (res) {
+                if (res && res.ret === 1) {
+                    notify(true, res.msg || 'Cập nhật thành công');
+                    window.setTimeout(function () {
+                        location.href = '/admin/product';
+                    }, {/literal}{$config['jump_delay']|default:1500}{literal});
+                } else {
+                    notify(false, (res && res.msg) ? res.msg : 'Cập nhật thất bại');
                 }
-            });
+            },
+            error: function (xhr) {
+                var msg = 'Không gửi được yêu cầu lưu (HTTP ' + xhr.status + ')';
+                try {
+                    var res = JSON.parse(xhr.responseText);
+                    if (res && res.msg) msg = res.msg;
+                } catch (e) {}
+                notify(false, msg);
+            }
         });
     });
 })();
 {/literal}
 </script>
-
-{include file='admin/footer.tpl'}

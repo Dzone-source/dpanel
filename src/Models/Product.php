@@ -108,9 +108,9 @@ final class Product extends Model
     }
 
     /**
-     * Parse options JSON from admin form into a validated list.
+     * Parse duration/price options from either JSON string or parallel arrays.
      *
-     * @return list<array{days: int, price: float, label: string}>|null null on invalid JSON
+     * @return list<array{days: int, price: float, label: string}>|null
      */
     public static function parseOptionsPayload(mixed $raw): ?array
     {
@@ -152,6 +152,49 @@ final class Product extends Model
                 'days' => $days,
                 'price' => $price,
                 'label' => $label,
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
+     * Build options list from parallel form arrays (option_days/prices/labels).
+     *
+     * @return list<array{days: int, price: float, label: string}>
+     */
+    public static function parseOptionsFromArrays(mixed $days, mixed $prices, mixed $labels): array
+    {
+        if (! \is_array($days)) {
+            $days = $days === null || $days === '' ? [] : [$days];
+        }
+        if (! \is_array($prices)) {
+            $prices = $prices === null || $prices === '' ? [] : [$prices];
+        }
+        if (! \is_array($labels)) {
+            $labels = $labels === null || $labels === '' ? [] : [$labels];
+        }
+
+        $count = max(\count($days), \count($prices), \count($labels));
+        $options = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $d = (int) ($days[$i] ?? 0);
+            $p = (float) ($prices[$i] ?? -1);
+            $l = trim((string) ($labels[$i] ?? ''));
+
+            if ($d <= 0 || $p < 0) {
+                continue;
+            }
+
+            if ($l === '') {
+                $l = $d . ' ngày';
+            }
+
+            $options[] = [
+                'days' => $d,
+                'price' => $p,
+                'label' => $l,
             ];
         }
 

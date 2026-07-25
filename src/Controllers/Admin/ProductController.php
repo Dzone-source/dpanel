@@ -102,7 +102,7 @@ final class ProductController extends BaseController
                 ->assign('content', $content)
                 ->assign('limit', $limit)
                 ->assign('product_options', $product_options)
-                ->assign('product_options_json', json_encode($product_options, JSON_UNESCAPED_UNICODE))
+                ->assign('product_options_json', json_encode($product_options, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS))
                 ->assign('update_field', self::$update_field)
                 ->fetch('admin/product/edit.tpl')
         );
@@ -111,32 +111,45 @@ final class ProductController extends BaseController
     public function add(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
         // base product
-        $type = $request->getParam('type') ?? '';
-        $name = $request->getParam('name') ?? '';
-        $price = $request->getParam('price') ?? 0;
-        $status = $request->getParam('status') ?? 1;
-        $stock = $request->getParam('stock') ?? -1;
-        // content
-        $time = $request->getParam('time') ?? 0;
-        $bandwidth = $request->getParam('bandwidth') ?? 0;
-        $class = $request->getParam('class') ?? 0;
-        $class_time = $request->getParam('class_time') ?? 0;
-        $node_group = $request->getParam('node_group') ?? 0;
-        $speed_limit = $request->getParam('speed_limit') ?? 0;
-        $ip_limit = $request->getParam('ip_limit') ?? 0;
-        // limit
+        $type = (string) ($request->getParam('type') ?? '');
+        $name = (string) ($request->getParam('name') ?? '');
+        $price = (float) ($request->getParam('price') ?? 0);
+        $status = (int) ($request->getParam('status') ?? 1);
+        $stock = (int) ($request->getParam('stock') ?? -1);
+        $time = (int) ($request->getParam('time') ?? 0);
+        $bandwidth = (float) ($request->getParam('bandwidth') ?? 0);
+        $class = (int) ($request->getParam('class') ?? 0);
+        $class_time = (int) ($request->getParam('class_time') ?? 0);
+        $node_group = (int) ($request->getParam('node_group') ?? 0);
+        $speed_limit = (float) ($request->getParam('speed_limit') ?? 0);
+        $ip_limit = (int) ($request->getParam('ip_limit') ?? 0);
         $class_required = $request->getParam('class_required') ?? '';
         $node_group_required = $request->getParam('node_group_required') ?? '';
         $new_user_required = $request->getParam('new_user_required') === 'true' ? 1 : 0;
-        $options = Product::parseOptionsPayload($request->getParam('options_json') ?? '[]');
+
+        $optionsFromArrays = Product::parseOptionsFromArrays(
+            $request->getParam('option_days') ?? $request->getParam('option_days[]'),
+            $request->getParam('option_prices') ?? $request->getParam('option_prices[]'),
+            $request->getParam('option_labels') ?? $request->getParam('option_labels[]')
+        );
+        if ($optionsFromArrays !== []) {
+            $options = $optionsFromArrays;
+        } else {
+            $options = Product::parseOptionsPayload($request->getParam('options_json') ?? '[]');
+            if ($options === null) {
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Tùy chọn thời hạn/giá không hợp lệ',
+                ]);
+            }
+        }
 
         $product = new Product();
 
-        if ($options === null) {
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => 'Tùy chọn thời hạn/giá không hợp lệ',
-            ]);
+        if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
+            $time = (int) $options[0]['days'];
+            $class_time = (int) $options[0]['days'];
+            $price = (float) $options[0]['price'];
         }
 
         if ($price < 0) {
@@ -164,7 +177,7 @@ final class ProductController extends BaseController
                 'ip_limit' => $ip_limit,
             ];
         } elseif ($type === 'time') {
-            if ($time <= 0 || $class_time === '' || $class_time <= 0) {
+            if ($time <= 0 || $class_time <= 0) {
                 return $response->withJson([
                     'ret' => 0,
                     'msg' => self::$invalid_data_msg,
@@ -200,9 +213,6 @@ final class ProductController extends BaseController
 
         if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
             $content['options'] = $options;
-            $content['time'] = $options[0]['days'];
-            $content['class_time'] = $options[0]['days'];
-            $price = $options[0]['price'];
         }
 
         $limit = [
@@ -214,8 +224,8 @@ final class ProductController extends BaseController
         $product->type = $type;
         $product->name = $name;
         $product->price = $price;
-        $product->content = json_encode($content);
-        $product->limit = json_encode($limit);
+        $product->content = json_encode($content, JSON_UNESCAPED_UNICODE);
+        $product->limit = json_encode($limit, JSON_UNESCAPED_UNICODE);
         $product->status = $status;
         $product->create_time = time();
         $product->update_time = time();
@@ -250,7 +260,24 @@ final class ProductController extends BaseController
         $class_required = $request->getParam('class_required') ?? '';
         $node_group_required = $request->getParam('node_group_required') ?? '';
         $new_user_required = $request->getParam('new_user_required') === 'true' ? 1 : 0;
-        $options = Product::parseOptionsPayload($request->getParam('options_json') ?? '[]');
+
+        // Prefer parallel arrays from form; fall back to JSON for compatibility
+        $optionsFromArrays = Product::parseOptionsFromArrays(
+            $request->getParam('option_days') ?? $request->getParam('option_days[]'),
+            $request->getParam('option_prices') ?? $request->getParam('option_prices[]'),
+            $request->getParam('option_labels') ?? $request->getParam('option_labels[]')
+        );
+        if ($optionsFromArrays !== []) {
+            $options = $optionsFromArrays;
+        } else {
+            $options = Product::parseOptionsPayload($request->getParam('options_json') ?? '[]');
+            if ($options === null) {
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Tùy chọn thời hạn/giá không hợp lệ',
+                ]);
+            }
+        }
 
         $product = (new Product())->find($product_id);
 
@@ -258,13 +285,6 @@ final class ProductController extends BaseController
             return $response->withJson([
                 'ret' => 0,
                 'msg' => 'Sản phẩm không tồn tại',
-            ]);
-        }
-
-        if ($options === null) {
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => 'Tùy chọn thời hạn/giá không hợp lệ',
             ]);
         }
 
