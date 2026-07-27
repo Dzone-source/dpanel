@@ -138,54 +138,39 @@
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <div class="row row-cards">
+                    <div class="row row-cards gopass-info-grid">
                         {foreach $info_cards as $card}
-                        <div class="{if isset($card.cta) && $card.cta}col-12 col-lg-3{else}col-sm-6 col-lg-3{/if}">
-                            <div class="card gopass-stat-card{if isset($card.cta) && $card.cta} gopass-stat-card--cta{/if}">
+                        <div class="col-6 col-lg-3">
+                            <div class="card gopass-stat-card{if isset($card.cta) && $card.cta} gopass-stat-card--cta{/if}{if isset($card.buy_new) && $card.buy_new} gopass-stat-card--buy{/if}">
                                 <div class="card-body">
-                                    {if isset($card.cta) && $card.cta}
-                                    <div class="gopass-stat-cta">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                    <div class="gopass-stat-tile">
+                                        <div class="gopass-stat-tile-top">
                                             <div class="gopass-stat-icon {$card.gradient}">
                                                 <i class="ti {$card.icon}"></i>
                                             </div>
-                                            <div class="flex-fill min-w-0">
-                                                <div class="gopass-stat-label mb-0">{$card.title}</div>
-                                                <div class="gopass-stat-hint">{$card.value}</div>
-                                                {if isset($card.subvalue) && $card.subvalue ne ''}
-                                                <div class="gopass-stat-subhint">{$card.subvalue}</div>
-                                                {/if}
-                                            </div>
-                                        </div>
-                                        <a href="{$card.action_url}" class="btn btn-primary w-100 gopass-stat-cta-btn">
-                                            <i class="ti ti-shopping-cart"></i>
-                                            {$card.cta_label|default:'Mua hàng'}
-                                        </a>
-                                    </div>
-                                    {else}
-                                    <div class="d-flex align-items-center gap-2 gap-sm-3">
-                                        <div class="gopass-stat-icon {$card.gradient}">
-                                            <i class="ti {$card.icon}"></i>
-                                        </div>
-                                        <div class="flex-fill min-w-0">
-                                            <div class="gopass-stat-label">{$card.title}</div>
-                                            <div class="gopass-stat-value"{if isset($card.live_id)} id="live-{$card.live_id}" data-live="{$card.live_id}"{/if}>{$card.value}</div>
-                                            {if isset($card.subvalue) && $card.subvalue ne ''}
-                                            <div class="gopass-stat-subvalue">{$card.subvalue}</div>
+                                            {if isset($card.action_url) && !(isset($card.cta) && $card.cta) && !(isset($card.buy_new) && $card.buy_new)}
+                                            <a href="{$card.action_url}" class="btn btn-primary btn-icon btn-sm gopass-stat-tile-action" aria-label="{$card.title}">
+                                                <i class="ti ti-arrow-right"></i>
+                                            </a>
                                             {/if}
                                         </div>
-                                        {if isset($card.buy_new) && $card.buy_new}
-                                        <a href="{$card.action_url}" class="btn btn-primary btn-sm gopass-stat-buy-new">
+                                        <div class="gopass-stat-label">{$card.title}</div>
+                                        <div class="gopass-stat-value"{if isset($card.live_id)} id="live-{$card.live_id}" data-live="{$card.live_id}"{/if}>{$card.value}</div>
+                                        {if isset($card.subvalue) && $card.subvalue ne ''}
+                                        <div class="gopass-stat-subvalue">{$card.subvalue}</div>
+                                        {/if}
+                                        {if isset($card.cta) && $card.cta}
+                                        <a href="{$card.action_url}" class="btn btn-primary gopass-stat-tile-btn">
+                                            <i class="ti ti-shopping-cart"></i>
+                                            <span>{$card.cta_label|default:'Mua hàng'}</span>
+                                        </a>
+                                        {elseif isset($card.buy_new) && $card.buy_new}
+                                        <a href="{$card.action_url}" class="btn gopass-stat-buy-new gopass-stat-tile-btn">
                                             <i class="ti ti-shopping-cart"></i>
                                             <span>{$card.buy_new_label|default:'Mua gói mới'}</span>
                                         </a>
-                                        {elseif isset($card.action_url)}
-                                        <a href="{$card.action_url}" class="btn btn-primary btn-icon btn-sm">
-                                            <i class="ti ti-arrow-right"></i>
-                                        </a>
                                         {/if}
                                     </div>
-                                    {/if}
                                 </div>
                             </div>
                         </div>
