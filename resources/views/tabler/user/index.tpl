@@ -154,7 +154,6 @@
                                             </a>
                                             {/if}
                                         </div>
-                                        <div class="gopass-stat-label">{$card.title}</div>
                                         <div class="gopass-stat-value"{if isset($card.live_id)} id="live-{$card.live_id}" data-live="{$card.live_id}"{/if}>{$card.value}</div>
                                         {if isset($card.subvalue) && $card.subvalue ne ''}
                                         <div class="gopass-stat-subvalue">{$card.subvalue}</div>
