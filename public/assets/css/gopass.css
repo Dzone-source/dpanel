@@ -1369,10 +1369,6 @@ body.gopass-sidebar-open {
         padding-right: 1rem;
     }
 
-    .gopass-stat-card .card-body {
-        padding: 1rem;
-    }
-
     .gopass-theme .row-cards > [class*="col-"] {
         margin-bottom: 0.15rem;
     }
