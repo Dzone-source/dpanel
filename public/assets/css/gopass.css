@@ -732,51 +732,57 @@ body.gopass-auth .border-top-wide {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         scroll-snap-type: x proximity;
-        --tblr-gutter-x: 0.36rem;
-        --tblr-gutter-y: 0.36rem;
+        --tblr-gutter-x: 0.3rem;
+        --tblr-gutter-y: 0.3rem;
         margin-inline: -0.1rem;
         padding-inline: 0.1rem;
         padding-bottom: 0.1rem;
     }
 
     .gopass-info-grid > [class*="col-"] {
-        flex: 0 0 9.6rem;
-        width: 9.6rem;
-        max-width: 9.6rem;
+        flex: 0 0 7.8rem;
+        width: 7.8rem;
+        max-width: 7.8rem;
         scroll-snap-align: start;
     }
 
+    .gopass-stat-card {
+        border-radius: 0.9rem;
+        box-shadow: 0 6px 18px rgba(55, 30, 110, 0.08);
+    }
+
     .gopass-stat-card .card-body {
-        padding: 0.48rem 0.48rem;
+        padding: 0.42rem 0.44rem;
     }
 
     .gopass-stat-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 0.86rem;
-        border-radius: 8px;
+        width: 24px;
+        height: 24px;
+        font-size: 0.76rem;
+        border-radius: 7px;
     }
 
     .gopass-stat-icon .ti {
-        font-size: 0.86rem;
+        font-size: 0.76rem;
     }
 
     .gopass-stat-tile-top {
-        margin-bottom: 0.28rem;
+        gap: 0.28rem;
+        margin-bottom: 0.2rem;
     }
 
     .gopass-stat-value {
-        font-size: 0.72rem;
-        line-height: 1.15;
+        font-size: 0.68rem;
+        line-height: 1.12;
     }
 
     .gopass-stat-subvalue,
     .gopass-stat-subhint {
-        margin-top: 0.08rem;
-        font-size: 0.56rem;
-        line-height: 1.14;
+        margin-top: 0.04rem;
+        font-size: 0.52rem;
+        line-height: 1.08;
         display: -webkit-box;
-        -webkit-line-clamp: 2;
+        -webkit-line-clamp: 1;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
@@ -790,24 +796,29 @@ body.gopass-auth .border-top-wide {
 
     .gopass-stat-tile-btn {
         width: auto;
-        min-height: 1.36rem;
-        margin-top: 0.28rem;
+        min-height: 1.15rem;
+        margin-top: 0.18rem;
         padding-top: 0;
-        padding-inline: 0.38rem !important;
-        font-size: 0.56rem !important;
+        padding-inline: 0.28rem !important;
+        font-size: 0.5rem !important;
         border-radius: 999px !important;
         align-self: flex-start;
-        gap: 0.2rem;
+        gap: 0.14rem;
     }
 
     .gopass-stat-tile-btn .ti {
-        font-size: 0.66rem;
+        font-size: 0.56rem;
     }
 
     .gopass-stat-tile-action {
-        width: 1.35rem;
-        height: 1.35rem;
-        min-width: 1.35rem;
+        width: 1.15rem;
+        height: 1.15rem;
+        min-width: 1.15rem;
+        border-radius: 999px;
+    }
+
+    .gopass-stat-tile-action .ti {
+        font-size: 0.68rem;
     }
 }
 
