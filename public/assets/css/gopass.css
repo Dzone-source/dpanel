@@ -727,56 +727,72 @@ body.gopass-auth .border-top-wide {
 
 @media (max-width: 575.98px) {
     .gopass-info-grid {
-        --tblr-gutter-x: 0.42rem;
-        --tblr-gutter-y: 0.42rem;
+        --tblr-gutter-x: 0.36rem;
+        --tblr-gutter-y: 0.36rem;
     }
 
     .gopass-stat-card .card-body {
-        padding: 0.62rem 0.58rem;
+        padding: 0.52rem 0.5rem;
     }
 
     .gopass-stat-icon {
-        width: 30px;
-        height: 30px;
-        font-size: 0.92rem;
-        border-radius: 9px;
+        width: 28px;
+        height: 28px;
+        font-size: 0.86rem;
+        border-radius: 8px;
     }
 
     .gopass-stat-icon .ti {
-        font-size: 0.92rem;
+        font-size: 0.86rem;
     }
 
-    .gopass-stat-label {
-        font-size: 0.6rem;
+    .gopass-stat-tile-top {
+        margin-bottom: 0.28rem;
     }
 
     .gopass-stat-value {
-        font-size: 0.78rem;
+        font-size: 0.74rem;
+        line-height: 1.2;
     }
 
-    .gopass-stat-subvalue {
-        font-size: 0.62rem;
+    .gopass-stat-subvalue,
+    .gopass-stat-subhint {
+        margin-top: 0.08rem;
+        font-size: 0.58rem;
+        line-height: 1.18;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
     }
 
+    .gopass-stat-card--buy .gopass-stat-subvalue,
+    .gopass-stat-card--cta .gopass-stat-subvalue,
+    .gopass-stat-card--buy .gopass-stat-subhint,
+    .gopass-stat-card--cta .gopass-stat-subhint {
+        -webkit-line-clamp: 1;
+    }
+
     .gopass-stat-tile-btn {
-        min-height: 1.72rem;
-        font-size: 0.64rem !important;
-        padding-inline: 0.3rem !important;
-        border-radius: 0.55rem !important;
+        width: auto;
+        min-height: 1.45rem;
+        margin-top: 0.35rem;
+        padding-top: 0;
+        padding-inline: 0.42rem !important;
+        font-size: 0.58rem !important;
+        border-radius: 999px !important;
+        align-self: flex-start;
+        gap: 0.2rem;
     }
 
     .gopass-stat-tile-btn .ti {
-        font-size: 0.76rem;
+        font-size: 0.66rem;
     }
 
     .gopass-stat-tile-action {
-        width: 1.45rem;
-        height: 1.45rem;
-        min-width: 1.45rem;
+        width: 1.35rem;
+        height: 1.35rem;
+        min-width: 1.35rem;
     }
 }
 
