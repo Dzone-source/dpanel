@@ -270,6 +270,8 @@
 
 {include file='telemetry.tpl'}
 
+<script src="/assets/js/sakura.js?v=20260728sakura1" defer></script>
+
 </body>
 
 </html>
