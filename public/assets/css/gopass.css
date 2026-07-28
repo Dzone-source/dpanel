@@ -506,6 +506,11 @@ body.gopass-auth .border-top-wide {
     --tblr-gutter-y: 0.6rem;
 }
 
+.gopass-info-mini-grid {
+    --tblr-gutter-x: 0.55rem;
+    --tblr-gutter-y: 0;
+}
+
 .gopass-stat-card {
     border: 1px solid var(--gopass-border) !important;
     border-radius: var(--gopass-radius);
@@ -680,6 +685,22 @@ body.gopass-auth .border-top-wide {
     padding: 0.8rem 0.95rem;
 }
 
+.gopass-stat-card--mini .card-body {
+    padding: 0.72rem 0.78rem;
+}
+
+.gopass-stat-card--mini .gopass-stat-tile {
+    gap: 0.55rem;
+}
+
+.gopass-stat-card--mini .gopass-stat-main {
+    gap: 0.35rem;
+}
+
+.gopass-stat-card--mini .gopass-stat-value {
+    font-size: 0.84rem;
+}
+
 .gopass-stat-buy-new {
     flex-shrink: 0;
     white-space: nowrap;
@@ -708,6 +729,10 @@ body.gopass-auth .border-top-wide {
 @media (min-width: 992px) {
     .gopass-info-grid {
         --tblr-gutter-y: 0.7rem;
+    }
+
+    .gopass-info-mini-grid {
+        --tblr-gutter-x: 0.7rem;
     }
 
     .gopass-stat-card .card-body {
@@ -740,6 +765,10 @@ body.gopass-auth .border-top-wide {
         --tblr-gutter-y: 0.45rem;
     }
 
+    .gopass-info-mini-grid {
+        --tblr-gutter-x: 0.35rem;
+    }
+
     .gopass-stat-card {
         border-radius: 0.9rem;
         box-shadow: 0 6px 18px rgba(55, 30, 110, 0.08);
@@ -747,6 +776,10 @@ body.gopass-auth .border-top-wide {
 
     .gopass-stat-card .card-body {
         padding: 0.68rem 0.78rem;
+    }
+
+    .gopass-stat-card--mini .card-body {
+        padding: 0.56rem 0.52rem;
     }
 
     .gopass-stat-icon {
@@ -777,6 +810,19 @@ body.gopass-auth .border-top-wide {
     .gopass-stat-value {
         font-size: 0.82rem;
         line-height: 1.16;
+    }
+
+    .gopass-stat-card--mini .gopass-stat-tile {
+        gap: 0.4rem;
+    }
+
+    .gopass-stat-card--mini .gopass-stat-main {
+        gap: 0.22rem;
+    }
+
+    .gopass-stat-card--mini .gopass-stat-value {
+        font-size: 0.68rem;
+        line-height: 1.1;
     }
 
     .gopass-stat-subvalue,
@@ -811,8 +857,18 @@ body.gopass-auth .border-top-wide {
         border-radius: 999px;
     }
 
+    .gopass-stat-card--mini .gopass-stat-tile-action {
+        width: 1.15rem;
+        height: 1.15rem;
+        min-width: 1.15rem;
+    }
+
     .gopass-stat-tile-action .ti {
         font-size: 0.72rem;
+    }
+
+    .gopass-stat-card--mini .gopass-stat-tile-action .ti {
+        font-size: 0.62rem;
     }
 }
 
