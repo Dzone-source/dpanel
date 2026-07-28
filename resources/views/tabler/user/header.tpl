@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-    <meta name="theme-color" content="#7c3aed"/>
+    <meta name="theme-color" content="#ef4056"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="referrer" content="never">
@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
     <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-    <link href="/assets/css/gopass.css?v=20260728statrows4" rel="stylesheet"/>
+    <link href="/assets/css/gopass.css?v=20260728primaryred" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
@@ -29,7 +29,7 @@
                 var theme = resolveTheme();
                 document.documentElement.setAttribute('data-bs-theme', theme);
                 var meta = document.querySelector('meta[name="theme-color"]');
-                if (meta) meta.setAttribute('content', theme === 'dark' ? '#0c0a14' : '#7c3aed');
+                if (meta) meta.setAttribute('content', theme === 'dark' ? '#140c0e' : '#ef4056');
             }
             applyTheme();
             if (mode === 2) {

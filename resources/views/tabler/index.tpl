@@ -15,9 +15,9 @@
     <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.8.2/css/all.min.css"/>
     <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/swiper@4.5.0/dist/css/swiper.min.css"/>
 
-    <link rel="stylesheet" href="/assets/landing/cool/css/style.css"/>
-    <link rel="stylesheet" href="/assets/landing/cool/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="/assets/css/landing.css?v=20260723anim"/>
+    <link rel="stylesheet" href="/assets/landing/cool/css/style.css?v=20260728primaryred"/>
+    <link rel="stylesheet" href="/assets/landing/cool/css/bootstrap.min.css?v=20260728primaryred"/>
+    <link rel="stylesheet" href="/assets/css/landing.css?v=20260728primaryred"/>
 </head>
 <body>
 
@@ -261,7 +261,7 @@
                                                 <div class="pricing-details">
                                                     {foreach from=$product.features item=feature}
                                                         <div class="pricing-item">
-                                                            <div style="width:25px;height:25px;line-height:20px;color:#3c2299;">
+                                                            <div style="width:25px;height:25px;line-height:20px;color:#ef4056;">
                                                                 <i class="fas fa-check-circle"></i>
                                                             </div>
                                                             <div class="pricing-item-label">{$feature|escape:'html'}</div>
@@ -270,7 +270,7 @@
                                                 </div>
                                             </div>
                                             <div class="pricing-cta go-to-buy-page">
-                                                <a style="border-radius:0 0 14px 14px;background:#3c2299;color:#fff;"
+                                                <a style="border-radius:0 0 14px 14px;background:#ef4056;color:#fff;"
                                                    href="/auth/register">Đăng ký</a>
                                             </div>
                                         </div>

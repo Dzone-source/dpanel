@@ -20,10 +20,42 @@
         :root {
             --tblr-font-sans-serif: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
             --tblr-body-font-family: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+            --tblr-primary: #ef4056;
+            --tblr-primary-rgb: 239, 64, 86;
+            --tblr-primary-fg: #fff;
+            --gopass-primary: #ef4056;
+            --gopass-primary-dark: #c91f3a;
+            --gopass-primary-light: #f48291;
+            --gopass-accent: #ff6b81;
         }
 
         body {
             font-family: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        .btn-primary,
+        .bg-primary,
+        .badge.bg-primary,
+        .nav-pills .nav-link.active,
+        .page-item.active .page-link,
+        .form-check-input:checked {
+            background-color: #ef4056 !important;
+            border-color: #ef4056 !important;
+        }
+
+        .text-primary {
+            color: #ef4056 !important;
+        }
+
+        .page-header,
+        .navbar-overlap:after {
+            background: linear-gradient(125deg, #83232f 0%, #ef4056 52%, #ff5c7a 100%) !important;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #c91f3a !important;
+            border-color: #c91f3a !important;
         }
 
         .home-subtitle {
