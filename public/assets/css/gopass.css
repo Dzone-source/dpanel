@@ -691,24 +691,23 @@ body.gopass-auth .border-top-wide {
 }
 
 .gopass-stat-card--mini .card-body {
-    padding: 0.7rem 0.75rem;
+    padding: 0.65rem 0.7rem;
 }
 
 .gopass-stat-card--mini .gopass-stat-tile {
-    gap: 0.5rem;
-    align-items: center;
-    flex-wrap: nowrap;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
     min-width: 0;
 }
 
 .gopass-stat-card--mini .gopass-stat-value {
-    flex: 1 1 auto;
-    min-width: 0;
-    font-size: 0.84rem;
+    width: 100%;
+    font-size: 0.82rem;
     white-space: nowrap;
     word-break: normal;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 .gopass-stat-card--link:hover {
@@ -794,7 +793,7 @@ body.gopass-auth .border-top-wide {
     }
 
     .gopass-stat-card--mini .card-body {
-        padding: 0.55rem 0.5rem;
+        padding: 0.5rem 0.48rem;
     }
 
     .gopass-stat-icon {
@@ -809,14 +808,14 @@ body.gopass-auth .border-top-wide {
     }
 
     .gopass-stat-card--mini .gopass-stat-icon {
-        width: 24px;
-        height: 24px;
-        font-size: 0.76rem;
-        border-radius: 7px;
+        width: 22px;
+        height: 22px;
+        font-size: 0.7rem;
+        border-radius: 6px;
     }
 
     .gopass-stat-card--mini .gopass-stat-icon .ti {
-        font-size: 0.76rem;
+        font-size: 0.7rem;
     }
 
     .gopass-stat-tile-top {
@@ -839,17 +838,17 @@ body.gopass-auth .border-top-wide {
     }
 
     .gopass-stat-card--mini .gopass-stat-tile {
-        gap: 0.35rem;
-        align-items: center;
+        gap: 0.28rem;
+        align-items: flex-start;
     }
 
     .gopass-stat-card--mini .gopass-stat-value {
-        font-size: 0.7rem;
-        line-height: 1.1;
+        font-size: 0.68rem;
+        line-height: 1.15;
         white-space: nowrap;
         word-break: normal;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        overflow: visible;
+        text-overflow: clip;
     }
 
     .gopass-stat-subvalue,
