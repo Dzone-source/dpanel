@@ -68,8 +68,15 @@ final class OrderController extends BaseController
         }
 
         $product = (new Product())->where('id', $product_id)->first();
+        if ($product === null) {
+            return $response->withRedirect('/user/product');
+        }
+
         $product->type_text = $product->type();
         $content = json_decode($product->content);
+        if (! \is_object($content)) {
+            $content = (object) [];
+        }
         $product->content = $content;
         $product_options = Product::normalizeOptions($content);
         foreach ($product_options as $i => &$opt) {
