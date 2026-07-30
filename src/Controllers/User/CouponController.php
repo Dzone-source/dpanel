@@ -24,9 +24,13 @@ final class CouponController extends BaseController
         $coupon_raw = $this->antiXss->xss_clean($request->getParam('coupon'));
         $product_id = $this->antiXss->xss_clean($request->getParam('product_id'));
         $option_index_raw = $this->antiXss->xss_clean($request->getParam('option_index'));
+        $option_days_raw = $this->antiXss->xss_clean($request->getParam('option_days'));
         $option_index = ($option_index_raw === null || $option_index_raw === '')
             ? null
             : (int) $option_index_raw;
+        $option_days = ($option_days_raw === null || $option_days_raw === '')
+            ? null
+            : (int) $option_days_raw;
         $invalid_coupon_msg = 'Mã giảm giá không hợp lệ';
 
         if ($coupon_raw === '') {
@@ -55,6 +59,18 @@ final class CouponController extends BaseController
         }
 
         $resolved = $product->resolvePurchaseOption($option_index);
+        if ($option_days !== null && $option_days > 0) {
+            $options = Product::normalizeOptions($product->content);
+            foreach ($options as $i => $opt) {
+                if ((int) $opt['days'] === $option_days) {
+                    $byDays = $product->resolvePurchaseOption($i);
+                    if ($byDays !== null) {
+                        $resolved = $byDays;
+                    }
+                    break;
+                }
+            }
+        }
         if ($resolved === null) {
             return $response->withJson([
                 'ret' => 0,

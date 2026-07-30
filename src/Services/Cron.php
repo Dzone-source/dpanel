@@ -254,7 +254,10 @@ final class Cron
 
             if ($activated_order !== null) {
                 $content = json_decode($activated_order->product_content);
-                $duration_days = (int) ($content->time ?? 0);
+                $duration_days = (int) ($content->option_days
+                    ?? $content->time
+                    ?? $content->class_time
+                    ?? 0);
 
                 if ($duration_days > 0 && $activated_order->update_time + $duration_days * 86400 < time()) {
                     $activated_order->status = 'expired';
@@ -265,30 +268,30 @@ final class Cron
                 }
             }
 
-            // Đổi gói (product/node_group khác): hết hạn gói cũ và kích hoạt đơn mới nhất.
-            // Gia hạn cùng gói: vẫn xếp hàng đến khi gói hiện tại hết hạn.
+            // Đổi gói / mua thêm cùng sản phẩm (gia hạn 1 năm, 10 năm...):
+            // kích hoạt đơn mới ngay, không xếp hàng sau gói ngắn đang chạy.
             $order_to_activate = null;
+            $stack_expire = false;
 
             if ($activated_order !== null && count($pending_activation_orders) > 0) {
                 $activated_content = json_decode($activated_order->product_content);
                 $activated_group = (int) ($activated_content->node_group ?? 0);
+                $pending_order = $pending_activation_orders->sortByDesc('id')->first();
+                $pending_content = json_decode($pending_order->product_content);
+                $pending_group = (int) ($pending_content->node_group ?? 0);
+                $same_product = (int) $pending_order->product_id === (int) $activated_order->product_id
+                    && $pending_group === $activated_group;
 
-                foreach ($pending_activation_orders->sortByDesc('id') as $pending_order) {
-                    $pending_content = json_decode($pending_order->product_content);
-                    $pending_group = (int) ($pending_content->node_group ?? 0);
-                    $is_switch = (int) $pending_order->product_id !== (int) $activated_order->product_id
-                        || $pending_group !== $activated_group;
-
-                    if ($is_switch) {
-                        $activated_order->status = 'expired';
-                        $activated_order->update_time = time();
-                        $activated_order->save();
-                        echo "TABP订单 #{$activated_order->id} 已因切换套餐而过期。\n";
-                        $activated_order = null;
-                        $order_to_activate = $pending_order;
-                        break;
-                    }
-                }
+                // Cùng sản phẩm (gia hạn) hoặc đổi gói: hết hạn đơn cũ và kích hoạt đơn mới.
+                $activated_order->status = 'expired';
+                $activated_order->update_time = time();
+                $activated_order->save();
+                echo $same_product
+                    ? "TABP订单 #{$activated_order->id} 已因续费/升级而过期。\n"
+                    : "TABP订单 #{$activated_order->id} 已因切换套餐而过期。\n";
+                $activated_order = null;
+                $order_to_activate = $pending_order;
+                $stack_expire = $same_product;
             }
 
             if ($order_to_activate === null && $activated_order === null && count($pending_activation_orders) > 0) {
@@ -297,14 +300,30 @@ final class Cron
 
             if ($order_to_activate !== null) {
                 $content = json_decode($order_to_activate->product_content);
+                $duration_days = (int) ($content->option_days
+                    ?? $content->class_time
+                    ?? $content->time
+                    ?? 0);
+                if ($duration_days <= 0) {
+                    $duration_days = 30;
+                }
+
                 $user->u = 0;
                 $user->d = 0;
                 $user->transfer_today = 0;
                 $user->transfer_enable = Tools::gbToB($content->bandwidth);
                 $user->class = $content->class;
-                $old_class_expire = new DateTime();
+
+                $base_ts = time();
+                if ($stack_expire) {
+                    $current_expire_ts = strtotime((string) $user->class_expire);
+                    if ($current_expire_ts !== false && $current_expire_ts > $base_ts) {
+                        $base_ts = $current_expire_ts;
+                    }
+                }
+                $old_class_expire = (new DateTime())->setTimestamp($base_ts);
                 $user->class_expire = $old_class_expire
-                    ->modify('+' . $content->class_time . ' days')->format('Y-m-d H:i:s');
+                    ->modify('+' . $duration_days . ' days')->format('Y-m-d H:i:s');
                 $user->node_group = $content->node_group;
                 $user->node_speedlimit = $content->speed_limit;
                 $user->node_iplimit = $content->ip_limit;
@@ -312,7 +331,7 @@ final class Cron
                 $order_to_activate->status = 'activated';
                 $order_to_activate->update_time = time();
                 $order_to_activate->save();
-                echo "TABP订单 #{$order_to_activate->id} 已激活。\n";
+                echo "TABP订单 #{$order_to_activate->id} 已激活（{$duration_days} ngày）。\n";
             }
         }
 
@@ -370,11 +389,20 @@ final class Cron
                 if ($user->class !== (int) $content->class && $user->class > 0) {
                     continue;
                 }
+                $duration_days = (int) ($content->option_days
+                    ?? $content->class_time
+                    ?? $content->time
+                    ?? 0);
+                if ($duration_days <= 0) {
+                    continue;
+                }
                 // 激活时间包
                 $user->class = $content->class;
-                $old_class_expire = new DateTime($user->class_expire);
+                $expire_ts = strtotime((string) $user->class_expire);
+                $base_ts = ($expire_ts !== false && $expire_ts > time()) ? $expire_ts : time();
+                $old_class_expire = (new DateTime())->setTimestamp($base_ts);
                 $user->class_expire = $old_class_expire
-                    ->modify('+' . $content->class_time . ' days')->format('Y-m-d H:i:s');
+                    ->modify('+' . $duration_days . ' days')->format('Y-m-d H:i:s');
                 $user->node_group = $content->node_group;
                 $user->node_speedlimit = $content->speed_limit;
                 $user->node_iplimit = $content->ip_limit;
@@ -382,7 +410,7 @@ final class Cron
                 $order->status = 'activated';
                 $order->update_time = time();
                 $order->save();
-                echo "时间包订单 #{$order->id} 已激活。\n";
+                echo "时间包订单 #{$order->id} 已激活（{$duration_days} ngày）。\n";
             }
         }
 

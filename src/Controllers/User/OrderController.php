@@ -138,9 +138,13 @@ final class OrderController extends BaseController
         $coupon_raw = $this->antiXss->xss_clean($request->getParam('coupon'));
         $product_id = $this->antiXss->xss_clean($request->getParam('product_id'));
         $option_index_raw = $this->antiXss->xss_clean($request->getParam('option_index'));
+        $option_days_raw = $this->antiXss->xss_clean($request->getParam('option_days'));
         $option_index = ($option_index_raw === null || $option_index_raw === '')
             ? null
             : (int) $option_index_raw;
+        $option_days = ($option_days_raw === null || $option_days_raw === '')
+            ? null
+            : (int) $option_days_raw;
 
         $product = (new Product())->find($product_id);
 
@@ -152,11 +156,35 @@ final class OrderController extends BaseController
         }
 
         $resolved = $product->resolvePurchaseOption($option_index);
+
+        // Prefer matching by selected days when provided (more reliable than index alone).
+        if ($option_days !== null && $option_days > 0) {
+            $options = Product::normalizeOptions($product->content);
+            foreach ($options as $i => $opt) {
+                if ((int) $opt['days'] === $option_days) {
+                    $byDays = $product->resolvePurchaseOption($i);
+                    if ($byDays !== null) {
+                        $resolved = $byDays;
+                    }
+                    break;
+                }
+            }
+        }
+
         if ($resolved === null) {
             return $response->withJson([
                 'ret' => 0,
                 'msg' => 'Vui lòng chọn thời hạn gói hợp lệ',
             ]);
+        }
+
+        // Final safety: force snapshot days/price from resolved option.
+        if ($resolved['option'] !== null) {
+            $resolved['content']['time'] = (int) $resolved['option']['days'];
+            $resolved['content']['class_time'] = (int) $resolved['option']['days'];
+            $resolved['content']['option_days'] = (int) $resolved['option']['days'];
+            $resolved['content']['option_label'] = (string) $resolved['option']['label'];
+            $resolved['price'] = (float) $resolved['option']['price'];
         }
 
         $buy_price = $resolved['price'];
