@@ -100,7 +100,11 @@ final class ManualQr extends Base
                 }
             }
 
-            return $response->withHeader('HX-Redirect', '/user/invoice/' . $invoice->id . '/view');
+            return $response->withJson([
+                'ret' => 1,
+                'msg' => 'Đã ghi nhận xác nhận chuyển khoản. Vui lòng liên hệ admin qua Zalo 0796969444 để được duyệt đơn nhanh.',
+                'redir' => '/user',
+            ]);
         }
 
         return $response->withHeader('HX-Redirect', '/user/invoice/' . $invoice->id . '/view');

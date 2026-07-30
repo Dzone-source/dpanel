@@ -75,6 +75,31 @@
             window.successDialog = new tabler.bootstrap.Modal(document.getElementById('success-dialog'));
             window.failDialog = new tabler.bootstrap.Modal(document.getElementById('fail-dialog'));
         }
+
+        try {
+            const flashMsg = sessionStorage.getItem('gopassFlashMsg');
+            const flashType = sessionStorage.getItem('gopassFlashType') || 'success';
+            if (flashMsg) {
+                sessionStorage.removeItem('gopassFlashMsg');
+                sessionStorage.removeItem('gopassFlashType');
+                const isSuccess = flashType !== 'danger';
+                const messageId = isSuccess ? 'success-message' : 'fail-message';
+                const dialog = isSuccess ? window.successDialog : window.failDialog;
+                const messageEl = document.getElementById(messageId);
+                if (messageEl) {
+                    messageEl.textContent = flashMsg;
+                }
+                const zaloWrap = document.getElementById('success-zalo-wrap');
+                if (zaloWrap) {
+                    zaloWrap.style.display = (isSuccess && /zalo|0796969444/i.test(flashMsg)) ? '' : 'none';
+                }
+                if (dialog) {
+                    dialog.show();
+                } else {
+                    showToast(flashMsg, flashType);
+                }
+            }
+        } catch (e) {}
     });
 
     if (typeof ClipboardJS !== 'undefined' && document.querySelector('.copy')) {
@@ -139,7 +164,7 @@
                 }
             }
 
-            if (res.redir) {
+            if (typeof res.ret === 'undefined' && res.redir) {
                 window.location.href = res.redir;
                 return;
             }
@@ -161,6 +186,15 @@
                 ) {
                     restoreGopassBusySubmit(busyBtn);
                 }
+            }
+
+            if (isSuccess && res.redir) {
+                try {
+                    sessionStorage.setItem('gopassFlashMsg', res.msg || 'Thành công');
+                    sessionStorage.setItem('gopassFlashType', 'success');
+                } catch (e) {}
+                window.location.href = res.redir;
+                return;
             }
 
             const messageId = isSuccess ? "success-message" : "fail-message";
