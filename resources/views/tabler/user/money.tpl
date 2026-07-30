@@ -110,8 +110,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
-                    <button id="apply-topup" class="btn btn-primary" data-bs-dismiss="modal"
+                    <button id="apply-topup" class="btn btn-primary gopass-busy-submit" type="button"
                             hx-post="/user/order/create" hx-swap="none"
+                            hx-disabled-elt="this"
+                            data-gopass-busy-text="Đang tạo đơn..."
+                            data-gopass-keep-busy="1"
                             hx-vals='js:{
                                 amount: document.getElementById("topup_amount").value,
                                 type: "topup"

@@ -148,16 +148,21 @@
                 return;
             }
 
-            const payBtn = evt.detail.elt;
-            if (payBtn && payBtn.classList && payBtn.classList.contains('gopass-pay-submit') && res.ret !== 1) {
-                payBtn.disabled = false;
-                payBtn.removeAttribute('aria-busy');
-                if (payBtn.dataset.gopassOriginalHtml) {
-                    payBtn.innerHTML = payBtn.dataset.gopassOriginalHtml;
+            const busyBtn = evt.detail.elt;
+            const isSuccess = res.ret === 1;
+
+            if (isGopassBusySubmit(busyBtn)) {
+                if (!isSuccess) {
+                    restoreGopassBusySubmit(busyBtn);
+                } else if (
+                    !res.redir &&
+                    !busyBtn.classList.contains('gopass-pay-submit') &&
+                    busyBtn.getAttribute('data-gopass-keep-busy') !== '1'
+                ) {
+                    restoreGopassBusySubmit(busyBtn);
                 }
             }
 
-            const isSuccess = res.ret === 1;
             const messageId = isSuccess ? "success-message" : "fail-message";
             const dialog = isSuccess ? window.successDialog : window.failDialog;
 
@@ -168,7 +173,7 @@
                 showToast(res.msg, isSuccess ? 'success' : 'danger');
             }
 
-            if (isSuccess && payBtn && payBtn.classList && payBtn.classList.contains('gopass-pay-submit')) {
+            if (isSuccess && isGopassBusySubmit(busyBtn) && busyBtn.classList.contains('gopass-pay-submit')) {
                 window.setTimeout(function () {
                     window.location.reload();
                 }, 800);
@@ -178,27 +183,51 @@
         }
     });
 
-    htmx.on('htmx:beforeRequest', function (evt) {
-        const el = evt.detail.elt;
-        if (!el || !el.classList || !el.classList.contains('gopass-pay-submit')) {
+    function isGopassBusySubmit(el) {
+        return !!(el && el.classList && (
+            el.classList.contains('gopass-busy-submit') ||
+            el.classList.contains('gopass-pay-submit')
+        ));
+    }
+
+    function setGopassBusySubmit(el, waitingText) {
+        if (!isGopassBusySubmit(el) || el.getAttribute('aria-busy') === 'true') {
             return;
         }
         el.dataset.gopassOriginalHtml = el.innerHTML;
         el.disabled = true;
         el.setAttribute('aria-busy', 'true');
-        el.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
-    });
+        el.classList.add('is-gopass-busy');
+        el.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' +
+            (waitingText || 'Đang xử lý...');
+    }
 
-    htmx.on('htmx:responseError', function (evt) {
-        const el = evt.detail.elt;
-        if (!el || !el.classList || !el.classList.contains('gopass-pay-submit')) {
+    function restoreGopassBusySubmit(el) {
+        if (!el) {
             return;
         }
         el.disabled = false;
         el.removeAttribute('aria-busy');
+        el.classList.remove('is-gopass-busy');
         if (el.dataset.gopassOriginalHtml) {
             el.innerHTML = el.dataset.gopassOriginalHtml;
         }
+    }
+
+    htmx.on('htmx:beforeRequest', function (evt) {
+        const el = evt.detail.elt;
+        if (!isGopassBusySubmit(el)) {
+            return;
+        }
+        setGopassBusySubmit(el, el.getAttribute('data-gopass-busy-text') || 'Đang xử lý...');
+    });
+
+    htmx.on('htmx:responseError', function (evt) {
+        restoreGopassBusySubmit(evt.detail.elt);
+    });
+
+    htmx.on('htmx:sendError', function (evt) {
+        restoreGopassBusySubmit(evt.detail.elt);
     });
 </script>
 

@@ -45,8 +45,12 @@
         Sau khi chuyển khoản, hóa đơn sẽ được quản trị viên xác nhận thủ công.
     </div>
 
-    <button class="btn btn-primary w-100 mt-3"
+    <button class="btn btn-primary w-100 mt-3 gopass-busy-submit"
+            type="button"
             hx-post="/user/payment/purchase/manualqr" hx-swap="none"
+            hx-disabled-elt="this"
+            data-gopass-busy-text="Đang gửi xác nhận..."
+            data-gopass-keep-busy="1"
             hx-confirm="Xác nhận bạn đã chuyển khoản đúng số tiền và nội dung INV{$invoice->id}?"
             hx-vals='js:{
                 invoice_id: {$invoice->id},

@@ -1898,6 +1898,14 @@ body.gopass-auth .modal-content {
     border-radius: 0.85rem !important;
 }
 
+.gopass-busy-submit.is-gopass-busy,
+.gopass-pay-submit.is-gopass-busy,
+button.is-gopass-busy {
+    pointer-events: none;
+    opacity: 0.85;
+    cursor: wait;
+}
+
 .gopass-pay-gateway-item .card-inner {
     padding: 0;
 }

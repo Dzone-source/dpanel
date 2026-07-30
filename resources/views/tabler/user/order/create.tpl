@@ -149,8 +149,10 @@
                                 <div class="input-group mb-2">
                                     <input id="coupon" type="text" class="form-control"
                                            placeholder="Nhập mã giảm giá, để trống nếu không có">
-                                    <button class="btn" type="button" id="apply-coupon-btn"
+                                    <button class="btn gopass-busy-submit" type="button" id="apply-coupon-btn"
                                             hx-post="/user/coupon" hx-swap="none"
+                                            hx-disabled-elt="this"
+                                            data-gopass-busy-text="Đang áp dụng..."
                                             hx-vals='js:{ldelim}
                                                 coupon: document.getElementById("coupon").value,
                                                 product_id: {$product->id},
@@ -165,8 +167,12 @@
                     </div>
                     <div class="card my-3">
                         <div class="card-body">
-                            <button class="btn btn-primary w-100 my-3"
+                            <button class="btn btn-primary w-100 my-3 gopass-busy-submit"
+                                    type="button"
                                     hx-post="/user/order/create" hx-swap="none"
+                                    hx-disabled-elt="this"
+                                    data-gopass-busy-text="Đang tạo đơn..."
+                                    data-gopass-keep-busy="1"
                                     hx-vals='js:{ldelim}
                                         type: "product",
                                         coupon: document.getElementById("coupon").value,

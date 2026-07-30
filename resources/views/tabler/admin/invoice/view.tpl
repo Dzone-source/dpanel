@@ -15,7 +15,8 @@
                 {if $invoice->status === 'unpaid' || $invoice->status === 'partially_paid'}
                     <div class="col-auto">
                         <div class="btn-list">
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-primary" id="open_mark_paid_dialog"
+                                    data-bs-toggle="modal"
                                     data-bs-target="#mark_paid_confirm_dialog">
                                 <i class="icon ti ti-checklist"></i>
                                 {if $invoice->status === 'partially_paid'}
@@ -134,8 +135,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
-                    <button id="confirm_mark_paid" type="button" class="btn btn-primary" data-bs-dismiss="modal">Xác nhận
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal" id="cancel_mark_paid">Hủy</button>
+                    <button id="confirm_mark_paid" type="button" class="btn btn-primary gopass-busy-submit">
+                        Xác nhận
                     </button>
                 </div>
             </div>
@@ -143,25 +145,64 @@
     </div>
 
     <script>
-        $("#confirm_mark_paid").click(function () {
-            $.ajax({
-                url: "/admin/invoice/{$invoice->id}/mark_paid",
-                type: 'POST',
-                dataType: "json",
-                success: function (data) {
-                    if (data.ret === 1) {
-                        $('#success-message').text(data.msg);
-                        $('#success-dialog').modal('show');
-                        window.setTimeout(function () {
-                            location.reload();
-                        }, 1200);
-                    } else {
-                        $('#fail-message').text(data.msg);
-                        $('#fail-dialog').modal('show');
-                    }
+        (function () {
+            var markPaidBusy = false;
+            var $confirm = $("#confirm_mark_paid");
+            var $cancel = $("#cancel_mark_paid");
+            var $open = $("#open_mark_paid_dialog");
+            var originalHtml = $confirm.html();
+
+            function setBusy(waiting) {
+                markPaidBusy = waiting;
+                $confirm.prop("disabled", waiting);
+                $cancel.prop("disabled", waiting);
+                $open.prop("disabled", waiting);
+                if (waiting) {
+                    $confirm.attr("aria-busy", "true").addClass("is-gopass-busy");
+                    $confirm.html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...');
+                } else {
+                    $confirm.removeAttr("aria-busy").removeClass("is-gopass-busy");
+                    $confirm.html(originalHtml);
                 }
-            })
-        });
+            }
+
+            $confirm.on("click", function () {
+                if (markPaidBusy) {
+                    return;
+                }
+                setBusy(true);
+                $.ajax({
+                    url: "/admin/invoice/{$invoice->id}/mark_paid",
+                    type: "POST",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.ret === 1) {
+                            var modalEl = document.getElementById("mark_paid_confirm_dialog");
+                            if (modalEl && window.bootstrap) {
+                                var modal = bootstrap.Modal.getInstance(modalEl);
+                                if (modal) {
+                                    modal.hide();
+                                }
+                            }
+                            $("#success-message").text(data.msg);
+                            $("#success-dialog").modal("show");
+                            window.setTimeout(function () {
+                                location.reload();
+                            }, 1200);
+                        } else {
+                            setBusy(false);
+                            $("#fail-message").text(data.msg);
+                            $("#fail-dialog").modal("show");
+                        }
+                    },
+                    error: function () {
+                        setBusy(false);
+                        $("#fail-message").text("Không thể duyệt đơn. Vui lòng thử lại.");
+                        $("#fail-dialog").modal("show");
+                    }
+                });
+            });
+        })();
     </script>
     {/if}
 

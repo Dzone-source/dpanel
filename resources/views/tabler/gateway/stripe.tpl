@@ -12,8 +12,12 @@
         <span class="payment payment-xs payment-provider-visa me-auto"></span>
         </p>
     <div class="form-group form-group-label">
-        <button class="btn btn-flat waves-attach"
+        <button class="btn btn-flat waves-attach gopass-busy-submit"
+            type="button"
             hx-post="/user/payment/purchase/stripe" hx-swap="none"
+            hx-disabled-elt="this"
+            data-gopass-busy-text="Đang chuyển..."
+            data-gopass-keep-busy="1"
             hx-vals='js:{
                 invoice_id: {$invoice->id},
             }'>
