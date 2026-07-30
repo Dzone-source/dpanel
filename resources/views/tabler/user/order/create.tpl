@@ -151,7 +151,12 @@
                                            placeholder="Nhập mã giảm giá, để trống nếu không có">
                                     <button class="btn" type="button" id="apply-coupon-btn"
                                             hx-post="/user/coupon" hx-swap="none"
-                                            hx-vals='js:{"coupon": document.getElementById("coupon").value, "product_id": {$product->id}, "option_index": (document.getElementById("option-index") ? document.getElementById("option-index").value : ""), "option_days": (document.getElementById("option-index") && document.querySelector(".gopass-order-option.is-selected") ? document.querySelector(".gopass-order-option.is-selected").getAttribute("data-days") : "")}'>
+                                            hx-vals='js:{ldelim}
+                                                coupon: document.getElementById("coupon").value,
+                                                product_id: {$product->id},
+                                                option_index: (document.getElementById("option-index") ? document.getElementById("option-index").value : ""),
+                                                option_days: (document.querySelector(".gopass-order-option.is-selected") ? document.querySelector(".gopass-order-option.is-selected").getAttribute("data-days") : "")
+                                            {rdelim}'>
                                         Áp dụng
                                     </button>
                                 </div>
@@ -162,7 +167,13 @@
                         <div class="card-body">
                             <button class="btn btn-primary w-100 my-3"
                                     hx-post="/user/order/create" hx-swap="none"
-                                    hx-vals='js:{"type": "product", "coupon": document.getElementById("coupon").value, "product_id": {$product->id}, "option_index": (document.getElementById("option-index") ? document.getElementById("option-index").value : ""), "option_days": (document.querySelector(".gopass-order-option.is-selected") ? document.querySelector(".gopass-order-option.is-selected").getAttribute("data-days") : "")}'>
+                                    hx-vals='js:{ldelim}
+                                        type: "product",
+                                        coupon: document.getElementById("coupon").value,
+                                        product_id: {$product->id},
+                                        option_index: (document.getElementById("option-index") ? document.getElementById("option-index").value : ""),
+                                        option_days: (document.querySelector(".gopass-order-option.is-selected") ? document.querySelector(".gopass-order-option.is-selected").getAttribute("data-days") : "")
+                                    {rdelim}'>
                                 Tạo đơn hàng
                             </button>
                         </div>
