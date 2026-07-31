@@ -86,49 +86,7 @@ final class SingBox extends Base
                     $node = $this->buildV2Family($node_raw, $user, $node_custom_config);
                     break;
                 case 14:
-                    $trojan_port = NodeConfig::port($node_custom_config);
-                    $host = NodeConfig::host($node_custom_config);
-                    $allow_insecure = NodeConfig::allowInsecure($node_custom_config);
-                    $transport = $node_custom_config['network'] ?? '';
-                    $path = NodeConfig::path($node_custom_config);
-                    $headers = $node_custom_config['header']['request']['headers'] ?? [];
-                    $service_name = $node_custom_config['servicename'] ?? '';
-
-                    $tls = [
-                        'enabled' => true,
-                        'server_name' => $host,
-                        'insecure' => $allow_insecure,
-                    ];
-
-                    if (NodeConfig::isReality($node_custom_config)) {
-                        $reality = NodeConfig::realityClient($node_custom_config);
-                        $tls['server_name'] = $reality['server_name'] !== '' ? $reality['server_name'] : $host;
-                        $tls['utls'] = [
-                            'enabled' => true,
-                            'fingerprint' => $reality['fingerprint'],
-                        ];
-                        $tls['reality'] = [
-                            'enabled' => true,
-                            'public_key' => $reality['public_key'],
-                            'short_id' => $reality['short_id'],
-                        ];
-                    }
-
-                    $node = [
-                        'type' => 'trojan',
-                        'tag' => $node_raw->name,
-                        'server' => $node_raw->server,
-                        'server_port' => $trojan_port,
-                        'password' => $user->uuid,
-                        'tls' => array_filter($tls, static fn ($v) => $v !== null && $v !== ''),
-                        'transport' => array_filter([
-                            'type' => $transport,
-                            'path' => $path,
-                            'headers' => $headers,
-                            'service_name' => $service_name,
-                        ]),
-                    ];
-
+                    $node = $this->buildTrojan($node_raw, $user, $node_custom_config);
                     break;
                 default:
                     $node = [];
@@ -228,6 +186,73 @@ final class SingBox extends Base
                 'service_name' => $service_name,
                 'max_early_data' => $max_early_data === '' ? null : (int) $max_early_data,
                 'early_data_header_name' => $early_data_header_name,
+            ], static fn ($v) => $v !== null && $v !== '' && $v !== []);
+            if ($transport !== []) {
+                $node['transport'] = $transport;
+            }
+        }
+
+        return $node;
+    }
+
+    /**
+     * Sing-box Trojan outbound for Hiddify (password = UUID).
+     */
+    private function buildTrojan(object $node_raw, object $user, array $cfg): array
+    {
+        $password = NodeConfig::trojanPassword($user);
+        if ($password === '') {
+            return [];
+        }
+
+        $sni = NodeConfig::sni($cfg, (string) $node_raw->server);
+        $allow_insecure = NodeConfig::allowInsecure($cfg);
+        $network = (string) ($cfg['network'] ?? 'tcp');
+        $path = NodeConfig::path($cfg);
+        $headers = $cfg['header']['request']['headers'] ?? [];
+        $service_name = $cfg['servicename'] ?? $cfg['serviceName'] ?? '';
+
+        $tls = [
+            'enabled' => true,
+            'server_name' => $sni,
+            'insecure' => $allow_insecure,
+            'utls' => [
+                'enabled' => true,
+                'fingerprint' => NodeConfig::fingerprint($cfg),
+            ],
+        ];
+
+        if (NodeConfig::isReality($cfg)) {
+            $reality = NodeConfig::realityClient($cfg);
+            $tls['server_name'] = $reality['server_name'] !== '' ? $reality['server_name'] : $sni;
+            $tls['utls']['fingerprint'] = $reality['fingerprint'];
+            $tls['reality'] = [
+                'enabled' => true,
+                'public_key' => $reality['public_key'],
+                'short_id' => $reality['short_id'],
+            ];
+        }
+
+        $node = [
+            'type' => 'trojan',
+            'tag' => $node_raw->name,
+            'server' => $node_raw->server,
+            'server_port' => NodeConfig::port($cfg),
+            'password' => $password,
+            'tls' => $tls,
+        ];
+
+        $transportType = ($network === '' || $network === 'tcp') ? '' : $network;
+        if ($network === 'httpupgrade') {
+            $transportType = 'httpupgrade';
+        }
+
+        if ($transportType !== '') {
+            $transport = array_filter([
+                'type' => $transportType,
+                'path' => $path,
+                'headers' => $headers,
+                'service_name' => $service_name,
             ], static fn ($v) => $v !== null && $v !== '' && $v !== []);
             if ($transport !== []) {
                 $node['transport'] = $transport;

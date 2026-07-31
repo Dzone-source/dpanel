@@ -1,54 +1,49 @@
-# Hiddify + XrayR (DPanel)
+# Hiddify + Trojan (DPanel / XrayR)
 
-Stable setup for Hiddify clients against DPanel (SSPanel-UIM WebAPI) + XrayR, aligned with Xboard / Xboard-Node protocol expectations (VLESS + REALITY / TLS).
+Node đang chạy **Trojan** (sort=`14`), không phải VLESS. Hiddify lỗi thường do:
 
-## Why Hiddify failed before
+1. Panel cứng kick user khi `alive_ip >= node_iplimit` → XrayR log `not a valid user` và drop Trojan session  
+2. Subscription thiếu SNI / ws-opts / fingerprint  
+3. XrayR `NodeType` hoặc TLS cert sai
 
-Hiddify imports Clash Meta (`/clash`) or Sing-box (`/singbox`). DPanel used to emit **VMess** for all sort=`11` nodes even when the node ran **VLESS + REALITY** on XrayR. Clients then dialed the wrong protocol and the handshake failed.
+## Panel
 
-Subscriptions now emit `vless` + `reality-opts` / Sing-box `tls.reality` when `custom_config` enables them.
+- Node **sort = 14** (Trojan)
+- `muKey` = XrayR `ApiKey`
+- `webAPIUrl` / `subUrl` = HTTPS public URL
+- `checkNodeIp = false` nếu node NAT/CDN (đã default trong bản fix)
 
-## Panel (`muKey` / Host)
-
-1. `config/.config.php`:
-   - `webAPI = true`
-   - `webAPIUrl` = public HTTPS URL (must match Host header XrayR uses)
-   - `muKey` = long random secret (same as XrayR `ApiKey`)
-   - `checkNodeIp = false` if the node is behind CDN/NAT (otherwise keep `true` with correct node IP)
-   - `subUrl` = same public HTTPS base as users open for subscriptions
-2. Node sort: `11` for VMess/VLESS, `14` for Trojan.
-
-## Node `custom_config` (VLESS + REALITY)
-
-Paste into Admin → Node → custom_config (JSON). Generate keys with `XrayR x25519`:
+### `custom_config` mẫu (Trojan TCP + TLS)
 
 ```json
 {
   "offset_port_node": 443,
-  "host": "www.microsoft.com",
+  "host": "node.example.com",
   "network": "tcp",
-  "security": "reality",
-  "enable_vless": "1",
-  "flow": "xtls-rprx-vision",
-  "enable_reality": true,
-  "fingerprint": "chrome",
-  "reality-opts": {
-    "dest": "www.microsoft.com:443",
-    "server_names": ["www.microsoft.com"],
-    "private_key": "SERVER_PRIVATE_KEY",
-    "public_key": "SERVER_PUBLIC_KEY",
-    "short_ids": ["0123456789abcdef"]
-  }
+  "security": "tls",
+  "allow_insecure": false,
+  "udp": true,
+  "fingerprint": "chrome"
 }
 ```
 
-Notes:
+### Trojan + WebSocket
 
-- `public_key` is required for **subscriptions** (Hiddify / Clash Meta). XrayR only needs `private_key` on the server.
-- Keep `flow` as `xtls-rprx-vision` for TCP REALITY (Hiddify / Clash Meta / Sing-box).
-- Prefer a real CDN/site as `dest` / SNI that supports TLS1.3 + H2.
+```json
+{
+  "offset_port_node": 443,
+  "host": "node.example.com",
+  "network": "ws",
+  "path": "/trojan",
+  "security": "tls",
+  "allow_insecure": false,
+  "fingerprint": "chrome"
+}
+```
 
-## XrayR `config.yml` (pair with DPanel)
+Password client = **user UUID** (giống XrayR).
+
+## XrayR `config.yml`
 
 ```yaml
 Nodes:
@@ -57,10 +52,8 @@ Nodes:
       ApiHost: "https://YOUR_PANEL"
       ApiKey: "SAME_AS_muKey"
       NodeID: 1
-      NodeType: V2ray
+      NodeType: Trojan
       Timeout: 30
-      EnableVless: true
-      VlessFlow: "xtls-rprx-vision"
       DisableCustomConfig: false
     ControllerConfig:
       ListenIP: 0.0.0.0
@@ -68,24 +61,29 @@ Nodes:
       DisableLocalREALITYConfig: true
       EnableREALITY: false
       CertConfig:
-        CertMode: none
+        CertMode: file   # Trojan CẦN TLS — không dùng none
+        CertDomain: "node.example.com"
+        CertFile: /etc/XrayR/cert/node.example.com.crt
+        KeyFile: /etc/XrayR/cert/node.example.com.key
 ```
 
-- `PanelType` must be `SSpanel` (not `NewV2board` — that is for Xboard UniProxy).
-- `DisableLocalREALITYConfig: true` so Reality keys come from panel `custom_config` (Xboard-Node style: panel owns protocol settings).
-- Open the node port on the firewall; for REALITY no ACME cert is needed.
+Hoặc `CertMode: http` / `dns` nếu muốn ACME tự cấp.
 
-## Hiddify import
+## Hiddify
 
-| Client | URL |
-|--------|-----|
-| Desktop / recommended | `{subUrl}/sub/{token}/singbox` or one-click `hiddify://import/.../singbox` |
-| Android Clash path | `{subUrl}/sub/{token}/clash` (Clash Meta with VLESS+REALITY) |
+Import lại:
 
-User-Agent containing `Hiddify` on `/json` is remapped to Sing-box automatically.
+- Desktop: `{sub}/singbox`
+- Android: `{sub}/clash`
 
-## Quick checks
+Trong Clash phải thấy `type: trojan`, `password` = UUID, `sni` đúng domain cert.
 
-1. Panel: open `/sub/{token}/clash` — proxy `type` must be `vless` and include `reality-opts.public-key`.
-2. XrayR log: sync users without `custom_config format error` / panic.
-3. Hiddify: import → select node → connect; if fail, verify public/private key pair and `short_id`.
+## Kiểm tra nhanh
+
+```bash
+# Panel subscription
+curl -sL "https://PANEL/sub/TOKEN/clash" | grep -A20 "type: trojan"
+
+# Node log — không còn "not a valid user"
+journalctl -u XrayR -n 100 --no-pager
+```

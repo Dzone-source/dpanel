@@ -186,4 +186,30 @@ final class NodeConfig
     {
         return self::isTruthy($config['allow_insecure'] ?? false);
     }
+
+    /**
+     * Trojan password for SSPanel/DPanel: UUID first, then passwd (XrayR does the same).
+     */
+    public static function trojanPassword(object $user): string
+    {
+        $uuid = (string) ($user->uuid ?? '');
+        if ($uuid !== '') {
+            return $uuid;
+        }
+
+        return (string) ($user->passwd ?? '');
+    }
+
+    /**
+     * SNI / servername for TLS clients. Prefer custom_config host, else node server hostname.
+     */
+    public static function sni(array $config, string $serverFallback = ''): string
+    {
+        $host = self::host($config);
+        if ($host !== '') {
+            return $host;
+        }
+
+        return $serverFallback;
+    }
 }
