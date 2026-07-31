@@ -67,9 +67,9 @@
     },
     {
       "name": "Hiddify",
-      "description": "Dùng link /singbox (Hiddify / SFA) — không dùng link Clash",
+      "description": "Dùng link /singbox (Hiddify) — hỗ trợ Trojan ổn định",
       "format": "singbox",
-      "importUrl": "sing-box://import-remote-profile?url={url}#{name}",
+      "importUrl": "hiddify://import/{url}#{name}",
       "platforms": {
         "Windows": {
           "ext": "exe",
@@ -81,7 +81,8 @@
         },
         "Android": {
           "ext": "apk",
-          "file": "Hiddify"
+          "file": "Hiddify",
+          "importUrl": "hiddify://import/{url}#{name}"
         },
         "Linux": {
           "ext": "AppImage",

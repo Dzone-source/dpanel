@@ -15,16 +15,14 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use RedisException;
 use Telegram\Bot\Exceptions\TelegramSDKException;
+use function base64_encode;
 use function in_array;
+use function str_contains;
+use function strtolower;
 use function strtotime;
 
 final class SubController extends BaseController
 {
-    private const SUBTYPE_LIST = [
-        'json', 'clash', 'sip008', 'singbox', 'v2rayjson',
-        'sip002', 'ss', 'v2ray', 'trojan', 'general',
-    ];
-
     /**
      * @throws ClientExceptionInterface
      * @throws GuzzleException
@@ -33,23 +31,13 @@ final class SubController extends BaseController
      */
     public function index($request, $response, $args): ResponseInterface
     {
-        $err_msg = 'Liên kết đăng ký không hợp lệ';
-        $subtype = isset($args['subtype']) ? strtolower(trim((string) $args['subtype'])) : '';
-
-        if ($subtype === '') {
-            $subtype = $this->detectSubtype($request->getHeaderLine('User-Agent'));
-        }
-
-        $request_host = strtolower(trim($request->getHeaderLine('Host')));
-        if (str_contains($request_host, ':')) {
-            $request_host = explode(':', $request_host, 2)[0];
-        }
-        $configured_sub_host = strtolower((string) parse_url((string) $_ENV['subUrl'], PHP_URL_HOST));
+        $err_msg = '订阅链接无效';
+        $subtype = $args['subtype'];
+        $subtype_list = ['json', 'clash', 'sip008', 'singbox', 'v2rayjson', 'sip002', 'ss', 'v2ray', 'trojan'];
 
         if (! $_ENV['Subscribe'] ||
-            ! in_array($subtype, self::SUBTYPE_LIST, true) ||
-            $configured_sub_host === '' ||
-            $request_host !== $configured_sub_host
+            ! in_array($subtype, $subtype_list) ||
+            'https://' . $request->getHeaderLine('Host') !== $_ENV['subUrl']
         ) {
             return ResponseHelper::error($response, $err_msg);
         }
@@ -60,7 +48,7 @@ final class SubController extends BaseController
             (! (new RateLimit())->checkRateLimit('sub_ip', $request->getServerParam('REMOTE_ADDR')) ||
             ! (new RateLimit())->checkRateLimit('sub_token', $token))
         ) {
-            return ResponseHelper::error($response, 'Quá nhiều yêu cầu đăng ký, vui lòng thử lại sau', 429);
+            return ResponseHelper::error($response, $err_msg);
         }
 
         $link = (new Link())->where('token', $token)->first();
@@ -70,76 +58,60 @@ final class SubController extends BaseController
         }
 
         $user = $link->user();
-        $sub_info = Subscribe::getContent($user, $subtype);
+        $ua = $this->antiXss->xss_clean($request->getHeaderLine('User-Agent'));
 
-        if ($sub_info === '' && $subtype !== 'clash') {
-            $subtype = 'clash';
-            $sub_info = Subscribe::getContent($user, $subtype);
+        // Xboard-style: Hiddify prefers Sing-box JSON. Keep explicit /clash for Clash Meta cores.
+        // When Hiddify hits /json (universal), remap to singbox so VLESS+REALITY imports correctly.
+        if ($subtype === 'json' && $this->isHiddifyUserAgent($ua)) {
+            $subtype = 'singbox';
         }
 
+        $sub_info = Subscribe::getContent($user, $subtype);
+
         $content_type = match ($subtype) {
-            'clash' => 'text/yaml; charset=UTF-8',
-            'json', 'sip008', 'singbox', 'v2rayjson' => 'application/json; charset=UTF-8',
-            default => 'text/plain; charset=UTF-8',
+            'clash' => 'application/yaml',
+            'json','sip008','singbox','v2rayjson' => 'application/json',
+            default => 'text/plain',
         };
 
-        $sub_details = 'upload=' . $user->u
-            . '; download=' . $user->d
-            . '; total=' . $user->transfer_enable
-            . '; expire=' . strtotime($user->class_expire);
-        $profile_title = (string) ($_ENV['appName'] ?? 'DPanel');
+        $sub_details = ' upload=' . $user->u
+        . '; download=' . $user->d
+        . '; total=' . $user->transfer_enable
+        . '; expire=' . strtotime($user->class_expire);
+        // Clash / Hiddify profile headers
+        $sub_content_disposition = 'attachment; filename=' . $_ENV['appName'];
+        $sub_profile_update_interval = 6;
+        $sub_profile_web_page_url = $_ENV['baseUrl'];
 
         if (Config::obtain('subscribe_log')) {
             (new SubscribeLog())->add(
                 $user,
                 $subtype,
-                $this->antiXss->xss_clean($request->getHeaderLine('User-Agent'))
+                $ua
             );
         }
 
-        // Hiddify-Panel headers + no-store so clients pick up Connecting fixes immediately.
-        $profile_title_b64 = 'base64:' . base64_encode($profile_title);
+        if ($subtype === 'clash' || $subtype === 'singbox') {
+            return $response->withHeader('Subscription-Userinfo', $sub_details)
+                ->withHeader('Content-Disposition', $sub_content_disposition)
+                ->withHeader('Profile-Update-Interval', $sub_profile_update_interval)
+                ->withHeader('Profile-Web-Page-Url', $sub_profile_web_page_url)
+                ->withHeader('Profile-Title', 'base64:' . base64_encode((string) $_ENV['appName']))
+                ->withHeader('Content-Type', $content_type)
+                ->write($sub_info);
+        }
 
-        return $response
-            ->withHeader('Subscription-Userinfo', $sub_details)
-            ->withHeader('profile-web-page-url', rtrim((string) $_ENV['baseUrl'], '/') . '/')
-            ->withHeader('profile-update-interval', '1')
-            ->withHeader('profile-title', $profile_title_b64)
-            ->withHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-            ->withHeader('Pragma', 'no-cache')
+        return $response->withHeader('Subscription-Userinfo', $sub_details)
             ->withHeader('Content-Type', $content_type)
             ->write($sub_info);
     }
 
-    private function detectSubtype(string $userAgent): string
+    private function isHiddifyUserAgent(string $ua): bool
     {
-        $ua = strtolower($userAgent);
+        $uaLower = strtolower($ua);
 
-        // Clash Meta family
-        if (str_contains($ua, 'clash') ||
-            str_contains($ua, 'stash') ||
-            str_contains($ua, 'verge') ||
-            str_contains($ua, 'flclash') ||
-            str_contains($ua, 'nyanpasu') ||
-            str_contains($ua, 'mihomo') ||
-            str_contains($ua, 'nekobox')
-        ) {
-            return 'clash';
-        }
-
-        // Hiddify + official sing-box apps — same simplified /singbox body that SFA accepts.
-        if (str_contains($ua, 'hiddify') ||
-            str_contains($ua, 'dart/') ||
-            str_contains($ua, 'dio') ||
-            str_contains($ua, 'sing-box') ||
-            str_contains($ua, 'singbox') ||
-            str_contains($ua, 'sfm') ||
-            str_contains($ua, 'sfa') ||
-            str_contains($ua, 'sfi')
-        ) {
-            return 'singbox';
-        }
-
-        return 'clash';
+        return str_contains($uaLower, 'hiddify')
+            || str_contains($uaLower, 'hiddifynext')
+            || str_contains($uaLower, 'hiddify-next');
     }
 }

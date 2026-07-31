@@ -6,12 +6,8 @@ namespace App\Services\Subscribe;
 
 use App\Services\Subscribe;
 use App\Utils\Tools;
-use function array_filter;
 use function array_merge;
-use function filter_var;
-use function json_decode;
 use function yaml_emit;
-use const FILTER_VALIDATE_BOOLEAN;
 use const YAML_UTF8_ENCODING;
 
 final class Clash extends Base
@@ -25,13 +21,12 @@ final class Clash extends Base
         $nodes_raw = Subscribe::getUserNodes($user);
 
         foreach ($nodes_raw as $node_raw) {
-            $node_custom_config = json_decode($node_raw->custom_config, true);
+            $node_custom_config = NodeConfig::decode($node_raw->custom_config);
 
             switch ((int) $node_raw->sort) {
                 case 0:
                     $plugin = $node_custom_config['plugin'] ?? '';
                     $plugin_option = $node_custom_config['plugin_option'] ?? null;
-                    // Clash 特定配置
                     $udp = $node_custom_config['udp'] ?? true;
 
                     $node = [
@@ -48,8 +43,7 @@ final class Clash extends Base
 
                     break;
                 case 1:
-                    $ss_2022_port = $node_custom_config['offset_port_user'] ??
-                        ($node_custom_config['offset_port_node'] ?? 443);
+                    $ss_2022_port = NodeConfig::port($node_custom_config);
                     $method = $node_custom_config['method'] ?? '2022-blake3-aes-128-gcm';
                     $user_pk = Tools::genSs2022UserPk($user->passwd, $method);
 
@@ -58,7 +52,6 @@ final class Clash extends Base
                         break;
                     }
 
-                    // Clash 特定配置
                     $udp = $node_custom_config['udp'] ?? true;
                     $server_key = $node_custom_config['server_key'] ?? '';
                     $uot = $node_custom_config['uot'] ?? false;
@@ -67,8 +60,8 @@ final class Clash extends Base
                         'name' => $node_raw->name,
                         'type' => 'ss',
                         'server' => $node_raw->server,
-                        'port' => (int) $ss_2022_port,
-                        'password' => $server_key === '' ? $user_pk : $server_key . ':' .$user_pk,
+                        'port' => $ss_2022_port,
+                        'password' => $server_key === '' ? $user_pk : $server_key . ':' . $user_pk,
                         'cipher' => $method,
                         'udp' => (bool) $udp,
                         'udp_over_tcp' => (bool) $uot,
@@ -76,124 +69,27 @@ final class Clash extends Base
 
                     break;
                 case 2:
-                    $tuic_port = $node_custom_config['offset_port_user'] ??
-                        ($node_custom_config['offset_port_node'] ?? 443);
-                    $host = $node_custom_config['host'] ?? '';
+                    $tuic_port = NodeConfig::port($node_custom_config);
+                    $host = NodeConfig::host($node_custom_config);
                     $congestion_control = $node_custom_config['congestion_control'] ?? 'bbr';
-                    $allow_insecure = filter_var(
-                        $node_custom_config['allow_insecure'] ?? false,
-                        FILTER_VALIDATE_BOOLEAN
-                    );
-                    if (! $allow_insecure && $host !== '' &&
-                        strcasecmp((string) $host, (string) $node_raw->server) !== 0
-                    ) {
-                        $allow_insecure = true;
-                    }
-                    // Only Clash.Meta core has TUIC support
-                    // Tuic V5 Only
                     $node = [
                         'name' => $node_raw->name,
                         'type' => 'tuic',
                         'server' => $node_raw->server,
-                        'port' => (int) $tuic_port,
+                        'port' => $tuic_port,
                         'password' => $user->passwd,
                         'uuid' => $user->uuid,
                         'sni' => $host,
                         'congestion-controller' => $congestion_control,
-                        'reduce-rtt' => false,
-                        'skip-cert-verify' => $allow_insecure,
+                        'reduce-rtt' => true,
                     ];
 
                     break;
                 case 11:
-                    $v2_port = $node_custom_config['offset_port_user'] ??
-                        ($node_custom_config['offset_port_node'] ?? 443);
-                    $security = $node_custom_config['security'] ?? 'none';
-                    $encryption = $node_custom_config['encryption'] ?? 'auto';
-                    $network = $node_custom_config['network'] ?? '';
-                    $host = $node_custom_config['header']['request']['headers']['Host'][0] ??
-                        $node_custom_config['host'] ?? '';
-                    $allow_insecure = filter_var(
-                        $node_custom_config['allow_insecure'] ?? false,
-                        FILTER_VALIDATE_BOOLEAN
-                    );
-                    $tls = $security === 'tls' || $security === 'auto';
-                    if ($tls && ! $allow_insecure && $host !== '' &&
-                        strcasecmp((string) $host, (string) $node_raw->server) !== 0
-                    ) {
-                        $allow_insecure = true;
-                    }
-                    // Clash 特定配置
-                    $udp = filter_var($node_custom_config['udp'] ?? true, FILTER_VALIDATE_BOOLEAN);
-                    $ws_opts = $node_custom_config['ws-opts'] ?? $node_custom_config['ws_opts'] ?? null;
-                    $h2_opts = $node_custom_config['h2-opts'] ?? $node_custom_config['h2_opts'] ?? null;
-                    $http_opts = $node_custom_config['http-opts'] ?? $node_custom_config['http_opts'] ?? null;
-                    $grpc_opts = $node_custom_config['grpc-opts'] ?? $node_custom_config['grpc_opts'] ?? null;
-                    // HTTPUpgrade 在 Clash.Meta 内核中属于 ws 类型
-                    if ($network === 'httpupgrade') {
-                        $network = 'ws';
-                    }
-
-                    $node = [
-                        'name' => $node_raw->name,
-                        'type' => 'vmess',
-                        'server' => $node_raw->server,
-                        'port' => (int) $v2_port,
-                        'uuid' => $user->uuid,
-                        'alterId' => 0,
-                        'cipher' => $encryption,
-                        'udp' => $udp,
-                        'tls' => $tls,
-                        'skip-cert-verify' => $allow_insecure,
-                        'servername' => $host,
-                        'network' => $network,
-                        'ws-opts' => $ws_opts,
-                        'h2-opts' => $h2_opts,
-                        'http-opts' => $http_opts,
-                        'grpc-opts' => $grpc_opts,
-                    ];
-
+                    $node = $this->buildV2Family($node_raw, $user, $node_custom_config);
                     break;
                 case 14:
-                    $trojan_port = $node_custom_config['offset_port_user'] ??
-                        ($node_custom_config['offset_port_node'] ?? 443);
-                    $network = $node_custom_config['network']
-                        ?? $node_custom_config['header']['type']
-                        ?? 'tcp';
-                    if ($network === '' || $network === 'none') {
-                        $network = 'tcp';
-                    }
-                    $host = $node_custom_config['host'] ?? '';
-                    // SoftBank unlock nodes: always skip cert verify (fake-SNI / carrier TLS).
-                    $allow_insecure = true;
-                    // Clash 特定配置
-                    $udp = filter_var($node_custom_config['udp'] ?? true, FILTER_VALIDATE_BOOLEAN);
-                    $ws_opts = $node_custom_config['ws-opts'] ?? $node_custom_config['ws_opts'] ?? null;
-                    $grpc_opts = $node_custom_config['grpc-opts'] ?? $node_custom_config['grpc_opts'] ?? null;
-                    // HTTPUpgrade 在 Clash.Meta 内核中属于 ws 类型
-                    if ($network === 'httpupgrade') {
-                        $network = 'ws';
-                    }
-
-                    // Hiddify shared.py: tcp → http/1.1; grpc/h2 → h2 (never bare h2,http/1.1 on tcp).
-                    $alpn = ($network === 'grpc' || $network === 'h2') ? ['h2'] : ['http/1.1'];
-
-                    $node = [
-                        'name' => $node_raw->name,
-                        'type' => 'trojan',
-                        'server' => $node_raw->server,
-                        'sni' => $host,
-                        'port' => (int) $trojan_port,
-                        'password' => $user->uuid,
-                        'network' => $network,
-                        'udp' => $udp,
-                        'skip-cert-verify' => $allow_insecure,
-                        'alpn' => $alpn,
-                        'client-fingerprint' => 'chrome',
-                        'ws-opts' => $ws_opts,
-                        'grpc-opts' => $grpc_opts,
-                    ];
-
+                    $node = $this->buildTrojan($node_raw, $user, $node_custom_config);
                     break;
                 default:
                     $node = [];
@@ -204,11 +100,7 @@ final class Clash extends Base
                 continue;
             }
 
-            // Drop null / empty optional fields — some clients (Hiddify) reject YAML nulls.
-            $nodes[] = array_filter(
-                $node,
-                static fn ($value): bool => $value !== null && $value !== ''
-            );
+            $nodes[] = $node;
 
             foreach ($clash_group_indexes as $index) {
                 $clash_group_config['proxy-groups'][$index]['proxies'][] = $node_raw->name;
@@ -223,5 +115,174 @@ final class Clash extends Base
             array_merge($clash_config, $clash_nodes, $clash_group_config),
             YAML_UTF8_ENCODING
         );
+    }
+
+    /**
+     * Build Clash Meta VMess / VLESS (+ TLS / REALITY) entry for sort=11 nodes.
+     * Hiddify imports /clash and requires correct type + reality-opts when the node is VLESS.
+     */
+    private function buildV2Family(object $node_raw, object $user, array $cfg): array
+    {
+        $v2_port = NodeConfig::port($cfg);
+        $security = NodeConfig::security($cfg);
+        $encryption = $cfg['encryption'] ?? 'auto';
+        $network = $cfg['network'] ?? 'tcp';
+        $host = NodeConfig::host($cfg);
+        $allow_insecure = NodeConfig::allowInsecure($cfg);
+        $udp = $cfg['udp'] ?? true;
+        $ws_opts = $cfg['ws-opts'] ?? $cfg['ws_opts'] ?? null;
+        $h2_opts = $cfg['h2-opts'] ?? $cfg['h2_opts'] ?? null;
+        $http_opts = $cfg['http-opts'] ?? $cfg['http_opts'] ?? null;
+        $grpc_opts = $cfg['grpc-opts'] ?? $cfg['grpc_opts'] ?? null;
+        $isVless = NodeConfig::isVless($cfg);
+        $isReality = NodeConfig::isReality($cfg);
+
+        if ($network === 'httpupgrade') {
+            $network = 'ws';
+        }
+
+        // Build ws-opts from path/host when panel only stores flat fields (common XrayR custom_config).
+        if ($ws_opts === null && ($network === 'ws' || ($cfg['network'] ?? '') === 'httpupgrade')) {
+            $path = NodeConfig::path($cfg, '/');
+            $ws_opts = [
+                'path' => $path,
+            ];
+            if ($host !== '') {
+                $ws_opts['headers'] = ['Host' => $host];
+            }
+            if (($cfg['network'] ?? '') === 'httpupgrade') {
+                $ws_opts['v2ray-http-upgrade'] = true;
+            }
+        }
+
+        if ($grpc_opts === null && $network === 'grpc') {
+            $service = $cfg['servicename'] ?? $cfg['serviceName'] ?? '';
+            if ($service !== '') {
+                $grpc_opts = ['grpc-service-name' => $service];
+            }
+        }
+
+        $node = [
+            'name' => $node_raw->name,
+            'type' => $isVless ? 'vless' : 'vmess',
+            'server' => $node_raw->server,
+            'port' => $v2_port,
+            'uuid' => $user->uuid,
+            'udp' => (bool) $udp,
+            'network' => $network === '' ? 'tcp' : $network,
+            'ws-opts' => $ws_opts,
+            'h2-opts' => $h2_opts,
+            'http-opts' => $http_opts,
+            'grpc-opts' => $grpc_opts,
+        ];
+
+        if (! $isVless) {
+            $node['alterId'] = 0;
+            $node['cipher'] = $encryption;
+        } else {
+            $node['cipher'] = 'auto';
+            $flow = NodeConfig::flow($cfg);
+            if ($flow !== '') {
+                $node['flow'] = $flow;
+            }
+        }
+
+        if ($isReality) {
+            $reality = NodeConfig::realityClient($cfg);
+            $node['tls'] = true;
+            $node['skip-cert-verify'] = $allow_insecure;
+            $node['servername'] = $reality['server_name'] !== '' ? $reality['server_name'] : $host;
+            $node['client-fingerprint'] = $reality['fingerprint'];
+            $node['reality-opts'] = [
+                'public-key' => $reality['public_key'],
+                'short-id' => $reality['short_id'],
+            ];
+        } elseif ($security === 'tls' || $security === 'xtls') {
+            $node['tls'] = true;
+            $node['skip-cert-verify'] = $allow_insecure;
+            $node['servername'] = $host;
+            $node['client-fingerprint'] = NodeConfig::fingerprint($cfg);
+        } else {
+            $node['tls'] = false;
+        }
+
+        return $node;
+    }
+
+    /**
+     * Clash Meta Trojan for Hiddify. Builds ws/grpc opts from flat DPanel custom_config.
+     */
+    private function buildTrojan(object $node_raw, object $user, array $cfg): array
+    {
+        $password = NodeConfig::trojanPassword($user);
+        if ($password === '') {
+            return [];
+        }
+
+        $rawNetwork = (string) ($cfg['header']['type'] ?? $cfg['network'] ?? 'tcp');
+        $network = $rawNetwork === '' ? 'tcp' : $rawNetwork;
+        $sni = NodeConfig::sni($cfg, (string) $node_raw->server);
+        $allow_insecure = NodeConfig::allowInsecure($cfg);
+        $udp = $cfg['udp'] ?? true;
+        $ws_opts = $cfg['ws-opts'] ?? $cfg['ws_opts'] ?? null;
+        $grpc_opts = $cfg['grpc-opts'] ?? $cfg['grpc_opts'] ?? null;
+
+        if ($network === 'httpupgrade') {
+            $network = 'ws';
+        }
+
+        if ($ws_opts === null && ($network === 'ws' || $rawNetwork === 'httpupgrade')) {
+            $path = NodeConfig::path($cfg, '/');
+            $ws_opts = ['path' => $path];
+            $hostHeader = NodeConfig::host($cfg);
+            if ($hostHeader !== '') {
+                $ws_opts['headers'] = ['Host' => $hostHeader];
+            }
+            if ($rawNetwork === 'httpupgrade') {
+                $ws_opts['v2ray-http-upgrade'] = true;
+            }
+        }
+
+        if ($grpc_opts === null && $network === 'grpc') {
+            $service = $cfg['servicename'] ?? $cfg['serviceName'] ?? '';
+            if ($service !== '') {
+                $grpc_opts = ['grpc-service-name' => $service];
+            }
+        }
+
+        $node = [
+            'name' => $node_raw->name,
+            'type' => 'trojan',
+            'server' => $node_raw->server,
+            'sni' => $sni,
+            'port' => NodeConfig::port($cfg),
+            'password' => $password,
+            'udp' => (bool) $udp,
+            'skip-cert-verify' => $allow_insecure,
+            'client-fingerprint' => NodeConfig::fingerprint($cfg),
+        ];
+
+        if ($network !== '' && $network !== 'tcp') {
+            $node['network'] = $network;
+        }
+
+        if ($ws_opts !== null) {
+            $node['ws-opts'] = $ws_opts;
+        }
+        if ($grpc_opts !== null) {
+            $node['grpc-opts'] = $grpc_opts;
+        }
+
+        if (NodeConfig::isReality($cfg)) {
+            $reality = NodeConfig::realityClient($cfg);
+            $node['sni'] = $reality['server_name'] !== '' ? $reality['server_name'] : $sni;
+            $node['client-fingerprint'] = $reality['fingerprint'];
+            $node['reality-opts'] = [
+                'public-key' => $reality['public_key'],
+                'short-id' => $reality['short_id'],
+            ];
+        }
+
+        return $node;
     }
 }
