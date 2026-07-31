@@ -207,7 +207,7 @@
                                     <i class="ti ti-link"></i> Link đăng ký
                                 </h4>
                                 <div class="gopass-sub-rows">
-                                    <div class="gopass-sub-row">
+                                    <div class="gopass-sub-row gopass-sub-row--primary">
                                         <div class="gopass-sub-row-head">
                                             <strong>Hiddify</strong>
                                             <span>Base64 share links — copy hoặc Mở app Hiddify</span>
@@ -224,39 +224,55 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="gopass-sub-row">
-                                        <div class="gopass-sub-row-head">
-                                            <strong>Sing-box (SFA/SFM)</strong>
-                                            <span>Link /singbox — client sing-box chính thức</span>
-                                        </div>
-                                        <div class="gopass-sub-row-controls">
-                                            <input type="text" class="form-control" value="{$UniversalSub}/singbox" readonly id="sub-link-singbox">
-                                            <div class="gopass-sub-row-btns">
-                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/singbox">
-                                                    <i class="ti ti-copy"></i> Sao chép
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="gopass-sub-row">
-                                        <div class="gopass-sub-row-head">
-                                            <strong>Clash Meta</strong>
-                                            <span>Link /clash — dùng cho Clash Verge, CMFA, ClashMi…</span>
-                                        </div>
-                                        <div class="gopass-sub-row-controls">
-                                            <input type="text" class="form-control" value="{$UniversalSub}/clash" readonly id="sub-link-clash">
-                                            <div class="gopass-sub-row-btns">
-                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/clash">
-                                                    <i class="ti ti-copy"></i> Sao chép
-                                                </button>
-                                                <a class="btn btn-success" id="sub-open-clash" href="#" rel="noopener">
-                                                    <i class="ti ti-external-link"></i> Mở app
-                                                </a>
+
+                                    <div class="gopass-sub-more">
+                                        <button class="btn btn-ghost-secondary gopass-sub-more-toggle w-100" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#gopass-sub-alt"
+                                                aria-expanded="false" aria-controls="gopass-sub-alt">
+                                            <span>
+                                                <i class="ti ti-layers-subtract"></i>
+                                                Sing-box &amp; Clash Meta
+                                            </span>
+                                            <i class="ti ti-chevron-down gopass-sub-more-chevron"></i>
+                                        </button>
+                                        <div class="collapse" id="gopass-sub-alt">
+                                            <div class="gopass-sub-alt-list">
+                                                <div class="gopass-sub-row gopass-sub-row--compact">
+                                                    <div class="gopass-sub-row-head">
+                                                        <strong>Sing-box</strong>
+                                                        <span>SFA / SFM</span>
+                                                    </div>
+                                                    <div class="gopass-sub-row-controls">
+                                                        <input type="text" class="form-control form-control-sm" value="{$UniversalSub}/singbox" readonly id="sub-link-singbox">
+                                                        <div class="gopass-sub-row-btns">
+                                                            <button class="btn btn-sm btn-outline-primary copy" type="button" data-clipboard-text="{$UniversalSub}/singbox">
+                                                                <i class="ti ti-copy"></i> Sao chép
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="gopass-sub-row gopass-sub-row--compact">
+                                                    <div class="gopass-sub-row-head">
+                                                        <strong>Clash Meta</strong>
+                                                        <span>Clash Verge / CMFA / ClashMi</span>
+                                                    </div>
+                                                    <div class="gopass-sub-row-controls">
+                                                        <input type="text" class="form-control form-control-sm" value="{$UniversalSub}/clash" readonly id="sub-link-clash">
+                                                        <div class="gopass-sub-row-btns">
+                                                            <button class="btn btn-sm btn-outline-primary copy" type="button" data-clipboard-text="{$UniversalSub}/clash">
+                                                                <i class="ti ti-copy"></i> Sao chép
+                                                            </button>
+                                                            <a class="btn btn-sm btn-success" id="sub-open-clash" href="#" rel="noopener">
+                                                                <i class="ti ti-external-link"></i> Mở app
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <p class="text-muted small mt-2 mb-0">Sao chép đúng dòng rồi dán vào app, hoặc bấm <strong>Mở app</strong> để import nhanh.</p>
+                                <p class="text-muted small mt-2 mb-0">Ưu tiên Hiddify. Cần Sing-box / Clash thì mở thêm bên dưới.</p>
                             </div>
 
                             <div class="text-center">
@@ -890,22 +906,32 @@
     }
 
     function setQuickOpenLinks(os) {
+        const config = window.APP_CONFIG;
         const clients = clientRecommendations[os] || clientRecommendations.Windows || [];
         const hiddify = findClientByNames(clients, ['Hiddify'])
             || clients.find((c) => c.format === 'hiddify');
         const clash = findClientByNames(clients, ['Clash Verge Rev', 'CMFA', 'ClashMi', 'FlClash'])
-            || clients.find((c) => c.format === 'clash');
+            || clients.find((c) => c.format === 'clash')
+            || findClientByNames(clientRecommendations.Windows || [], ['Clash Verge Rev', 'FlClash'])
+            || findClientByNames(clientRecommendations.Android || [], ['CMFA', 'ClashMi', 'FlClash']);
 
         const openHiddify = document.getElementById('sub-open-hiddify');
         const openClash = document.getElementById('sub-open-clash');
+        const clashSubUrl = (config.universalSubUrl || '') + '/clash';
+        const clashFallback = 'clash://install-config?url=' + encodeURIComponent(clashSubUrl);
 
         if (openHiddify && hiddify && hiddify.importUrl) {
             openHiddify.href = hiddify.importUrl;
             openHiddify.title = 'Mở ' + hiddify.name;
         }
-        if (openClash && clash && clash.importUrl) {
-            openClash.href = clash.importUrl;
-            openClash.title = 'Mở ' + clash.name;
+        if (openClash) {
+            if (clash && clash.importUrl) {
+                openClash.href = clash.importUrl;
+                openClash.title = 'Mở ' + clash.name;
+            } else {
+                openClash.href = clashFallback;
+                openClash.title = 'Mở Clash Meta';
+            }
         }
     }
 
@@ -1002,10 +1028,29 @@
         });
     }
 
+    function initSubAltCollapse() {
+        const panel = document.getElementById('gopass-sub-alt');
+        const toggle = document.querySelector('.gopass-sub-more-toggle');
+        if (!panel || !toggle) return;
+
+        panel.addEventListener('show.bs.collapse', function (e) {
+            if (e.target !== panel) return;
+            toggle.setAttribute('aria-expanded', 'true');
+            toggle.classList.add('is-open');
+        });
+
+        panel.addEventListener('hide.bs.collapse', function (e) {
+            if (e.target !== panel) return;
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.classList.remove('is-open');
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         safeInit(initClientSelector, 'Bộ chọn ứng dụng khách');
         safeInit(initClipboard, 'Chức năng clipboard');
         safeInit(initAdvancedCollapse, 'Thu gọn app nâng cao');
+        safeInit(initSubAltCollapse, 'Thu gọn Sing-box Clash');
     });
     {/literal}
     </script>
