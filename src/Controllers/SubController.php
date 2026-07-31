@@ -15,7 +15,10 @@ use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use RedisException;
 use Telegram\Bot\Exceptions\TelegramSDKException;
+use function base64_encode;
 use function in_array;
+use function str_contains;
+use function strtolower;
 use function strtotime;
 
 final class SubController extends BaseController
@@ -55,6 +58,14 @@ final class SubController extends BaseController
         }
 
         $user = $link->user();
+        $ua = $this->antiXss->xss_clean($request->getHeaderLine('User-Agent'));
+
+        // Xboard-style: Hiddify prefers Sing-box JSON. Keep explicit /clash for Clash Meta cores.
+        // When Hiddify hits /json (universal), remap to singbox so VLESS+REALITY imports correctly.
+        if ($subtype === 'json' && $this->isHiddifyUserAgent($ua)) {
+            $subtype = 'singbox';
+        }
+
         $sub_info = Subscribe::getContent($user, $subtype);
 
         $content_type = match ($subtype) {
@@ -67,7 +78,7 @@ final class SubController extends BaseController
         . '; download=' . $user->d
         . '; total=' . $user->transfer_enable
         . '; expire=' . strtotime($user->class_expire);
-        // Clash specific
+        // Clash / Hiddify profile headers
         $sub_content_disposition = 'attachment; filename=' . $_ENV['appName'];
         $sub_profile_update_interval = 6;
         $sub_profile_web_page_url = $_ENV['baseUrl'];
@@ -76,15 +87,16 @@ final class SubController extends BaseController
             (new SubscribeLog())->add(
                 $user,
                 $subtype,
-                $this->antiXss->xss_clean($request->getHeaderLine('User-Agent'))
+                $ua
             );
         }
 
-        if ($subtype === 'clash') {
+        if ($subtype === 'clash' || $subtype === 'singbox') {
             return $response->withHeader('Subscription-Userinfo', $sub_details)
                 ->withHeader('Content-Disposition', $sub_content_disposition)
                 ->withHeader('Profile-Update-Interval', $sub_profile_update_interval)
                 ->withHeader('Profile-Web-Page-Url', $sub_profile_web_page_url)
+                ->withHeader('Profile-Title', 'base64:' . base64_encode((string) $_ENV['appName']))
                 ->withHeader('Content-Type', $content_type)
                 ->write($sub_info);
         }
@@ -92,5 +104,14 @@ final class SubController extends BaseController
         return $response->withHeader('Subscription-Userinfo', $sub_details)
             ->withHeader('Content-Type', $content_type)
             ->write($sub_info);
+    }
+
+    private function isHiddifyUserAgent(string $ua): bool
+    {
+        $uaLower = strtolower($ua);
+
+        return str_contains($uaLower, 'hiddify')
+            || str_contains($uaLower, 'hiddifynext')
+            || str_contains($uaLower, 'hiddify-next');
     }
 }
