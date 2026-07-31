@@ -981,52 +981,9 @@ body.gopass-auth .border-top-wide {
     background: color-mix(in srgb, var(--gopass-primary) 7%, var(--gopass-surface-elevated));
 }
 
-.gopass-sub-more {
-    display: grid;
-    gap: 0.55rem;
-}
-
-.gopass-sub-more-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    min-height: 2.55rem;
-    padding: 0.55rem 0.85rem;
-    border: 1px dashed color-mix(in srgb, var(--gopass-primary) 22%, var(--gopass-border));
-    border-radius: 0.85rem;
-    background: color-mix(in srgb, var(--gopass-surface-elevated) 88%, transparent);
-    color: var(--gopass-muted);
-    font-size: 0.84rem;
-    font-weight: 650;
-}
-
-.gopass-sub-more-toggle:hover,
-.gopass-sub-more-toggle:focus {
-    color: var(--gopass-text);
-    border-color: color-mix(in srgb, var(--gopass-primary) 40%, var(--gopass-border));
-    background: color-mix(in srgb, var(--gopass-primary) 5%, var(--gopass-surface-elevated));
-}
-
-.gopass-sub-more-toggle span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-}
-
-.gopass-sub-more-chevron {
-    transition: transform 0.2s ease;
-}
-
-.gopass-sub-more-toggle[aria-expanded="true"] .gopass-sub-more-chevron,
-.gopass-sub-more-toggle.is-open .gopass-sub-more-chevron {
-    transform: rotate(180deg);
-}
-
 .gopass-sub-alt-list {
     display: grid;
     gap: 0.55rem;
-    padding-top: 0.15rem;
 }
 
 .gopass-sub-row--compact {
