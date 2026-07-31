@@ -69,14 +69,17 @@ Nodes:
 
 Hoặc `CertMode: http` / `dns` nếu muốn ACME tự cấp.
 
-## Hiddify
+## Hiddify import (profile riêng)
 
-Import lại:
+| Client | URL |
+|--------|-----|
+| **Hiddify-app** | `{subUrl}/sub/{token}/hiddify` + deep link `hiddify://import/.../hiddify#name` |
+| Sing-box SFA/SFM | `{subUrl}/sub/{token}/singbox` |
+| Clash Meta | `{subUrl}/sub/{token}/clash` |
 
-- Desktop: `{sub}/singbox`
-- Android: `{sub}/clash`
+`/hiddify` trả về **base64 allshare** (trojan:// / vless:// / ss://) kèm header `Profile-Title`, `subscription-userinfo`, `profile-update-interval` theo [Hiddify URL Scheme](https://github.com/hiddify/hiddify-app/wiki/URL-Scheme) — tránh lỗi parse full Sing-box JSON trong app.
 
-Trong Clash phải thấy `type: trojan`, `password` = UUID, `sni` đúng domain cert.
+User-Agent chứa `Hiddify` trên `/json` hoặc `/sub/{token}` (không subtype) cũng được remap sang profile này.
 
 ## Kiểm tra nhanh
 

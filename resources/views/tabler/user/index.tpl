@@ -209,18 +209,32 @@
                                 <div class="gopass-sub-rows">
                                     <div class="gopass-sub-row">
                                         <div class="gopass-sub-row-head">
-                                            <strong>Hiddify / SFA</strong>
-                                            <span>Link /singbox — dùng cho Hiddify, SFA, SFI</span>
+                                            <strong>Hiddify</strong>
+                                            <span>Profile riêng /hiddify — mở trực tiếp app Hiddify</span>
                                         </div>
                                         <div class="gopass-sub-row-controls">
-                                            <input type="text" class="form-control" value="{$UniversalSub}/singbox" readonly id="sub-link-hiddify">
+                                            <input type="text" class="form-control" value="{$UniversalSub}/hiddify" readonly id="sub-link-hiddify">
                                             <div class="gopass-sub-row-btns">
-                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/singbox">
+                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/hiddify">
                                                     <i class="ti ti-copy"></i> Sao chép
                                                 </button>
                                                 <a class="btn btn-success" id="sub-open-hiddify" href="#" rel="noopener">
                                                     <i class="ti ti-external-link"></i> Mở app
                                                 </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="gopass-sub-row">
+                                        <div class="gopass-sub-row-head">
+                                            <strong>Sing-box (SFA/SFM)</strong>
+                                            <span>Link /singbox — client sing-box chính thức</span>
+                                        </div>
+                                        <div class="gopass-sub-row-controls">
+                                            <input type="text" class="form-control" value="{$UniversalSub}/singbox" readonly id="sub-link-singbox">
+                                            <div class="gopass-sub-row-btns">
+                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/singbox">
+                                                    <i class="ti ti-copy"></i> Sao chép
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -877,8 +891,8 @@
 
     function setQuickOpenLinks(os) {
         const clients = clientRecommendations[os] || clientRecommendations.Windows || [];
-        const hiddify = findClientByNames(clients, ['Hiddify', 'SFA', 'SFI', 'SFM'])
-            || clients.find((c) => c.format === 'singbox');
+        const hiddify = findClientByNames(clients, ['Hiddify'])
+            || clients.find((c) => c.format === 'hiddify');
         const clash = findClientByNames(clients, ['Clash Verge Rev', 'CMFA', 'ClashMi', 'FlClash'])
             || clients.find((c) => c.format === 'clash');
 

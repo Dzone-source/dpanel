@@ -17,9 +17,14 @@ use RedisException;
 use Telegram\Bot\Exceptions\TelegramSDKException;
 use function base64_encode;
 use function in_array;
+use function parse_url;
+use function preg_replace;
+use function rtrim;
 use function str_contains;
 use function strtolower;
 use function strtotime;
+use function trim;
+use const PHP_URL_HOST;
 
 final class SubController extends BaseController
 {
@@ -32,13 +37,17 @@ final class SubController extends BaseController
     public function index($request, $response, $args): ResponseInterface
     {
         $err_msg = '订阅链接无效';
-        $subtype = $args['subtype'];
-        $subtype_list = ['json', 'clash', 'sip008', 'singbox', 'v2rayjson', 'sip002', 'ss', 'v2ray', 'trojan'];
+        $subtype = isset($args['subtype']) ? (string) $args['subtype'] : '';
+        $subtype_list = [
+            'json', 'clash', 'sip008', 'singbox', 'v2rayjson', 'sip002', 'ss', 'v2ray', 'trojan',
+            'hiddify', 'general',
+        ];
 
-        if (! $_ENV['Subscribe'] ||
-            ! in_array($subtype, $subtype_list) ||
-            'https://' . $request->getHeaderLine('Host') !== $_ENV['subUrl']
-        ) {
+        if (! $_ENV['Subscribe']) {
+            return ResponseHelper::error($response, $err_msg);
+        }
+
+        if (! $this->isValidSubHost($request->getHeaderLine('Host'))) {
             return ResponseHelper::error($response, $err_msg);
         }
 
@@ -60,48 +69,63 @@ final class SubController extends BaseController
         $user = $link->user();
         $ua = $this->antiXss->xss_clean($request->getHeaderLine('User-Agent'));
 
-        // Xboard-style: Hiddify prefers Sing-box JSON. Keep explicit /clash for Clash Meta cores.
-        // When Hiddify hits /json (universal), remap to singbox so VLESS+REALITY imports correctly.
-        if ($subtype === 'json' && $this->isHiddifyUserAgent($ua)) {
-            $subtype = 'singbox';
+        // Auto profile for Hiddify-app (empty subtype / json / generic).
+        if ($subtype === '' || $subtype === 'json') {
+            if ($this->isHiddifyUserAgent($ua)) {
+                $subtype = 'hiddify';
+            } elseif ($subtype === '') {
+                $subtype = 'general';
+            }
+        }
+
+        if (! in_array($subtype, $subtype_list, true)) {
+            return ResponseHelper::error($response, $err_msg);
         }
 
         $sub_info = Subscribe::getContent($user, $subtype);
 
         $content_type = match ($subtype) {
             'clash' => 'application/yaml',
-            'json','sip008','singbox','v2rayjson' => 'application/json',
-            default => 'text/plain',
+            'json', 'sip008', 'singbox', 'v2rayjson' => 'application/json',
+            default => 'text/plain; charset=utf-8',
         };
 
-        $sub_details = ' upload=' . $user->u
-        . '; download=' . $user->d
-        . '; total=' . $user->transfer_enable
-        . '; expire=' . strtotime($user->class_expire);
-        // Clash / Hiddify profile headers
-        $sub_content_disposition = 'attachment; filename=' . $_ENV['appName'];
-        $sub_profile_update_interval = 6;
-        $sub_profile_web_page_url = $_ENV['baseUrl'];
+        $expire = (int) strtotime((string) $user->class_expire);
+        $sub_details = 'upload=' . (int) $user->u
+            . '; download=' . (int) $user->d
+            . '; total=' . (int) $user->transfer_enable
+            . '; expire=' . $expire;
+
+        $appName = (string) ($_ENV['appName'] ?? 'DPanel');
+        $profileTitle = 'base64:' . base64_encode($appName);
+        $sub_content_disposition = 'attachment; filename="' . $appName . '"';
+        $sub_profile_update_interval = '6';
+        $sub_profile_web_page_url = rtrim((string) ($_ENV['baseUrl'] ?? ''), '/');
 
         if (Config::obtain('subscribe_log')) {
-            (new SubscribeLog())->add(
-                $user,
-                $subtype,
-                $ua
-            );
+            (new SubscribeLog())->add($user, $subtype, $ua);
         }
 
-        if ($subtype === 'clash' || $subtype === 'singbox') {
-            return $response->withHeader('Subscription-Userinfo', $sub_details)
+        // Hiddify-app / Clash Meta profile headers (URL Scheme wiki).
+        $withProfileHeaders = in_array($subtype, ['clash', 'singbox', 'hiddify', 'general', 'v2ray'], true);
+
+        if ($withProfileHeaders) {
+            return $response
+                ->withHeader('Subscription-Userinfo', $sub_details)
+                ->withHeader('subscription-userinfo', $sub_details)
                 ->withHeader('Content-Disposition', $sub_content_disposition)
                 ->withHeader('Profile-Update-Interval', $sub_profile_update_interval)
+                ->withHeader('profile-update-interval', $sub_profile_update_interval)
                 ->withHeader('Profile-Web-Page-Url', $sub_profile_web_page_url)
-                ->withHeader('Profile-Title', 'base64:' . base64_encode((string) $_ENV['appName']))
+                ->withHeader('profile-web-page-url', $sub_profile_web_page_url)
+                ->withHeader('Profile-Title', $profileTitle)
+                ->withHeader('profile-title', $profileTitle)
                 ->withHeader('Content-Type', $content_type)
                 ->write($sub_info);
         }
 
-        return $response->withHeader('Subscription-Userinfo', $sub_details)
+        return $response
+            ->withHeader('Subscription-Userinfo', $sub_details)
             ->withHeader('Content-Type', $content_type)
             ->write($sub_info);
     }
@@ -112,6 +136,34 @@ final class SubController extends BaseController
 
         return str_contains($uaLower, 'hiddify')
             || str_contains($uaLower, 'hiddifynext')
-            || str_contains($uaLower, 'hiddify-next');
+            || str_contains($uaLower, 'hiddify-next')
+            || str_contains($uaLower, 'hiddifyng');
+    }
+
+    /**
+     * Flexible Host check (same idea as NodeToken) so reverse-proxy / Docker Host works.
+     */
+    private function isValidSubHost(string $hostHeader): bool
+    {
+        $requestHost = strtolower(trim($hostHeader));
+        if (str_contains($requestHost, ':')) {
+            $requestHost = explode(':', $requestHost, 2)[0];
+        }
+
+        $subUrl = (string) ($_ENV['subUrl'] ?? '');
+        $expectedHost = strtolower((string) (parse_url($subUrl, PHP_URL_HOST) ?: ''));
+
+        if ($expectedHost === '' && $subUrl !== '') {
+            $expectedHost = strtolower(trim($subUrl));
+            $expectedHost = preg_replace('#^https?://#', '', $expectedHost) ?? $expectedHost;
+            if (str_contains($expectedHost, '/')) {
+                $expectedHost = explode('/', $expectedHost, 2)[0];
+            }
+            if (str_contains($expectedHost, ':')) {
+                $expectedHost = explode(':', $expectedHost, 2)[0];
+            }
+        }
+
+        return $requestHost !== '' && $expectedHost !== '' && $requestHost === $expectedHost;
     }
 }

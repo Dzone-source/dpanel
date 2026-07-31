@@ -67,9 +67,9 @@
     },
     {
       "name": "Hiddify",
-      "description": "Dùng link /singbox (Hiddify) — hỗ trợ Trojan ổn định",
-      "format": "singbox",
-      "importUrl": "hiddify://import/{url}#{name}",
+      "description": "Profile riêng Hiddify-app (allshare + Profile-Title)",
+      "format": "hiddify",
+      "importUrl": "hiddify://import/{sub}/hiddify#{name}",
       "platforms": {
         "Windows": {
           "ext": "exe",
@@ -82,7 +82,7 @@
         "Android": {
           "ext": "apk",
           "file": "Hiddify",
-          "importUrl": "hiddify://import/{url}#{name}"
+          "importUrl": "hiddify://import/{sub}/hiddify#{name}"
         },
         "Linux": {
           "ext": "AppImage",
