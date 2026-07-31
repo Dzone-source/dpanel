@@ -76,7 +76,7 @@ final class V2RayJson extends Base
                         'settings' => [
                             'address' => $node_raw->server,
                             'port' => $trojan_port,
-                            'password' => $user->uuid,
+                            'password' => NodeConfig::trojanPassword($user),
                         ],
                         'tag' => $node_raw->name,
                         'streamSettings' => [
