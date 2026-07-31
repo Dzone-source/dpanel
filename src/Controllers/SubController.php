@@ -84,10 +84,10 @@ final class SubController extends BaseController
 
         $sub_info = Subscribe::getContent($user, $subtype);
 
-        // HiddifyPanel full_singbox uses application/json for HiddifyNext|Dart|SFI|SFA.
+        // Hiddify /v2ray share = text/plain base64. Sing-box JSON only for singbox/v2rayjson.
         $content_type = match ($subtype) {
             'clash' => 'application/yaml',
-            'json', 'sip008', 'singbox', 'v2rayjson', 'hiddify' => 'application/json',
+            'json', 'sip008', 'singbox', 'v2rayjson' => 'application/json',
             default => 'text/plain; charset=utf-8',
         };
 
@@ -100,7 +100,7 @@ final class SubController extends BaseController
         $appName = (string) ($_ENV['appName'] ?? 'DPanel');
         $profileTitle = 'base64:' . base64_encode($appName);
         $sub_content_disposition = 'attachment; filename="' . $appName . '"';
-        // HiddifyPanel add_headers: profile-update-interval = 1 for Hiddify profiles.
+        // HiddifyPanel add_headers uses interval=1 for subscription profiles.
         $sub_profile_update_interval = $subtype === 'hiddify' ? '1' : '6';
         $sub_profile_web_page_url = rtrim((string) ($_ENV['baseUrl'] ?? ''), '/');
 
@@ -143,29 +143,73 @@ final class SubController extends BaseController
     }
 
     /**
-     * Flexible Host check (same idea as NodeToken) so reverse-proxy / Docker Host works.
+     * Flexible Host check so reverse-proxy / Docker / CDN Host works.
+     * Accepts subUrl host, baseUrl host, or X-Forwarded-Host when present.
      */
     private function isValidSubHost(string $hostHeader): bool
     {
-        $requestHost = strtolower(trim($hostHeader));
-        if (str_contains($requestHost, ':')) {
-            $requestHost = explode(':', $requestHost, 2)[0];
-        }
-
-        $subUrl = (string) ($_ENV['subUrl'] ?? '');
-        $expectedHost = strtolower((string) (parse_url($subUrl, PHP_URL_HOST) ?: ''));
-
-        if ($expectedHost === '' && $subUrl !== '') {
-            $expectedHost = strtolower(trim($subUrl));
-            $expectedHost = preg_replace('#^https?://#', '', $expectedHost) ?? $expectedHost;
-            if (str_contains($expectedHost, '/')) {
-                $expectedHost = explode('/', $expectedHost, 2)[0];
-            }
-            if (str_contains($expectedHost, ':')) {
-                $expectedHost = explode(':', $expectedHost, 2)[0];
+        $candidates = [];
+        foreach ([
+            $hostHeader,
+            $_SERVER['HTTP_X_FORWARDED_HOST'] ?? '',
+        ] as $raw) {
+            $h = $this->normalizeHost((string) $raw);
+            if ($h !== '') {
+                $candidates[] = $h;
             }
         }
 
-        return $requestHost !== '' && $expectedHost !== '' && $requestHost === $expectedHost;
+        $allowed = [];
+        foreach ([
+            (string) ($_ENV['subUrl'] ?? ''),
+            (string) ($_ENV['baseUrl'] ?? ''),
+        ] as $url) {
+            $h = $this->hostFromUrl($url);
+            if ($h !== '') {
+                $allowed[] = $h;
+            }
+        }
+
+        if ($candidates === [] || $allowed === []) {
+            return false;
+        }
+
+        foreach ($candidates as $requestHost) {
+            if (in_array($requestHost, $allowed, true)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private function hostFromUrl(string $url): string
+    {
+        $host = strtolower((string) (parse_url($url, PHP_URL_HOST) ?: ''));
+        if ($host !== '') {
+            return $host;
+        }
+
+        $host = strtolower(trim($url));
+        $host = preg_replace('#^https?://#', '', $host) ?? $host;
+        if (str_contains($host, '/')) {
+            $host = explode('/', $host, 2)[0];
+        }
+
+        return $this->normalizeHost($host);
+    }
+
+    private function normalizeHost(string $hostHeader): string
+    {
+        $host = strtolower(trim($hostHeader));
+        // X-Forwarded-Host may be a comma-separated list.
+        if (str_contains($host, ',')) {
+            $host = trim(explode(',', $host, 2)[0]);
+        }
+        if (str_contains($host, ':')) {
+            $host = explode(':', $host, 2)[0];
+        }
+
+        return $host;
     }
 }

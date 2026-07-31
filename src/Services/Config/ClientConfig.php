@@ -49,12 +49,16 @@ final class ClientConfig
                     $template
                 );
 
-                // Path-style hiddify://import/https://... must encode the embedded URL.
+                // Path-style hiddify://import/https://... — keep UNENCODED (Hiddify LinkParser
+                // takes uri.path as-is and does NOT percent-decode). Prefer query form
+                // hiddify://import/?url={url}&name={name} in client_display.json.
                 if (str_starts_with($importUrl, 'hiddify://import/') &&
                     ! str_contains($importUrl, 'hiddify://import/?') &&
-                    ! str_contains($importUrl, 'hiddify://import?')
+                    ! str_contains($importUrl, 'hiddify://import?') &&
+                    (str_contains($importUrl, '%3A%2F%2F') || str_contains($importUrl, '%3a%2f%2f'))
                 ) {
-                    $importUrl = self::encodeHiddifyImportUrl($importUrl);
+                    // Undo accidental encoding from older templates.
+                    $importUrl = self::decodeHiddifyImportPath($importUrl);
                 }
 
                 $result[$platform][] = [
@@ -73,9 +77,10 @@ final class ClientConfig
     }
 
     /**
-     * Convert hiddify://import/https://...#Name into hiddify://import/https%3A%2F%2F...#Name
+     * Decode path-style hiddify://import/https%3A%2F%2F... back to https://...
+     * (Hiddify app LinkParser does not decode path; encoded URLs cause connection errors.)
      */
-    private static function encodeHiddifyImportUrl(string $importUrl): string
+    private static function decodeHiddifyImportPath(string $importUrl): string
     {
         $prefix = 'hiddify://import/';
         $rest = substr($importUrl, strlen($prefix));
@@ -87,11 +92,6 @@ final class ClientConfig
             $rest = substr($rest, 0, $hashPos);
         }
 
-        // Already encoded
-        if ($rest === '' || str_contains($rest, '%3A%2F%2F') || str_contains($rest, '%3a%2f%2f')) {
-            return $importUrl;
-        }
-
-        return $prefix . rawurlencode($rest) . $fragment;
+        return $prefix . rawurldecode($rest) . $fragment;
     }
 }

@@ -210,7 +210,7 @@
                                     <div class="gopass-sub-row">
                                         <div class="gopass-sub-row-head">
                                             <strong>Hiddify</strong>
-                                            <span>Profile riêng /hiddify — mở trực tiếp app Hiddify</span>
+                                            <span>Base64 share links — copy hoặc Mở app Hiddify</span>
                                         </div>
                                         <div class="gopass-sub-row-controls">
                                             <input type="text" class="form-control" value="{$UniversalSub}/hiddify" readonly id="sub-link-hiddify">

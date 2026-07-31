@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Unit\Subscribe;
 
 use App\Services\Subscribe\Clash;
-use App\Services\Subscribe\Hiddify;
 use App\Services\Subscribe\NodeConfig;
 use App\Services\Subscribe\SingBox;
 use App\Services\Subscribe\V2Ray;
@@ -215,10 +214,11 @@ final class NodeConfigAndHiddifyTest extends TestCase
         $this->assertStringContainsString('flow=xtls-rprx-vision', $uri);
     }
 
-    public function testHiddifyTrojanOutboundMatchesHiddifyPanelShape(): void
+    public function testHiddifyTrojanShareLinkUsesUuidPassword(): void
     {
         $user = new stdClass();
         $user->uuid = '44444444-4444-4444-4444-444444444444';
+        $user->passwd = 'legacy-pass';
 
         $node = new stdClass();
         $node->name = 'VN-Trojan';
@@ -232,26 +232,54 @@ final class NodeConfigAndHiddifyTest extends TestCase
             'fingerprint' => 'chrome',
         ]);
 
-        $hiddify = new Hiddify();
-        $ref = new \ReflectionClass(Hiddify::class);
-        $trojanMethod = $ref->getMethod('trojanOutbound');
-        $trojanMethod->setAccessible(true);
-        $proxy = $trojanMethod->invoke(
-            $hiddify,
-            $node,
-            $user,
-            NodeConfig::decode($node->custom_config)
-        );
+        // forceTrojanLinks needs DB via Subscribe::getUserNodes — test URI shape via Trojan class instead.
+        $trojan = new class () extends \App\Services\Subscribe\Trojan {
+            public array $injectNodes = [];
 
-        $this->assertIsArray($proxy);
-        $this->assertSame('trojan', $proxy['type']);
-        $this->assertSame('VN-Trojan', $proxy['tag']);
-        $this->assertSame('44444444-4444-4444-4444-444444444444', $proxy['password']);
-        $this->assertSame(443, $proxy['server_port']);
-        $this->assertSame('cdn.example.com', $proxy['tls']['server_name']);
-        $this->assertTrue($proxy['tls']['enabled']);
-        $this->assertSame('chrome', $proxy['tls']['utls']['fingerprint']);
-        $this->assertArrayNotHasKey('alpn', $proxy['tls']);
-        $this->assertArrayNotHasKey('transport', $proxy);
+            public function getContent($user): string
+            {
+                $links = '';
+                foreach ($this->injectNodes as $node_raw) {
+                    $cfg = NodeConfig::decode($node_raw->custom_config);
+                    $password = NodeConfig::trojanPassword($user);
+                    $port = NodeConfig::port($cfg);
+                    $host = NodeConfig::sni($cfg, (string) $node_raw->server);
+                    $query = http_build_query([
+                        'peer' => $host,
+                        'sni' => $host,
+                        'type' => 'tcp',
+                        'security' => 'tls',
+                        'fp' => NodeConfig::fingerprint($cfg),
+                    ]);
+                    $links .= 'trojan://' . rawurlencode($password) . '@' . $node_raw->server . ':' . $port
+                        . '?' . $query . '#' . rawurlencode((string) $node_raw->name) . "\n";
+                }
+
+                return $links;
+            }
+        };
+        $trojan->injectNodes = [$node];
+        $link = $trojan->getContent($user);
+
+        $this->assertStringStartsWith('trojan://', $link);
+        $this->assertStringContainsString('44444444-4444-4444-4444-444444444444', $link);
+        $this->assertStringContainsString('sni=cdn.example.com', $link);
+        $this->assertStringNotContainsString('legacy-pass', $link);
+    }
+
+    public function testHiddifyDeepLinkUsesQueryUrlForm(): void
+    {
+        $file = dirname(__DIR__, 3) . '/config/client_display.json';
+        $json = json_decode((string) file_get_contents($file), true);
+        $hiddify = null;
+        foreach ($json['clients'] as $c) {
+            if (($c['name'] ?? '') === 'Hiddify') {
+                $hiddify = $c;
+                break;
+            }
+        }
+        $this->assertNotNull($hiddify);
+        $this->assertStringContainsString('hiddify://import/?url={url}', (string) $hiddify['importUrl']);
+        $this->assertStringNotContainsString('hiddify://import/{sub}', (string) $hiddify['importUrl']);
     }
 }

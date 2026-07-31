@@ -67,9 +67,9 @@
     },
     {
       "name": "Hiddify",
-      "description": "Profile riêng Hiddify-app (allshare + Profile-Title)",
+      "description": "Profile Hiddify-app (base64 share links + Profile-Title)",
       "format": "hiddify",
-      "importUrl": "hiddify://import/{sub}/hiddify#{name}",
+      "importUrl": "hiddify://import/?url={url}&name={name}",
       "platforms": {
         "Windows": {
           "ext": "exe",
@@ -82,7 +82,7 @@
         "Android": {
           "ext": "apk",
           "file": "Hiddify",
-          "importUrl": "hiddify://import/{sub}/hiddify#{name}"
+          "importUrl": "hiddify://import/?url={url}&name={name}"
         },
         "Linux": {
           "ext": "AppImage",

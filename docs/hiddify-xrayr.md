@@ -77,7 +77,12 @@ Hoặc `CertMode: http` / `dns` nếu muốn ACME tự cấp.
 | Sing-box SFA/SFM | `{subUrl}/sub/{token}/singbox` |
 | Clash Meta | `{subUrl}/sub/{token}/clash` |
 
-`/hiddify` trả về **Sing-box JSON tối giản** (giống HiddifyPanel `full_singbox` cho UA `HiddifyNext|Dart|SFI|SFA`): `Content-Type: application/json`, header `profile-title: base64:…`, `profile-update-interval: 1`, `Subscription-Userinfo`. Outbound Trojan dùng `password = UUID`.
+`/hiddify` trả về **base64 allshare** (`trojan://` / `vless://` / `ss://`) — định dạng subscription Hiddify import ổn định nhất (wiki URL Scheme). Headers: `profile-title: base64:…`, `profile-update-interval: 1`, `Subscription-Userinfo`.
+
+Deep link dùng query form (Hiddify LinkParser decode đúng):
+`hiddify://import/?url=<urlencoded sub>/hiddify&name=<name>`
+
+**Không** percent-encode path-style `hiddify://import/https://...` — app không decode path → lỗi "Unexpected connection error".
 
 User-Agent chứa `Hiddify` trên `/json` hoặc `/sub/{token}` (không subtype) cũng được remap sang profile này.
 
