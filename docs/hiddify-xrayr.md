@@ -46,6 +46,12 @@ Password client = **user UUID** (giống XrayR).
 ## XrayR `config.yml`
 
 ```yaml
+ConnectionConfig:
+  Handshake: 8
+  ConnIdle: 300
+  UplinkOnly: 300    # upload speed-test: tránh cắt giữa chừng (đừng để 5)
+  DownlinkOnly: 300
+  BufferSize: 512
 Nodes:
   - PanelType: "SSpanel"
     ApiConfig:
@@ -54,6 +60,8 @@ Nodes:
       NodeID: 1
       NodeType: Trojan
       Timeout: 30
+      SpeedLimit: 0
+      DeviceLimit: 0
       DisableCustomConfig: false
     ControllerConfig:
       ListenIP: 0.0.0.0
@@ -68,6 +76,10 @@ Nodes:
 ```
 
 Hoặc `CertMode: http` / `dns` nếu muốn ACME tự cấp.
+
+### Upload speed-test bị rớt
+
+Nếu test tốc độ **upload** đứt giữa chừng: sửa `UplinkOnly`/`DownlinkOnly` như trên rồi `systemctl restart XrayR`. Đồng thời xác nhận tài khoản còn đủ dung lượng và `node_speedlimit = 0`.
 
 ## Hiddify import (profile riêng)
 
