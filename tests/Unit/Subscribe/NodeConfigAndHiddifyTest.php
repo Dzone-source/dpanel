@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Subscribe;
 
 use App\Services\Subscribe\Clash;
+use App\Services\Subscribe\Hiddify;
 use App\Services\Subscribe\NodeConfig;
 use App\Services\Subscribe\SingBox;
 use App\Services\Subscribe\V2Ray;
@@ -212,5 +213,45 @@ final class NodeConfigAndHiddifyTest extends TestCase
         $this->assertStringContainsString('security=reality', $uri);
         $this->assertStringContainsString('pbk=PK', $uri);
         $this->assertStringContainsString('flow=xtls-rprx-vision', $uri);
+    }
+
+    public function testHiddifyTrojanOutboundMatchesHiddifyPanelShape(): void
+    {
+        $user = new stdClass();
+        $user->uuid = '44444444-4444-4444-4444-444444444444';
+
+        $node = new stdClass();
+        $node->name = 'VN-Trojan';
+        $node->server = '10.0.0.1';
+        $node->sort = 14;
+        $node->custom_config = json_encode([
+            'offset_port_node' => 443,
+            'host' => 'cdn.example.com',
+            'network' => 'tcp',
+            'security' => 'tls',
+            'fingerprint' => 'chrome',
+        ]);
+
+        $hiddify = new Hiddify();
+        $ref = new \ReflectionClass(Hiddify::class);
+        $trojanMethod = $ref->getMethod('trojanOutbound');
+        $trojanMethod->setAccessible(true);
+        $proxy = $trojanMethod->invoke(
+            $hiddify,
+            $node,
+            $user,
+            NodeConfig::decode($node->custom_config)
+        );
+
+        $this->assertIsArray($proxy);
+        $this->assertSame('trojan', $proxy['type']);
+        $this->assertSame('VN-Trojan', $proxy['tag']);
+        $this->assertSame('44444444-4444-4444-4444-444444444444', $proxy['password']);
+        $this->assertSame(443, $proxy['server_port']);
+        $this->assertSame('cdn.example.com', $proxy['tls']['server_name']);
+        $this->assertTrue($proxy['tls']['enabled']);
+        $this->assertSame('chrome', $proxy['tls']['utls']['fingerprint']);
+        $this->assertArrayNotHasKey('alpn', $proxy['tls']);
+        $this->assertArrayNotHasKey('transport', $proxy);
     }
 }

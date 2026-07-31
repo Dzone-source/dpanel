@@ -84,9 +84,10 @@ final class SubController extends BaseController
 
         $sub_info = Subscribe::getContent($user, $subtype);
 
+        // HiddifyPanel full_singbox uses application/json for HiddifyNext|Dart|SFI|SFA.
         $content_type = match ($subtype) {
             'clash' => 'application/yaml',
-            'json', 'sip008', 'singbox', 'v2rayjson' => 'application/json',
+            'json', 'sip008', 'singbox', 'v2rayjson', 'hiddify' => 'application/json',
             default => 'text/plain; charset=utf-8',
         };
 
@@ -99,7 +100,8 @@ final class SubController extends BaseController
         $appName = (string) ($_ENV['appName'] ?? 'DPanel');
         $profileTitle = 'base64:' . base64_encode($appName);
         $sub_content_disposition = 'attachment; filename="' . $appName . '"';
-        $sub_profile_update_interval = '6';
+        // HiddifyPanel add_headers: profile-update-interval = 1 for Hiddify profiles.
+        $sub_profile_update_interval = $subtype === 'hiddify' ? '1' : '6';
         $sub_profile_web_page_url = rtrim((string) ($_ENV['baseUrl'] ?? ''), '/');
 
         if (Config::obtain('subscribe_log')) {
