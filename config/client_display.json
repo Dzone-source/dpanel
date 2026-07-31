@@ -67,9 +67,9 @@
     },
     {
       "name": "Hiddify",
-      "description": "易用的多协议客户端",
+      "description": "易用的多协议客户端（推荐 Sing-box / Clash Meta 订阅，支持 VLESS+REALITY）",
       "format": "singbox",
-      "importUrl": "hiddify://import/{sub}/clash#{name}",
+      "importUrl": "hiddify://import/{sub}/singbox#{name}",
       "platforms": {
         "Windows": {
           "ext": "exe",
@@ -81,7 +81,8 @@
         },
         "Android": {
           "ext": "apk",
-          "file": "Hiddify"
+          "file": "Hiddify",
+          "importUrl": "hiddify://import/{sub}/clash#{name}"
         },
         "Linux": {
           "ext": "AppImage",
