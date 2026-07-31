@@ -225,7 +225,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <p class="text-muted small mt-2 mb-0">Sao chép rồi dán vào Hiddify, hoặc bấm <strong>Mở app</strong>. Sing-box / Clash nằm trong phần nâng cao bên dưới.</p>
+                                <p class="text-muted small mt-2 mb-0">Sao chép rồi dán vào Hiddify, hoặc bấm <strong>Mở app</strong>. App / định dạng khác nằm bên dưới.</p>
                             </div>
 
                             <div class="text-center">
@@ -238,46 +238,14 @@
                             </div>
 
                             <div class="collapse mt-3" id="all-platforms">
-                                <div class="gopass-sub-alt-list mb-3">
-                                    <div class="gopass-sub-row gopass-sub-row--compact">
-                                        <div class="gopass-sub-row-head">
-                                            <strong>Sing-box</strong>
-                                            <span>SFA / SFM</span>
-                                        </div>
-                                        <div class="gopass-sub-row-controls">
-                                            <input type="text" class="form-control form-control-sm" value="{$UniversalSub}/singbox" readonly id="sub-link-singbox">
-                                            <div class="gopass-sub-row-btns">
-                                                <button class="btn btn-sm btn-outline-primary copy" type="button" data-clipboard-text="{$UniversalSub}/singbox">
-                                                    <i class="ti ti-copy"></i> Sao chép
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="gopass-sub-row gopass-sub-row--compact">
-                                        <div class="gopass-sub-row-head">
-                                            <strong>Clash Meta</strong>
-                                            <span>Clash Verge / CMFA / ClashMi</span>
-                                        </div>
-                                        <div class="gopass-sub-row-controls">
-                                            <input type="text" class="form-control form-control-sm" value="{$UniversalSub}/clash" readonly id="sub-link-clash">
-                                            <div class="gopass-sub-row-btns">
-                                                <button class="btn btn-sm btn-outline-primary copy" type="button" data-clipboard-text="{$UniversalSub}/clash">
-                                                    <i class="ti ti-copy"></i> Sao chép
-                                                </button>
-                                                <a class="btn btn-sm btn-success" id="sub-open-clash" href="#" rel="noopener">
-                                                    <i class="ti ti-external-link"></i> Mở app
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
                                     <h4 class="mb-1">
                                         App đề xuất cho <span id="detected-os" class="text-primary">Windows</span>
                                     </h4>
-                                    <p class="text-muted small mb-3">Tải app → dán link đã sao chép ở trên</p>
-                                    <div class="row g-3" id="recommended-clients">
+                                    <p class="text-muted small mb-3">Tải app → dán link đã sao chép, hoặc bấm Mở app</p>
+                                    <div class="row g-3" id="format-clients">
+                                    </div>
+                                    <div class="row g-3 mt-1" id="recommended-clients">
                                     </div>
                                 </div>
 
@@ -698,7 +666,7 @@
         BUTTONS: {
             download: { icon: 'ti-download', text: 'Tải app', class: 'btn-primary' },
             downloadAppStore: { icon: 'ti-brand-appstore', text: 'App Store', class: 'btn-primary' },
-            copy: { icon: 'ti-copy', text: 'Sao chép link', class: 'btn-info copy' },
+            copy: { icon: 'ti-copy', text: 'Sao chép', class: 'btn-primary copy' },
             import: { icon: 'ti-external-link', text: 'Mở app', class: 'btn-success' },
             importRecommended: { icon: 'ti-external-link', text: 'Mở app', class: 'btn-success' }
         },
@@ -764,8 +732,14 @@
         const { downloadUrl, subUrl, importUrl } = urls;
         const buttons = [];
 
-        // Recommended cards: download + open only (link already copied above)
-        const buttonConfigs = isRecommended
+        // format cards: Sao chép + Mở app (same look as recommended)
+        // recommended cards: Tải app + Mở app
+        const buttonConfigs = client?.formatOnly
+            ? [
+                { type: 'copy', url: subUrl },
+                { type: 'import', url: importUrl }
+            ]
+            : isRecommended
             ? [
                 { type: 'download', url: downloadUrl, needsClient: true },
                 { type: 'import', url: importUrl }
@@ -795,11 +769,13 @@
             const group = createElement('div', variant.classes);
             
             buttonConfigs.forEach(btnConfig => {
+                if (btnConfig.type === 'import' && !btnConfig.url) return;
+                if (btnConfig.type === 'download' && !btnConfig.url) return;
                 const options = {
                     client: btnConfig.needsClient ? client : null,
                     url: btnConfig.url,
                     isMobile: variant.isMobile,
-                    isRecommended
+                    isRecommended: isRecommended || !!client?.formatOnly
                 };
                 group.appendChild(createButton(btnConfig.type, options));
             });
@@ -890,33 +866,54 @@
     }
 
     function setQuickOpenLinks(os) {
-        const config = window.APP_CONFIG;
         const clients = clientRecommendations[os] || clientRecommendations.Windows || [];
         const hiddify = findClientByNames(clients, ['Hiddify'])
             || clients.find((c) => c.format === 'hiddify');
-        const clash = findClientByNames(clients, ['Clash Verge Rev', 'CMFA', 'ClashMi', 'FlClash'])
-            || clients.find((c) => c.format === 'clash')
-            || findClientByNames(clientRecommendations.Windows || [], ['Clash Verge Rev', 'FlClash'])
-            || findClientByNames(clientRecommendations.Android || [], ['CMFA', 'ClashMi', 'FlClash']);
 
         const openHiddify = document.getElementById('sub-open-hiddify');
-        const openClash = document.getElementById('sub-open-clash');
-        const clashSubUrl = (config.universalSubUrl || '') + '/clash';
-        const clashFallback = 'clash://install-config?url=' + encodeURIComponent(clashSubUrl);
-
         if (openHiddify && hiddify && hiddify.importUrl) {
             openHiddify.href = hiddify.importUrl;
             openHiddify.title = 'Mở ' + hiddify.name;
         }
-        if (openClash) {
-            if (clash && clash.importUrl) {
-                openClash.href = clash.importUrl;
-                openClash.title = 'Mở ' + clash.name;
-            } else {
-                openClash.href = clashFallback;
-                openClash.title = 'Mở Clash Meta';
+    }
+
+    function buildFormatClients(os) {
+        const config = window.APP_CONFIG;
+        const base = (config.universalSubUrl || '').replace(/\/$/, '');
+        const clients = clientRecommendations[os] || clientRecommendations.Windows || [];
+        const appName = config.appName || 'GoPass';
+
+        const singClient = findClientByNames(clients, ['SFA', 'SFM', 'SFI'])
+            || findClientByNames(clientRecommendations.Android || [], ['SFA'])
+            || findClientByNames(clientRecommendations.macOS || [], ['SFM']);
+        const clashClient = findClientByNames(clients, ['Clash Verge Rev', 'CMFA', 'ClashMi', 'FlClash'])
+            || clients.find((c) => c.format === 'clash');
+
+        const singSub = base + '/singbox';
+        const clashSub = base + '/clash';
+
+        return [
+            {
+                name: 'Sing-box',
+                description: 'SFA / SFM — client sing-box chính thức',
+                format: 'singbox',
+                formatOnly: true,
+                downloadUrl: singClient?.downloadUrl || '',
+                importUrl: singClient?.importUrl
+                    || ('sing-box://import-remote-profile?url=' + encodeURIComponent(singSub) + '#' + encodeURIComponent(appName)),
+                isAppStore: !!singClient?.isAppStore
+            },
+            {
+                name: 'Clash Meta',
+                description: 'Clash Verge / CMFA / ClashMi',
+                format: 'clash',
+                formatOnly: true,
+                downloadUrl: clashClient?.downloadUrl || '',
+                importUrl: clashClient?.importUrl
+                    || ('clash://install-config?url=' + encodeURIComponent(clashSub)),
+                isAppStore: !!clashClient?.isAppStore
             }
-        }
+        ];
     }
 
     function initClientSelector() {
@@ -928,7 +925,14 @@
 
         const allForOs = clientRecommendations[os] || clientRecommendations["Windows"] || [];
         const recommendations = pickPreferredClients(os, allForOs);
+        const formatContainer = document.getElementById('format-clients');
         const recommendedContainer = document.getElementById('recommended-clients');
+
+        if (formatContainer) {
+            buildFormatClients(os).forEach(function(client) {
+                formatContainer.insertAdjacentHTML('beforeend', generateClientHtml(client, true));
+            });
+        }
 
         if (recommendedContainer) {
             recommendations.forEach(function(client) {
