@@ -13,7 +13,7 @@ $_ENV['baseUrl'] = 'https://example.com'; // 站点地址，必须以https://开
 $_ENV['webAPI'] = true;                // 是否开启WebAPI功能
 $_ENV['webAPIUrl'] = $_ENV['baseUrl']; // WebAPI地址，如需和站点地址相同，请不要修改
 $_ENV['muKey'] = 'ChangeMe';           // WebAPI密钥，用于节点服务端与面板通信，请务必修改此key为随机字符串
-$_ENV['checkNodeIp'] = true;           // 是否webapi验证节点ip
+$_ENV['checkNodeIp'] = false;          // Docker/NAT: XrayR IP often ≠ node.server DNS — keep false to avoid mass disconnect
 
 //数据库设置--------------------------------------------------------------------------------------------------------------
 // db_host|db_socket 二选一，若设置 db_socket 则 db_host 会被忽略，不用请留空
@@ -49,8 +49,8 @@ $_ENV['redis_ssl_context'] = [];      // 使用SSL时的上下文选项，参考
 $_ENV['enable_rate_limit'] = true;     // 是否开启请求限制
 $_ENV['rate_limit_sub_ip'] = 10;       // 每分钟每个IP的订阅链接请求限制
 $_ENV['rate_limit_sub'] = 10;          // 每分钟每个用户的订阅链接请求限制
-$_ENV['rate_limit_webapi_ip'] = 120;   // 每分钟每个IP的WebAPI请求限制
-$_ENV['rate_limit_webapi'] = 1200;     // 每分钟WebAPI全局请求限制
+$_ENV['rate_limit_webapi_ip'] = 600;   // 每分钟每个IP的WebAPI请求限制 (nhiều node chung 1 IP NAT)
+$_ENV['rate_limit_webapi'] = 6000;     // 每分钟WebAPI全局请求限制
 $_ENV['rate_limit_user_api_ip'] = 60;  // 每分钟每个IP的用户API请求限制
 $_ENV['rate_limit_user_api'] = 60;     // 每分钟每个用户的API请求限制
 $_ENV['rate_limit_admin_api_ip'] = 60; // 每分钟每个管理员的API请求限制
@@ -100,7 +100,8 @@ $_ENV['timeZone'] = 'Asia/Shanghai';        //需使用 PHP 兼容的时区格�
 $_ENV['theme'] = 'tabler';                //默认主题
 $_ENV['locale'] = 'zh-CN';                //默认语言
 $_ENV['jump_delay'] = 1000;               //跳转延时，单位ms
-$_ENV['keep_connect'] = false;            // 流量耗尽用户限速至 1Mbps
+$_ENV['keep_connect'] = true;             // Hết traffic: giữ kết nối + giảm tốc (tránh timeout)
+$_ENV['keep_connect_speedlimit'] = 5;     // Mbps khi keep_connect (1 Mbps quá chậm, app tưởng disconnect)
 
 //Other-----------------------------------------------------------------------------------------------------------------
 // cdn.jsdelivr.net / fastly.jsdelivr.net / testingcf.jsdelivr.net
