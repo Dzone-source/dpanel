@@ -27,7 +27,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
     <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-    <link href="/assets/css/gopass.css?v=20260730busy1" rel="stylesheet"/>
+    <link href="/assets/css/gopass.css?v=20260731sub1" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
 </head>
