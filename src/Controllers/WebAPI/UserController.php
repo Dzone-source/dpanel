@@ -43,11 +43,10 @@ final class UserController extends BaseController
 
         $node->update(['node_heartbeat' => time()]);
 
-        // Soft-offline: empty success list instead of error — XrayR treats API errors as
-        // auth failures and may drop all sessions on the node.
-        if ($node->node_bandwidth_limit !== 0 && $node->node_bandwidth_limit <= $node->node_bandwidth) {
-            return ResponseHelper::successWithDataEtag($request, $response, []);
-        }
+        // Soft-offline: keep serving users but apply a floor speed limit.
+        // Returning [] made XrayR delete every Trojan account → "not a valid user".
+        $nodeOverBandwidth = $node->node_bandwidth_limit !== 0
+            && $node->node_bandwidth_limit <= $node->node_bandwidth;
 
         $users_raw = (new User())->where(
             'is_banned',
@@ -81,11 +80,11 @@ final class UserController extends BaseController
             'uuid',
         ]);
 
-        // Keep node_iplimit + alive_ip so XrayR can enforce DeviceLimit softly.
-        // Do not hard-remove over-limit users here — that causes client timeouts when
-        // OnlineLog still holds a previous IP after Wi‑Fi/cellular or NAT rebind.
+        // Keep uuid + passwd for Trojan so XrayR can accept either password.
+        // V2 family (sort 11) only needs uuid; SS keeps passwd.
         $keys_unset = match ($node->sort) {
-            14, 11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'],
+            14 => ['u', 'd', 'transfer_enable', 'method', 'port'],
+            11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'],
             2 => ['u', 'd', 'transfer_enable', 'method', 'port'],
             1 => ['u', 'd', 'transfer_enable', 'method', 'port', 'uuid'],
             default => ['u', 'd', 'transfer_enable', 'uuid']
@@ -104,6 +103,14 @@ final class UserController extends BaseController
                     continue;
                 }
                 // Soft throttle — 1 Mbps is often so low apps look "disconnected".
+                $floor = (float) ($_ENV['keep_connect_speedlimit'] ?? 5);
+                $user_raw->node_speedlimit = max($floor, (float) $user_raw->node_speedlimit);
+                if ($user_raw->node_speedlimit <= 0) {
+                    $user_raw->node_speedlimit = $floor;
+                }
+            }
+
+            if ($nodeOverBandwidth) {
                 $floor = (float) ($_ENV['keep_connect_speedlimit'] ?? 5);
                 $user_raw->node_speedlimit = max($floor, (float) $user_raw->node_speedlimit);
                 if ($user_raw->node_speedlimit <= 0) {

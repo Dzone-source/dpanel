@@ -56,8 +56,8 @@ describe('UserController API - Trojan Node', function () {
             $userData = findUserData($data['data'], $user->id);
 
             expect($userData)
-                ->not->toHaveKeys(['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'])
-                ->toHaveKeys(['id', 'uuid', 'node_speedlimit', 'node_iplimit', 'alive_ip'])
+                ->not->toHaveKeys(['u', 'd', 'transfer_enable', 'method', 'port'])
+                ->toHaveKeys(['id', 'uuid', 'passwd', 'node_speedlimit', 'node_iplimit', 'alive_ip'])
                 ->and($userData['node_iplimit'])->toBe(0)
                 ->and($userData['alive_ip'])->toBe(0);
         }
