@@ -48,10 +48,10 @@ Password client = **user UUID** (giống XrayR).
 ```yaml
 ConnectionConfig:
   Handshake: 8
-  ConnIdle: 300
-  UplinkOnly: 300    # upload speed-test: tránh cắt giữa chừng (đừng để 5)
-  DownlinkOnly: 300
-  BufferSize: 512
+  ConnIdle: 600
+  UplinkOnly: 3600   # upload speed-test: tránh cắt nửa chừng
+  DownlinkOnly: 3600
+  BufferSize: 1024
 Nodes:
   - PanelType: "SSpanel"
     ApiConfig:
@@ -79,7 +79,7 @@ Hoặc `CertMode: http` / `dns` nếu muốn ACME tự cấp.
 
 ### Upload speed-test bị rớt
 
-Nếu test tốc độ **upload** đứt giữa chừng: sửa `UplinkOnly`/`DownlinkOnly` như trên rồi `systemctl restart XrayR`. Đồng thời xác nhận tài khoản còn đủ dung lượng và `node_speedlimit = 0`.
+**Không phải hết data.** XrayR cũ hay `user deleted` mỗi lần sync khi `SpeedLimit`/`DeviceLimit` đổi → Trojan session đứt giữa upload. Cần binary XrayR branch `cursor/hiddify-stable-node-7233` (fix compareUserList) + `UplinkOnly/DownlinkOnly: 3600`.
 
 ## Hiddify import (profile riêng)
 
