@@ -243,18 +243,14 @@ final class NodeConfig
             $alpn = 'h2';
         }
 
-        // HiddifyPanel: TLS/REALITY → headerType=none (http only for plain http l3).
-        $headerType = (string) ($cfg['header']['type'] ?? $cfg['headerType'] ?? 'none');
-        if ($headerType === '') {
-            $headerType = 'none';
-        }
-
+        // Minimal query for Hiddify/sing-box on XrayR Trojan TCP+TLS.
+        // Do NOT force alpn / headerType — ClashMi works without them; forcing
+        // them caused Hiddify-only upload drops. Keep hiddify=1 for app marker.
         $query = [
             'hiddify' => '1',
             'sni' => $host,
             'type' => $network,
             'fp' => self::fingerprint($cfg),
-            'headerType' => $headerType,
             'security' => $security,
         ];
 
@@ -262,7 +258,14 @@ final class NodeConfig
             $query['alpn'] = $alpn;
         }
 
-        if ($host !== '') {
+        // headerType only when custom_config explicitly sets a non-none header.
+        $headerType = (string) ($cfg['header']['type'] ?? $cfg['headerType'] ?? '');
+        if ($headerType !== '' && $headerType !== 'none') {
+            $query['headerType'] = $headerType;
+        }
+
+        // host is for WS/CDN; skip on plain TCP.
+        if ($host !== '' && $network !== 'tcp') {
             $query['host'] = $host;
         }
 

@@ -210,7 +210,7 @@
                                     <div class="gopass-sub-row gopass-sub-row--primary">
                                         <div class="gopass-sub-row-head">
                                             <strong>Hiddify</strong>
-                                            <span>Clash Meta YAML (cùng format ClashMi) — xóa profile cũ rồi import lại</span>
+                                            <span>Base64 share links — copy hoặc Mở app Hiddify</span>
                                         </div>
                                         <div class="gopass-sub-row-controls">
                                             <input type="text" class="form-control" value="{$UniversalSub}/hiddify" readonly id="sub-link-hiddify">
@@ -225,7 +225,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <p class="text-muted small mt-2 mb-0">Sao chép rồi dán vào Hiddify, hoặc bấm <strong>Mở app</strong>. Cần <strong>xóa profile cũ</strong> rồi import lại (định dạng đã đổi sang Clash Meta như ClashMi). App / định dạng khác nằm bên dưới.</p>
+                                <p class="text-muted small mt-2 mb-0">Sao chép rồi dán vào Hiddify, hoặc bấm <strong>Mở app</strong>. Nếu upload speedtest vẫn lỗi trên Hiddify mà ClashMi ổn — dùng ClashMi / import <code>/clash</code>. App / định dạng khác nằm bên dưới.</p>
                             </div>
 
                             <div class="text-center">

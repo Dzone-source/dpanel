@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Subscribe;
 
 use App\Services\Subscribe\Clash;
+use App\Services\Subscribe\Hiddify;
 use App\Services\Subscribe\NodeConfig;
 use App\Services\Subscribe\SingBox;
 use App\Services\Subscribe\V2Ray;
@@ -244,8 +245,9 @@ final class NodeConfigAndHiddifyTest extends TestCase
         // Plain Trojan TCP must NOT force alpn — Clash Meta omits it and works;
         // forcing http/1.1 is a Hiddify-only upload disconnect risk on XrayR.
         $this->assertStringNotContainsString('alpn=', $link);
-        $this->assertStringContainsString('headerType=none', $link);
-        $this->assertStringContainsString('host=cdn.example.com', $link);
+        $this->assertStringNotContainsString('headerType=', $link);
+        // host is WS/CDN only; plain TCP uses sni alone.
+        $this->assertStringNotContainsString('host=', $link);
         $this->assertStringNotContainsString('allowInsecure', $link);
         $this->assertStringNotContainsString('legacy-pass', $link);
     }
@@ -262,7 +264,8 @@ final class NodeConfigAndHiddifyTest extends TestCase
 
         $this->assertSame('1', $q['hiddify']);
         $this->assertArrayNotHasKey('alpn', $q);
-        $this->assertSame('none', $q['headerType']);
+        $this->assertArrayNotHasKey('headerType', $q);
+        $this->assertArrayNotHasKey('host', $q);
         $this->assertSame('chrome', $q['fp']);
         $this->assertSame('tls', $q['security']);
         $this->assertArrayNotHasKey('allowInsecure', $q);

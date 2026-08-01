@@ -95,38 +95,33 @@ Kiểm tra API user list: mọi `node_speedlimit` phải là `0` khi `disable_xr
 
 | Client | URL |
 |--------|-----|
-| **Hiddify-app** | `{subUrl}/sub/{token}/hiddify` + deep link `hiddify://import/.../hiddify#name` |
+| **Hiddify-app** | `{subUrl}/sub/{token}/hiddify` — base64 share links |
+| ClashMi / Clash Meta | `{subUrl}/sub/{token}/clash` |
 | Sing-box SFA/SFM | `{subUrl}/sub/{token}/singbox` |
-| Clash Meta | `{subUrl}/sub/{token}/clash` |
 
-`/hiddify` trả về **base64 allshare** (`trojan://` / `vless://` / `ss://`) — định dạng subscription Hiddify import ổn định nhất (wiki URL Scheme). Headers: `profile-title: base64:…`, `profile-update-interval: 6`, `Subscription-Userinfo`.
+`/hiddify` trả **base64 `trojan://`…** (Hiddify validateConfig cần format này). **Không** trả Clash YAML trên `/hiddify` — DPanel Clash YAML (`---` + proxy-groups) khiến **add profile lỗi**.
 
-Deep link dùng query form (Hiddify LinkParser decode đúng):
-`hiddify://import/?url=<urlencoded sub>/hiddify&name=<name>`
+ClashMi tiếp tục dùng `/clash`. Nếu Hiddify upload vẫn kém hơn ClashMi: dùng ClashMi hoặc import `/clash` trong Hiddify (một số bản hỗ trợ).
 
-**Không** percent-encode path-style `hiddify://import/https://...` — app không decode path → lỗi "Unexpected connection error".
+Trojan TCP link **không ép `alpn` / `headerType`**.
 
-User-Agent chứa `Hiddify` trên `/json` hoặc `/sub/{token}` (không subtype) cũng được remap sang profile này.
+Deep link: `hiddify://import/?url=<urlencoded sub>/hiddify&name=<name>`
 
 ### Hiddify vs Clash Meta (cùng node Trojan)
 
 | | `/clash` (ClashMi) | `/hiddify` (Hiddify-app) |
 |--|--|--|
-| Body | Clash Meta YAML | base64 `trojan://` share links |
-| `alpn` | omitted (TCP) | omitted unless custom_config / grpc |
-| `udp` | `udp: true` | (sing-box default) |
-| `client-fingerprint` | yes | `fp=chrome` |
-| `tcp-concurrent` | yes (Clash_Config) | N/A (sing-box) |
-| mux / fragment | no | **not** enabled by `hiddify=1` (app defaults off) |
-
-Nếu Hiddify vẫn drop upload: A/B import `{sub}/clash` trong Hiddify-app (app hỗ trợ Clash YAML).
+| Body | Clash Meta YAML | base64 share links |
+| Trojan TLS | không ép `alpn` | không ép `alpn` |
+| Add profile | OK trong ClashMi | OK với base64 (YAML trên `/hiddify` → lỗi) |
 
 ## Kiểm tra nhanh
 
 ```bash
-# Panel subscription
-curl -sL "https://PANEL/sub/TOKEN/clash" | grep -A20 "type: trojan"
+# /hiddify phải là base64 (không bắt đầu bằng ---)
+curl -sL "https://PANEL/sub/TOKEN/hiddify" | head -c 80; echo
+# decode thử:
+curl -sL "https://PANEL/sub/TOKEN/hiddify" | base64 -d | head -n 5
 
-# Node log — không còn "not a valid user"
-journalctl -u XrayR -n 100 --no-pager
+curl -sL "https://PANEL/sub/TOKEN/clash" | grep -A15 "type: trojan"
 ```
