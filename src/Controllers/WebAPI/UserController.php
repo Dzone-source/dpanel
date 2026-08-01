@@ -95,6 +95,13 @@ final class UserController extends BaseController
         // "not a valid user". Panel still tracks IPs via /aliveip for the user dashboard.
         $users = [];
 
+        // XrayR shared rate-limit buckets historically made Hiddify upload
+        // speedtests look "disconnected". Default: do not send Mbps caps to XrayR.
+        $disableXrayrSpeedLimit = (bool) ($_ENV['disable_xrayr_speed_limit'] ?? true);
+        // Floor when keep_connect / node bandwidth soft-throttle is active.
+        // 5 Mbps is too low — apps abort mid upload. Prefer 100+.
+        $keepConnectFloor = (float) ($_ENV['keep_connect_speedlimit'] ?? 100);
+
         foreach ($users_raw as $user_raw) {
             if ($user_raw->transfer_enable <= $user_raw->u + $user_raw->d) {
                 // Hard-removing exhausted users causes client timeouts. Prefer keep_connect
@@ -102,19 +109,27 @@ final class UserController extends BaseController
                 if (! ($_ENV['keep_connect'] ?? true)) {
                     continue;
                 }
-                // Soft throttle — 1 Mbps is often so low apps look "disconnected".
-                $floor = (float) ($_ENV['keep_connect_speedlimit'] ?? 5);
-                $user_raw->node_speedlimit = max($floor, (float) $user_raw->node_speedlimit);
-                if ($user_raw->node_speedlimit <= 0) {
-                    $user_raw->node_speedlimit = $floor;
+                if (! $disableXrayrSpeedLimit) {
+                    $user_raw->node_speedlimit = max($keepConnectFloor, (float) $user_raw->node_speedlimit);
+                    if ($user_raw->node_speedlimit <= 0) {
+                        $user_raw->node_speedlimit = $keepConnectFloor;
+                    }
                 }
             }
 
-            if ($nodeOverBandwidth) {
-                $floor = (float) ($_ENV['keep_connect_speedlimit'] ?? 5);
-                $user_raw->node_speedlimit = max($floor, (float) $user_raw->node_speedlimit);
+            if ($nodeOverBandwidth && ! $disableXrayrSpeedLimit) {
+                $user_raw->node_speedlimit = max($keepConnectFloor, (float) $user_raw->node_speedlimit);
                 if ($user_raw->node_speedlimit <= 0) {
-                    $user_raw->node_speedlimit = $floor;
+                    $user_raw->node_speedlimit = $keepConnectFloor;
+                }
+            }
+
+            // Cap by node-level Mbps when speed limits are enabled for XrayR.
+            if (! $disableXrayrSpeedLimit) {
+                $nodeLimit = (float) $node->node_speedlimit;
+                $userLimit = (float) $user_raw->node_speedlimit;
+                if ($nodeLimit > 0) {
+                    $user_raw->node_speedlimit = $userLimit > 0 ? min($userLimit, $nodeLimit) : $nodeLimit;
                 }
             }
 
@@ -142,6 +157,10 @@ final class UserController extends BaseController
             $disable_ip_limit = (bool) ($_ENV['disable_ip_online_limit'] ?? true);
             $user_raw->node_iplimit = $disable_ip_limit ? 0 : $ip_limit;
             $user_raw->alive_ip = self::reportedAliveIpForXrayR();
+
+            if ($disableXrayrSpeedLimit) {
+                $user_raw->node_speedlimit = 0;
+            }
 
             $users[] = $user_raw;
         }

@@ -32,8 +32,14 @@ final class NodeController extends BaseController
             return ResponseHelper::error($response, 'Node is not enabled.');
         }
 
+        $nodeSpeed = $node->node_speedlimit;
+        // Match UserController: do not push Mbps caps to XrayR by default.
+        if ($_ENV['disable_xrayr_speed_limit'] ?? true) {
+            $nodeSpeed = 0;
+        }
+
         $data = [
-            'node_speedlimit' => $node->node_speedlimit,
+            'node_speedlimit' => $nodeSpeed,
             'sort' => $node->sort,
             'server' => $node->server,
             'custom_config' => json_decode($node->custom_config, true, JSON_UNESCAPED_SLASHES),

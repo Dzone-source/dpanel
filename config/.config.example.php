@@ -102,7 +102,8 @@ $_ENV['theme'] = 'tabler';                //默认主题
 $_ENV['locale'] = 'vi_VN';
 $_ENV['jump_delay'] = 1000;               //跳转延时，单位ms
 $_ENV['keep_connect'] = true;             // Hết traffic: giữ kết nối + giảm tốc (tránh timeout)
-$_ENV['keep_connect_speedlimit'] = 5;     // Mbps khi keep_connect (1 Mbps quá chậm, app tưởng disconnect)
+$_ENV['keep_connect_speedlimit'] = 100;   // Mbps khi keep_connect (5 Mbps quá thấp → Hiddify tưởng disconnect)
+$_ENV['disable_xrayr_speed_limit'] = true; // Không gửi node_speedlimit cho XrayR (tránh rate-limit cắt upload)
 $_ENV['disable_ip_online_limit'] = true;  // Tạm tắt limit IP online gửi XrayR (true = không giới hạn)
 
 //Other-----------------------------------------------------------------------------------------------------------------

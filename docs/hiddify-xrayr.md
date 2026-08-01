@@ -83,7 +83,13 @@ Hoặc `CertMode: http` / `dns` nếu muốn ACME tự cấp.
 
 ### Upload speed-test bị rớt
 
-**Không phải hết data.** XrayR cũ hay `user deleted` mỗi lần sync khi `SpeedLimit`/`DeviceLimit` đổi → Trojan session đứt giữa upload. Cần binary XrayR branch `cursor/hiddify-stable-node-7233` (fix compareUserList) + `UplinkOnly/DownlinkOnly: 3600`.
+Hay gặp **giới hạn tốc độ**, không phải hết data:
+
+1. XrayR rate-limit dùng chung 1 bucket up+down → download speedtest hút token → upload bị treo (giống disconnect). Fix: v0.9.15 tách bucket + `DisableSpeedLimit: true`.
+2. Panel `node_speedlimit` / `keep_connect_speedlimit: 5` quá thấp. Mặc định mới: `disable_xrayr_speed_limit=true` (không gửi Mbps cho XrayR).
+3. Sync `user deleted` / `UplinkOnly` thấp — cần binary branch ổn định + `UplinkOnly/DownlinkOnly: 3600`.
+
+Kiểm tra API user list: mọi `node_speedlimit` phải là `0` khi `disable_xrayr_speed_limit=true`.
 
 ## Hiddify import (profile riêng)
 
