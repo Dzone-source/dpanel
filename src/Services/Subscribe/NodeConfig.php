@@ -233,12 +233,14 @@ final class NodeConfig
             $security = 'tls';
         }
 
+        // ALPN: only emit when custom_config sets it, or for transports that need h2.
+        // Clash Meta (working path) omits alpn for plain Trojan TCP — forcing
+        // alpn=http/1.1 in share links makes Hiddify/sing-box restrict ClientHello
+        // ALPN and is a leading cause of Hiddify-only mid-upload disconnects on
+        // XrayR Trojan nodes where ClashMi works without alpn.
         $alpn = (string) ($cfg['alpn'] ?? '');
-        if ($alpn === '') {
-            $alpn = match ($network) {
-                'grpc', 'h2' => 'h2',
-                default => 'http/1.1',
-            };
+        if ($alpn === '' && ($network === 'grpc' || $network === 'h2')) {
+            $alpn = 'h2';
         }
 
         // HiddifyPanel: TLS/REALITY → headerType=none (http only for plain http l3).
@@ -251,11 +253,14 @@ final class NodeConfig
             'hiddify' => '1',
             'sni' => $host,
             'type' => $network,
-            'alpn' => $alpn,
             'fp' => self::fingerprint($cfg),
             'headerType' => $headerType,
             'security' => $security,
         ];
+
+        if ($alpn !== '') {
+            $query['alpn'] = $alpn;
+        }
 
         if ($host !== '') {
             $query['host'] = $host;

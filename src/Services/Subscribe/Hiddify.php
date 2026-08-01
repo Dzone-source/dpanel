@@ -51,7 +51,7 @@ final class Hiddify extends Base
 
         $header = [
             '#profile-title: base64:' . base64_encode($title),
-            '#profile-update-interval: 1',
+            '#profile-update-interval: 6',
             '#subscription-userinfo: ' . $userinfo,
             '#profile-web-page-url: ' . rtrim((string) ($_ENV['baseUrl'] ?? ''), '/'),
         ];

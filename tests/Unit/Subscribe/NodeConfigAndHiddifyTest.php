@@ -241,7 +241,9 @@ final class NodeConfigAndHiddifyTest extends TestCase
         $this->assertStringContainsString('44444444-4444-4444-4444-444444444444', $link);
         $this->assertStringContainsString('sni=cdn.example.com', $link);
         $this->assertStringContainsString('hiddify=1', $link);
-        $this->assertStringContainsString('alpn=http', $link);
+        // Plain Trojan TCP must NOT force alpn — Clash Meta omits it and works;
+        // forcing http/1.1 is a Hiddify-only upload disconnect risk on XrayR.
+        $this->assertStringNotContainsString('alpn=', $link);
         $this->assertStringContainsString('headerType=none', $link);
         $this->assertStringContainsString('host=cdn.example.com', $link);
         $this->assertStringNotContainsString('allowInsecure', $link);
@@ -259,11 +261,30 @@ final class NodeConfigAndHiddifyTest extends TestCase
         ], 'node.example.com');
 
         $this->assertSame('1', $q['hiddify']);
-        $this->assertSame('http/1.1', $q['alpn']);
+        $this->assertArrayNotHasKey('alpn', $q);
         $this->assertSame('none', $q['headerType']);
         $this->assertSame('chrome', $q['fp']);
         $this->assertSame('tls', $q['security']);
         $this->assertArrayNotHasKey('allowInsecure', $q);
+    }
+
+    public function testTrojanShareQueryEmitsAlpnWhenConfiguredOrGrpc(): void
+    {
+        $explicit = NodeConfig::trojanShareQuery([
+            'network' => 'tcp',
+            'security' => 'tls',
+            'alpn' => 'http/1.1',
+            'host' => 'node.example.com',
+        ], 'node.example.com');
+        $this->assertSame('http/1.1', $explicit['alpn']);
+
+        $grpc = NodeConfig::trojanShareQuery([
+            'network' => 'grpc',
+            'security' => 'tls',
+            'host' => 'node.example.com',
+            'servicename' => 'trojan',
+        ], 'node.example.com');
+        $this->assertSame('h2', $grpc['alpn']);
     }
 
     public function testHiddifyDeepLinkUsesQueryUrlForm(): void

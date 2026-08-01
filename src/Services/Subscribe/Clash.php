@@ -219,7 +219,9 @@ final class Clash extends Base
             return [];
         }
 
-        $rawNetwork = (string) ($cfg['header']['type'] ?? $cfg['network'] ?? 'tcp');
+        // Prefer flat `network` (XrayR custom_config). Do NOT use header.type —
+        // that field is HTTP camouflage (often "none"), not the transport name.
+        $rawNetwork = (string) ($cfg['network'] ?? 'tcp');
         $network = $rawNetwork === '' ? 'tcp' : $rawNetwork;
         $sni = NodeConfig::sni($cfg, (string) $node_raw->server);
         $allow_insecure = NodeConfig::allowInsecure($cfg);

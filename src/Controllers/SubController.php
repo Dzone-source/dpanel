@@ -109,8 +109,10 @@ final class SubController extends BaseController
         $appName = (string) ($_ENV['appName'] ?? 'DPanel');
         $profileTitle = 'base64:' . base64_encode($appName);
         $sub_content_disposition = 'attachment; filename="' . $appName . '"';
-        // HiddifyPanel add_headers uses interval=1 for subscription profiles.
-        $sub_profile_update_interval = $subtype === 'hiddify' ? '1' : '6';
+        // Hours (Hiddify-app ProfileParser: Duration(hours: N)). Interval=1 means
+        // hourly auto-update; on success the active profile can reconnect and
+        // abort an in-flight upload speedtest. Prefer 6h like Clash Meta.
+        $sub_profile_update_interval = '6';
         $sub_profile_web_page_url = rtrim((string) ($_ENV['baseUrl'] ?? ''), '/');
         $supportUrl = rtrim((string) ($_ENV['supportUrl'] ?? $_ENV['baseUrl'] ?? ''), '/');
 

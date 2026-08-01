@@ -21,15 +21,16 @@ Node đang chạy **Trojan** (sort=`14`), không phải VLESS. Hiddify lỗi th�
   "host": "node.example.com",
   "network": "tcp",
   "security": "tls",
-  "alpn": "http/1.1",
   "allow_insecure": false,
   "udp": true,
   "fingerprint": "chrome"
 }
 ```
 
+> **Note:** omit `alpn` for plain Trojan TCP — DPanel no longer defaults `alpn=http/1.1` (Clash Meta also omits it). Only set `alpn` when the node/CDN actually requires it (or for grpc/h2).
+
 Share link Hiddify sẽ có dạng:
-`trojan://UUID@server:443?hiddify=1&sni=…&type=tcp&alpn=http%2F1.1&fp=chrome&headerType=none&security=tls&host=…#Name`
+`trojan://UUID@server:443?hiddify=1&sni=…&type=tcp&fp=chrome&headerType=none&security=tls&host=…#Name`
 
 ### Trojan + WebSocket
 
@@ -99,7 +100,7 @@ Kiểm tra API user list: mọi `node_speedlimit` phải là `0` khi `disable_xr
 | Sing-box SFA/SFM | `{subUrl}/sub/{token}/singbox` |
 | Clash Meta | `{subUrl}/sub/{token}/clash` |
 
-`/hiddify` trả về **base64 allshare** (`trojan://` / `vless://` / `ss://`) — định dạng subscription Hiddify import ổn định nhất (wiki URL Scheme). Headers: `profile-title: base64:…`, `profile-update-interval: 1`, `Subscription-Userinfo`.
+`/hiddify` trả về **base64 allshare** (`trojan://` / `vless://` / `ss://`) — định dạng subscription Hiddify import ổn định nhất (wiki URL Scheme). Headers: `profile-title: base64:…`, `profile-update-interval: 6`, `Subscription-Userinfo`.
 
 Deep link dùng query form (Hiddify LinkParser decode đúng):
 `hiddify://import/?url=<urlencoded sub>/hiddify&name=<name>`
@@ -107,6 +108,19 @@ Deep link dùng query form (Hiddify LinkParser decode đúng):
 **Không** percent-encode path-style `hiddify://import/https://...` — app không decode path → lỗi "Unexpected connection error".
 
 User-Agent chứa `Hiddify` trên `/json` hoặc `/sub/{token}` (không subtype) cũng được remap sang profile này.
+
+### Hiddify vs Clash Meta (cùng node Trojan)
+
+| | `/clash` (ClashMi) | `/hiddify` (Hiddify-app) |
+|--|--|--|
+| Body | Clash Meta YAML | base64 `trojan://` share links |
+| `alpn` | omitted (TCP) | omitted unless custom_config / grpc |
+| `udp` | `udp: true` | (sing-box default) |
+| `client-fingerprint` | yes | `fp=chrome` |
+| `tcp-concurrent` | yes (Clash_Config) | N/A (sing-box) |
+| mux / fragment | no | **not** enabled by `hiddify=1` (app defaults off) |
+
+Nếu Hiddify vẫn drop upload: A/B import `{sub}/clash` trong Hiddify-app (app hỗ trợ Clash YAML).
 
 ## Kiểm tra nhanh
 
