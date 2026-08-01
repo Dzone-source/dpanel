@@ -232,39 +232,38 @@ final class NodeConfigAndHiddifyTest extends TestCase
             'fingerprint' => 'chrome',
         ]);
 
-        // forceTrojanLinks needs DB via Subscribe::getUserNodes — test URI shape via Trojan class instead.
-        $trojan = new class () extends \App\Services\Subscribe\Trojan {
-            public array $injectNodes = [];
-
-            public function getContent($user): string
-            {
-                $links = '';
-                foreach ($this->injectNodes as $node_raw) {
-                    $cfg = NodeConfig::decode($node_raw->custom_config);
-                    $password = NodeConfig::trojanPassword($user);
-                    $port = NodeConfig::port($cfg);
-                    $host = NodeConfig::sni($cfg, (string) $node_raw->server);
-                    $query = http_build_query([
-                        'peer' => $host,
-                        'sni' => $host,
-                        'type' => 'tcp',
-                        'security' => 'tls',
-                        'fp' => NodeConfig::fingerprint($cfg),
-                    ]);
-                    $links .= 'trojan://' . rawurlencode($password) . '@' . $node_raw->server . ':' . $port
-                        . '?' . $query . '#' . rawurlencode((string) $node_raw->name) . "\n";
-                }
-
-                return $links;
-            }
-        };
-        $trojan->injectNodes = [$node];
-        $link = $trojan->getContent($user);
+        $cfg = NodeConfig::decode($node->custom_config);
+        $query = NodeConfig::trojanShareQuery($cfg, (string) $node->server);
+        $link = 'trojan://' . rawurlencode(NodeConfig::trojanPassword($user)) . '@' . $node->server . ':'
+            . NodeConfig::port($cfg) . '?' . http_build_query($query) . '#' . rawurlencode((string) $node->name);
 
         $this->assertStringStartsWith('trojan://', $link);
         $this->assertStringContainsString('44444444-4444-4444-4444-444444444444', $link);
         $this->assertStringContainsString('sni=cdn.example.com', $link);
+        $this->assertStringContainsString('hiddify=1', $link);
+        $this->assertStringContainsString('alpn=http', $link);
+        $this->assertStringContainsString('headerType=none', $link);
+        $this->assertStringContainsString('host=cdn.example.com', $link);
+        $this->assertStringNotContainsString('allowInsecure', $link);
         $this->assertStringNotContainsString('legacy-pass', $link);
+    }
+
+    public function testTrojanShareQueryMatchesHiddifyPanelShape(): void
+    {
+        $q = NodeConfig::trojanShareQuery([
+            'offset_port_node' => 443,
+            'host' => 'node.example.com',
+            'network' => 'tcp',
+            'security' => 'tls',
+            'fingerprint' => 'chrome',
+        ], 'node.example.com');
+
+        $this->assertSame('1', $q['hiddify']);
+        $this->assertSame('http/1.1', $q['alpn']);
+        $this->assertSame('none', $q['headerType']);
+        $this->assertSame('chrome', $q['fp']);
+        $this->assertSame('tls', $q['security']);
+        $this->assertArrayNotHasKey('allowInsecure', $q);
     }
 
     public function testHiddifyDeepLinkUsesQueryUrlForm(): void

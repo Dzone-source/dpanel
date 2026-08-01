@@ -212,4 +212,90 @@ final class NodeConfig
 
         return $serverFallback;
     }
+
+    /**
+     * Trojan share-link query params aligned with HiddifyPanel xray.to_link / make_proxy.
+     *
+     * @see https://github.com/hiddify/HiddifyPanel hiddifypanel/hutils/proxy/xray.py
+     *
+     * @return array<string, string>
+     */
+    public static function trojanShareQuery(array $cfg, string $serverFallback = ''): array
+    {
+        $host = self::sni($cfg, $serverFallback);
+        $network = strtolower((string) ($cfg['network'] ?? 'tcp'));
+        if ($network === '') {
+            $network = 'tcp';
+        }
+
+        $security = self::isReality($cfg) ? 'reality' : strtolower((string) ($cfg['security'] ?? 'tls'));
+        if ($security === '') {
+            $security = 'tls';
+        }
+
+        $alpn = (string) ($cfg['alpn'] ?? '');
+        if ($alpn === '') {
+            $alpn = match ($network) {
+                'grpc', 'h2' => 'h2',
+                default => 'http/1.1',
+            };
+        }
+
+        // HiddifyPanel: TLS/REALITY → headerType=none (http only for plain http l3).
+        $headerType = (string) ($cfg['header']['type'] ?? $cfg['headerType'] ?? 'none');
+        if ($headerType === '') {
+            $headerType = 'none';
+        }
+
+        $query = [
+            'hiddify' => '1',
+            'sni' => $host,
+            'type' => $network,
+            'alpn' => $alpn,
+            'fp' => self::fingerprint($cfg),
+            'headerType' => $headerType,
+            'security' => $security,
+        ];
+
+        if ($host !== '') {
+            $query['host'] = $host;
+        }
+
+        $path = self::path($cfg);
+        if ($path !== '') {
+            $query['path'] = $path;
+        }
+
+        $servicename = (string) ($cfg['servicename'] ?? $cfg['serviceName'] ?? '');
+        if ($servicename !== '') {
+            $query['serviceName'] = $servicename;
+            if ($network === 'grpc') {
+                $query['mode'] = (string) ($cfg['grpc_mode'] ?? 'gun');
+            }
+        }
+
+        // HiddifyPanel only emits allowInsecure when true.
+        if (self::allowInsecure($cfg)) {
+            $query['allowInsecure'] = '1';
+            $query['insecure'] = '1';
+        }
+
+        if (self::isTruthy($cfg['mux'] ?? false)) {
+            $query['mux'] = '1';
+        }
+
+        if (self::isReality($cfg)) {
+            $reality = self::realityClient($cfg);
+            $query['security'] = 'reality';
+            $query['pbk'] = $reality['public_key'];
+            $query['sid'] = $reality['short_id'];
+            $query['fp'] = $reality['fingerprint'];
+            if ($reality['server_name'] !== '') {
+                $query['sni'] = $reality['server_name'];
+                $query['host'] = $reality['server_name'];
+            }
+        }
+
+        return $query;
+    }
 }

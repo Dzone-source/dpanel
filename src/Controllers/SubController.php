@@ -92,10 +92,19 @@ final class SubController extends BaseController
         };
 
         $expire = (int) strtotime((string) $user->class_expire);
-        $sub_details = 'upload=' . (int) $user->u
-            . '; download=' . (int) $user->d
-            . '; total=' . (int) $user->transfer_enable
-            . '; expire=' . $expire;
+        // HiddifyPanel add_headers: upload=0; download=<used bytes total>.
+        // Keeping real u/d split confuses some Hiddify-app usage gauges mid-session.
+        if ($subtype === 'hiddify') {
+            $used = (int) $user->u + (int) $user->d;
+            $sub_details = 'upload=0; download=' . $used
+                . '; total=' . (int) $user->transfer_enable
+                . '; expire=' . $expire;
+        } else {
+            $sub_details = 'upload=' . (int) $user->u
+                . '; download=' . (int) $user->d
+                . '; total=' . (int) $user->transfer_enable
+                . '; expire=' . $expire;
+        }
 
         $appName = (string) ($_ENV['appName'] ?? 'DPanel');
         $profileTitle = 'base64:' . base64_encode($appName);
@@ -103,6 +112,7 @@ final class SubController extends BaseController
         // HiddifyPanel add_headers uses interval=1 for subscription profiles.
         $sub_profile_update_interval = $subtype === 'hiddify' ? '1' : '6';
         $sub_profile_web_page_url = rtrim((string) ($_ENV['baseUrl'] ?? ''), '/');
+        $supportUrl = rtrim((string) ($_ENV['supportUrl'] ?? $_ENV['baseUrl'] ?? ''), '/');
 
         if (Config::obtain('subscribe_log')) {
             (new SubscribeLog())->add($user, $subtype, $ua);
@@ -112,7 +122,7 @@ final class SubController extends BaseController
         $withProfileHeaders = in_array($subtype, ['clash', 'singbox', 'hiddify', 'general', 'v2ray'], true);
 
         if ($withProfileHeaders) {
-            return $response
+            $response = $response
                 ->withHeader('Subscription-Userinfo', $sub_details)
                 ->withHeader('subscription-userinfo', $sub_details)
                 ->withHeader('Content-Disposition', $sub_content_disposition)
@@ -122,8 +132,16 @@ final class SubController extends BaseController
                 ->withHeader('profile-web-page-url', $sub_profile_web_page_url)
                 ->withHeader('Profile-Title', $profileTitle)
                 ->withHeader('profile-title', $profileTitle)
-                ->withHeader('Content-Type', $content_type)
-                ->write($sub_info);
+                ->withHeader('Content-Type', $content_type);
+
+            // HiddifyPanel optional support-url (branding_site).
+            if ($subtype === 'hiddify' && $supportUrl !== '') {
+                $response = $response
+                    ->withHeader('support-url', $supportUrl)
+                    ->withHeader('Support-Url', $supportUrl);
+            }
+
+            return $response->write($sub_info);
         }
 
         return $response

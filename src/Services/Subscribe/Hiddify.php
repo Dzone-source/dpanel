@@ -91,41 +91,9 @@ final class Hiddify extends Base
                 continue;
             }
 
+            // Match HiddifyPanel xray.to_link (hiddify=1, alpn, headerType, host…).
+            $query = NodeConfig::trojanShareQuery($cfg, (string) $node_raw->server);
             $port = NodeConfig::port($cfg);
-            $host = NodeConfig::sni($cfg, (string) $node_raw->server);
-            $allow_insecure = NodeConfig::allowInsecure($cfg) ? '1' : '0';
-            $security = NodeConfig::isReality($cfg) ? 'reality' : ((string) ($cfg['security'] ?? 'tls'));
-            $network = (string) ($cfg['network'] ?? 'tcp');
-            $path = NodeConfig::path($cfg);
-            $servicename = (string) ($cfg['servicename'] ?? $cfg['serviceName'] ?? '');
-
-            $query = [
-                'peer' => $host,
-                'sni' => $host,
-                'allowInsecure' => $allow_insecure,
-                'type' => $network === '' ? 'tcp' : $network,
-                'security' => $security === '' ? 'tls' : $security,
-                'fp' => NodeConfig::fingerprint($cfg),
-            ];
-
-            if ($path !== '') {
-                $query['path'] = $path;
-            }
-            if ($servicename !== '') {
-                $query['serviceName'] = $servicename;
-            }
-
-            if (NodeConfig::isReality($cfg)) {
-                $reality = NodeConfig::realityClient($cfg);
-                $query['security'] = 'reality';
-                $query['pbk'] = $reality['public_key'];
-                $query['sid'] = $reality['short_id'];
-                $query['fp'] = $reality['fingerprint'];
-                if ($reality['server_name'] !== '') {
-                    $query['sni'] = $reality['server_name'];
-                    $query['peer'] = $reality['server_name'];
-                }
-            }
 
             $links .= 'trojan://' . rawurlencode($password) . '@' . $node_raw->server . ':' . $port
                 . '?' . http_build_query($query) . '#' . rawurlencode((string) $node_raw->name) . PHP_EOL;

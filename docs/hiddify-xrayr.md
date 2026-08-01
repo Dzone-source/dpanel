@@ -13,7 +13,7 @@ Node đang chạy **Trojan** (sort=`14`), không phải VLESS. Hiddify lỗi th�
 - `webAPIUrl` / `subUrl` = HTTPS public URL
 - `checkNodeIp = false` nếu node NAT/CDN (đã default trong bản fix)
 
-### `custom_config` mẫu (Trojan TCP + TLS)
+### `custom_config` mẫu (Trojan TCP + TLS) — khớp HiddifyPanel
 
 ```json
 {
@@ -21,11 +21,15 @@ Node đang chạy **Trojan** (sort=`14`), không phải VLESS. Hiddify lỗi th�
   "host": "node.example.com",
   "network": "tcp",
   "security": "tls",
+  "alpn": "http/1.1",
   "allow_insecure": false,
   "udp": true,
   "fingerprint": "chrome"
 }
 ```
+
+Share link Hiddify sẽ có dạng:
+`trojan://UUID@server:443?hiddify=1&sni=…&type=tcp&alpn=http%2F1.1&fp=chrome&headerType=none&security=tls&host=…#Name`
 
 ### Trojan + WebSocket
 

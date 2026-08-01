@@ -34,51 +34,16 @@ final class Trojan extends Base
             }
 
             $trojan_port = NodeConfig::port($cfg);
-            $host = NodeConfig::sni($cfg, (string) $node_raw->server);
-            $allow_insecure = NodeConfig::allowInsecure($cfg) ? '1' : '0';
-            $security = NodeConfig::isReality($cfg) ? 'reality' : ((string) ($cfg['security'] ?? 'tls'));
-            $mux = NodeConfig::isTruthy($cfg['mux'] ?? false) ? '1' : '0';
-            $network = (string) ($cfg['network'] ?? 'tcp');
+            $query = NodeConfig::trojanShareQuery($cfg, (string) $node_raw->server);
+
+            // Legacy SSPanel transport_plugin fields (not used by HiddifyPanel).
             $transport_plugin = (string) ($cfg['transport_plugin'] ?? '');
             $transport_method = (string) ($cfg['transport_method'] ?? '');
-            $servicename = (string) ($cfg['servicename'] ?? $cfg['serviceName'] ?? '');
-            $path = NodeConfig::path($cfg);
-
-            $query = [
-                'peer' => $host,
-                'sni' => $host,
-                'allowInsecure' => $allow_insecure,
-                'type' => $network === '' ? 'tcp' : $network,
-                'security' => $security,
-                'fp' => NodeConfig::fingerprint($cfg),
-            ];
-
-            if ($path !== '') {
-                $query['path'] = $path;
-            }
-            if ($servicename !== '') {
-                $query['serviceName'] = $servicename;
-            }
             if ($transport_plugin !== '') {
                 $query['obfs'] = $transport_plugin;
             }
             if ($transport_method !== '') {
                 $query['obfsParam'] = $transport_method;
-            }
-            if ($mux === '1') {
-                $query['mux'] = '1';
-            }
-
-            if (NodeConfig::isReality($cfg)) {
-                $reality = NodeConfig::realityClient($cfg);
-                $query['security'] = 'reality';
-                $query['pbk'] = $reality['public_key'];
-                $query['sid'] = $reality['short_id'];
-                $query['fp'] = $reality['fingerprint'];
-                if ($reality['server_name'] !== '') {
-                    $query['sni'] = $reality['server_name'];
-                    $query['peer'] = $reality['server_name'];
-                }
             }
 
             $links .= 'trojan://' . rawurlencode($password) . '@' . $node_raw->server . ':' . $trojan_port
