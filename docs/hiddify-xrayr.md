@@ -29,8 +29,7 @@ Node đang chạy **Trojan** (sort=`14`), không phải VLESS. Hiddify lỗi th�
 
 > **Note:** omit `alpn` for plain Trojan TCP — DPanel no longer defaults `alpn=http/1.1` (Clash Meta also omits it). Only set `alpn` when the node/CDN actually requires it (or for grpc/h2).
 
-Share link Hiddify sẽ có dạng:
-`trojan://UUID@server:443?hiddify=1&sni=…&type=tcp&fp=chrome&headerType=none&security=tls&host=…#Name`
+Share link (trojan://) chỉ còn dùng cho `/trojan` / `/v2ray`. **`/hiddify` = Clash Meta YAML** giống `/clash` (ClashMi đã ổn định trên cùng node).
 
 ### Trojan + WebSocket
 

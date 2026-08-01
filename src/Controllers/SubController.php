@@ -92,26 +92,16 @@ final class SubController extends BaseController
         };
 
         $expire = (int) strtotime((string) $user->class_expire);
-        // HiddifyPanel add_headers: upload=0; download=<used bytes total>.
-        // Keeping real u/d split confuses some Hiddify-app usage gauges mid-session.
-        if ($subtype === 'hiddify') {
-            $used = (int) $user->u + (int) $user->d;
-            $sub_details = 'upload=0; download=' . $used
-                . '; total=' . (int) $user->transfer_enable
-                . '; expire=' . $expire;
-        } else {
-            $sub_details = 'upload=' . (int) $user->u
-                . '; download=' . (int) $user->d
-                . '; total=' . (int) $user->transfer_enable
-                . '; expire=' . $expire;
-        }
+        // Same userinfo for Hiddify + Clash Meta (Hiddify now serves Clash YAML).
+        $sub_details = 'upload=' . (int) $user->u
+            . '; download=' . (int) $user->d
+            . '; total=' . (int) $user->transfer_enable
+            . '; expire=' . $expire;
 
         $appName = (string) ($_ENV['appName'] ?? 'DPanel');
         $profileTitle = 'base64:' . base64_encode($appName);
         $sub_content_disposition = 'attachment; filename="' . $appName . '"';
-        // Hours (Hiddify-app ProfileParser: Duration(hours: N)). Interval=1 means
-        // hourly auto-update; on success the active profile can reconnect and
-        // abort an in-flight upload speedtest. Prefer 6h like Clash Meta.
+        // Hours (Hiddify ProfileParser Duration(hours: N)). Keep 6h like Clash.
         $sub_profile_update_interval = '6';
         $sub_profile_web_page_url = rtrim((string) ($_ENV['baseUrl'] ?? ''), '/');
         $supportUrl = rtrim((string) ($_ENV['supportUrl'] ?? $_ENV['baseUrl'] ?? ''), '/');
