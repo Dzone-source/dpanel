@@ -2458,7 +2458,7 @@ button.is-gopass-busy {
     padding: 0 !important;
     border: 0 !important;
     pointer-events: none !important;
-    z-index: 1080;
+    z-index: 1040;
     display: block;
     overflow: hidden;
 }
