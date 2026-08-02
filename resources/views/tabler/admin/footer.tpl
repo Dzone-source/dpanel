@@ -82,8 +82,22 @@
 <!-- js -->
 <script src="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
 <script>
-    let successDialog = new tabler.bootstrap.Modal(document.getElementById('success-dialog'));
-    let failDialog = new tabler.bootstrap.Modal(document.getElementById('fail-dialog'));
+    function getModalConstructor() {
+        if (window.bootstrap && bootstrap.Modal) {
+            return bootstrap.Modal;
+        }
+        if (window.tabler && tabler.bootstrap && tabler.bootstrap.Modal) {
+            return tabler.bootstrap.Modal;
+        }
+        if (window.tabler && tabler.Modal) {
+            return tabler.Modal;
+        }
+        return null;
+    }
+
+    const ModalCtor = getModalConstructor();
+    let successDialog = ModalCtor ? new ModalCtor(document.getElementById('success-dialog')) : null;
+    let failDialog = ModalCtor ? new ModalCtor(document.getElementById('fail-dialog')) : null;
 
     htmx.on("htmx:afterRequest", function(evt) {
         if (evt.detail.xhr.getResponseHeader('HX-Refresh') === 'true' ||
@@ -112,10 +126,10 @@
         }
         if (res.ret === 1) {
             document.getElementById("success-message").innerHTML = res.msg;
-            successDialog.show();
+            if (successDialog) successDialog.show();
         } else {
             document.getElementById("fail-message").innerHTML = res.msg;
-            failDialog.show();
+            if (failDialog) failDialog.show();
         }
     });
 

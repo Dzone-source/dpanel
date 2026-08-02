@@ -33,7 +33,8 @@
             'max-width:100vw',
             'max-height:100dvh',
             'pointer-events:none',
-            'z-index:1080',
+            // Keep below Bootstrap modals (1050/1055) so dialogs stay visible
+            'z-index:1040',
             'display:block',
             'margin:0',
             'padding:0',

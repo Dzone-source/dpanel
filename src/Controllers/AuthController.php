@@ -237,8 +237,11 @@ final class AuthController extends BaseController
                         'expire' => date('Y-m-d H:i:s', time() + Config::obtain('email_verify_code_ttl')),
                     ]
                 );
-            } catch (Exception|ClientExceptionInterface) {
-                return ResponseHelper::error($response, 'Gửi email thất bại, vui lòng liên hệ quản trị viên trang web.');
+            } catch (Throwable $e) {
+                return ResponseHelper::error(
+                    $response,
+                    'Gửi email thất bại: ' . $e->getMessage()
+                );
             }
 
             return ResponseHelper::success($response, 'Mã xác minh đã được gửi, vui lòng kiểm tra email.');

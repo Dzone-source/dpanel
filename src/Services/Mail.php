@@ -63,10 +63,15 @@ final class Mail
      * @throws Exception
      * @throws ClientExceptionInterface
      * @throws TypeException
+     * @throws \RuntimeException
      */
     public static function send($to, $subject, $template, $array = []): void
     {
         $body = self::genHtml($template, $array);
+
+        if ($body === false || $body === '') {
+            throw new \RuntimeException('Không thể tạo nội dung email từ template.');
+        }
 
         self::getClient()->send($to, $subject, $body);
     }
