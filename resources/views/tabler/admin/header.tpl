@@ -65,6 +65,26 @@
         .home-title {
             font-size: 36px;
         }
+
+        /* Admin: avoid Tabler/sakura leftover scroll height under footer */
+        html, body {
+            height: auto;
+            min-height: 0;
+        }
+
+        .page {
+            min-height: 0;
+        }
+
+        #gopass-sakura,
+        .gopass-sakura-canvas {
+            display: none !important;
+            position: fixed !important;
+            inset: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            pointer-events: none !important;
+        }
     </style>
 </head>
 
