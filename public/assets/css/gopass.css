@@ -2444,14 +2444,23 @@ button.is-gopass-busy {
     }
 }
 
-/* Sakura falling petals overlay */
+/* Sakura falling petals overlay (must stay out of document flow) */
 .gopass-sakura-canvas {
-    position: fixed;
+    position: fixed !important;
     inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
+    top: 0;
+    left: 0;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100vw;
+    max-height: 100dvh;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    pointer-events: none !important;
     z-index: 1080;
+    display: block;
+    overflow: hidden;
 }
 
 @media (prefers-reduced-motion: reduce) {
