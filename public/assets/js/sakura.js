@@ -20,6 +20,26 @@
         canvas.id = 'gopass-sakura';
         canvas.className = 'gopass-sakura-canvas';
         canvas.setAttribute('aria-hidden', 'true');
+        // Inline overlay styles so the canvas never expands document height
+        // even when gopass.css is not loaded (e.g. admin pages).
+        canvas.style.cssText = [
+            'position:fixed',
+            'top:0',
+            'left:0',
+            'right:0',
+            'bottom:0',
+            'width:100%',
+            'height:100%',
+            'max-width:100vw',
+            'max-height:100dvh',
+            'pointer-events:none',
+            'z-index:1080',
+            'display:block',
+            'margin:0',
+            'padding:0',
+            'border:0',
+            'overflow:hidden'
+        ].join(';');
         document.body.appendChild(canvas);
 
         var ctx = canvas.getContext('2d');
@@ -40,10 +60,15 @@
 
         function resize() {
             dpr = Math.min(window.devicePixelRatio || 1, 2);
-            canvas.width = Math.floor(window.innerWidth * dpr);
-            canvas.height = Math.floor(window.innerHeight * dpr);
-            canvas.style.width = window.innerWidth + 'px';
-            canvas.style.height = window.innerHeight + 'px';
+            var w = window.innerWidth || document.documentElement.clientWidth || 360;
+            var h = window.innerHeight || document.documentElement.clientHeight || 640;
+            canvas.width = Math.floor(w * dpr);
+            canvas.height = Math.floor(h * dpr);
+            canvas.style.width = w + 'px';
+            canvas.style.height = h + 'px';
+            // Keep overlay out of document flow after style width/height updates.
+            canvas.style.position = 'fixed';
+            canvas.style.pointerEvents = 'none';
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             syncPetalCount();
         }
