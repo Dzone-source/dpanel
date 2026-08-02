@@ -64,6 +64,18 @@
         return;
     }
 
+    function showFail(message) {
+        const el = document.getElementById("fail-message");
+        if (el) el.innerHTML = message || 'Thất bại';
+        if (window.failDialog) failDialog.show();
+    }
+
+    function showSuccess(message) {
+        const el = document.getElementById("success-message");
+        if (el) el.innerHTML = message || 'Thành công';
+        if (window.successDialog) successDialog.show();
+    }
+
     htmx.on("htmx:afterRequest", function(evt) {
         const redirect = evt.detail.xhr.getResponseHeader('HX-Redirect');
         if (redirect) {
@@ -71,10 +83,16 @@
             return;
         }
 
+        if (!evt.detail.successful) {
+            showFail('Yêu cầu thất bại, vui lòng thử lại.');
+            return;
+        }
+
         let res;
         try {
             res = JSON.parse(evt.detail.xhr.response || '{}');
         } catch (e) {
+            showFail('Phản hồi không hợp lệ từ máy chủ, vui lòng thử lại.');
             return;
         }
 
@@ -88,14 +106,18 @@
         }
 
         if (res.ret === 1) {
-            const el = document.getElementById("success-message");
-            if (el) el.innerHTML = res.msg || 'Thành công';
-            if (window.successDialog) successDialog.show();
+            showSuccess(res.msg || 'Thành công');
         } else if (typeof res.ret !== 'undefined') {
-            const el = document.getElementById("fail-message");
-            if (el) el.innerHTML = res.msg || 'Thất bại';
-            if (window.failDialog) failDialog.show();
+            showFail(res.msg || 'Thất bại');
         }
+    });
+
+    htmx.on('htmx:responseError', function () {
+        showFail('Máy chủ phản hồi lỗi, vui lòng thử lại.');
+    });
+
+    htmx.on('htmx:sendError', function () {
+        showFail('Không thể kết nối máy chủ, vui lòng kiểm tra mạng.');
     });
 })();
 </script>

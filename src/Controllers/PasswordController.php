@@ -8,18 +8,20 @@ use App\Models\Config;
 use App\Models\User;
 use App\Services\Cache;
 use App\Services\Captcha;
+use App\Services\Filter;
 use App\Services\Password;
 use App\Services\RateLimit;
 use App\Utils\Hash;
 use App\Utils\ResponseHelper;
-use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use RedisException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
 use Smarty\Exception;
+use Throwable;
 use function strlen;
 use function strtolower;
+use function trim;
 
 final class PasswordController extends BaseController
 {
@@ -51,10 +53,14 @@ final class PasswordController extends BaseController
             }
         }
 
-        $email = strtolower($this->antiXss->xss_clean($request->getParam('email')));
+        $email = strtolower(trim($this->antiXss->xss_clean($request->getParam('email') ?? '')));
 
         if ($email === '') {
             return ResponseHelper::error($response, 'Chưa nhập email');
+        }
+
+        if (! Filter::checkEmailFilter($email)) {
+            return ResponseHelper::error($response, 'Email không hợp lệ');
         }
 
         if (! (new RateLimit())->checkRateLimit('email_request_ip', $request->getServerParam('REMOTE_ADDR')) ||
@@ -64,13 +70,17 @@ final class PasswordController extends BaseController
         }
 
         $user = (new User())->where('email', $email)->first();
+        // Avoid email enumeration: same success copy when the account does not exist.
         $msg = 'Nếu tài khoản của bạn tồn tại trong cơ sở dữ liệu của chúng tôi, liên kết đặt lại mật khẩu sẽ được gửi đến email tương ứng';
 
         if ($user !== null) {
             try {
                 Password::sendResetEmail($email);
-            } catch (ClientExceptionInterface|RedisException) {
-                $msg = 'Gửi email thất bại';
+            } catch (Throwable $e) {
+                return ResponseHelper::error(
+                    $response,
+                    'Gửi email thất bại: ' . $e->getMessage()
+                );
             }
         }
 
@@ -96,21 +106,27 @@ final class PasswordController extends BaseController
         }
 
         return $response->write(
-            $this->view()->fetch('password/token.tpl')
+            $this->view()
+                ->assign('token', $token)
+                ->fetch('password/token.tpl')
         );
     }
 
     public function handleToken(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $token = $this->antiXss->xss_clean($request->getParam('token'));
+        $token = $this->antiXss->xss_clean($request->getParam('token') ?? '');
         $password = $request->getParam('password');
         $confirm_password = $request->getParam('confirm_password');
+
+        if ($token === '') {
+            return ResponseHelper::error($response, 'Liên kết không hợp lệ');
+        }
 
         if ($password !== $confirm_password) {
             return ResponseHelper::error($response, 'Hai lần nhập không khớp');
         }
 
-        if (strlen($password) < 8) {
+        if (strlen((string) $password) < 8) {
             return ResponseHelper::error($response, 'Mật khẩu quá ngắn');
         }
 
