@@ -71,9 +71,27 @@
     }
 
     window.addEventListener('load', function() {
-        if (typeof tabler !== 'undefined' && tabler.bootstrap) {
-            window.successDialog = new tabler.bootstrap.Modal(document.getElementById('success-dialog'));
-            window.failDialog = new tabler.bootstrap.Modal(document.getElementById('fail-dialog'));
+        function getModalConstructor() {
+            if (window.bootstrap && bootstrap.Modal) {
+                return bootstrap.Modal;
+            }
+            if (window.tabler && tabler.bootstrap && tabler.bootstrap.Modal) {
+                return tabler.bootstrap.Modal;
+            }
+            if (window.tabler && tabler.Modal) {
+                return tabler.Modal;
+            }
+            return null;
+        }
+
+        try {
+            const ModalCtor = getModalConstructor();
+            if (ModalCtor) {
+                window.successDialog = new ModalCtor(document.getElementById('success-dialog'));
+                window.failDialog = new ModalCtor(document.getElementById('fail-dialog'));
+            }
+        } catch (e) {
+            console.warn('Modal init skipped', e);
         }
 
         try {
@@ -279,7 +297,7 @@
     <span class="gopass-zalo-fab-label">Zalo</span>
 </a>
 
-<script src="/assets/js/sakura.js?v=20260802sakura2" defer></script>
+<script src="/assets/js/sakura.js?v=20260802sakura3" defer></script>
 
 </body>
 </html>

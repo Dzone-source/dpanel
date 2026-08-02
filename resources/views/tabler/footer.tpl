@@ -50,33 +50,66 @@
 
 <script>
 (function () {
+    function getModalConstructor() {
+        if (window.bootstrap && bootstrap.Modal) {
+            return bootstrap.Modal;
+        }
+        if (window.tabler && tabler.bootstrap && tabler.bootstrap.Modal) {
+            return tabler.bootstrap.Modal;
+        }
+        if (window.tabler && tabler.Modal) {
+            return tabler.Modal;
+        }
+        return null;
+    }
+
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = 'position-fixed top-0 start-50 translate-middle-x mt-3 px-4 py-2 rounded text-white '
+            + (type === 'danger' ? 'bg-danger' : 'bg-success');
+        toast.style.zIndex = '2000';
+        toast.setAttribute('role', 'status');
+        toast.textContent = message || (type === 'danger' ? 'Thất bại' : 'Thành công');
+        document.body.appendChild(toast);
+        setTimeout(function () {
+            toast.remove();
+        }, 3500);
+    }
+
     try {
-        if (window.tabler && tabler.bootstrap) {
-            window.successDialog = new tabler.bootstrap.Modal(document.getElementById('success-dialog'));
-            window.failDialog = new tabler.bootstrap.Modal(document.getElementById('fail-dialog'));
+        const ModalCtor = getModalConstructor();
+        if (ModalCtor) {
+            window.successDialog = new ModalCtor(document.getElementById('success-dialog'));
+            window.failDialog = new ModalCtor(document.getElementById('fail-dialog'));
         }
     } catch (e) {
         console.warn('Modal init skipped', e);
     }
+
+    window.gopassShowFail = function (message) {
+        const el = document.getElementById('fail-message');
+        if (el) el.textContent = message || 'Thất bại';
+        if (window.failDialog) {
+            try { failDialog.show(); return; } catch (e) {}
+        }
+        showToast(message || 'Thất bại', 'danger');
+    };
+
+    window.gopassShowSuccess = function (message) {
+        const el = document.getElementById('success-message');
+        if (el) el.textContent = message || 'Thành công';
+        if (window.successDialog) {
+            try { successDialog.show(); return; } catch (e) {}
+        }
+        showToast(message || 'Thành công', 'success');
+    };
 
     if (typeof htmx === 'undefined') {
         console.warn('htmx not loaded');
         return;
     }
 
-    function showFail(message) {
-        const el = document.getElementById("fail-message");
-        if (el) el.innerHTML = message || 'Thất bại';
-        if (window.failDialog) failDialog.show();
-    }
-
-    function showSuccess(message) {
-        const el = document.getElementById("success-message");
-        if (el) el.innerHTML = message || 'Thành công';
-        if (window.successDialog) successDialog.show();
-    }
-
-    htmx.on("htmx:afterRequest", function(evt) {
+    htmx.on('htmx:afterRequest', function (evt) {
         const redirect = evt.detail.xhr.getResponseHeader('HX-Redirect');
         if (redirect) {
             window.location.href = redirect;
@@ -84,7 +117,7 @@
         }
 
         if (!evt.detail.successful) {
-            showFail('Yêu cầu thất bại, vui lòng thử lại.');
+            window.gopassShowFail('Yêu cầu thất bại, vui lòng thử lại.');
             return;
         }
 
@@ -92,12 +125,13 @@
         try {
             res = JSON.parse(evt.detail.xhr.response || '{}');
         } catch (e) {
-            showFail('Phản hồi không hợp lệ từ máy chủ, vui lòng thử lại.');
+            window.gopassShowFail('Phản hồi không hợp lệ từ máy chủ, vui lòng thử lại.');
             return;
         }
 
         if (evt.detail.elt && evt.detail.elt.id === 'send-verify-email') {
-            document.getElementById('send-verify-email').disabled = true;
+            const btn = document.getElementById('send-verify-email');
+            if (btn) btn.disabled = true;
         }
 
         if (res.redir) {
@@ -106,18 +140,18 @@
         }
 
         if (res.ret === 1) {
-            showSuccess(res.msg || 'Thành công');
+            window.gopassShowSuccess(res.msg || 'Thành công');
         } else if (typeof res.ret !== 'undefined') {
-            showFail(res.msg || 'Thất bại');
+            window.gopassShowFail(res.msg || 'Thất bại');
         }
     });
 
     htmx.on('htmx:responseError', function () {
-        showFail('Máy chủ phản hồi lỗi, vui lòng thử lại.');
+        window.gopassShowFail('Máy chủ phản hồi lỗi, vui lòng thử lại.');
     });
 
     htmx.on('htmx:sendError', function () {
-        showFail('Không thể kết nối máy chủ, vui lòng kiểm tra mạng.');
+        window.gopassShowFail('Không thể kết nối máy chủ, vui lòng kiểm tra mạng.');
     });
 })();
 </script>
@@ -126,7 +160,7 @@
 
 {include file='telemetry.tpl'}
 
-<script src="/assets/js/sakura.js?v=20260802sakura2" defer></script>
+<script src="/assets/js/sakura.js?v=20260802sakura3" defer></script>
 
 </body>
 

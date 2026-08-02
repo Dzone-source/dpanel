@@ -408,6 +408,6 @@ var mySwiper = new Swiper('.swiper-container', {
 })();
 {/literal}
 </script>
-<script src="/assets/js/sakura.js?v=20260802sakura2" defer></script>
+<script src="/assets/js/sakura.js?v=20260802sakura3" defer></script>
 </body>
 </html>
