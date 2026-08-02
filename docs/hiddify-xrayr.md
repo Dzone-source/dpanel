@@ -93,27 +93,15 @@ Kiểm tra API user list: mọi `node_speedlimit` phải là `0` khi `disable_xr
 
 ## Hiddify import (profile riêng)
 
+**Khuyến nghị: ClashMi** → `{subUrl}/sub/{token}/clash`
+
 | Client | URL |
 |--------|-----|
-| **Hiddify-app** | `{subUrl}/sub/{token}/hiddify` — base64 share links |
-| ClashMi / Clash Meta | `{subUrl}/sub/{token}/clash` |
+| **ClashMi (khuyến nghị)** | `{subUrl}/sub/{token}/clash` |
+| Hiddify (dự phòng) | `{subUrl}/sub/{token}/hiddify` — base64 share links |
 | Sing-box SFA/SFM | `{subUrl}/sub/{token}/singbox` |
 
-`/hiddify` trả **base64 `trojan://`…** (Hiddify validateConfig cần format này). **Không** trả Clash YAML trên `/hiddify` — DPanel Clash YAML (`---` + proxy-groups) khiến **add profile lỗi**.
-
-ClashMi tiếp tục dùng `/clash`. Nếu Hiddify upload vẫn kém hơn ClashMi: dùng ClashMi hoặc import `/clash` trong Hiddify (một số bản hỗ trợ).
-
-Trojan TCP link **không ép `alpn` / `headerType`**.
-
-Deep link: `hiddify://import/?url=<urlencoded sub>/hiddify&name=<name>`
-
-### Hiddify vs Clash Meta (cùng node Trojan)
-
-| | `/clash` (ClashMi) | `/hiddify` (Hiddify-app) |
-|--|--|--|
-| Body | Clash Meta YAML | base64 share links |
-| Trojan TLS | không ép `alpn` | không ép `alpn` |
-| Add profile | OK trong ClashMi | OK với base64 (YAML trên `/hiddify` → lỗi) |
+GoPass UI ưu tiên ClashMi ở “Cấu hình nhanh”. Hiddify nằm trong app khác — upload trên Hiddify có thể kém hơn ClashMi cùng node Trojan/XrayR.
 
 ## Kiểm tra nhanh
 

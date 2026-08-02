@@ -209,23 +209,23 @@
                                 <div class="gopass-sub-rows">
                                     <div class="gopass-sub-row gopass-sub-row--primary">
                                         <div class="gopass-sub-row-head">
-                                            <strong>Hiddify</strong>
-                                            <span>Base64 share links — copy hoặc Mở app Hiddify</span>
+                                            <strong>ClashMi</strong>
+                                            <span>Clash Meta — ổn định nhất (khuyến nghị)</span>
                                         </div>
                                         <div class="gopass-sub-row-controls">
-                                            <input type="text" class="form-control" value="{$UniversalSub}/hiddify" readonly id="sub-link-hiddify">
+                                            <input type="text" class="form-control" value="{$UniversalSub}/clash" readonly id="sub-link-clashmi">
                                             <div class="gopass-sub-row-btns">
-                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/hiddify">
+                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/clash">
                                                     <i class="ti ti-copy"></i> Sao chép
                                                 </button>
-                                                <a class="btn btn-success" id="sub-open-hiddify" href="#" rel="noopener">
+                                                <a class="btn btn-success" id="sub-open-clashmi" href="#" rel="noopener">
                                                     <i class="ti ti-external-link"></i> Mở app
                                                 </a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <p class="text-muted small mt-2 mb-0">Sao chép rồi dán vào Hiddify, hoặc bấm <strong>Mở app</strong>. Nếu upload speedtest vẫn lỗi trên Hiddify mà ClashMi ổn — dùng ClashMi / import <code>/clash</code>. App / định dạng khác nằm bên dưới.</p>
+                                <p class="text-muted small mt-2 mb-0">Sao chép rồi dán vào <strong>ClashMi</strong>, hoặc bấm <strong>Mở app</strong>. Hiddify và app khác nằm trong phần bên dưới.</p>
                             </div>
 
                             <div class="text-center">
@@ -670,13 +670,13 @@
             import: { icon: 'ti-external-link', text: 'Mở app', class: 'btn-success' },
             importRecommended: { icon: 'ti-external-link', text: 'Mở app', class: 'btn-success' }
         },
-        // Chỉ hiện 2 app chính trên dashboard — phần còn lại nằm ở "App khác"
+        // App chính trên dashboard — ưu tiên ClashMi (ổn định hơn Hiddify trên Trojan/XrayR)
         PREFERRED_CLIENTS: {
-            Windows: ['Clash Verge Rev', 'Hiddify'],
-            macOS: ['Clash Verge Rev', 'Hiddify'],
-            Android: ['CMFA', 'Hiddify'],
+            Windows: ['ClashMi', 'Clash Verge Rev'],
+            macOS: ['ClashMi', 'Clash Verge Rev'],
+            Android: ['ClashMi', 'CMFA'],
             iOS: ['ClashMi', 'SFI'],
-            Linux: ['Clash Verge Rev', 'Hiddify']
+            Linux: ['ClashMi', 'Clash Verge Rev']
         }
     };
 
@@ -867,13 +867,15 @@
 
     function setQuickOpenLinks(os) {
         const clients = clientRecommendations[os] || clientRecommendations.Windows || [];
-        const hiddify = findClientByNames(clients, ['Hiddify'])
-            || clients.find((c) => c.format === 'hiddify');
+        const clashMi = findClientByNames(clients, ['ClashMi'])
+            || findClientByNames(clientRecommendations.Windows || [], ['ClashMi'])
+            || findClientByNames(clientRecommendations.Android || [], ['ClashMi'])
+            || clients.find((c) => c.format === 'clash');
 
-        const openHiddify = document.getElementById('sub-open-hiddify');
-        if (openHiddify && hiddify && hiddify.importUrl) {
-            openHiddify.href = hiddify.importUrl;
-            openHiddify.title = 'Mở ' + hiddify.name;
+        const openClashMi = document.getElementById('sub-open-clashmi');
+        if (openClashMi && clashMi && clashMi.importUrl) {
+            openClashMi.href = clashMi.importUrl;
+            openClashMi.title = 'Mở ' + clashMi.name;
         }
     }
 
@@ -886,13 +888,24 @@
         const singClient = findClientByNames(clients, ['SFA', 'SFM', 'SFI'])
             || findClientByNames(clientRecommendations.Android || [], ['SFA'])
             || findClientByNames(clientRecommendations.macOS || [], ['SFM']);
-        const clashClient = findClientByNames(clients, ['Clash Verge Rev', 'CMFA', 'ClashMi', 'FlClash'])
-            || clients.find((c) => c.format === 'clash');
+        const hiddify = findClientByNames(clients, ['Hiddify'])
+            || findClientByNames(clientRecommendations.Windows || [], ['Hiddify'])
+            || clients.find((c) => c.format === 'hiddify');
 
         const singSub = base + '/singbox';
-        const clashSub = base + '/clash';
+        const hiddifySub = base + '/hiddify';
 
         return [
+            {
+                name: 'Hiddify',
+                description: 'Base64 share links (dự phòng)',
+                format: 'hiddify',
+                formatOnly: true,
+                downloadUrl: hiddify?.downloadUrl || '',
+                importUrl: hiddify?.importUrl
+                    || ('hiddify://import/?url=' + encodeURIComponent(hiddifySub) + '&name=' + encodeURIComponent(appName)),
+                isAppStore: !!hiddify?.isAppStore
+            },
             {
                 name: 'Sing-box',
                 description: 'SFA / SFM — client sing-box chính thức',
@@ -902,16 +915,6 @@
                 importUrl: singClient?.importUrl
                     || ('sing-box://import-remote-profile?url=' + encodeURIComponent(singSub) + '#' + encodeURIComponent(appName)),
                 isAppStore: !!singClient?.isAppStore
-            },
-            {
-                name: 'Clash Meta',
-                description: 'Clash Verge / CMFA / ClashMi',
-                format: 'clash',
-                formatOnly: true,
-                downloadUrl: clashClient?.downloadUrl || '',
-                importUrl: clashClient?.importUrl
-                    || ('clash://install-config?url=' + encodeURIComponent(clashSub)),
-                isAppStore: !!clashClient?.isAppStore
             }
         ];
     }

@@ -290,20 +290,18 @@ final class NodeConfigAndHiddifyTest extends TestCase
         $this->assertSame('h2', $grpc['alpn']);
     }
 
-    public function testHiddifyServesClashMetaBody(): void
+    public function testHiddifyServesBase64ShareLinks(): void
     {
-        $hiddify = new \ReflectionClass(Hiddify::class);
-        $this->assertTrue($hiddify->hasMethod('getContent'));
-        // Source must delegate to Clash (same body ClashMi uses successfully).
         $src = (string) file_get_contents(dirname(__DIR__, 3) . '/src/Services/Subscribe/Hiddify.php');
-        $this->assertStringContainsString('new Clash()', $src);
-        $this->assertStringNotContainsString('base64_encode($links)', $src);
+        $this->assertStringContainsString('base64_encode($links)', $src);
+        $this->assertStringNotContainsString('new Clash()', $src);
     }
 
     public function testHiddifyDeepLinkUsesQueryUrlForm(): void
     {
         $file = dirname(__DIR__, 3) . '/config/client_display.json';
         $json = json_decode((string) file_get_contents($file), true);
+        $this->assertSame('ClashMi', $json['clients'][0]['name'] ?? null);
         $hiddify = null;
         foreach ($json['clients'] as $c) {
             if (($c['name'] ?? '') === 'Hiddify') {
