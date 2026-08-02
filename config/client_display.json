@@ -1,6 +1,28 @@
 {
   "clients": [
     {
+      "name": "ClashMi",
+      "description": "Khuyến nghị — ổn định trên Trojan/XrayR (lõi Mihomo)",
+      "format": "clash",
+      "importUrl": "clash://install-config?url={sub}/clash&name={name}",
+      "platforms": {
+        "Windows": {
+          "ext": "exe",
+          "file": "clashmi"
+        },
+        "Android": {
+          "ext": "apk",
+          "file": "clashmi_arm64"
+        },
+        "iOS": {
+          "storeUrl": "https://apps.apple.com/us/app/clash-mi/id6744321968"
+        },
+        "macOS": {
+          "storeUrl": "https://apps.apple.com/us/app/clash-mi/id6744321968"
+        }
+      }
+    },
+    {
       "name": "Clash Verge Rev",
       "description": "Ứng dụng đồ họa đầy đủ tính năng",
       "format": "clash",
@@ -66,8 +88,20 @@
       }
     },
     {
+      "name": "CMFA",
+      "description": "Ứng dụng Android hỗ trợ proxy theo từng app",
+      "format": "clash",
+      "importUrl": "clash://install-config?url={sub}/clash&name={name}",
+      "platforms": {
+        "Android": {
+          "ext": "apk",
+          "file": "CMFA"
+        }
+      }
+    },
+    {
       "name": "Hiddify",
-      "description": "Profile Hiddify-app (base64 share links + Profile-Title)",
+      "description": "Dự phòng — base64 share links (upload có thể kém hơn ClashMi)",
       "format": "hiddify",
       "importUrl": "hiddify://import/?url={url}&name={name}",
       "platforms": {
@@ -122,40 +156,6 @@
       "platforms": {
         "iOS": {
           "storeUrl": "https://apps.apple.com/app/sing-box/id6451272673"
-        }
-      }
-    },
-    {
-      "name": "CMFA",
-      "description": "Ứng dụng Android hỗ trợ proxy theo từng app",
-      "format": "clash",
-      "importUrl": "clash://install-config?url={sub}/clash&name={name}",
-      "platforms": {
-        "Android": {
-          "ext": "apk",
-          "file": "CMFA"
-        }
-      }
-    },
-    {
-      "name": "ClashMi",
-      "description": "Ứng dụng mới dựa trên lõi Mihomo",
-      "format": "clash",
-      "importUrl": "clash://install-config?url={sub}/clash&name={name}",
-      "platforms": {
-        "Windows": {
-          "ext": "exe",
-          "file": "clashmi"
-        },
-        "Android": {
-          "ext": "apk",
-          "file": "clashmi_arm64"
-        },
-        "iOS": {
-          "storeUrl": "https://apps.apple.com/us/app/clash-mi/id6744321968"
-        },
-        "macOS": {
-          "storeUrl": "https://apps.apple.com/us/app/clash-mi/id6744321968"
         }
       }
     }
