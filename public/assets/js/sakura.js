@@ -33,7 +33,7 @@
             'max-width:100vw',
             'max-height:100dvh',
             'pointer-events:none',
-            'z-index:1080',
+            'z-index:1040',
             'display:block',
             'margin:0',
             'padding:0',
