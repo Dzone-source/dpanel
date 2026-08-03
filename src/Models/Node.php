@@ -86,7 +86,10 @@ final class Node extends Model
             2 => 'TUIC',
             3 => 'WireGuard',
             11 => 'Vmess',
+            12 => 'VLESS',
+            13 => 'Hysteria2',
             14 => 'Trojan',
+            15 => 'AnyTLS',
             default => '未知',
         };
     }

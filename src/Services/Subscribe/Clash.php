@@ -163,6 +163,118 @@ final class Clash extends Base
                     ];
 
                     break;
+                case 12:
+                    // VLESS (+ optional Reality) — Clash.Meta / mihomo
+                    $vless_port = NodeConfigHelper::port($node_custom_config);
+                    $network = NodeConfigHelper::network($node_custom_config, 'tcp');
+                    $host = NodeConfigHelper::host($node_custom_config);
+                    $path = NodeConfigHelper::path($node_custom_config);
+                    $security = NodeConfigHelper::security($node_custom_config);
+                    $flow = NodeConfigHelper::flow($node_custom_config);
+                    $allow_insecure = NodeConfigHelper::allowInsecure($node_custom_config);
+                    $udp = $node_custom_config['udp'] ?? true;
+                    $service_name = NodeConfigHelper::serviceName($node_custom_config);
+                    $ws_opts = $node_custom_config['ws-opts'] ?? $node_custom_config['ws_opts'] ?? null;
+                    $grpc_opts = $node_custom_config['grpc-opts'] ?? $node_custom_config['grpc_opts'] ?? null;
+                    $http_opts = $node_custom_config['http-opts'] ?? $node_custom_config['http_opts'] ?? null;
+
+                    if ($network === 'httpupgrade') {
+                        $network = 'ws';
+                        $ws_opts = array_merge($ws_opts ?? [], ['v2ray-http-upgrade' => true]);
+                    }
+                    if ($ws_opts === null && $network === 'ws') {
+                        $ws_opts = array_filter([
+                            'path' => $path !== '' ? $path : null,
+                            'headers' => $host !== '' ? ['Host' => $host] : null,
+                        ]);
+                    }
+                    if ($grpc_opts === null && $network === 'grpc' && $service_name !== '') {
+                        $grpc_opts = ['grpc-service-name' => $service_name];
+                    }
+
+                    $node = [
+                        'name' => $node_raw->name,
+                        'type' => 'vless',
+                        'server' => $node_raw->server,
+                        'port' => $vless_port,
+                        'uuid' => $user->uuid,
+                        'udp' => (bool) $udp,
+                        'network' => $network,
+                        'tls' => in_array($security, ['tls', 'reality'], true),
+                        'skip-cert-verify' => $allow_insecure,
+                        'servername' => $host,
+                        'client-fingerprint' => NodeConfigHelper::fingerprint($node_custom_config),
+                        'flow' => $flow !== '' ? $flow : null,
+                        'ws-opts' => $ws_opts,
+                        'grpc-opts' => $grpc_opts,
+                        'http-opts' => $http_opts,
+                    ];
+
+                    if ($security === 'reality') {
+                        $node['reality-opts'] = [
+                            'public-key' => NodeConfigHelper::publicKey($node_custom_config),
+                            'short-id' => NodeConfigHelper::shortId($node_custom_config),
+                        ];
+                    }
+
+                    $node = array_filter($node, static fn ($v) => $v !== null && $v !== []);
+
+                    break;
+                case 13:
+                    // Hysteria2 — Clash.Meta / mihomo
+                    $hy_port = NodeConfigHelper::port($node_custom_config);
+                    $host = NodeConfigHelper::host($node_custom_config);
+                    $allow_insecure = NodeConfigHelper::allowInsecure($node_custom_config);
+                    $up = (int) ($node_custom_config['up_mbps'] ?? $node_custom_config['up'] ?? 100);
+                    $down = (int) ($node_custom_config['down_mbps'] ?? $node_custom_config['down'] ?? 100);
+                    $obfs = (string) ($node_custom_config['obfs'] ?? '');
+                    $obfs_password = (string) ($node_custom_config['obfs_password'] ?? $node_custom_config['obfs-password'] ?? '');
+
+                    $node = [
+                        'name' => $node_raw->name,
+                        'type' => 'hysteria2',
+                        'server' => $node_raw->server,
+                        'port' => $hy_port,
+                        'password' => $user->uuid,
+                        'sni' => $host,
+                        'up' => $up,
+                        'down' => $down,
+                        'skip-cert-verify' => $allow_insecure,
+                    ];
+
+                    if (isset($node_custom_config['ports']) && $node_custom_config['ports'] !== '') {
+                        $node['ports'] = (string) $node_custom_config['ports'];
+                    }
+                    if (isset($node_custom_config['hop_interval'])) {
+                        $node['hop-interval'] = (int) $node_custom_config['hop_interval'];
+                    }
+                    if ($obfs !== '') {
+                        $node['obfs'] = $obfs;
+                        if ($obfs_password !== '') {
+                            $node['obfs-password'] = $obfs_password;
+                        }
+                    }
+
+                    break;
+                case 15:
+                    // AnyTLS — Clash.Meta / mihomo
+                    $any_port = NodeConfigHelper::port($node_custom_config);
+                    $host = NodeConfigHelper::host($node_custom_config);
+                    $allow_insecure = NodeConfigHelper::allowInsecure($node_custom_config);
+
+                    $node = [
+                        'name' => $node_raw->name,
+                        'type' => 'anytls',
+                        'server' => $node_raw->server,
+                        'port' => $any_port,
+                        'password' => $user->uuid,
+                        'udp' => true,
+                        'sni' => $host !== '' ? $host : null,
+                        'skip-cert-verify' => $allow_insecure,
+                    ];
+                    $node = array_filter($node, static fn ($v) => $v !== null);
+
+                    break;
                 default:
                     $node = [];
                     break;
