@@ -166,6 +166,123 @@ final class SingBox extends Base
                     $node['transport'] = array_filter($node['transport']);
 
                     break;
+                case 12:
+                    // VLESS (+ optional Reality)
+                    $vless_port = NodeConfigHelper::port($node_custom_config);
+                    $network = NodeConfigHelper::network($node_custom_config, 'tcp');
+                    $host = NodeConfigHelper::host($node_custom_config);
+                    $path = NodeConfigHelper::path($node_custom_config);
+                    $headers = $node_custom_config['header']['request']['headers'] ?? [];
+                    $security = NodeConfigHelper::security($node_custom_config);
+                    $flow = NodeConfigHelper::flow($node_custom_config);
+                    $allow_insecure = NodeConfigHelper::allowInsecure($node_custom_config);
+                    $service_name = NodeConfigHelper::serviceName($node_custom_config);
+                    $transport = $network === 'tcp' ? '' : $network;
+
+                    $node = [
+                        'type' => 'vless',
+                        'tag' => $node_raw->name,
+                        'server' => $node_raw->server,
+                        'server_port' => $vless_port,
+                        'uuid' => $user->uuid,
+                        'packet_encoding' => 'xudp',
+                    ];
+
+                    if ($flow !== '') {
+                        $node['flow'] = $flow;
+                    }
+
+                    if (in_array($security, ['tls', 'reality'], true)) {
+                        $tls = [
+                            'enabled' => true,
+                            'server_name' => $host,
+                            'insecure' => $allow_insecure,
+                            'utls' => [
+                                'enabled' => true,
+                                'fingerprint' => NodeConfigHelper::fingerprint($node_custom_config),
+                            ],
+                        ];
+
+                        if ($security === 'reality') {
+                            $tls['reality'] = [
+                                'enabled' => true,
+                                'public_key' => NodeConfigHelper::publicKey($node_custom_config),
+                                'short_id' => NodeConfigHelper::shortId($node_custom_config),
+                            ];
+                        }
+
+                        $node['tls'] = array_filter($tls);
+                    }
+
+                    if ($transport !== '') {
+                        $node['transport'] = array_filter([
+                            'type' => $transport,
+                            'path' => $path,
+                            'headers' => $headers,
+                            'service_name' => $service_name,
+                        ]);
+                    }
+
+                    break;
+                case 13:
+                    // Hysteria2
+                    $hy_port = NodeConfigHelper::port($node_custom_config);
+                    $host = NodeConfigHelper::host($node_custom_config);
+                    $allow_insecure = NodeConfigHelper::allowInsecure($node_custom_config);
+                    $up = (int) ($node_custom_config['up_mbps'] ?? $node_custom_config['up'] ?? 100);
+                    $down = (int) ($node_custom_config['down_mbps'] ?? $node_custom_config['down'] ?? 100);
+                    $obfs = (string) ($node_custom_config['obfs'] ?? '');
+                    $obfs_password = (string) ($node_custom_config['obfs_password'] ?? $node_custom_config['obfs-password'] ?? '');
+
+                    $node = [
+                        'type' => 'hysteria2',
+                        'tag' => $node_raw->name,
+                        'server' => $node_raw->server,
+                        'server_port' => $hy_port,
+                        'password' => $user->uuid,
+                        'up_mbps' => $up,
+                        'down_mbps' => $down,
+                        'tls' => array_filter([
+                            'enabled' => true,
+                            'server_name' => $host !== '' ? $host : null,
+                            'insecure' => $allow_insecure,
+                        ]),
+                    ];
+
+                    if (isset($node_custom_config['ports']) && $node_custom_config['ports'] !== '') {
+                        $node['server_ports'] = [str_replace('-', ':', (string) $node_custom_config['ports'])];
+                    }
+                    if (isset($node_custom_config['hop_interval'])) {
+                        $node['hop_interval'] = ((int) $node_custom_config['hop_interval']) . 's';
+                    }
+                    if ($obfs !== '') {
+                        $node['obfs'] = array_filter([
+                            'type' => $obfs,
+                            'password' => $obfs_password !== '' ? $obfs_password : null,
+                        ]);
+                    }
+
+                    break;
+                case 15:
+                    // AnyTLS
+                    $any_port = NodeConfigHelper::port($node_custom_config);
+                    $host = NodeConfigHelper::host($node_custom_config);
+                    $allow_insecure = NodeConfigHelper::allowInsecure($node_custom_config);
+
+                    $node = [
+                        'type' => 'anytls',
+                        'tag' => $node_raw->name,
+                        'server' => $node_raw->server,
+                        'server_port' => $any_port,
+                        'password' => $user->uuid,
+                        'tls' => array_filter([
+                            'enabled' => true,
+                            'server_name' => $host !== '' ? $host : null,
+                            'insecure' => $allow_insecure,
+                        ]),
+                    ];
+
+                    break;
                 default:
                     $node = [];
                     break;

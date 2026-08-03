@@ -71,8 +71,12 @@
                                 <div class="col">
                                     <select id="sort" class="col form-select" value="{$node->sort}">
                                         <option value="14" {if $node->sort === 14}selected{/if}>Trojan</option>
+                                        <option value="12" {if $node->sort === 12}selected{/if}>VLESS</option>
+                                        <option value="13" {if $node->sort === 13}selected{/if}>Hysteria2</option>
+                                        <option value="15" {if $node->sort === 15}selected{/if}>AnyTLS</option>
                                         <option value="11" {if $node->sort === 11}selected{/if}>Vmess</option>
                                         <option value="2" {if $node->sort === 2}selected{/if}>TUIC</option>
+                                        <option value="3" {if $node->sort === 3}selected{/if}>WireGuard</option>
                                         <option value="1" {if $node->sort === 1}selected{/if}>Shadowsocks2022</option>
                                         <option value="0" {if $node->sort === 0}selected{/if}>Shadowsocks</option>
                                     </select>
@@ -86,8 +90,13 @@
                                     <a href="https://docs.sspanel.io/docs/configuration/nodes" target="_blank">
                                         节点自定义配置文档
                                     </a>
-                                    修改节点自定义配置
+                                    。VLESS/Hysteria2/AnyTLS 示例字段见下方说明。
                                 </label>
+                                <div class="form-hint text-secondary mt-2">
+                                    <div><strong>VLESS:</strong> security(tls/reality/none), flow, network, host/sni, path, public_key, short_id, fingerprint, allow_insecure</div>
+                                    <div><strong>Hysteria2:</strong> host/sni, up_mbps, down_mbps, obfs, obfs_password, ports, hop_interval, allow_insecure</div>
+                                    <div><strong>AnyTLS:</strong> host/sni, allow_insecure</div>
+                                </div>
                             </div>
                             <div class="form-group mb-3 row">
                                 <span class="col">显示此节点</span>
