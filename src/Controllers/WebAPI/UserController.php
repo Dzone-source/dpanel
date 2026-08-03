@@ -84,7 +84,7 @@ final class UserController extends BaseController
         // V2 family (sort 11) only needs uuid; SS keeps passwd.
         $keys_unset = match ($node->sort) {
             14 => ['u', 'd', 'transfer_enable', 'method', 'port'],
-            11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'],
+            12, 13, 15, 11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'],
             2 => ['u', 'd', 'transfer_enable', 'method', 'port'],
             1 => ['u', 'd', 'transfer_enable', 'method', 'port', 'uuid'],
             default => ['u', 'd', 'transfer_enable', 'uuid']

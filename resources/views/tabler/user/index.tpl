@@ -283,6 +283,15 @@
                                             Trojan
                                         </button>
                                         {/if}
+                                        <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/clash">
+                                            Clash / Meta
+                                        </button>
+                                        <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/singbox">
+                                            Sing-box
+                                        </button>
+                                        <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/uri">
+                                            URI (VLESS/Hy2/AnyTLS)
+                                        </button>
                                     </div>
                                 </div>
                                 

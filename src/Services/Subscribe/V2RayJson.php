@@ -119,6 +119,112 @@ final class V2RayJson extends Base
                     $node['streamSettings']['securitySettings'] = array_filter($node['streamSettings']['securitySettings']);
 
                     break;
+                case 12:
+                    $vless_port = NodeConfig::port($node_custom_config);
+                    $transport = NodeConfig::network($node_custom_config, 'tcp');
+                    $host = NodeConfig::host($node_custom_config, $node_raw->server);
+                    $path = NodeConfig::path($node_custom_config);
+                    $security = NodeConfig::security($node_custom_config);
+                    $service_name = NodeConfig::serviceName($node_custom_config);
+                    $headers = $node_custom_config['header']['request']['headers'] ?? [];
+
+                    $node = [
+                        'protocol' => 'vless',
+                        'settings' => [
+                            'address' => $node_raw->server,
+                            'port' => $vless_port,
+                            'uuid' => $user->uuid,
+                            'flow' => NodeConfig::flow($node_custom_config),
+                        ],
+                        'tag' => $node_raw->name,
+                        'streamSettings' => [
+                            'transport' => $transport,
+                            'transportSettings' => array_filter([
+                                'ws' => array_filter([
+                                    'path' => $transport === 'ws' ? $path : '',
+                                    'header' => $headers,
+                                ]),
+                                'grpc' => array_filter([
+                                    'host' => $transport === 'grpc' ? $host : '',
+                                    'service_name' => $service_name,
+                                ]),
+                                'httpupgrade' => array_filter([
+                                    'path' => $transport === 'httpupgrade' ? $path : '',
+                                    'host' => $transport === 'httpupgrade' ? $host : '',
+                                ]),
+                            ]),
+                            'security' => $security,
+                            'securitySettings' => array_filter([
+                                'tls' => $security === 'tls' ? array_filter([
+                                    'allow_insecure' => NodeConfig::allowInsecure($node_custom_config),
+                                    'server_name' => $host,
+                                ]) : null,
+                                'reality' => $security === 'reality' ? array_filter([
+                                    'server_name' => $host,
+                                    'public_key' => NodeConfig::publicKey($node_custom_config),
+                                    'short_id' => NodeConfig::shortId($node_custom_config),
+                                    'fingerprint' => NodeConfig::fingerprint($node_custom_config),
+                                ]) : null,
+                            ]),
+                        ],
+                    ];
+
+                    break;
+                case 13:
+                    $hy_port = NodeConfig::port($node_custom_config);
+                    $host = NodeConfig::host($node_custom_config, $node_raw->server);
+                    $obfs = (string) ($node_custom_config['obfs'] ?? '');
+                    $obfs_password = (string) ($node_custom_config['obfs_password'] ?? $node_custom_config['obfs-password'] ?? '');
+
+                    $node = [
+                        'protocol' => 'hysteria2',
+                        'settings' => array_filter([
+                            'address' => $node_raw->server,
+                            'port' => $hy_port,
+                            'password' => $user->uuid,
+                            'up_mbps' => (int) ($node_custom_config['up_mbps'] ?? $node_custom_config['up'] ?? 100),
+                            'down_mbps' => (int) ($node_custom_config['down_mbps'] ?? $node_custom_config['down'] ?? 100),
+                            'obfs' => $obfs !== '' ? $obfs : null,
+                            'obfs_password' => $obfs_password !== '' ? $obfs_password : null,
+                            'ports' => $node_custom_config['ports'] ?? null,
+                        ]),
+                        'tag' => $node_raw->name,
+                        'streamSettings' => [
+                            'security' => 'tls',
+                            'securitySettings' => [
+                                'tls' => [
+                                    'allow_insecure' => NodeConfig::allowInsecure($node_custom_config),
+                                    'server_name' => $host,
+                                ],
+                            ],
+                        ],
+                    ];
+
+                    break;
+                case 15:
+                    $any_port = NodeConfig::port($node_custom_config);
+                    $host = NodeConfig::host($node_custom_config, $node_raw->server);
+
+                    $node = [
+                        'protocol' => 'anytls',
+                        'settings' => [
+                            'address' => $node_raw->server,
+                            'port' => $any_port,
+                            'password' => $user->uuid,
+                        ],
+                        'tag' => $node_raw->name,
+                        'streamSettings' => [
+                            'security' => 'tls',
+                            'securitySettings' => [
+                                'tls' => [
+                                    'allow_insecure' => NodeConfig::allowInsecure($node_custom_config),
+                                    'server_name' => $host,
+                                ],
+                            ],
+                        ],
+                    ];
+
+                    break;
                 default:
                     $node = [];
                     break;

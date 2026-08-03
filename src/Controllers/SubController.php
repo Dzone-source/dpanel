@@ -40,7 +40,7 @@ final class SubController extends BaseController
         $subtype = isset($args['subtype']) ? (string) $args['subtype'] : '';
         $subtype_list = [
             'json', 'clash', 'sip008', 'singbox', 'v2rayjson', 'sip002', 'ss', 'v2ray', 'trojan',
-            'hiddify', 'general',
+            'hiddify', 'general', 'uri',
         ];
 
         if (! $_ENV['Subscribe']) {

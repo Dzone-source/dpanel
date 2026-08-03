@@ -107,9 +107,31 @@ final class NodeConfig
     {
         return (string) (
             $config['header']['request']['headers']['Host'][0]
+            ?? $config['sni']
             ?? $config['host']
+            ?? $config['server_name']
             ?? $fallback
         );
+    }
+
+    public static function network(array $config, string $default = 'tcp'): string
+    {
+        return (string) ($config['header']['type'] ?? $config['network'] ?? $default);
+    }
+
+    public static function serviceName(array $config): string
+    {
+        return (string) ($config['servicename'] ?? $config['service_name'] ?? $config['serviceName'] ?? '');
+    }
+
+    public static function publicKey(array $config): string
+    {
+        return self::realityClient($config)['public_key'];
+    }
+
+    public static function shortId(array $config): string
+    {
+        return self::realityClient($config)['short_id'];
     }
 
     public static function path(array $config, string $fallback = ''): string
