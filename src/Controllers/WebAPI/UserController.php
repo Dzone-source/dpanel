@@ -215,6 +215,7 @@ final class UserController extends BaseController
 
         $sum = 0;
         $is_traffic_log = Config::obtain('traffic_log');
+        $activeUserIds = [];
 
         foreach ($data as $log) {
             $u = $log?->u;
@@ -227,6 +228,10 @@ final class UserController extends BaseController
 
                 $user = (new User())->find($user_id);
 
+                if ($user === null) {
+                    continue;
+                }
+
                 $user->update([
                     'last_use_time' => time(),
                     'u' => $user->u + $billed_u,
@@ -234,6 +239,10 @@ final class UserController extends BaseController
                     'transfer_total' => $user->transfer_total + $u + $d,
                     'transfer_today' => $user->transfer_today + $billed_u + $billed_d,
                 ]);
+
+                if (((int) $u) + ((int) $d) > 0) {
+                    $activeUserIds[(int) $user_id] = true;
+                }
             }
 
             if ($is_traffic_log) {
@@ -245,7 +254,8 @@ final class UserController extends BaseController
 
         $node->update([
             'node_bandwidth' => $node->node_bandwidth + $sum,
-            'online_user' => count($data) - 1,
+            // Unique users with traffic in this push (legacy used count($data)-1 and was often wrong).
+            'online_user' => count($activeUserIds),
         ]);
 
         return ResponseHelper::success($response, 'ok');
@@ -298,6 +308,15 @@ final class UserController extends BaseController
                 ['node_id', 'last_time']
             );
         }
+
+        // Refresh cached online_user from distinct IPs in the recent window.
+        $onlineIps = (int) (new OnlineLog())
+            ->newQuery()
+            ->where('node_id', $node_id)
+            ->where('last_time', '>', time() - 120)
+            ->selectRaw('COUNT(DISTINCT ip) AS c')
+            ->value('c');
+        $node->update(['online_user' => $onlineIps]);
 
         return ResponseHelper::success($response, 'ok');
     }

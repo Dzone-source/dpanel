@@ -50,7 +50,7 @@
                                                                 </span>
                                                             </h2>
                                                             <div class="text-secondary badges-list">
-                                                                <span class="badge bg-blue-lt">
+                                                                <span class="badge bg-blue-lt" title="Số IP online (~2 phút gần nhất)">
                                                                     <i class="ti ti-users"></i>
                                                                     {$server['online_user']}</span>
                                                                 <span class="badge bg-blue-lt">
