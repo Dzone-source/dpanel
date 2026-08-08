@@ -8,32 +8,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
   <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-  <link href="/assets/css/gopass.css?v=20260808-shop" rel="stylesheet"/>
+  <link href="/assets/css/gopass.css?v=20260808-shop2" rel="stylesheet"/>
 </head>
 <body class="gopass-theme" data-bs-theme="light">
 
-<div id="gopass-sidebar-overlay" class="gopass-sidebar-overlay"></div>
-
 <div class="gopass-app">
-  <aside id="gopass-sidebar" class="gopass-sidebar">
+  <aside class="gopass-sidebar">
     <div class="gopass-sidebar-brand">
       <img src="/images/uim-logo-round_48x48.png" height="36" width="36" alt="DPanel">
       <span>DPanel</span>
     </div>
-
-    <div class="gopass-sidebar-user">
-      <div class="d-flex align-items-center gap-2">
-        <span class="avatar avatar-sm" style="background:linear-gradient(135deg,#ef4056,#ff6b81)"></span>
-        <div>
-          <div class="user-name">Demo User</div>
-          <div class="user-email">admin@demo.local</div>
-        </div>
-      </div>
-    </div>
-
     <nav class="gopass-nav">
-      <div class="gopass-nav-section">Trang chính</div>
-      <a class="gopass-nav-link" href="dashboard.html"><i class="ti ti-home"></i> Trang chủ</a>
       <div class="gopass-nav-section">Cửa hàng</div>
       <a class="gopass-nav-link active" href="shop.html"><i class="ti ti-shopping-cart"></i> Sản phẩm</a>
     </nav>
@@ -41,30 +26,16 @@
 
   <div class="gopass-content">
     <header class="gopass-topbar">
-      <div class="d-flex align-items-center gap-2 min-w-0">
-        <button id="gopass-sidebar-toggle" class="gopass-sidebar-toggle" type="button" aria-label="Menu">
-          <i class="ti ti-menu-2"></i>
-        </button>
-        <div class="min-w-0">
-          <div class="fw-bold text-truncate d-md-none" style="font-size:0.95rem;letter-spacing:-0.02em">DPanel</div>
-          <span class="text-secondary d-none d-md-inline" style="font-size:0.85rem">
-            Xin chào, <strong>Demo User</strong>
-          </span>
-        </div>
-      </div>
+      <span class="text-secondary" style="font-size:0.85rem">Xin chào, <strong>Demo User</strong></span>
     </header>
 
     <main class="gopass-main">
       <div class="page-wrapper">
         <div class="container-xl">
           <div class="page-header d-print-none">
-            <div class="row align-items-center">
-              <div class="col">
-                <h2 class="page-title"><span class="home-title">Cửa hàng</span></h2>
-                <div class="page-pretitle my-3">
-                  <span class="home-subtitle">Chọn gói phù hợp và kích hoạt ngay</span>
-                </div>
-              </div>
+            <h2 class="page-title"><span class="home-title">Cửa hàng</span></h2>
+            <div class="page-pretitle my-3">
+              <span class="home-subtitle">Chọn gói phù hợp và kích hoạt ngay</span>
             </div>
           </div>
         </div>
@@ -72,123 +43,128 @@
           <div class="container-xl">
             <div class="gopass-shop">
               <ul class="nav gopass-shop-tabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <a href="#tabp" class="gopass-shop-tab active" role="tab" aria-selected="true">
-                    <i class="ti ti-package"></i>
-                    <span>Thời gian + lưu lượng</span>
-                  </a>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <a href="#bandwidth" class="gopass-shop-tab" role="tab" aria-selected="false">
-                    <i class="ti ti-database"></i>
-                    <span>Lưu lượng</span>
-                  </a>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <a href="#time" class="gopass-shop-tab" role="tab" aria-selected="false">
-                    <i class="ti ti-clock"></i>
-                    <span>Thời gian</span>
-                  </a>
-                </li>
+                <li class="nav-item"><a class="gopass-shop-tab active" href="#"><i class="ti ti-package"></i><span>Thời gian + lưu lượng</span></a></li>
+                <li class="nav-item"><a class="gopass-shop-tab" href="#"><i class="ti ti-database"></i><span>Lưu lượng</span></a></li>
+                <li class="nav-item"><a class="gopass-shop-tab" href="#"><i class="ti ti-clock"></i><span>Thời gian</span></a></li>
               </ul>
 
-              <div class="tab-content">
-                <div class="tab-pane active show" id="tabp" role="tabpanel">
-                  <div class="row g-3 g-lg-4">
-                    <div class="col-12 col-sm-6 col-xl-4 col-xxl-3">
-                      <article class="gopass-product-card">
-                        <div class="gopass-product-card-body">
-                          <header class="gopass-product-header">
-                            <div class="gopass-product-name">LINEMO/SOFBANK/YMOBILE</div>
-                            <div class="gopass-product-price">
-                              <span class="gopass-product-from">Từ</span>
-                              <span class="gopass-product-amount">90.000</span>
-                              <span class="gopass-product-currency">VNĐ</span>
-                            </div>
-                            <p class="gopass-product-note">Nhiều thời hạn — chọn khi mua</p>
-                          </header>
-                          <ul class="gopass-product-features">
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-crown"></i></span>
-                              <span class="gopass-product-feature-label">Cấp độ</span>
-                              <span class="gopass-product-feature-value">Lv. 0</span>
-                            </li>
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-calendar"></i></span>
-                              <span class="gopass-product-feature-label">Thời hạn</span>
-                              <span class="gopass-product-feature-value">Tùy chọn khi mua</span>
-                            </li>
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-database"></i></span>
-                              <span class="gopass-product-feature-label">Lưu lượng</span>
-                              <span class="gopass-product-feature-value">1000 GB</span>
-                            </li>
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></span>
-                              <span class="gopass-product-feature-label">Tốc độ</span>
-                              <span class="gopass-product-feature-value">1000 Mbps</span>
-                            </li>
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-devices"></i></span>
-                              <span class="gopass-product-feature-label">Thiết bị</span>
-                              <span class="gopass-product-feature-value">2 thiết bị</span>
-                            </li>
-                          </ul>
-                          <a href="#" class="btn btn-primary w-100 gopass-product-buy">
-                            <i class="ti ti-shopping-cart"></i>
-                            Mua ngay
-                          </a>
+              <div class="row g-3 g-lg-4">
+                <div class="col-12 col-sm-6 col-xl-4 col-xxl-3">
+                  <article class="gopass-product-card">
+                    <div class="gopass-product-card-accent" aria-hidden="true"></div>
+                    <div class="gopass-product-card-body">
+                      <div class="gopass-product-name">LINEMO/SOFBANK/YMOBILE</div>
+                      <div class="gopass-product-price">
+                        <span class="gopass-product-amount">90.000</span>
+                        <span class="gopass-product-currency">VNĐ</span>
+                      </div>
+                      <div class="gopass-product-summary">Mở khóa tốc độ cao sau khi hết data — SoftBank / LINEMO / Y!mobile</div>
+                      <div class="gopass-product-features">
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-antenna-bars-5"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Hỗ trợ nhà mạng</div>
+                            <div class="gopass-product-feature-value">SoftBank · LINEMO · Y!mobile</div>
+                          </div>
                         </div>
-                      </article>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-rocket"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Mở khóa tốc độ cao</div>
+                            <div class="gopass-product-feature-value">Đến 1000 Mbps</div>
+                          </div>
+                        </div>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-bolt"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Tốc độ</div>
+                            <div class="gopass-product-feature-value">1000 Mbps</div>
+                          </div>
+                        </div>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-devices"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Giới hạn thiết bị</div>
+                            <div class="gopass-product-feature-value">2 thiết bị đồng thời</div>
+                          </div>
+                        </div>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-database"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Lưu lượng</div>
+                            <div class="gopass-product-feature-value">1000 GB</div>
+                          </div>
+                        </div>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-calendar"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Thời hạn</div>
+                            <div class="gopass-product-feature-value">Tùy chọn khi mua</div>
+                          </div>
+                        </div>
+                      </div>
+                      <a href="#" class="btn btn-primary w-100 gopass-product-buy"><i class="ti ti-shopping-cart"></i> Mua ngay</a>
                     </div>
+                  </article>
+                </div>
 
-                    <div class="col-12 col-sm-6 col-xl-4 col-xxl-3">
-                      <article class="gopass-product-card">
-                        <div class="gopass-product-card-body">
-                          <header class="gopass-product-header">
-                            <div class="gopass-product-name">VIET NAM VPN</div>
-                            <div class="gopass-product-price">
-                              <span class="gopass-product-from">Từ</span>
-                              <span class="gopass-product-amount">30.000</span>
-                              <span class="gopass-product-currency">VNĐ</span>
-                            </div>
-                            <p class="gopass-product-note">Nhiều thời hạn — chọn khi mua</p>
-                          </header>
-                          <ul class="gopass-product-features">
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-crown"></i></span>
-                              <span class="gopass-product-feature-label">Cấp độ</span>
-                              <span class="gopass-product-feature-value">Lv. 0</span>
-                            </li>
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-calendar"></i></span>
-                              <span class="gopass-product-feature-label">Thời hạn</span>
-                              <span class="gopass-product-feature-value">Tùy chọn khi mua</span>
-                            </li>
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-database"></i></span>
-                              <span class="gopass-product-feature-label">Lưu lượng</span>
-                              <span class="gopass-product-feature-value">1000 GB</span>
-                            </li>
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-bolt"></i></span>
-                              <span class="gopass-product-feature-label">Tốc độ</span>
-                              <span class="gopass-product-feature-value">1000 Mbps</span>
-                            </li>
-                            <li class="gopass-product-feature">
-                              <span class="gopass-product-feature-icon" aria-hidden="true"><i class="ti ti-devices"></i></span>
-                              <span class="gopass-product-feature-label">Thiết bị</span>
-                              <span class="gopass-product-feature-value">2 thiết bị</span>
-                            </li>
-                          </ul>
-                          <a href="#" class="btn btn-primary w-100 gopass-product-buy">
-                            <i class="ti ti-shopping-cart"></i>
-                            Mua ngay
-                          </a>
+                <div class="col-12 col-sm-6 col-xl-4 col-xxl-3">
+                  <article class="gopass-product-card">
+                    <div class="gopass-product-card-accent" aria-hidden="true"></div>
+                    <div class="gopass-product-card-body">
+                      <div class="gopass-product-name">VIET NAM VPN</div>
+                      <div class="gopass-product-price">
+                        <span class="gopass-product-amount">30.000</span>
+                        <span class="gopass-product-currency">VNĐ</span>
+                      </div>
+                      <div class="gopass-product-summary">VPN ổn định cho kết nối Việt Nam</div>
+                      <div class="gopass-product-features">
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-antenna-bars-5"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Hỗ trợ nhà mạng</div>
+                            <div class="gopass-product-feature-value">VPN Việt Nam</div>
+                          </div>
                         </div>
-                      </article>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-rocket"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Mở khóa tốc độ cao</div>
+                            <div class="gopass-product-feature-value">Đến 1000 Mbps</div>
+                          </div>
+                        </div>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-bolt"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Tốc độ</div>
+                            <div class="gopass-product-feature-value">1000 Mbps</div>
+                          </div>
+                        </div>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-devices"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Giới hạn thiết bị</div>
+                            <div class="gopass-product-feature-value">2 thiết bị đồng thời</div>
+                          </div>
+                        </div>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-database"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Lưu lượng</div>
+                            <div class="gopass-product-feature-value">1000 GB</div>
+                          </div>
+                        </div>
+                        <div class="gopass-product-feature">
+                          <div class="gopass-product-feature-icon"><i class="ti ti-calendar"></i></div>
+                          <div class="gopass-product-feature-text">
+                            <div class="gopass-product-feature-label">Thời hạn</div>
+                            <div class="gopass-product-feature-value">Tùy chọn khi mua</div>
+                          </div>
+                        </div>
+                      </div>
+                      <a href="#" class="btn btn-primary w-100 gopass-product-buy"><i class="ti ti-shopping-cart"></i> Mua ngay</a>
                     </div>
-                  </div>
+                  </article>
                 </div>
               </div>
             </div>
@@ -198,20 +174,5 @@
     </main>
   </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/js/tabler.min.js"></script>
-<script>
-  const sidebar = document.getElementById('gopass-sidebar');
-  const overlay = document.getElementById('gopass-sidebar-overlay');
-  const toggle = document.getElementById('gopass-sidebar-toggle');
-  toggle?.addEventListener('click', () => {
-    sidebar?.classList.toggle('open');
-    overlay?.classList.toggle('show');
-  });
-  overlay?.addEventListener('click', () => {
-    sidebar?.classList.remove('open');
-    overlay?.classList.remove('show');
-  });
-</script>
 </body>
 </html>

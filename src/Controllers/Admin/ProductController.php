@@ -45,9 +45,30 @@ final class ProductController extends BaseController
         'node_group',
         'speed_limit',
         'ip_limit',
+        'carriers',
+        'summary',
         'class_required',
         'node_group_required',
     ];
+
+    /**
+     * Attach optional shop description fields into product content JSON.
+     *
+     * @param array<string, mixed> $content
+     *
+     * @return array<string, mixed>
+     */
+    private static function withShopMeta(array $content, string $carriers, string $summary): array
+    {
+        if ($carriers !== '') {
+            $content['carriers'] = $carriers;
+        }
+        if ($summary !== '') {
+            $content['summary'] = $summary;
+        }
+
+        return $content;
+    }
 
     private static string $invalid_data_msg = 'Dữ liệu sản phẩm không hợp lệ';
 
@@ -94,6 +115,8 @@ final class ProductController extends BaseController
         $content->node_group = $content->node_group ?? 0;
         $content->speed_limit = $content->speed_limit ?? 0;
         $content->ip_limit = $content->ip_limit ?? 0;
+        $content->carriers = $content->carriers ?? '';
+        $content->summary = $content->summary ?? '';
         $product_options = Product::normalizeOptions($content);
         if ($product_options === [] && ($product->type === 'tabp' || $product->type === 'time')) {
             $days = (int) ($content->time ?? 0);
@@ -136,6 +159,8 @@ final class ProductController extends BaseController
         $node_group = (int) ($request->getParam('node_group') ?? 0);
         $speed_limit = (float) ($request->getParam('speed_limit') ?? 0);
         $ip_limit = (int) ($request->getParam('ip_limit') ?? 0);
+        $carriers = trim((string) ($request->getParam('carriers') ?? ''));
+        $summary = trim((string) ($request->getParam('summary') ?? ''));
         $class_required = $request->getParam('class_required') ?? '';
         $node_group_required = $request->getParam('node_group_required') ?? '';
         $new_user_required = $request->getParam('new_user_required') === 'true' ? 1 : 0;
@@ -230,6 +255,8 @@ final class ProductController extends BaseController
             ]);
         }
 
+        $content = self::withShopMeta($content, $carriers, $summary);
+
         if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
             $content['options'] = $options;
         }
@@ -275,6 +302,8 @@ final class ProductController extends BaseController
         $node_group = (int) ($request->getParam('node_group') ?? 0);
         $speed_limit = (float) ($request->getParam('speed_limit') ?? 0);
         $ip_limit = (int) ($request->getParam('ip_limit') ?? 0);
+        $carriers = trim((string) ($request->getParam('carriers') ?? ''));
+        $summary = trim((string) ($request->getParam('summary') ?? ''));
         // limit
         $class_required = $request->getParam('class_required') ?? '';
         $node_group_required = $request->getParam('node_group_required') ?? '';
@@ -378,6 +407,8 @@ final class ProductController extends BaseController
                 'msg' => self::$invalid_data_msg,
             ]);
         }
+
+        $content = self::withShopMeta($content, $carriers, $summary);
 
         if ($options !== [] && ($type === 'tabp' || $type === 'time')) {
             $content['options'] = $options;
