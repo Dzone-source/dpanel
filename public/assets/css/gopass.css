@@ -2096,6 +2096,14 @@ button.is-gopass-busy {
     color: var(--gopass-primary);
 }
 
+.gopass-product-summary {
+    margin: -0.25rem 0 0;
+    font-size: 0.82rem;
+    font-weight: 550;
+    line-height: 1.4;
+    color: var(--gopass-muted);
+}
+
 .gopass-product-features {
     display: grid;
     gap: 0.55rem;

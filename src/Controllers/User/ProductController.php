@@ -46,6 +46,13 @@ final class ProductController extends BaseController
                 $tabp->price_min = (float) $tabp->price;
                 $tabp->price_max = (float) $tabp->price;
             }
+            $tabp->summary = Product::resolveSummary($tabp->content);
+            $tabp->highlights = Product::buildShopHighlights(
+                (string) $tabp->name,
+                $tabp->content,
+                'tabp',
+                $tabp->has_options
+            );
         }
 
         foreach ($bandwidths as $bandwidth) {
@@ -54,6 +61,13 @@ final class ProductController extends BaseController
             $bandwidth->has_options = false;
             $bandwidth->price_min = (float) $bandwidth->price;
             $bandwidth->price_max = (float) $bandwidth->price;
+            $bandwidth->summary = Product::resolveSummary($bandwidth->content);
+            $bandwidth->highlights = Product::buildShopHighlights(
+                (string) $bandwidth->name,
+                $bandwidth->content,
+                'bandwidth',
+                false
+            );
         }
 
         foreach ($times as $time) {
@@ -68,6 +82,13 @@ final class ProductController extends BaseController
                 $time->price_min = (float) $time->price;
                 $time->price_max = (float) $time->price;
             }
+            $time->summary = Product::resolveSummary($time->content);
+            $time->highlights = Product::buildShopHighlights(
+                (string) $time->name,
+                $time->content,
+                'time',
+                $time->has_options
+            );
         }
 
         return $response->write(

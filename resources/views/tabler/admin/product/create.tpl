@@ -112,6 +112,21 @@
                                            value="">
                                 </div>
                             </div>
+                            <div class="form-group mb-3 row">
+                                <label class="form-label col-3 col-form-label">Nhà mạng hỗ trợ</label>
+                                <div class="col">
+                                    <input id="carriers" type="text" class="form-control" value=""
+                                           placeholder="VD: SoftBank · LINEMO · Y!mobile">
+                                    <small class="form-hint">Hiện ở thẻ sản phẩm. Để trống sẽ tự nhận từ tên gói.</small>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3 row">
+                                <label class="form-label col-3 col-form-label">Mô tả ngắn</label>
+                                <div class="col">
+                                    <input id="summary" type="text" class="form-control" value=""
+                                           placeholder="VD: Mở khóa tốc độ cao sau khi hết data">
+                                </div>
+                            </div>
                             <div class="hr-text">
                                 <span>Giới hạn mua hàng</span>
                             </div>
@@ -340,6 +355,8 @@
                 node_group: $("#node_group").val(),
                 speed_limit: $("#speed_limit").val(),
                 ip_limit: $("#ip_limit").val(),
+                carriers: $("#carriers").val(),
+                summary: $("#summary").val(),
                 class_required: $("#class_required").val(),
                 node_group_required: $("#node_group_required").val(),
                 new_user_required: $("#new_user_required").is(":checked") ? "true" : "false",

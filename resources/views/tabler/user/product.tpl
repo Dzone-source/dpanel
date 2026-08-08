@@ -82,27 +82,15 @@
                                             <div class="gopass-product-card-body">
                                                 <div class="gopass-product-name">{$tabp->name}</div>
                                                 {product_price price=$tabp->price_min}
-                                                {if $tabp->has_options}
+                                                {if $tabp->summary !== ''}
+                                                    <div class="gopass-product-summary">{$tabp->summary|escape}</div>
+                                                {elseif $tabp->has_options}
                                                     <div class="text-secondary small mb-2">Nhiều thời hạn — chọn khi mua</div>
                                                 {/if}
                                                 <div class="gopass-product-features">
-                                                    {product_feature icon='ti-crown' value="Lv. `$tabp->content->class`" label='Cấp độ'}
-                                                    {if $tabp->has_options}
-                                                        {product_feature icon='ti-calendar' value='Tùy chọn khi mua' label='Thời hạn'}
-                                                    {else}
-                                                        {product_feature icon='ti-calendar' value="`$tabp->content->class_time` ngày" label='Thời hạn'}
-                                                    {/if}
-                                                    {product_feature icon='ti-database' value="`$tabp->content->bandwidth` GB" label='Lưu lượng'}
-                                                    {if $tabp->content->speed_limit == '0'}
-                                                        {product_feature icon='ti-bolt' value='Không giới hạn' label='Tốc độ'}
-                                                    {else}
-                                                        {product_feature icon='ti-bolt' value="`$tabp->content->speed_limit` Mbps" label='Tốc độ'}
-                                                    {/if}
-                                                    {if $tabp->content->ip_limit == '0'}
-                                                        {product_feature icon='ti-devices' value='Không giới hạn' label='Thiết bị đồng thời'}
-                                                    {else}
-                                                        {product_feature icon='ti-devices' value="`$tabp->content->ip_limit` thiết bị" label='Thiết bị đồng thời'}
-                                                    {/if}
+                                                    {foreach $tabp->highlights as $item}
+                                                        {product_feature icon=$item.icon value=$item.value label=$item.label}
+                                                    {/foreach}
                                                 </div>
                                                 {product_buy_btn id=$tabp->id stock=$tabp->stock}
                                             </div>
@@ -128,8 +116,13 @@
                                             <div class="gopass-product-card-body">
                                                 <div class="gopass-product-name">{$bandwidth->name}</div>
                                                 {product_price price=$bandwidth->price}
+                                                {if $bandwidth->summary !== ''}
+                                                    <div class="gopass-product-summary">{$bandwidth->summary|escape}</div>
+                                                {/if}
                                                 <div class="gopass-product-features">
-                                                    {product_feature icon='ti-database' value="`$bandwidth->content->bandwidth` GB" label='Lưu lượng khả dụng'}
+                                                    {foreach $bandwidth->highlights as $item}
+                                                        {product_feature icon=$item.icon value=$item.value label=$item.label}
+                                                    {/foreach}
                                                 </div>
                                                 {product_buy_btn id=$bandwidth->id stock=$bandwidth->stock}
                                             </div>
@@ -155,26 +148,15 @@
                                             <div class="gopass-product-card-body">
                                                 <div class="gopass-product-name">{$time->name}</div>
                                                 {product_price price=$time->price_min}
-                                                {if $time->has_options}
+                                                {if $time->summary !== ''}
+                                                    <div class="gopass-product-summary">{$time->summary|escape}</div>
+                                                {elseif $time->has_options}
                                                     <div class="text-secondary small mb-2">Nhiều thời hạn — chọn khi mua</div>
                                                 {/if}
                                                 <div class="gopass-product-features">
-                                                    {product_feature icon='ti-crown' value="Lv. `$time->content->class`" label='Cấp độ'}
-                                                    {if $time->has_options}
-                                                        {product_feature icon='ti-calendar' value='Tùy chọn khi mua' label='Thời hạn'}
-                                                    {else}
-                                                        {product_feature icon='ti-calendar' value="`$time->content->class_time` ngày" label='Thời hạn'}
-                                                    {/if}
-                                                    {if $time->content->speed_limit == '0'}
-                                                        {product_feature icon='ti-bolt' value='Không giới hạn' label='Tốc độ'}
-                                                    {else}
-                                                        {product_feature icon='ti-bolt' value="`$time->content->speed_limit` Mbps" label='Tốc độ'}
-                                                    {/if}
-                                                    {if $time->content->ip_limit == '0'}
-                                                        {product_feature icon='ti-devices' value='Không giới hạn' label='Thiết bị đồng thời'}
-                                                    {else}
-                                                        {product_feature icon='ti-devices' value="`$time->content->ip_limit` thiết bị" label='Thiết bị đồng thời'}
-                                                    {/if}
+                                                    {foreach $time->highlights as $item}
+                                                        {product_feature icon=$item.icon value=$item.value label=$item.label}
+                                                    {/foreach}
                                                 </div>
                                                 {product_buy_btn id=$time->id stock=$time->stock}
                                             </div>

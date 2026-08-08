@@ -110,6 +110,23 @@
                                     <input id="ip_limit" type="text" class="form-control" value="{$content->ip_limit}">
                                 </div>
                             </div>
+                            <div class="form-group mb-3 row">
+                                <label class="form-label col-3 col-form-label">Nhà mạng hỗ trợ</label>
+                                <div class="col">
+                                    <input id="carriers" type="text" class="form-control"
+                                           value="{$content->carriers|default:''|escape:'html'}"
+                                           placeholder="VD: SoftBank · LINEMO · Y!mobile">
+                                    <small class="form-hint">Hiện ở thẻ sản phẩm. Để trống sẽ tự nhận từ tên gói.</small>
+                                </div>
+                            </div>
+                            <div class="form-group mb-3 row">
+                                <label class="form-label col-3 col-form-label">Mô tả ngắn</label>
+                                <div class="col">
+                                    <input id="summary" type="text" class="form-control"
+                                           value="{$content->summary|default:''|escape:'html'}"
+                                           placeholder="VD: Mở khóa tốc độ cao sau khi hết data">
+                                </div>
+                            </div>
                             <div class="hr-text">
                                 <span>Giới hạn mua hàng</span>
                             </div>
@@ -299,6 +316,8 @@
             node_group: fieldVal('node_group'),
             speed_limit: fieldVal('speed_limit'),
             ip_limit: fieldVal('ip_limit'),
+            carriers: fieldVal('carriers'),
+            summary: fieldVal('summary'),
             class_required: fieldVal('class_required'),
             node_group_required: fieldVal('node_group_required'),
             new_user_required: document.getElementById('new_user_required').checked ? 'true' : 'false',

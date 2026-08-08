@@ -202,6 +202,156 @@ final class Product extends Model
     }
 
     /**
+     * Build shop-card highlight rows (icon/label/value) for user product listing.
+     *
+     * @return list<array{icon: string, label: string, value: string}>
+     */
+    public static function buildShopHighlights(string $name, mixed $content, string $type, bool $hasOptions = false): array
+    {
+        if (\is_string($content)) {
+            $content = json_decode($content);
+        }
+        if (\is_array($content)) {
+            $content = (object) $content;
+        }
+        if (! \is_object($content)) {
+            $content = (object) [];
+        }
+
+        $features = [];
+        $carriers = self::resolveCarriersLabel($name, $content);
+        if ($carriers !== '') {
+            $features[] = [
+                'icon' => 'ti-antenna-bars-5',
+                'label' => 'Hỗ trợ nhà mạng',
+                'value' => $carriers,
+            ];
+        }
+
+        if ($type !== 'bandwidth') {
+            $speedLimit = isset($content->speed_limit) ? (string) $content->speed_limit : '';
+            if ($speedLimit !== '') {
+                $unlimitedSpeed = $speedLimit === '0';
+                $features[] = [
+                    'icon' => 'ti-rocket',
+                    'label' => 'Mở khóa tốc độ cao',
+                    'value' => $unlimitedSpeed ? 'Không giới hạn' : ('Đến ' . $speedLimit . ' Mbps'),
+                ];
+                $features[] = [
+                    'icon' => 'ti-bolt',
+                    'label' => 'Tốc độ',
+                    'value' => $unlimitedSpeed ? 'Không giới hạn' : ($speedLimit . ' Mbps'),
+                ];
+            }
+
+            $ipLimit = isset($content->ip_limit) ? (string) $content->ip_limit : '';
+            if ($ipLimit !== '') {
+                $features[] = [
+                    'icon' => 'ti-devices',
+                    'label' => 'Giới hạn thiết bị',
+                    'value' => $ipLimit === '0'
+                        ? 'Không giới hạn'
+                        : ($ipLimit . ' thiết bị đồng thời'),
+                ];
+            }
+        }
+
+        if (($type === 'tabp' || $type === 'bandwidth') && isset($content->bandwidth) && $content->bandwidth !== '' && $content->bandwidth !== null) {
+            $features[] = [
+                'icon' => 'ti-database',
+                'label' => 'Lưu lượng',
+                'value' => $content->bandwidth . ' GB',
+            ];
+        }
+
+        if ($type === 'tabp' || $type === 'time') {
+            if ($hasOptions) {
+                $features[] = [
+                    'icon' => 'ti-calendar',
+                    'label' => 'Thời hạn',
+                    'value' => 'Tùy chọn khi mua',
+                ];
+            } elseif (isset($content->class_time) && $content->class_time !== '' && $content->class_time !== null) {
+                $features[] = [
+                    'icon' => 'ti-calendar',
+                    'label' => 'Thời hạn',
+                    'value' => $content->class_time . ' ngày',
+                ];
+            }
+        }
+
+        return $features;
+    }
+
+    /**
+     * Resolve carrier / network support text for shop descriptions.
+     */
+    public static function resolveCarriersLabel(string $name, mixed $content): string
+    {
+        if (\is_string($content)) {
+            $content = json_decode($content);
+        }
+        if (\is_array($content)) {
+            $content = (object) $content;
+        }
+
+        if (\is_object($content)) {
+            $explicit = trim((string) ($content->carriers ?? ''));
+            if ($explicit !== '') {
+                return $explicit;
+            }
+        }
+
+        $upper = mb_strtoupper($name);
+        $found = [];
+        $aliases = [
+            'SOFTBANK' => 'SoftBank',
+            'SOFBANK' => 'SoftBank',
+            'LINEMO' => 'LINEMO',
+            'Y!MOBILE' => 'Y!mobile',
+            'YMOBILE' => 'Y!mobile',
+            'Y-MOBILE' => 'Y!mobile',
+            'AU' => 'au',
+            'DOCOMO' => 'docomo',
+            'RAKUTEN' => 'Rakuten',
+        ];
+
+        foreach ($aliases as $needle => $label) {
+            if (str_contains($upper, $needle) && ! \in_array($label, $found, true)) {
+                $found[] = $label;
+            }
+        }
+
+        if ($found !== []) {
+            return implode(' · ', $found);
+        }
+
+        if (str_contains($upper, 'VIET') || str_contains($upper, 'VIỆT') || str_contains($upper, 'VN ')) {
+            return 'VPN Việt Nam';
+        }
+
+        return '';
+    }
+
+    /**
+     * Optional short product summary stored in content JSON.
+     */
+    public static function resolveSummary(mixed $content): string
+    {
+        if (\is_string($content)) {
+            $content = json_decode($content);
+        }
+        if (\is_array($content)) {
+            $content = (object) $content;
+        }
+        if (! \is_object($content)) {
+            return '';
+        }
+
+        return trim((string) ($content->summary ?? $content->description ?? ''));
+    }
+
+    /**
      * Resolve purchase price + flat content snapshot for a selected option index.
      *
      * @return array{price: float, content: array<string, mixed>, option: ?array{days: int, price: float, label: string}}|null
