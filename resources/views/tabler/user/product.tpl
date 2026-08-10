@@ -83,7 +83,7 @@
                                                 <div class="gopass-product-name">{$tabp->name}</div>
                                                 {product_price price=$tabp->price_min}
                                                 <div class="gopass-product-features">
-                                                    {product_feature icon='ti-crown' value=$tabp->tagline label='Cấp độ'}
+                                                    {product_feature icon='ti-target' value=$tabp->tagline label='Công dụng'}
                                                     {if $tabp->has_options}
                                                         {product_feature icon='ti-calendar' value='Tùy chọn khi mua' label='Thời hạn'}
                                                     {else}
@@ -154,7 +154,7 @@
                                                 <div class="gopass-product-name">{$time->name}</div>
                                                 {product_price price=$time->price_min}
                                                 <div class="gopass-product-features">
-                                                    {product_feature icon='ti-crown' value=$time->tagline label='Cấp độ'}
+                                                    {product_feature icon='ti-target' value=$time->tagline label='Công dụng'}
                                                     {if $time->has_options}
                                                         {product_feature icon='ti-calendar' value='Tùy chọn khi mua' label='Thời hạn'}
                                                     {else}
