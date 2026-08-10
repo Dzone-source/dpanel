@@ -81,13 +81,9 @@
                                             <div class="gopass-product-card-accent" aria-hidden="true"></div>
                                             <div class="gopass-product-card-body">
                                                 <div class="gopass-product-name">{$tabp->name}</div>
-                                                <div class="gopass-product-tagline text-secondary small mb-2">{$tabp->tagline}</div>
                                                 {product_price price=$tabp->price_min}
-                                                {if $tabp->has_options}
-                                                    <div class="text-secondary small mb-2">Nhiều thời hạn — chọn khi mua</div>
-                                                {/if}
                                                 <div class="gopass-product-features">
-                                                    {product_feature icon='ti-crown' value="Lv. `$tabp->content->class`" label='Cấp độ'}
+                                                    {product_feature icon='ti-crown' value=$tabp->tagline label='Cấp độ'}
                                                     {if $tabp->has_options}
                                                         {product_feature icon='ti-calendar' value='Tùy chọn khi mua' label='Thời hạn'}
                                                     {else}
@@ -156,13 +152,9 @@
                                             <div class="gopass-product-card-accent" aria-hidden="true"></div>
                                             <div class="gopass-product-card-body">
                                                 <div class="gopass-product-name">{$time->name}</div>
-                                                <div class="gopass-product-tagline text-secondary small mb-2">{$time->tagline}</div>
                                                 {product_price price=$time->price_min}
-                                                {if $time->has_options}
-                                                    <div class="text-secondary small mb-2">Nhiều thời hạn — chọn khi mua</div>
-                                                {/if}
                                                 <div class="gopass-product-features">
-                                                    {product_feature icon='ti-crown' value="Lv. `$time->content->class`" label='Cấp độ'}
+                                                    {product_feature icon='ti-crown' value=$time->tagline label='Cấp độ'}
                                                     {if $time->has_options}
                                                         {product_feature icon='ti-calendar' value='Tùy chọn khi mua' label='Thời hạn'}
                                                     {else}
