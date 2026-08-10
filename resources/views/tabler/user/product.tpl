@@ -100,9 +100,9 @@
                                                         {product_feature icon='ti-bolt' value="`$tabp->content->speed_limit` Mbps" label='Tốc độ'}
                                                     {/if}
                                                     {if $tabp->content->ip_limit == '0'}
-                                                        {product_feature icon='ti-devices' value='Không giới hạn' label='Thiết bị đồng thời'}
+                                                        {product_feature icon='ti-device-mobile' value='Không giới hạn' label='Thiết bị đồng thời'}
                                                     {else}
-                                                        {product_feature icon='ti-devices' value="`$tabp->content->ip_limit` thiết bị" label='Thiết bị đồng thời'}
+                                                        {product_feature icon='ti-device-mobile' value="`$tabp->content->ip_limit` thiết bị" label='Thiết bị đồng thời'}
                                                     {/if}
                                                 </div>
                                                 {product_buy_btn id=$tabp->id stock=$tabp->stock}
@@ -174,9 +174,9 @@
                                                         {product_feature icon='ti-bolt' value="`$time->content->speed_limit` Mbps" label='Tốc độ'}
                                                     {/if}
                                                     {if $time->content->ip_limit == '0'}
-                                                        {product_feature icon='ti-devices' value='Không giới hạn' label='Thiết bị đồng thời'}
+                                                        {product_feature icon='ti-device-mobile' value='Không giới hạn' label='Thiết bị đồng thời'}
                                                     {else}
-                                                        {product_feature icon='ti-devices' value="`$time->content->ip_limit` thiết bị" label='Thiết bị đồng thời'}
+                                                        {product_feature icon='ti-device-mobile' value="`$time->content->ip_limit` thiết bị" label='Thiết bị đồng thời'}
                                                     {/if}
                                                 </div>
                                                 {product_buy_btn id=$time->id stock=$time->stock}
