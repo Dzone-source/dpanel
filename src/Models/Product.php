@@ -56,6 +56,19 @@ final class Product extends Model
     }
 
     /**
+     * Short marketing blurb clarifying what a package is for, based on its name:
+     * JP mobile-network speed packages (SoftBank/LINEMO/Y!mobile) vs VN VPN packages.
+     */
+    public static function packageTagline(string $name): string
+    {
+        if (mb_stripos($name, 'vpn') !== false || mb_stripos($name, 'việt nam') !== false || mb_stripos($name, 'viet nam') !== false) {
+            return 'Fake IP, bảo mật thông tin — ẩn danh khi truy cập internet.';
+        }
+
+        return 'Nâng cấp tốc độ không giới hạn cho SIM SoftBank / LINEMO / Y!mobile.';
+    }
+
+    /**
      * Normalize duration/price options from product content JSON.
      *
      * @return list<array{days: int, price: float, label: string}>

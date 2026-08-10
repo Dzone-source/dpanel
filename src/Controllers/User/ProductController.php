@@ -38,6 +38,7 @@ final class ProductController extends BaseController
             $tabp->content = json_decode($tabp->content);
             $tabp->options = Product::normalizeOptions($tabp->content);
             $tabp->has_options = $tabp->options !== [];
+            $tabp->tagline = Product::packageTagline($tabp->name);
             if ($tabp->has_options) {
                 $prices = array_column($tabp->options, 'price');
                 $tabp->price_min = min($prices);
@@ -52,6 +53,7 @@ final class ProductController extends BaseController
             $bandwidth->content = json_decode($bandwidth->content);
             $bandwidth->options = [];
             $bandwidth->has_options = false;
+            $bandwidth->tagline = Product::packageTagline($bandwidth->name);
             $bandwidth->price_min = (float) $bandwidth->price;
             $bandwidth->price_max = (float) $bandwidth->price;
         }
@@ -60,6 +62,7 @@ final class ProductController extends BaseController
             $time->content = json_decode($time->content);
             $time->options = Product::normalizeOptions($time->content);
             $time->has_options = $time->options !== [];
+            $time->tagline = Product::packageTagline($time->name);
             if ($time->has_options) {
                 $prices = array_column($time->options, 'price');
                 $time->price_min = min($prices);
