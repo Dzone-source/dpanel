@@ -2070,7 +2070,7 @@ button.is-gopass-busy {
     font-weight: 750;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--gopass-muted);
+    color: var(--gopass-primary);
     line-height: 1.35;
 }
 
@@ -2118,13 +2118,15 @@ button.is-gopass-busy {
     width: 2rem;
     height: 2rem;
     border-radius: 0.65rem;
-    background: color-mix(in srgb, var(--gopass-primary) 12%, transparent);
-    color: var(--gopass-primary);
+    background: linear-gradient(135deg, var(--gopass-primary-dark), var(--gopass-primary));
+    box-shadow: 0 4px 10px color-mix(in srgb, var(--gopass-primary) 35%, transparent);
+    color: #fff;
     flex-shrink: 0;
 }
 
 .gopass-product-feature-icon i {
     font-size: 1rem;
+    color: #fff;
 }
 
 .gopass-product-feature-text {
