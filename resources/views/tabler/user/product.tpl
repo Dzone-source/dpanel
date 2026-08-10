@@ -81,6 +81,7 @@
                                             <div class="gopass-product-card-accent" aria-hidden="true"></div>
                                             <div class="gopass-product-card-body">
                                                 <div class="gopass-product-name">{$tabp->name}</div>
+                                                <div class="gopass-product-tagline text-secondary small mb-2">{$tabp->tagline}</div>
                                                 {product_price price=$tabp->price_min}
                                                 {if $tabp->has_options}
                                                     <div class="text-secondary small mb-2">Nhiều thời hạn — chọn khi mua</div>
@@ -127,6 +128,7 @@
                                             <div class="gopass-product-card-accent" aria-hidden="true"></div>
                                             <div class="gopass-product-card-body">
                                                 <div class="gopass-product-name">{$bandwidth->name}</div>
+                                                <div class="gopass-product-tagline text-secondary small mb-2">{$bandwidth->tagline}</div>
                                                 {product_price price=$bandwidth->price}
                                                 <div class="gopass-product-features">
                                                     {product_feature icon='ti-database' value="`$bandwidth->content->bandwidth` GB" label='Lưu lượng khả dụng'}
@@ -154,6 +156,7 @@
                                             <div class="gopass-product-card-accent" aria-hidden="true"></div>
                                             <div class="gopass-product-card-body">
                                                 <div class="gopass-product-name">{$time->name}</div>
+                                                <div class="gopass-product-tagline text-secondary small mb-2">{$time->tagline}</div>
                                                 {product_price price=$time->price_min}
                                                 {if $time->has_options}
                                                     <div class="text-secondary small mb-2">Nhiều thời hạn — chọn khi mua</div>
