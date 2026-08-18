@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
     <link href="//{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
+    <link href="/assets/css/admin.css?v=20260818admin1" rel="stylesheet"/>
     <!-- JS files -->
     <script src="//{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="//{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
@@ -56,14 +57,6 @@
         .btn-primary:focus {
             background-color: #c91f3a !important;
             border-color: #c91f3a !important;
-        }
-
-        .home-subtitle {
-            font-size: 14px;
-        }
-
-        .home-title {
-            font-size: 36px;
         }
 
         /* Admin: avoid Tabler/sakura leftover scroll height under footer */

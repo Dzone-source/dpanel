@@ -17,10 +17,12 @@
             $('div.dt-length').parent().parent().removeClass('mt-2').addClass('row px-3 py-3')
             $('div.dt-scroll').parent().parent().removeClass('mt-2')
             $('div.dt-info').parent().parent().removeClass('mt-2').addClass('row card-footer')
-            $('div.dt-length').parent().removeClass('col-md-auto me-auto').addClass('col-auto')
-            $('div.dt-search').parent().removeClass('col-md-auto me-auto ms-auto').addClass('col-auto')
-            $('div.dt-info').parent().removeClass('col-md-auto me-auto').addClass('col')
-            $('div.dt-paging').parent().removeClass('col-md-auto me-auto ms-auto').addClass('col-auto')
+            // col-12 below sm so the length/search controls stack instead of
+            // squeezing into unusable slivers on phones.
+            $('div.dt-length').parent().removeClass('col-md-auto me-auto').addClass('col-12 col-sm-auto')
+            $('div.dt-search').parent().removeClass('col-md-auto me-auto ms-auto').addClass('col-12 col-sm-auto ms-sm-auto')
+            $('div.dt-info').parent().removeClass('col-md-auto me-auto').addClass('col-12 col-sm')
+            $('div.dt-paging').parent().removeClass('col-md-auto me-auto ms-auto').addClass('col-12 col-sm-auto')
             $('div.dt-scroll-body').css('border-bottom-style', 'none')
         },
         language: {

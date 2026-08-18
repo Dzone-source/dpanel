@@ -119,6 +119,42 @@
         }
     });
 
+    (function markActiveNav() {
+        const path = window.location.pathname.replace(/\/+$/, '') || '/admin';
+
+        function score(href) {
+            if (!href) return -1;
+            const target = href.replace(/\/+$/, '');
+            if (target === '' || target === '#') return -1;
+            if (path === target) return target.length + 1;
+            return path.startsWith(target + '/') ? target.length : -1;
+        }
+
+        let best = null;
+        let bestScore = 0;
+
+        document.querySelectorAll('#navbar-menu a[href]').forEach(function (link) {
+            const value = score(link.getAttribute('href'));
+            if (value > bestScore) {
+                best = link;
+                bestScore = value;
+            }
+        });
+
+        if (!best) {
+            return;
+        }
+
+        if (best.classList.contains('dropdown-item')) {
+            best.classList.add('is-active');
+        }
+
+        const item = best.closest('.nav-item');
+        if (item) {
+            item.classList.add('is-active');
+        }
+    })();
+
     (function initAdminLiveRefresh() {
         const POLL_MS = 10000;
         let previous = null;
