@@ -99,42 +99,23 @@ final class UserController extends BaseController
             $class_subvalue = 'Chưa có gói dịch vụ';
         }
 
-        $info_cards = [
-            [
-                'title' => 'Gói dịch vụ',
-                'value' => $class_value,
-                'subvalue' => $class_subvalue,
-                'icon' => 'ti-crown',
-                'gradient' => 'gopass-gradient-1',
-                'action_url' => '/user/product',
-                'cta' => ! $has_active_plan,
-                'cta_label' => 'Mua hàng',
-                'buy_new' => $has_active_plan,
-                'buy_new_label' => 'Mua gói mới',
-            ],
-            [
-                'title' => 'Số dư ví',
-                'value' => $this->user->displayMoney() . ' VNĐ',
-                'icon' => 'ti-wallet',
-                'gradient' => 'gopass-gradient-2',
-                'action_url' => '/user/money',
-            ],
-            [
-                'title' => 'Thiết bị đồng thời',
-                'value' => $this->formatOnlineDevicesDisplay(),
-                'icon' => 'ti-devices',
-                'gradient' => 'gopass-gradient-3',
-                'live_id' => 'online-devices',
-                'action_url' => '/user/profile',
-            ],
-            [
-                'title' => 'Tốc độ cổng',
-                'value' => $this->user->node_speedlimit > 0
-                    ? $this->user->node_speedlimit . ' Mbps'
-                    : 'Không giới hạn',
-                'icon' => 'ti-bolt',
-                'gradient' => 'gopass-gradient-4',
-            ],
+        $plan_card = [
+            'title' => 'Gói dịch vụ',
+            'value' => $class_value,
+            'subvalue' => $class_subvalue,
+            'icon' => 'ti-crown',
+            'gradient' => 'gopass-gradient-1',
+            'action_url' => '/user/product',
+            'cta' => ! $has_active_plan,
+            'cta_label' => 'Mua hàng',
+            'buy_new' => $has_active_plan,
+            'buy_new_label' => 'Mua gói mới',
+        ];
+
+        $device_info = [
+            'title' => 'Thiết bị đồng thời',
+            'value' => $this->formatOnlineDevicesDisplay(),
+            'action_url' => '/user/profile',
         ];
 
         return $response->write(
@@ -150,7 +131,8 @@ final class UserController extends BaseController
                 ->assign('user_money', $this->user->money)
                 ->assign('ip_limit', $this->user->node_iplimit)
                 ->assign('speed_limit', $this->user->node_speedlimit)
-                ->assign('info_cards', $info_cards)
+                ->assign('plan_card', $plan_card)
+                ->assign('device_info', $device_info)
                 ->fetch('user/index.tpl')
         );
     }

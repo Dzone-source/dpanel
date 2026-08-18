@@ -125,37 +125,31 @@
             <div class="row row-cards">
                 <div class="col-12">
                     <div class="row row-cards gopass-info-grid">
-                        {foreach $info_cards as $card name=info_cards}
-                        {if $smarty.foreach.info_cards.first}
                         <div class="col-12">
-                            <div class="card gopass-stat-card{if isset($card.cta) && $card.cta} gopass-stat-card--cta{/if}{if isset($card.buy_new) && $card.buy_new} gopass-stat-card--buy{/if}">
+                            <div class="card gopass-stat-card{if $plan_card.cta} gopass-stat-card--cta{/if}{if $plan_card.buy_new} gopass-stat-card--buy{/if}">
                                 <div class="card-body">
                                     <div class="gopass-stat-tile">
                                         <div class="gopass-stat-tile-top">
-                                            <div class="gopass-stat-icon {$card.gradient}">
-                                                <i class="ti {$card.icon}"></i>
+                                            <div class="gopass-stat-icon {$plan_card.gradient}">
+                                                <i class="ti {$plan_card.icon}"></i>
                                             </div>
                                         </div>
                                         <div class="gopass-stat-main">
                                             <div class="gopass-stat-text">
-                                                <div class="gopass-stat-value"{if isset($card.live_id)} id="live-{$card.live_id}" data-live="{$card.live_id}"{/if}>{$card.value}</div>
-                                                {if isset($card.subvalue) && $card.subvalue ne ''}
-                                                <div class="gopass-stat-subvalue">{$card.subvalue}</div>
+                                                <div class="gopass-stat-value">{$plan_card.value}</div>
+                                                {if $plan_card.subvalue ne ''}
+                                                <div class="gopass-stat-subvalue">{$plan_card.subvalue}</div>
                                                 {/if}
                                             </div>
-                                            {if isset($card.cta) && $card.cta}
-                                            <a href="{$card.action_url}" class="btn btn-primary gopass-stat-tile-btn">
+                                            {if $plan_card.cta}
+                                            <a href="{$plan_card.action_url}" class="btn btn-primary gopass-stat-tile-btn">
                                                 <i class="ti ti-shopping-cart"></i>
-                                                <span>{$card.cta_label|default:'Mua hàng'}</span>
+                                                <span>{$plan_card.cta_label}</span>
                                             </a>
-                                            {elseif isset($card.buy_new) && $card.buy_new}
-                                            <a href="{$card.action_url}" class="btn gopass-stat-buy-new gopass-stat-tile-btn">
+                                            {elseif $plan_card.buy_new}
+                                            <a href="{$plan_card.action_url}" class="btn gopass-stat-buy-new gopass-stat-tile-btn">
                                                 <i class="ti ti-shopping-cart"></i>
-                                                <span>{$card.buy_new_label|default:'Mua gói mới'}</span>
-                                            </a>
-                                            {elseif isset($card.action_url)}
-                                            <a href="{$card.action_url}" class="btn btn-primary btn-icon btn-sm gopass-stat-tile-action" aria-label="{$card.title}">
-                                                <i class="ti ti-arrow-right"></i>
+                                                <span>{$plan_card.buy_new_label}</span>
                                             </a>
                                             {/if}
                                         </div>
@@ -163,43 +157,18 @@
                                 </div>
                             </div>
                         </div>
-                        {/if}
-                        {/foreach}
-                        <div class="col-12">
-                            <div class="row row-cards gopass-info-mini-grid">
-                                {foreach $info_cards as $card name=mini_info_cards}
-                                {if !$smarty.foreach.mini_info_cards.first}
-                                <div class="col-4">
-                                    {if isset($card.action_url)}
-                                    <a href="{$card.action_url}" class="card gopass-stat-card gopass-stat-card--mini gopass-stat-card--link" aria-label="{$card.title}">
-                                    {else}
-                                    <div class="card gopass-stat-card gopass-stat-card--mini">
-                                    {/if}
-                                        <div class="card-body">
-                                            <div class="gopass-stat-tile">
-                                                <div class="gopass-stat-icon {$card.gradient}">
-                                                    <i class="ti {$card.icon}"></i>
-                                                </div>
-                                                <div class="gopass-stat-value"{if isset($card.live_id)} id="live-{$card.live_id}" data-live="{$card.live_id}"{/if}>{$card.value}</div>
-                                            </div>
-                                        </div>
-                                    {if isset($card.action_url)}
-                                    </a>
-                                    {else}
-                                    </div>
-                                    {/if}
-                                </div>
-                                {/if}
-                                {/foreach}
-                            </div>
-                        </div>
                     </div>
                 </div>
                 
                 <div class="col-lg-6 col-sm-12">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header gopass-quick-header">
                             <h3 class="card-title">Cấu hình nhanh</h3>
+                            <a href="{$device_info.action_url}" class="gopass-device-chip" aria-label="{$device_info.title}">
+                                <i class="ti ti-devices"></i>
+                                <span class="gopass-device-chip-label">Thiết bị</span>
+                                <strong id="live-online-devices" data-live="online-devices">{$device_info.value}</strong>
+                            </a>
                         </div>
                         <div class="card-body">
                             <div class="mb-4 gopass-sub-block">
