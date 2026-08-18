@@ -21,8 +21,11 @@
                             Đóng
                         </button>
                         {/if}
-                        <button href="#" class="btn btn-primary" hx-post="/admin/ticket/{$ticket->id}/llm_reply"
-                                hx-swap="none">
+                        <button href="#" class="btn btn-primary gopass-busy-submit"
+                                hx-post="/admin/ticket/{$ticket->id}/llm_reply"
+                                hx-swap="none"
+                                hx-disabled-elt="this"
+                                data-gopass-busy-text="Đang tạo trả lời...">
                             <i class="icon ti ti-robot"></i>
                             Trả lời bằng LLM
                         </button>
@@ -94,8 +97,10 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
-                    <button class="btn btn-primary" data-bs-dismiss="modal"
+                    <button class="btn btn-primary gopass-busy-submit" data-bs-dismiss="modal"
                         hx-post="/admin/ticket/{$ticket->id}" hx-swap="none"
+                        hx-disabled-elt="this"
+                        data-gopass-busy-text="Đang gửi..."
                         hx-vals='js:{
                             comment: document.getElementById("reply-comment").value,
                         }'>
@@ -122,9 +127,11 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
-                    <button id="confirm_close" type="button" class="btn btn-primary"
+                    <button id="confirm_close" type="button" class="btn btn-primary gopass-busy-submit"
                             hx-post="/admin/ticket/{$ticket->id}/close"
                             hx-swap="none"
+                            hx-disabled-elt="this"
+                            data-gopass-busy-text="Đang đóng..."
                             data-bs-dismiss="modal">
                         Xác nhận
                     </button>

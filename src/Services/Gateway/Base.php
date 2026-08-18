@@ -17,6 +17,7 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use Throwable;
 use voku\helper\AntiXSS;
 use function array_map;
 use function array_values;
@@ -109,7 +110,7 @@ abstract class Base
                 }
             }
             CronService::processShopOrdersNow();
-        } catch (Exception) {
+        } catch (Throwable) {
             // Leave activation to cron if immediate processing fails.
         }
     }

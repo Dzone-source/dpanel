@@ -19,6 +19,7 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use Throwable;
 use function array_values;
 use function count;
 use function in_array;
@@ -240,8 +241,9 @@ final class InvoiceController extends BaseController
                     $order->save();
                 }
                 CronService::processShopOrdersNow();
-            } catch (Exception) {
-                // Cron will retry if immediate activation fails.
+            } catch (Throwable) {
+                // Cron will retry if immediate activation fails. The payment is
+                // already committed, so this must never surface as a failure.
             }
 
             return $response->withJson([

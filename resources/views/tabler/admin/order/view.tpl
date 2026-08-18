@@ -209,7 +209,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
-                    <button id="confirm_cancel" type="button" class="btn btn-primary" data-bs-dismiss="modal">Xác nhận
+                    <button id="confirm_cancel" type="button" class="btn btn-primary">Xác nhận
                     </button>
                 </div>
             </div>
@@ -217,21 +217,13 @@
     </div>
 
     <script>
-        $("#confirm_cancel").click(function () {
-            $.ajax({
-                url: "/admin/order/{$order->id}/cancel",
-                type: 'POST',
-                dataType: "json",
-                success: function (data) {
-                    if (data.ret === 1) {
-                        $('#success-message').text(data.msg);
-                        $('#success-dialog').modal('show');
-                    } else {
-                        $('#fail-message').text(data.msg);
-                        $('#fail-dialog').modal('show');
-                    }
-                }
-            })
+        document.getElementById('confirm_cancel').addEventListener('click', function () {
+            window.dpAdmin.post({
+                url: '/admin/order/{$order->id}/cancel',
+                button: this,
+                busyLabel: 'Đang hủy...',
+                closeModal: 'cancel_order_confirm_dialog'
+            });
         });
     </script>
 

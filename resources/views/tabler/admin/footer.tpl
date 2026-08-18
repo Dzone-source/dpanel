@@ -85,7 +85,149 @@
     let successDialog = new tabler.bootstrap.Modal(document.getElementById('success-dialog'));
     let failDialog = new tabler.bootstrap.Modal(document.getElementById('fail-dialog'));
 
+    window.successDialog = successDialog;
+    window.failDialog = failDialog;
+
+    window.dpAdmin = (function () {
+        // Confirm actions must survive the live-refresh poller, which reloads the
+        // page as soon as it sees the change the action itself just made.
+        let pending = 0;
+
+        function showResult(ok, message) {
+            const id = ok ? 'success-message' : 'fail-message';
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = message;
+            }
+            (ok ? successDialog : failDialog).show();
+        }
+
+        function hideModal(id) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const instance = tabler.bootstrap.Modal.getInstance(el);
+            if (instance) {
+                instance.hide();
+            }
+        }
+
+        function setBusy(button, busy, label) {
+            if (!button) return;
+            if (busy) {
+                button.dataset.dpOriginalHtml = button.innerHTML;
+                button.disabled = true;
+                button.setAttribute('aria-busy', 'true');
+                button.classList.add('is-gopass-busy');
+                button.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>' +
+                    (label || 'Đang xử lý...');
+            } else {
+                button.disabled = false;
+                button.removeAttribute('aria-busy');
+                button.classList.remove('is-gopass-busy');
+                if (button.dataset.dpOriginalHtml) {
+                    button.innerHTML = button.dataset.dpOriginalHtml;
+                }
+            }
+        }
+
+        /**
+         * POST a confirm action and report the real outcome.
+         *
+         * options: { url, button, busyLabel, closeModal, reloadOnSuccess }
+         */
+        async function post(options) {
+            const button = options.button || null;
+
+            if (button && button.getAttribute('aria-busy') === 'true') {
+                return;
+            }
+
+            setBusy(button, true, options.busyLabel);
+            pending += 1;
+
+            try {
+                const res = await fetch(options.url, {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                const body = await res.text();
+                let data = null;
+                try {
+                    data = JSON.parse(body);
+                } catch (e) {
+                    data = null;
+                }
+
+                // Close the confirm modal first: stacking the result dialog on top
+                // of it leaves the page dimmed once both are dismissed.
+                if (options.closeModal) {
+                    hideModal(options.closeModal);
+                }
+
+                if (data && typeof data.ret !== 'undefined') {
+                    if (data.ret === 1) {
+                        showResult(true, data.msg || 'Thành công');
+                        if (options.reloadOnSuccess !== false) {
+                            window.setTimeout(function () {
+                                window.location.reload();
+                            }, 1200);
+                        }
+                        return;
+                    }
+
+                    setBusy(button, false);
+                    showResult(false, data.msg || 'Thất bại');
+                    return;
+                }
+
+                // No usable JSON: the action may still have gone through, so send
+                // the admin back to the freshly rendered state instead of guessing.
+                showResult(
+                    false,
+                    'Máy chủ trả về phản hồi không hợp lệ (HTTP ' + res.status +
+                    '). Trang sẽ tải lại để hiển thị trạng thái thực tế.'
+                );
+                window.setTimeout(function () {
+                    window.location.reload();
+                }, 2000);
+            } catch (e) {
+                if (options.closeModal) {
+                    hideModal(options.closeModal);
+                }
+                setBusy(button, false);
+                showResult(false, 'Không gửi được yêu cầu. Kiểm tra kết nối rồi thử lại.');
+            } finally {
+                pending -= 1;
+            }
+        }
+
+        return {
+            post: post,
+            showResult: showResult,
+            setBusy: setBusy,
+            isPending: function () {
+                return pending > 0;
+            }
+        };
+    })();
+
+    htmx.on("htmx:beforeRequest", function (evt) {
+        const el = evt.detail.elt;
+        if (el && el.classList && el.classList.contains('gopass-busy-submit')) {
+            window.dpAdmin.setBusy(el, true, el.getAttribute('data-gopass-busy-text'));
+        }
+    });
+
     htmx.on("htmx:afterRequest", function(evt) {
+        const el = evt.detail.elt;
+        const isBusySubmit = el && el.classList && el.classList.contains('gopass-busy-submit');
+
         if (evt.detail.xhr.getResponseHeader('HX-Refresh') === 'true' ||
             evt.detail.xhr.getResponseHeader('HX-Redirect') ||
             evt.detail.xhr.getResponseHeader('HX-Trigger'))
@@ -93,7 +235,24 @@
             return;
         }
 
-        let res = JSON.parse(evt.detail.xhr.response);
+        let res = null;
+        try {
+            res = JSON.parse(evt.detail.xhr.response);
+        } catch (e) {
+            res = null;
+        }
+
+        // A 500 or an HTML error page used to throw here, leaving the admin with
+        // a stuck button and no feedback at all.
+        if (res === null || typeof res.ret === 'undefined') {
+            if (isBusySubmit) {
+                window.dpAdmin.setBusy(el, false);
+            }
+            if (!evt.detail.successful) {
+                window.dpAdmin.showResult(false, 'Máy chủ trả về lỗi (HTTP ' + evt.detail.xhr.status + ')');
+            }
+            return;
+        }
 
         if (typeof res.data !== 'undefined') {
             for (let key in res.data) {
@@ -110,12 +269,26 @@
                 }
             }
         }
-        if (res.ret === 1) {
-            document.getElementById("success-message").innerHTML = res.msg;
-            successDialog.show();
-        } else {
-            document.getElementById("fail-message").innerHTML = res.msg;
-            failDialog.show();
+
+        if (isBusySubmit && res.ret !== 1) {
+            window.dpAdmin.setBusy(el, false);
+        }
+
+        window.dpAdmin.showResult(res.ret === 1, res.msg || (res.ret === 1 ? 'Thành công' : 'Thất bại'));
+    });
+
+    htmx.on("htmx:responseError", function (evt) {
+        const el = evt.detail.elt;
+        if (el && el.classList && el.classList.contains('gopass-busy-submit')) {
+            window.dpAdmin.setBusy(el, false);
+        }
+    });
+
+    htmx.on("htmx:sendError", function (evt) {
+        const el = evt.detail.elt;
+        if (el && el.classList && el.classList.contains('gopass-busy-submit')) {
+            window.dpAdmin.setBusy(el, false);
+            window.dpAdmin.showResult(false, 'Không gửi được yêu cầu. Kiểm tra kết nối rồi thử lại.');
         }
     });
 
@@ -244,6 +417,16 @@
         function refreshVisibleData() {
             const path = window.location.pathname;
 
+            // Reloading mid-confirm aborts the request and makes a successful
+            // action report a network failure.
+            if (window.dpAdmin && window.dpAdmin.isPending()) {
+                return;
+            }
+
+            if (document.querySelector('.modal.show')) {
+                return;
+            }
+
             if (path === '/admin' || path === '/admin/') {
                 window.location.reload();
                 return;
@@ -266,6 +449,7 @@
 
         async function poll() {
             if (busy || document.hidden) return;
+            if (window.dpAdmin && window.dpAdmin.isPending()) return;
             busy = true;
             try {
                 const res = await fetch('/admin/live/status', {

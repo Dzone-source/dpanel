@@ -203,8 +203,11 @@ final class TicketController extends BaseController
             return ResponseHelper::error($response, 'Phiếu hỗ trợ không tồn tại');
         }
 
+        // Re-confirming an already closed ticket reached the intended state, so
+        // report success instead of an error the admin has to dismiss.
         if ($ticket->status === 'closed') {
-            return ResponseHelper::error($response, 'Phiếu hỗ trợ đã đóng, không cần thao tác lại');
+            return ResponseHelper::success($response, 'Phiếu hỗ trợ này đã đóng trước đó')
+                ->withHeader('HX-Redirect', '/admin/ticket');
         }
 
         $ticket->status = 'closed';

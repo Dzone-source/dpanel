@@ -115,10 +115,18 @@ final class OrderController extends BaseController
             ]);
         }
 
-        if (in_array($order->status, ['activated', 'expired', 'cancelled'])) {
+        // A repeated confirm on an order that is already cancelled is not a failure.
+        if ($order->status === 'cancelled') {
+            return $response->withJson([
+                'ret' => 1,
+                'msg' => 'Đơn hàng này đã được hủy trước đó',
+            ]);
+        }
+
+        if (in_array($order->status, ['activated', 'expired'])) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => 'Không thể hủy ' . $order->status() . ' sản phẩm ở trạng thái này',
+                'msg' => 'Không thể hủy đơn hàng ở trạng thái: ' . $order->status(),
             ]);
         }
 

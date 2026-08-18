@@ -15,6 +15,7 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use Throwable;
 use function in_array;
 use function json_decode;
 use function time;
@@ -82,14 +83,37 @@ final class InvoiceController extends BaseController
         $invoice_id = $args['id'];
         $invoice = (new Invoice())->find($invoice_id);
 
+        if ($invoice === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Hóa đơn không tồn tại',
+            ]);
+        }
+
+        // A re-submitted confirm (double click, retry after a dropped response)
+        // must not look like a failure: the invoice is already where we want it.
+        if (in_array($invoice->status, ['paid_admin', 'paid_gateway', 'paid_balance'], true)) {
+            return $response->withJson([
+                'ret' => 1,
+                'msg' => 'Hóa đơn này đã được duyệt trước đó',
+            ]);
+        }
+
         if (! in_array($invoice->status, ['unpaid', 'partially_paid'], true)) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => 'Không thể đánh dấu hóa đơn đã thanh toán',
+                'msg' => 'Không thể duyệt hóa đơn ở trạng thái: ' . $invoice->status(),
             ]);
         }
 
         $order = (new Order())->find($invoice->order_id);
+
+        if ($order === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Đơn hàng liên quan không tồn tại',
+            ]);
+        }
 
         if ($order->status === 'cancelled') {
             return $response->withJson([
@@ -107,16 +131,18 @@ final class InvoiceController extends BaseController
         $invoice->status = 'paid_admin';
         $invoice->save();
 
-        // Activate immediately instead of waiting for the next cron tick.
+        // Activate immediately instead of waiting for the next cron tick. The
+        // invoice is already paid at this point, so any activation failure must
+        // not turn into a 500 the admin reads as "duyệt thất bại".
         try {
             CronService::processShopOrdersNow();
-        } catch (Exception) {
+        } catch (Throwable) {
             // Cron loop will retry activation if immediate processing fails.
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => 'Đánh dấu hóa đơn đã thanh toán thành công (quản trị viên)',
+            'msg' => 'Đã duyệt hóa đơn và kích hoạt đơn hàng',
         ]);
     }
 
