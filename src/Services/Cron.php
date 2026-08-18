@@ -27,6 +27,8 @@ use function array_map;
 use function date;
 use function in_array;
 use function json_decode;
+use function ob_end_clean;
+use function ob_start;
 use function str_replace;
 use function strtotime;
 use function time;
@@ -494,11 +496,20 @@ final class Cron
      */
     public static function processShopOrdersNow(): void
     {
-        self::processPendingOrder();
-        self::processTabpOrderActivation();
-        self::processBandwidthOrderActivation();
-        self::processTimeOrderActivation();
-        self::processTopupOrderActivation();
+        // The activation routines echo progress for the CLI cron. Called from a
+        // web request that output lands in the response body ahead of the JSON,
+        // which the browser then cannot parse, so capture and drop it here.
+        ob_start();
+
+        try {
+            self::processPendingOrder();
+            self::processTabpOrderActivation();
+            self::processBandwidthOrderActivation();
+            self::processTimeOrderActivation();
+            self::processTopupOrderActivation();
+        } finally {
+            ob_end_clean();
+        }
     }
 
     public static function removeInactiveUserLinkAndInvite(): void

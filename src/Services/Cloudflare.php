@@ -7,6 +7,7 @@ namespace App\Services;
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 use Exception;
+use function error_log;
 
 final class Cloudflare
 {
@@ -35,7 +36,8 @@ final class Cloudflare
                 $file,
             );
         } catch (Exception $e) {
-            echo $e->getMessage() . PHP_EOL;
+            // Echoing here would corrupt whatever response is being built.
+            error_log('R2 upload failed: ' . $e->getMessage());
         }
     }
 

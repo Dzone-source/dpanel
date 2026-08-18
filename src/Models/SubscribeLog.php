@@ -11,6 +11,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Database\Query\Builder;
 use Psr\Http\Client\ClientExceptionInterface;
 use Telegram\Bot\Exceptions\TelegramSDKException;
+use function error_log;
 use function time;
 
 /**
@@ -71,7 +72,8 @@ final class SubscribeLog extends Model
                     'Tài khoản của bạn đã đăng ký nút mới lúc ' . date('Y-m-d H:i:s') . ' từ địa chỉ ' . $this->request_ip,
                 );
             } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
-                echo $e->getMessage();
+                // Echoing here would land in the subscription response body.
+                error_log('Subscribe notification failed: ' . $e->getMessage());
             }
         }
 

@@ -111,6 +111,35 @@
             }
         }
 
+        {literal}
+        function parsePayload(text) {
+            if (typeof text !== 'string' || text === '') {
+                return null;
+            }
+
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                // fall through to the salvage attempt below
+            }
+
+            // An endpoint that echoes progress before its JSON body would
+            // otherwise be reported as a failure even though it succeeded.
+            const start = text.indexOf('{');
+            const end = text.lastIndexOf('}');
+
+            if (start === -1 || end <= start) {
+                return null;
+            }
+
+            try {
+                return JSON.parse(text.slice(start, end + 1));
+            } catch (e) {
+                return null;
+            }
+        }
+        {/literal}
+
         function setBusy(button, busy, label) {
             if (!button) return;
             if (busy) {
@@ -156,13 +185,7 @@
                     }
                 });
 
-                const body = await res.text();
-                let data = null;
-                try {
-                    data = JSON.parse(body);
-                } catch (e) {
-                    data = null;
-                }
+                const data = parsePayload(await res.text());
 
                 // Close the confirm modal first: stacking the result dialog on top
                 // of it leaves the page dimmed once both are dismissed.
@@ -211,6 +234,7 @@
             post: post,
             showResult: showResult,
             setBusy: setBusy,
+            parsePayload: parsePayload,
             isPending: function () {
                 return pending > 0;
             }
@@ -235,12 +259,7 @@
             return;
         }
 
-        let res = null;
-        try {
-            res = JSON.parse(evt.detail.xhr.response);
-        } catch (e) {
-            res = null;
-        }
+        const res = window.dpAdmin.parsePayload(evt.detail.xhr.response);
 
         // A 500 or an HTML error page used to throw here, leaving the admin with
         // a stuck button and no feedback at all.
