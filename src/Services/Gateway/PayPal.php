@@ -76,6 +76,13 @@ final class PayPal extends Base
             ]);
         }
 
+        $user = Auth::getUser();
+        $denied = self::denyIfNotInvoiceOwner($invoice, $user, $response);
+
+        if ($denied !== null) {
+            return $denied;
+        }
+
         $price = $invoice->price;
 
         if ($price <= 0) {
@@ -94,6 +101,9 @@ final class PayPal extends Base
             $pl->total = $price;
             $pl->invoice_id = $invoice_id;
             $pl->tradeno = self::generateGuid();
+        } else {
+            $pl->userid = $user->id;
+            $pl->total = $price;
         }
 
         $pl->gateway = self::_readableName();

@@ -5,16 +5,21 @@ declare(strict_types=1);
 namespace App\Services\Gateway;
 
 use App\Models\Config;
+use App\Models\Invoice;
 use App\Models\Paylist;
 use App\Services\Auth;
 use App\Services\View;
-// use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
 
 final class Smogate extends Base
 {
+    public function __construct()
+    {
+        $this->antiXss = new \voku\helper\AntiXSS();
+    }
+
     public static function _name(): string
     {
         return 'smogate';
@@ -67,22 +72,42 @@ final class Smogate extends Base
 
     public function purchase(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $amount = $this->antiXss->xss_clean($request->getParam('amount'));
         $invoice_id = $this->antiXss->xss_clean($request->getParam('invoice_id'));
+        $invoice = (new Invoice())->find($invoice_id);
 
-        $user = Auth::getUser();
-        if ($amount === '') {
+        if ($invoice === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '订单金额错误：' . $amount,
+                'msg' => 'Invoice not found',
             ]);
         }
 
-        $pl = new Paylist();
-        $pl->userid = $user->id;
+        $user = Auth::getUser();
+        $denied = self::denyIfNotInvoiceOwner($invoice, $user, $response);
+
+        if ($denied !== null) {
+            return $denied;
+        }
+
+        $amount = $invoice->price;
+
+        if ($amount <= 0) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => '订单金额错误',
+            ]);
+        }
+
+        $pl = (new Paylist())->where('invoice_id', $invoice_id)->first();
+
+        if ($pl === null) {
+            $pl = new Paylist();
+            $pl->userid = $user->id;
+            $pl->invoice_id = $invoice_id;
+            $pl->tradeno = self::generateGuid();
+        }
+
         $pl->total = $amount;
-        $pl->invoice_id = $invoice_id;
-        $pl->tradeno = self::generateGuid();
         $pl->gateway = self::_readableName();
         $pl->save();
 
@@ -124,7 +149,7 @@ final class Smogate extends Base
         if (! $this->verify($request->getParams(), $request->getParam('sign'))) {
             die('FAIL');
         }
-        $this->postPayment($request->getParam('out_trade_no'), 'smogate');
+        $this->postPayment($request->getParam('out_trade_no'));
         die('SUCCESS');
     }
 

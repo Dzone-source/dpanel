@@ -73,18 +73,20 @@ final class SysLogController extends BaseController
      */
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $length = $request->getParam('length');
-        $page = $request->getParam('start') / $length + 1;
+        $length = max(1, (int) $request->getParam('length'));
+        $page = (int) $request->getParam('start') / $length + 1;
         $draw = $request->getParam('draw');
         $syslog = SysLog::query();
         $search = $request->getParam('search')['value'];
 
         if ($search !== '') {
-            $syslog->where('user_id', '=', $search)
-                ->orWhere('ip', 'LIKE', "%{$search}%")
-                ->orWhere('message', 'LIKE', "%{$search}%")
-                ->orWhere('level', 'LIKE', "%{$search}%")
-                ->orWhere('channel', 'LIKE', "%{$search}%");
+            $syslog->where(static function ($query) use ($search): void {
+                $query->where('user_id', '=', $search)
+                    ->orWhere('ip', 'LIKE', "%{$search}%")
+                    ->orWhere('message', 'LIKE', "%{$search}%")
+                    ->orWhere('level', 'LIKE', "%{$search}%")
+                    ->orWhere('channel', 'LIKE', "%{$search}%");
+            });
         }
 
         $order = $request->getParam('order')[0]['dir'];

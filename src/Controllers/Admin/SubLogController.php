@@ -49,8 +49,8 @@ final class SubLogController extends BaseController
      */
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $length = $request->getParam('length');
-        $page = $request->getParam('start') / $length + 1;
+        $length = max(1, (int) $request->getParam('length'));
+        $page = (int) $request->getParam('start') / $length + 1;
         $draw = $request->getParam('draw');
 
         $sub_log = SubscribeLog::query();
@@ -58,10 +58,12 @@ final class SubLogController extends BaseController
         $search = $request->getParam('search')['value'];
 
         if ($search !== '') {
-            $sub_log->where('user_id', '=', $search)
-                ->orWhere('type', 'LIKE', "%{$search}%")
-                ->orWhere('request_ip', 'LIKE', "%{$search}%")
-                ->orWhere('request_user_agent', 'LIKE', "%{$search}%");
+            $sub_log->where(static function ($query) use ($search): void {
+                $query->where('user_id', '=', $search)
+                    ->orWhere('type', 'LIKE', "%{$search}%")
+                    ->orWhere('request_ip', 'LIKE', "%{$search}%")
+                    ->orWhere('request_user_agent', 'LIKE', "%{$search}%");
+            });
         }
 
         $order = $request->getParam('order')[0]['dir'];

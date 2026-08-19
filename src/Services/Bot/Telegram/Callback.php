@@ -353,7 +353,10 @@ final class Callback
             case 'usage_log':
                 // 使用记录
                 $logs = (new OnlineLog())->where('user_id', $this->user->id)
-                    ->where('last_time', '>', time() - 90)->orderByDesc('last_time')->get('ip');
+                    ->where('last_time', '>', time() - 90)
+                    ->selectRaw('DISTINCT ip')
+                    ->orderByDesc('last_time')
+                    ->get();
                 $text = '<strong>以下是你账户在线 IP 和地理位置：</strong>' . PHP_EOL . PHP_EOL;
 
                 foreach ($logs as $log) {

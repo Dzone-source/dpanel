@@ -73,6 +73,13 @@ final class Epay extends Base
             ]);
         }
 
+        $user = Auth::getUser();
+        $denied = self::denyIfNotInvoiceOwner($invoice, $user, $response);
+
+        if ($denied !== null) {
+            return $denied;
+        }
+
         $price = $invoice->price;
 
         if ($price <= 0) {
@@ -82,7 +89,7 @@ final class Epay extends Base
             ]);
         }
 
-        $user = Auth::getUser();
+        $type = $this->antiXss->xss_clean($request->getParam('type'));
         $pl = (new Paylist())->where('invoice_id', $invoice_id)->first();
 
         if ($pl === null) {
@@ -91,6 +98,9 @@ final class Epay extends Base
             $pl->total = $price;
             $pl->invoice_id = $invoice_id;
             $pl->tradeno = self::generateGuid();
+        } else {
+            $pl->userid = $user->id;
+            $pl->total = $price;
         }
 
         $type_text = match ($type) {
