@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Gateway;
 
 use App\Models\Config;
+use App\Models\Invoice;
 use App\Models\Paylist;
 use App\Services\Auth;
 use App\Services\Gateway\Cryptomus\Payment as CryptomusPayment;
@@ -61,11 +62,25 @@ final class Cryptomus extends Base
      */
     public function purchase(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $price = $this->antiXss->xss_clean($request->getParam('price'));
         $invoiceId = $this->antiXss->xss_clean($request->getParam('invoice_id'));
-
-        $type = $this->antiXss->xss_clean($request->getParam('type'));
         $redir = $this->antiXss->xss_clean($request->getParam('redir'));
+        $invoice = (new Invoice())->find($invoiceId);
+
+        if ($invoice === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Invoice not found',
+            ]);
+        }
+
+        $user = Auth::getUser();
+        $denied = self::denyIfNotInvoiceOwner($invoice, $user, $response);
+
+        if ($denied !== null) {
+            return $denied;
+        }
+
+        $price = $invoice->price;
 
         if ($price <= 0) {
             return $response->withJson([
@@ -74,18 +89,20 @@ final class Cryptomus extends Base
             ]);
         }
 
-        $user = Auth::getUser();
-        $pl = new Paylist();
+        $pl = (new Paylist())->where('invoice_id', $invoiceId)->first();
 
-        $tradeNumber = self::generateGuid();
+        if ($pl === null) {
+            $pl = new Paylist();
+            $pl->userid = $user->id;
+            $pl->invoice_id = $invoiceId;
+            $pl->tradeno = self::generateGuid();
+        }
 
-        $pl->userid = $user->id;
         $pl->total = $price;
-        $pl->invoice_id = $invoiceId;
-        $pl->tradeno = $tradeNumber;
         $pl->gateway = self::_readableName();
-
         $pl->save();
+
+        $tradeNumber = $pl->tradeno;
 
         $paymentData = [
             'amount' => $price,
@@ -135,7 +152,6 @@ final class Cryptomus extends Base
 
         $success = isset($data['is_final']) && $data['is_final'] && ($data['status'] === 'paid' || $data['status'] === 'paid_over' || $data['status'] === 'wrong_amount');
         if ($success) {
-//            $orderId = preg_replace('/^sspanel(?:_upd)?_/', '', $data['order_id'] ?? '');
             $this->postPayment($additionalData['tradeno']);
 
             return $response->withJson([

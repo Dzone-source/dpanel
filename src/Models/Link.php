@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use Illuminate\Database\Query\Builder;
+use function strtotime;
+use function time;
 
 /**
  * @property int    $id     记录ID
@@ -25,10 +27,16 @@ final class Link extends Model
 
     public function isValid(): bool
     {
-        if ($this !== null && $this->user() !== null && $this->user()->is_banned === 0) {
-            return true;
+        $user = $this->user();
+
+        if ($user === null || $user->is_banned !== 0) {
+            return false;
         }
 
-        return false;
+        if (strtotime($user->class_expire) <= time()) {
+            return false;
+        }
+
+        return true;
     }
 }

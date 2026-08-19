@@ -68,6 +68,11 @@ final class OrderController extends BaseController
         }
 
         $product = (new Product())->where('id', $product_id)->first();
+
+        if ($product === null) {
+            return $response->withRedirect('/user/product');
+        }
+
         $product->type_text = $product->type();
         $product->content = json_decode($product->content);
 
@@ -98,6 +103,11 @@ final class OrderController extends BaseController
         $order->content = json_decode($order->product_content);
 
         $invoice = (new Invoice())->where('order_id', $id)->first();
+
+        if ($invoice === null) {
+            return $response->withRedirect('/user/order');
+        }
+
         $invoice->status = $invoice->status();
         $invoice->create_time = Tools::toDateTime($invoice->create_time);
         $invoice->update_time = Tools::toDateTime($invoice->update_time);
@@ -286,11 +296,6 @@ final class OrderController extends BaseController
         $product->sale_count += 1;
         $product->save();
 
-        if ($coupon_raw !== '') {
-            $coupon->use_count += 1;
-            $coupon->save();
-        }
-
         return $response->withHeader('HX-Redirect', '/user/invoice/' . $invoice->id . '/view');
     }
 
@@ -349,9 +354,11 @@ final class OrderController extends BaseController
             $order->op = '<a class="btn btn-primary" href="/user/order/' . $order->id . '/view">查看</a>';
 
             if ($order->status === 'pending_payment') {
-                $invoice_id = (new Invoice())->where('order_id', $order->id)->first()->id;
-                $order->op .= '
-                <a class="btn btn-red" href="/user/invoice/' . $invoice_id . '/view">支付</a>';
+                $invoice_row = (new Invoice())->where('order_id', $order->id)->first();
+                if ($invoice_row !== null) {
+                    $order->op .= '
+                <a class="btn btn-red" href="/user/invoice/' . $invoice_row->id . '/view">支付</a>';
+                }
             }
 
             $order->product_type = $order->productType();

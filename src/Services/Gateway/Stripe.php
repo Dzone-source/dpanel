@@ -58,6 +58,13 @@ final class Stripe extends Base
             ]);
         }
 
+        $user = Auth::getUser();
+        $denied = self::denyIfNotInvoiceOwner($invoice, $user, $response);
+
+        if ($denied !== null) {
+            return $denied;
+        }
+
         $price = $invoice->price;
 
         if ($price < Config::obtain('stripe_min_recharge') ||
@@ -69,7 +76,6 @@ final class Stripe extends Base
             ]);
         }
 
-        $user = Auth::getUser();
         $pl = (new Paylist())->where('invoice_id', $invoice_id)->first();
 
         if ($pl === null) {
@@ -78,6 +84,9 @@ final class Stripe extends Base
             $pl->total = $price;
             $pl->invoice_id = $invoice_id;
             $pl->tradeno = self::generateGuid();
+        } else {
+            $pl->userid = $user->id;
+            $pl->total = $price;
         }
 
         $pl->gateway = self::_readableName();
@@ -94,13 +103,16 @@ final class Stripe extends Base
             ]);
         }
         // https://docs.stripe.com/currencies?presentment-currency=US#zero-decimal
+        $unit_amount = (int) round($exchange_amount);
+
         if (! in_array(
             $stripe_currency,
             ['BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW',
                 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
-            ]
+            ],
+            true
         )) {
-            $exchange_amount *= 100;
+            $unit_amount *= 100;
         }
 
         $stripe = new StripeClient(Config::obtain('stripe_api_key'));
@@ -116,7 +128,7 @@ final class Stripe extends Base
                             'product_data' => [
                                 'name' => 'Invoice #' . $invoice_id,
                             ],
-                            'unit_amount' => (int) ($exchange_amount * 100),
+                            'unit_amount' => $unit_amount,
                         ],
                         'quantity' => 1,
                     ],

@@ -41,8 +41,8 @@ final class DetectLogController extends BaseController
 
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $length = $request->getParam('length');
-        $page = $request->getParam('start') / $length + 1;
+        $length = max(1, (int) $request->getParam('length'));
+        $page = (int) $request->getParam('start') / $length + 1;
         $draw = $request->getParam('draw');
 
         $detect_log = DetectLog::query();
@@ -50,9 +50,11 @@ final class DetectLogController extends BaseController
         $search = $request->getParam('search')['value'];
 
         if ($search !== '') {
-            $detect_log->where('user_id', '=', $search)
-                ->orWhere('list_id', '=', $search)
-                ->orWhere('node_id', '=', $search);
+            $detect_log->where(static function ($query) use ($search): void {
+                $query->where('user_id', '=', $search)
+                    ->orWhere('list_id', '=', $search)
+                    ->orWhere('node_id', '=', $search);
+            });
         }
 
         $order = $request->getParam('order')[0]['dir'];

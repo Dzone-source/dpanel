@@ -25,6 +25,8 @@ use function time;
 
 final class UserController extends BaseController
 {
+    private const ONLINE_WINDOW = 90;
+
     /**
      * GET /mod_mu/users
      */
@@ -47,26 +49,18 @@ final class UserController extends BaseController
             return ResponseHelper::error($response, 'Node out of bandwidth.');
         }
 
-        $users_raw = (new User())->where(
-            'is_banned',
-            0
-        )->where(
-            'class_expire',
-            '>',
-            date('Y-m-d H:i:s')
-        )->where(
-            static function ($query) use ($node): void {
-                $query->where('class', '>=', $node->node_class)
-                    ->where(static function ($query) use ($node): void {
-                        if ($node->node_group !== 0) {
-                            $query->where('node_group', $node->node_group);
-                        }
-                    });
-            }
-        )->orWhere(
-            'is_admin',
-            1
-        )->get([
+        $users_raw = (new User())->where('is_banned', 0)
+            ->where(static function ($query) use ($node): void {
+                $query->where(static function ($eligible) use ($node): void {
+                    $eligible->where('class_expire', '>', date('Y-m-d H:i:s'))
+                        ->where('class', '>=', $node->node_class)
+                        ->where(static function ($groupQuery) use ($node): void {
+                            if ($node->node_group !== 0) {
+                                $groupQuery->where('node_group', $node->node_group);
+                            }
+                        });
+                })->orWhere('is_admin', 1);
+            })->get([
             'id',
             'u',
             'd',
@@ -87,6 +81,7 @@ final class UserController extends BaseController
         };
 
         $users = [];
+        $online_cutoff = time() - self::ONLINE_WINDOW;
 
         foreach ($users_raw as $user_raw) {
             if ($user_raw->transfer_enable <= $user_raw->u + $user_raw->d) {
@@ -99,11 +94,7 @@ final class UserController extends BaseController
             }
 
             if ($user_raw->node_iplimit !== 0 &&
-                $user_raw->node_iplimit <
-                (new OnlineLog())
-                    ->where('user_id', $user_raw->id)
-                    ->where('last_time', '>', time() - 90)
-                    ->count()
+                $user_raw->node_iplimit < self::countDistinctOnlineIps((int) $user_raw->id, $online_cutoff)
             ) {
                 continue;
             }
@@ -180,25 +171,21 @@ final class UserController extends BaseController
         foreach ($data as $log) {
             $u = $log?->u;
             $d = $log?->d;
-            $user_id = $log?->user_id;
+            $user_id = (int) ($log?->user_id ?? 0);
 
-            if ($user_id) {
+            if ($user_id > 0) {
                 $billed_u = $u * $rate;
                 $billed_d = $d * $rate;
 
-                $user = (new User())->find($user_id);
+                (new User())->where('id', $user_id)->update(['last_use_time' => time()]);
+                (new User())->where('id', $user_id)->increment('u', $billed_u);
+                (new User())->where('id', $user_id)->increment('d', $billed_d);
+                (new User())->where('id', $user_id)->increment('transfer_total', $u + $d);
+                (new User())->where('id', $user_id)->increment('transfer_today', $billed_u + $billed_d);
 
-                $user->update([
-                    'last_use_time' => time(),
-                    'u' => $user->u + $billed_u,
-                    'd' => $user->d + $billed_d,
-                    'transfer_total' => $user->transfer_total + $u + $d,
-                    'transfer_today' => $user->transfer_today + $billed_u + $billed_d,
-                ]);
-            }
-
-            if ($is_traffic_log) {
-                (new HourlyUsage())->add((int) $user_id, (int) ($u + $d));
+                if ($is_traffic_log) {
+                    (new HourlyUsage())->add($user_id, (int) ($u + $d));
+                }
             }
 
             $sum += $u + $d;
@@ -299,5 +286,14 @@ final class UserController extends BaseController
         }
 
         return ResponseHelper::success($response, 'ok');
+    }
+
+    private static function countDistinctOnlineIps(int $user_id, int $cutoff): int
+    {
+        return (int) (new OnlineLog())
+            ->where('user_id', $user_id)
+            ->where('last_time', '>', $cutoff)
+            ->selectRaw('COUNT(DISTINCT ip) AS cnt')
+            ->value('cnt');
     }
 }

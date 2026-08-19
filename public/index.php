@@ -14,6 +14,7 @@ require_once __DIR__ . '/../config/.config.php';
 require_once __DIR__ . '/../config/appprofile.php';
 require_once __DIR__ . '/../app/predefine.php';
 
+use App\Middleware\Csrf;
 use App\Middleware\ErrorHandler;
 use App\Services\Boot;
 use GuzzleHttp\Psr7\HttpFactory;
@@ -30,6 +31,7 @@ $response_factory = new DecoratedResponseFactory($guzzle_factory, $guzzle_factor
 $app = AppFactory::create($response_factory);
 
 $app->add(new ErrorHandler());
+$app->add(new Csrf());
 
 $routes = require __DIR__ . '/../app/routes.php';
 $routes($app);

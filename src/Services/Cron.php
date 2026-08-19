@@ -256,6 +256,10 @@ final class Cron
             if ($activated_order !== null) {
                 $content = json_decode($activated_order->product_content);
 
+                if ($content === null || ! isset($content->time)) {
+                    continue;
+                }
+
                 if ($activated_order->update_time + $content->time * 86400 < time()) {
                     $activated_order->status = 'expired';
                     $activated_order->update_time = time();
@@ -267,25 +271,42 @@ final class Cron
             // 如果用户账户中没有已激活的TABP订单，且有等待激活的TABP订单，则激活最早的等待激活TABP订单
             if ($activated_order === null && count($pending_activation_orders) > 0) {
                 $order = $pending_activation_orders[0];
-                // 获取TABP订单内容准备激活
                 $content = json_decode($order->product_content);
-                // 激活TABP
-                $user->u = 0;
-                $user->d = 0;
-                $user->transfer_today = 0;
-                $user->transfer_enable = Tools::gbToB($content->bandwidth);
-                $user->class = $content->class;
-                $old_class_expire = new DateTime();
-                $user->class_expire = $old_class_expire
-                    ->modify('+' . $content->class_time . ' days')->format('Y-m-d H:i:s');
-                $user->node_group = $content->node_group;
-                $user->node_speedlimit = $content->speed_limit;
-                $user->node_iplimit = $content->ip_limit;
-                $user->save();
-                $order->status = 'activated';
-                $order->update_time = time();
-                $order->save();
-                echo "TABP订单 #{$order->id} 已激活。\n";
+
+                if ($content === null) {
+                    continue;
+                }
+
+                DB::connection()->transaction(static function () use ($user, $order, $content): void {
+                    $locked = (new Order())->where('id', $order->id)->lockForUpdate()->first();
+
+                    if ($locked === null || $locked->status !== 'pending_activation') {
+                        return;
+                    }
+
+                    $fresh_user = (new User())->where('id', $user->id)->lockForUpdate()->first();
+
+                    if ($fresh_user === null) {
+                        return;
+                    }
+
+                    $fresh_user->u = 0;
+                    $fresh_user->d = 0;
+                    $fresh_user->transfer_today = 0;
+                    $fresh_user->transfer_enable = Tools::gbToB($content->bandwidth);
+                    $fresh_user->class = $content->class;
+                    $old_class_expire = new DateTime();
+                    $fresh_user->class_expire = $old_class_expire
+                        ->modify('+' . $content->class_time . ' days')->format('Y-m-d H:i:s');
+                    $fresh_user->node_group = $content->node_group;
+                    $fresh_user->node_speedlimit = $content->speed_limit;
+                    $fresh_user->node_iplimit = $content->ip_limit;
+                    $fresh_user->save();
+                    $locked->status = 'activated';
+                    $locked->update_time = time();
+                    $locked->save();
+                    echo "TABP订单 #{$locked->id} 已激活。\n";
+                });
             }
         }
 
@@ -306,15 +327,32 @@ final class Cron
                 ->first();
 
             if ($order !== null) {
-                // 获取流量包订单内容准备激活
                 $content = json_decode($order->product_content);
-                // 激活流量包
-                $user->transfer_enable += Tools::gbToB($content->bandwidth);
-                $user->save();
-                $order->status = 'activated';
-                $order->update_time = time();
-                $order->save();
-                echo "流量包订单 #{$order->id} 已激活。\n";
+
+                if ($content === null || ! isset($content->bandwidth)) {
+                    continue;
+                }
+
+                DB::connection()->transaction(static function () use ($user, $order, $content): void {
+                    $locked = (new Order())->where('id', $order->id)->lockForUpdate()->first();
+
+                    if ($locked === null || $locked->status !== 'pending_activation') {
+                        return;
+                    }
+
+                    $fresh_user = (new User())->where('id', $user->id)->lockForUpdate()->first();
+
+                    if ($fresh_user === null) {
+                        return;
+                    }
+
+                    $fresh_user->transfer_enable += Tools::gbToB($content->bandwidth);
+                    $fresh_user->save();
+                    $locked->status = 'activated';
+                    $locked->update_time = time();
+                    $locked->save();
+                    echo "流量包订单 #{$locked->id} 已激活。\n";
+                });
             }
         }
 
@@ -339,23 +377,41 @@ final class Cron
 
             if ($order !== null) {
                 $content = json_decode($order->product_content);
-                // 跳过当前账户等级不等于时间包等级的非免费用户订单
+
+                if ($content === null) {
+                    continue;
+                }
+
                 if ($user->class !== (int) $content->class && $user->class > 0) {
                     continue;
                 }
-                // 激活时间包
-                $user->class = $content->class;
-                $old_class_expire = new DateTime($user->class_expire);
-                $user->class_expire = $old_class_expire
-                    ->modify('+' . $content->class_time . ' days')->format('Y-m-d H:i:s');
-                $user->node_group = $content->node_group;
-                $user->node_speedlimit = $content->speed_limit;
-                $user->node_iplimit = $content->ip_limit;
-                $user->save();
-                $order->status = 'activated';
-                $order->update_time = time();
-                $order->save();
-                echo "时间包订单 #{$order->id} 已激活。\n";
+
+                DB::connection()->transaction(static function () use ($user, $order, $content): void {
+                    $locked = (new Order())->where('id', $order->id)->lockForUpdate()->first();
+
+                    if ($locked === null || $locked->status !== 'pending_activation') {
+                        return;
+                    }
+
+                    $fresh_user = (new User())->where('id', $user->id)->lockForUpdate()->first();
+
+                    if ($fresh_user === null) {
+                        return;
+                    }
+
+                    $fresh_user->class = $content->class;
+                    $old_class_expire = new DateTime($fresh_user->class_expire);
+                    $fresh_user->class_expire = $old_class_expire
+                        ->modify('+' . $content->class_time . ' days')->format('Y-m-d H:i:s');
+                    $fresh_user->node_group = $content->node_group;
+                    $fresh_user->node_speedlimit = $content->speed_limit;
+                    $fresh_user->node_iplimit = $content->ip_limit;
+                    $fresh_user->save();
+                    $locked->status = 'activated';
+                    $locked->update_time = time();
+                    $locked->save();
+                    echo "时间包订单 #{$locked->id} 已激活。\n";
+                });
             }
         }
 
@@ -374,23 +430,40 @@ final class Cron
             ->get();
 
         foreach ($orders as $order) {
-            $user_id = $order->user_id;
-            $user = (new User())->find($user_id);
-            $content = json_decode($order->product_content);
-            // 充值
-            $user->money += $content->amount;
-            $user->save();
-            $order->status = 'activated';
-            $order->update_time = time();
-            $order->save();
-            (new UserMoneyLog())->add(
-                $user_id,
-                $user->money - $content->amount,
-                $user->money,
-                $content->amount,
-                "充值订单 #{$order->id}"
-            );
-            echo "充值订单 #{$order->id} 已激活。\n";
+            DB::connection()->transaction(static function () use ($order): void {
+                $locked = (new Order())->where('id', $order->id)->lockForUpdate()->first();
+
+                if ($locked === null || $locked->status !== 'pending_activation') {
+                    return;
+                }
+
+                $content = json_decode($locked->product_content);
+
+                if ($content === null || ! isset($content->amount)) {
+                    return;
+                }
+
+                $user = (new User())->where('id', $locked->user_id)->lockForUpdate()->first();
+
+                if ($user === null) {
+                    return;
+                }
+
+                $money_before = $user->money;
+                $user->money += $content->amount;
+                $user->save();
+                $locked->status = 'activated';
+                $locked->update_time = time();
+                $locked->save();
+                (new UserMoneyLog())->add(
+                    $user->id,
+                    $money_before,
+                    $user->money,
+                    $content->amount,
+                    "充值订单 #{$locked->id}"
+                );
+                echo "充值订单 #{$locked->id} 已激活。\n";
+            });
         }
 
         echo Tools::toDateTime(time()) . ' 充值订单激活处理完成' . PHP_EOL;
@@ -587,6 +660,7 @@ final class Cron
             $unit_text = '';
 
             if ($_ENV['notify_limit_mode'] === 'per' &&
+                $user->transfer_enable > 0 &&
                 $user_traffic_left / $user->transfer_enable * 100 < $_ENV['notify_limit_value']
             ) {
                 $under_limit = true;
