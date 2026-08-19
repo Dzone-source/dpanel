@@ -11,6 +11,9 @@ use App\Services\Subscribe\SingBox;
 use App\Services\Subscribe\V2Ray;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function array_merge;
+use function yaml_emit;
+use const YAML_UTF8_ENCODING;
 
 final class NodeConfigAndHiddifyTest extends TestCase
 {
@@ -52,6 +55,69 @@ final class NodeConfigAndHiddifyTest extends TestCase
         $this->assertSame('pubKEY', $reality['public_key']);
         $this->assertSame('abcd', $reality['short_id']);
         $this->assertSame('www.microsoft.com', $reality['server_name']);
+    }
+
+    public function testClashNormalizesLegacyPortsToMixedPort(): void
+    {
+        $clash = new Clash();
+        $ref = new \ReflectionClass(Clash::class);
+        $method = $ref->getMethod('normalizeLocalPorts');
+        $method->setAccessible(true);
+
+        $normalized = $method->invoke($clash, [
+            'port' => 7890,
+            'socks-port' => 7891,
+            'allow-lan' => false,
+            'mode' => 'Rule',
+        ]);
+
+        $this->assertSame(7890, $normalized['mixed-port']);
+        $this->assertArrayNotHasKey('port', $normalized);
+        $this->assertArrayNotHasKey('socks-port', $normalized);
+        $this->assertFalse($normalized['allow-lan']);
+
+        $alreadyMixed = $method->invoke($clash, [
+            'mixed-port' => 7897,
+            'port' => 7890,
+            'socks-port' => 7891,
+        ]);
+        $this->assertSame(7897, $alreadyMixed['mixed-port']);
+        $this->assertArrayNotHasKey('port', $alreadyMixed);
+        $this->assertArrayNotHasKey('socks-port', $alreadyMixed);
+    }
+
+    public function testClashSubscriptionYamlUsesMixedPortOnly(): void
+    {
+        $clash = new Clash();
+        $ref = new \ReflectionClass(Clash::class);
+        $normalize = $ref->getMethod('normalizeLocalPorts');
+        $normalize->setAccessible(true);
+
+        $clash_config = $normalize->invoke($clash, [
+            'port' => 7890,
+            'socks-port' => 7891,
+            'allow-lan' => false,
+            'mode' => 'Rule',
+        ]);
+
+        $yaml = yaml_emit(
+            array_merge($clash_config, [
+                'proxies' => [],
+                'proxy-groups' => [
+                    [
+                        'name' => 'Proxy',
+                        'type' => 'select',
+                        'proxies' => ['DIRECT'],
+                    ],
+                ],
+            ]),
+            YAML_UTF8_ENCODING
+        );
+
+        $this->assertStringContainsString('mixed-port', $yaml);
+        $this->assertStringContainsString('7890', $yaml);
+        $this->assertDoesNotMatchRegularExpression('/^port:/m', $yaml);
+        $this->assertStringNotContainsString('socks-port', $yaml);
     }
 
     public function testClashEmitsVlessRealityForHiddify(): void
@@ -99,26 +165,12 @@ final class NodeConfigAndHiddifyTest extends TestCase
             ],
         ]);
 
-        // Bypass DB: call private builder via Clash reflection of getContent is heavy;
-        // instead unit-test through a thin subclass that injects nodes.
-        $clash = new class () extends Clash {
-            public array $injectNodes = [];
-
-            public function getContent($user): string
-            {
-                // Monkey-patch by building YAML manually using parent logic is hard;
-                // use reflection on buildV2Family.
-                $ref = new \ReflectionClass(Clash::class);
-                $method = $ref->getMethod('buildV2Family');
-                $method->setAccessible(true);
-                $proxy = $method->invoke($this, $this->injectNodes[0], $user, \App\Services\Subscribe\NodeConfig::decode($this->injectNodes[0]->custom_config));
-
-                return yaml_emit(['proxies' => [$proxy]], YAML_UTF8_ENCODING);
-            }
-        };
-        $clash->injectNodes = [$node];
-
-        $yaml = $clash->getContent($user);
+        $clash = new Clash();
+        $ref = new \ReflectionClass(Clash::class);
+        $method = $ref->getMethod('buildV2Family');
+        $method->setAccessible(true);
+        $proxy = $method->invoke($clash, $node, $user, NodeConfig::decode($node->custom_config));
+        $yaml = yaml_emit(['proxies' => [$proxy]], YAML_UTF8_ENCODING);
         $this->assertStringContainsString('vless', $yaml);
         $this->assertStringContainsString('PUBLIC', $yaml);
         $this->assertStringContainsString('reality-opts', $yaml);

@@ -17,7 +17,7 @@ final class Clash extends Base
     public function getContent($user): string
     {
         $nodes = [];
-        $clash_config = $_ENV['Clash_Config'];
+        $clash_config = $this->normalizeLocalPorts($_ENV['Clash_Config']);
         $clash_group_indexes = $_ENV['Clash_Group_Indexes'];
         $clash_group_config = $_ENV['Clash_Group_Config'];
         $nodes_raw = Subscribe::getUserNodes($user);
@@ -229,6 +229,25 @@ final class Clash extends Base
             array_merge($clash_config, $clash_nodes, $clash_group_config),
             YAML_UTF8_ENCODING
         );
+    }
+
+    /**
+     * ClashMi / Clash Meta already bind mixed-port (default 7890). Legacy profiles
+     * that also emit port + socks-port cause a second HTTP listen on the same
+     * address and fail with: listen tcp 127.0.0.1:7890: bind: Only one usage of
+     * each socket address (protocol/network address/port) is normally permitted.
+     */
+    private function normalizeLocalPorts(array $clash_config): array
+    {
+        if (! isset($clash_config['mixed-port'])) {
+            $clash_config['mixed-port'] = isset($clash_config['port'])
+                ? (int) $clash_config['port']
+                : 7890;
+        }
+
+        unset($clash_config['port'], $clash_config['socks-port']);
+
+        return $clash_config;
     }
 
     /**
