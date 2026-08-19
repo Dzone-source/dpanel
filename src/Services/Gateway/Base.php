@@ -9,8 +9,10 @@ use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Paylist;
 use App\Models\User;
+use App\Models\UserCoupon;
 use App\Models\UserMoneyLog;
 use App\Services\Cron as CronService;
+use App\Services\DB;
 use App\Services\Reward;
 use App\Utils\Tools;
 use Exception;
@@ -38,19 +40,10 @@ abstract class Base
 
     abstract public function notify(ServerRequest $request, Response $response, array $args): ResponseInterface;
 
-    /**
-     * 支付网关的 codeName
-     */
     abstract public static function _name(): string;
 
-    /**
-     * 是否启用支付网关
-     */
     abstract public static function _enable(): bool;
 
-    /**
-     * 显示给用户的名称
-     */
     abstract public static function _readableName(): string;
 
     public function getReturnHTML(ServerRequest $request, Response $response, array $args): ResponseInterface
@@ -62,56 +55,84 @@ abstract class Base
 
     public function postPayment(string $trade_no): void
     {
-        $paylist = (new Paylist())->where('tradeno', $trade_no)->first();
-
-        if ($paylist?->status === 0) {
-            $paylist->datetime = time();
-            $paylist->status = 1;
-            $paylist->save();
-        }
-
-        $invoice = (new Invoice())->where('id', $paylist?->invoice_id)->first();
-
-        if (($invoice?->status === 'unpaid' || $invoice?->status === 'partially_paid') &&
-            (int) $paylist?->total >= (int) $invoice?->price) {
-            $invoice->status = 'paid_gateway';
-            $invoice->update_time = time();
-            $invoice->pay_time = time();
-            $invoice->save();
-        }
-
-        $user = (new User())->find($paylist?->userid);
-
-        if ($paylist?->total > $invoice?->price) {
-            $money_before = $user->money;
-            $user->money += $paylist?->total - $invoice?->price;
-            $user->save();
-            (new UserMoneyLog())->add(
-                $user->id,
-                $money_before,
-                $user->money,
-                $paylist?->total - $invoice?->price,
-                'Thanh toán vượt mức hóa đơn #' . $invoice?->id
-            );
-        }
-
-        if ($user !== null && $user->ref_by > 0 && Config::obtain('invite_mode') === 'reward') {
-            Reward::issuePaybackReward($user->id, $user->ref_by, $invoice?->price, $paylist?->invoice_id);
-        }
-
-        // Activate paid shop/topup orders immediately after gateway confirmation.
         try {
-            if ($invoice !== null) {
-                $order = (new Order())->find($invoice->order_id);
-                if ($order !== null && $order->status === 'pending_payment') {
-                    $order->status = 'pending_activation';
-                    $order->update_time = time();
-                    $order->save();
+            DB::connection()->transaction(function () use ($trade_no): void {
+                $paylist = (new Paylist())->where('tradeno', $trade_no)->lockForUpdate()->first();
+
+                if ($paylist === null || $paylist->status !== 0) {
+                    return;
                 }
-            }
+
+                $paylist->datetime = time();
+                $paylist->status = 1;
+                $paylist->save();
+
+                $invoice = (new Invoice())->where('id', $paylist->invoice_id)->lockForUpdate()->first();
+
+                if ($invoice === null) {
+                    return;
+                }
+
+                $was_unpaid = in_array($invoice->status, ['unpaid', 'partially_paid'], true);
+
+                if ($was_unpaid && (int) $paylist->total >= (int) $invoice->price) {
+                    $invoice->status = 'paid_gateway';
+                    $invoice->update_time = time();
+                    $invoice->pay_time = time();
+                    $invoice->save();
+                }
+
+                $user = (new User())->find($paylist->userid);
+
+                if ($user === null) {
+                    return;
+                }
+
+                if ($was_unpaid && (int) $paylist->total > (int) $invoice->price) {
+                    $overflow = $paylist->total - $invoice->price;
+                    $money_before = $user->money;
+                    $user->money += $overflow;
+                    $user->save();
+                    (new UserMoneyLog())->add(
+                        $user->id,
+                        $money_before,
+                        $user->money,
+                        $overflow,
+                        'Thanh toán vượt mức hóa đơn #' . $invoice->id
+                    );
+                }
+
+                if ($was_unpaid && $invoice->status === 'paid_gateway') {
+                    $order = (new Order())->where('id', $invoice->order_id)->lockForUpdate()->first();
+
+                    if ($order !== null) {
+                        if ($order->coupon !== '') {
+                            $coupon = (new UserCoupon())->where('code', $order->coupon)->lockForUpdate()->first();
+                            if ($coupon !== null) {
+                                $coupon->use_count += 1;
+                                $coupon->save();
+                            }
+                        }
+
+                        if ($order->status === 'pending_payment') {
+                            $order->status = 'pending_activation';
+                            $order->update_time = time();
+                            $order->save();
+                        }
+                    }
+
+                    if ($user->ref_by > 0 && Config::obtain('invite_mode') === 'reward') {
+                        Reward::issuePaybackReward($user->id, $user->ref_by, $invoice->price, $paylist->invoice_id);
+                    }
+                }
+            });
+        } catch (Throwable) {
+            // Leave order activation to cron if immediate processing fails.
+        }
+
+        try {
             CronService::processShopOrdersNow();
         } catch (Throwable) {
-            // Leave activation to cron if immediate processing fails.
         }
     }
 
@@ -138,7 +159,6 @@ abstract class Base
         }
 
         $raw = (string) $payment_gateways->value;
-        // Fast path for oddly encoded / double-encoded JSON values.
         if (str_contains($raw, $key)) {
             return true;
         }

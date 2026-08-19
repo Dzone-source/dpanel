@@ -114,6 +114,11 @@ final class OrderController extends BaseController
         $order->content = json_decode($order->product_content);
 
         $invoice = (new Invoice())->where('order_id', $id)->first();
+
+        if ($invoice === null) {
+            return $response->withRedirect('/user/order');
+        }
+
         $invoice->status = $invoice->status();
         $invoice->create_time = Tools::toDateTime($invoice->create_time);
         $invoice->update_time = Tools::toDateTime($invoice->update_time);
@@ -417,9 +422,11 @@ final class OrderController extends BaseController
             $order->op = '<a class="btn btn-primary" href="/user/order/' . $order->id . '/view">Xem</a>';
 
             if ($order->status === 'pending_payment') {
-                $invoice_id = (new Invoice())->where('order_id', $order->id)->first()->id;
-                $order->op .= '
-                <a class="btn btn-red" href="/user/invoice/' . $invoice_id . '/view">Thanh toán</a>';
+                $invoice_row = (new Invoice())->where('order_id', $order->id)->first();
+                if ($invoice_row !== null) {
+                    $order->op .= '
+                <a class="btn btn-red" href="/user/invoice/' . $invoice_row->id . '/view">Thanh toán</a>';
+                }
             }
 
             $order->product_type = $order->productType();

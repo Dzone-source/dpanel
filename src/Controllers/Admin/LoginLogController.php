@@ -48,8 +48,8 @@ final class LoginLogController extends BaseController
      */
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $length = $request->getParam('length');
-        $page = $request->getParam('start') / $length + 1;
+        $length = max(1, (int) $request->getParam('length'));
+        $page = (int) $request->getParam('start') / $length + 1;
         $draw = $request->getParam('draw');
 
         $login_log = LoginIp::query();
@@ -57,8 +57,10 @@ final class LoginLogController extends BaseController
         $search = $request->getParam('search')['value'];
 
         if ($search !== '') {
-            $login_log->where('userid', '=', $search)
-                ->orWhere('ip', 'LIKE', "%{$search}%");
+            $login_log->where(static function ($query) use ($search): void {
+                $query->where('userid', '=', $search)
+                    ->orWhere('ip', 'LIKE', "%{$search}%");
+            });
         }
 
         $order = $request->getParam('order')[0]['dir'];

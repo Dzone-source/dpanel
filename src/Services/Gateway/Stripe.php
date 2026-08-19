@@ -58,6 +58,15 @@ final class Stripe extends Base
             ]);
         }
 
+        $user = Auth::getUser();
+
+        if ((int) $invoice->user_id !== (int) $user->id) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => '无权操作此账单',
+            ]);
+        }
+
         $price = $invoice->price;
 
         if ($price < Config::obtain('stripe_min_recharge') ||
@@ -94,13 +103,16 @@ final class Stripe extends Base
             ]);
         }
         // https://docs.stripe.com/currencies?presentment-currency=US#zero-decimal
+        $unit_amount = (int) round($exchange_amount);
+
         if (! in_array(
             $stripe_currency,
             ['BIF', 'CLP', 'DJF', 'GNF', 'JPY', 'KMF', 'KRW',
                 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
-            ]
+            ],
+            true
         )) {
-            $exchange_amount *= 100;
+            $unit_amount *= 100;
         }
 
         $stripe = new StripeClient(Config::obtain('stripe_api_key'));
@@ -116,7 +128,7 @@ final class Stripe extends Base
                             'product_data' => [
                                 'name' => 'Invoice #' . $invoice_id,
                             ],
-                            'unit_amount' => (int) ($exchange_amount * 100),
+                            'unit_amount' => $unit_amount,
                         ],
                         'quantity' => 1,
                     ],

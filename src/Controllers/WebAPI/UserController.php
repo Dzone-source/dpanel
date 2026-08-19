@@ -48,26 +48,18 @@ final class UserController extends BaseController
         $nodeOverBandwidth = $node->node_bandwidth_limit !== 0
             && $node->node_bandwidth_limit <= $node->node_bandwidth;
 
-        $users_raw = (new User())->where(
-            'is_banned',
-            0
-        )->where(
-            'class_expire',
-            '>',
-            date('Y-m-d H:i:s')
-        )->where(
-            static function ($query) use ($node): void {
-                $query->where('class', '>=', $node->node_class)
-                    ->where(static function ($query) use ($node): void {
-                        if ($node->node_group !== 0) {
-                            $query->where('node_group', $node->node_group);
-                        }
-                    });
-            }
-        )->orWhere(
-            'is_admin',
-            1
-        )->get([
+        $users_raw = (new User())->where('is_banned', 0)
+            ->where(static function ($query) use ($node): void {
+                $query->where(static function ($eligible) use ($node): void {
+                    $eligible->where('class_expire', '>', date('Y-m-d H:i:s'))
+                        ->where('class', '>=', $node->node_class)
+                        ->where(static function ($groupQuery) use ($node): void {
+                            if ($node->node_group !== 0) {
+                                $groupQuery->where('node_group', $node->node_group);
+                            }
+                        });
+                })->orWhere('is_admin', 1);
+            })->get([
             'id',
             'u',
             'd',
@@ -232,20 +224,18 @@ final class UserController extends BaseController
                     continue;
                 }
 
-                $user->update([
-                    'last_use_time' => time(),
-                    'u' => $user->u + $billed_u,
-                    'd' => $user->d + $billed_d,
-                    'transfer_total' => $user->transfer_total + $u + $d,
-                    'transfer_today' => $user->transfer_today + $billed_u + $billed_d,
-                ]);
+                (new User())->where('id', $user_id)->update(['last_use_time' => time()]);
+                (new User())->where('id', $user_id)->increment('u', $billed_u);
+                (new User())->where('id', $user_id)->increment('d', $billed_d);
+                (new User())->where('id', $user_id)->increment('transfer_total', $u + $d);
+                (new User())->where('id', $user_id)->increment('transfer_today', $billed_u + $billed_d);
 
                 if (((int) $u) + ((int) $d) > 0) {
                     $activeUserIds[(int) $user_id] = true;
                 }
             }
 
-            if ($is_traffic_log) {
+            if ($is_traffic_log && $user_id) {
                 (new HourlyUsage())->add((int) $user_id, (int) ($u + $d));
             }
 

@@ -75,6 +75,15 @@ final class AlipayF2F extends Base
             ]);
         }
 
+        $user = Auth::getUser();
+
+        if ((int) $invoice->user_id !== (int) $user->id) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => '无权操作此账单',
+            ]);
+        }
+
         $price = $invoice->price;
 
         if ($price <= 0) {
@@ -84,7 +93,6 @@ final class AlipayF2F extends Base
             ]);
         }
 
-        $user = Auth::getUser();
         $pl = (new Paylist())->where('invoice_id', $invoice_id)->first();
 
         if ($pl === null) {

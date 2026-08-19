@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Gateway;
 
 use App\Models\Config;
+use App\Models\Invoice;
 use App\Models\Paylist;
 use App\Services\Auth;
 use App\Services\Gateway\Cryptomus\Payment as CryptomusPayment;
@@ -19,9 +20,6 @@ use function trim;
 
 final class Cryptomus extends Base
 {
-    /**
-     * @var array
-     */
     protected array $cryptomus = [];
 
     public function __construct()
@@ -50,22 +48,29 @@ final class Cryptomus extends Base
         return 'Cryptomus';
     }
 
-    /**
-     * @param ServerRequest $request
-     * @param Response $response
-     * @param array $args
-     *
-     * @return ResponseInterface
-     *
-     * @throws Exception
-     */
     public function purchase(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $price = $this->antiXss->xss_clean($request->getParam('price'));
         $invoiceId = $this->antiXss->xss_clean($request->getParam('invoice_id'));
-
-        $type = $this->antiXss->xss_clean($request->getParam('type'));
         $redir = $this->antiXss->xss_clean($request->getParam('redir'));
+        $invoice = (new Invoice())->find($invoiceId);
+
+        if ($invoice === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Invoice not found',
+            ]);
+        }
+
+        $user = Auth::getUser();
+
+        if ((int) $invoice->user_id !== (int) $user->id) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => '无权操作此账单',
+            ]);
+        }
+
+        $price = $invoice->price;
 
         if ($price <= 0) {
             return $response->withJson([
@@ -74,17 +79,17 @@ final class Cryptomus extends Base
             ]);
         }
 
-        $user = Auth::getUser();
-        $pl = new Paylist();
+        $pl = (new Paylist())->where('invoice_id', $invoiceId)->first();
 
-        $tradeNumber = self::generateGuid();
+        if ($pl === null) {
+            $pl = new Paylist();
+            $pl->userid = $user->id;
+            $pl->invoice_id = $invoiceId;
+            $pl->tradeno = self::generateGuid();
+        }
 
-        $pl->userid = $user->id;
         $pl->total = $price;
-        $pl->invoice_id = $invoiceId;
-        $pl->tradeno = $tradeNumber;
         $pl->gateway = self::_readableName();
-
         $pl->save();
 
         $paymentData = [
@@ -96,7 +101,7 @@ final class Cryptomus extends Base
             'lifetime' => $this->cryptomus['cryptomus_lifetime'] ?? '3600',
             'subtract' => $this->cryptomus['cryptomus_subtract'] ?? '0',
             'plugin_name' => 'sspanel:2024.1',
-            'additional_data' => json_encode(['tradeno' => $tradeNumber]),
+            'additional_data' => json_encode(['tradeno' => $pl->tradeno]),
         ];
 
         $paymentInstance = $this->getPayment();
@@ -116,13 +121,6 @@ final class Cryptomus extends Base
         ]);
     }
 
-    /**
-     * @param $request
-     * @param $response
-     * @param $args
-     *
-     * @return ResponseInterface
-     */
     public function notify($request, $response, $args): ResponseInterface
     {
         $payload = trim(file_get_contents('php://input'));
@@ -135,7 +133,6 @@ final class Cryptomus extends Base
 
         $success = isset($data['is_final']) && $data['is_final'] && ($data['status'] === 'paid' || $data['status'] === 'paid_over' || $data['status'] === 'wrong_amount');
         if ($success) {
-//            $orderId = preg_replace('/^sspanel(?:_upd)?_/', '', $data['order_id'] ?? '');
             $this->postPayment($additionalData['tradeno']);
 
             return $response->withJson([
@@ -155,11 +152,6 @@ final class Cryptomus extends Base
         return View::getSmarty()->fetch('gateway/cryptomus.tpl');
     }
 
-    /**
-     * @return CryptomusPayment
-     *
-     * @throws \Exception
-     */
     private function getPayment(): CryptomusPayment
     {
         $merchantUuid = trim($this->cryptomus['cryptomus_uuid']);
@@ -172,11 +164,6 @@ final class Cryptomus extends Base
         return new CryptomusPayment($paymentKey, $merchantUuid);
     }
 
-    /**
-     * @param $data
-     *
-     * @return bool
-     */
     private function hashEqual($data): bool
     {
         $paymentKey = trim($this->cryptomus['cryptomus_api_key']);

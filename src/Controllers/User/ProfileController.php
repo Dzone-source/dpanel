@@ -42,7 +42,8 @@ final class ProfileController extends BaseController
         foreach ($ips as $ip) {
             $ip->ip = str_replace('::ffff:', '', $ip->ip);
             $ip->location = Tools::getIpLocation($ip->ip);
-            $ip->node_name = (new Node())->where('id', $ip->node_id)->first()->name;
+            $node = (new Node())->where('id', $ip->node_id)->first();
+            $ip->node_name = $node?->name ?? '未知节点';
             $ip->last_time = Tools::toDateTime((int) $ip->last_time);
         }
 

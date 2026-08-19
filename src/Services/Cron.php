@@ -746,6 +746,7 @@ final class Cron
             $unit_text = '';
 
             if ($_ENV['notify_limit_mode'] === 'per' &&
+                $user->transfer_enable > 0 &&
                 $user_traffic_left / $user->transfer_enable * 100 < $_ENV['notify_limit_value']
             ) {
                 $under_limit = true;

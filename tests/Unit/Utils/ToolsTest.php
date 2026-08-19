@@ -40,6 +40,7 @@ describe('Tools::formatVnd', function () {
 });
 
 
+describe('Tools::autoBytes', function () {
     it('converts bytes to human readable format', function () {
         $size = 1024;
         $bytes = Tools::autoBytes($size);
