@@ -116,7 +116,7 @@ final class NodeConfig
 
     public static function network(array $config, string $default = 'tcp'): string
     {
-        return (string) ($config['header']['type'] ?? $config['network'] ?? $default);
+        return (string) ($config['network'] ?? $default);
     }
 
     public static function serviceName(array $config): string

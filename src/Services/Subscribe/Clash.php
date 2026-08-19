@@ -6,7 +6,9 @@ namespace App\Services\Subscribe;
 
 use App\Services\Subscribe;
 use App\Utils\Tools;
+use function array_filter;
 use function array_merge;
+use function in_array;
 use function yaml_emit;
 use const YAML_UTF8_ENCODING;
 
