@@ -8,6 +8,7 @@ use App\Services\Subscribe;
 use App\Services\Subscribe\NodeConfig;
 use App\Utils\Tools;
 use function array_merge;
+use function in_array;
 use function json_decode;
 use function yaml_emit;
 use const YAML_UTF8_ENCODING;

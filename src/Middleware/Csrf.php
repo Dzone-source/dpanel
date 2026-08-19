@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Slim\Psr7\Response;
+use GuzzleHttp\Psr7\Response;
 use function in_array;
 use function parse_url;
 use function str_starts_with;
