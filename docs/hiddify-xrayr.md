@@ -124,7 +124,7 @@ Nguyên nhân thường gặp trên 4G (SoftBank/Linemo/Y!mobile):
 2. **`ipv6: true`** → Happy Eyeballs race trên carrier IPv6 hỏng. Fix: `ipv6: false` + DNS TCP/IPv4.
 3. **Fake-SNI** (cert host ≠ IP node) → TLS fail. Fix: tự `skip-cert-verify` khi SNI ≠ server.
 
-Sau deploy: trong ClashMi bấm **Update profile**, chọn node cụ thể (không dùng Tự động chọn) nếu vẫn còn rớt.
+Sau deploy: trong ClashMi bấm **Update profile**, rồi chọn node trong **Chọn thủ công** (không dùng **Tự động chọn**). Nhóm MATCH / app (Telegram, Netflix, …) mặc định theo **Chọn thủ công** — đổi node ở đó là đủ, không cần chọn lại từng nhóm.
 
 ## Kiểm tra nhanh
 

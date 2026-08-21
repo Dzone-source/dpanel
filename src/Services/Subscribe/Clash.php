@@ -272,9 +272,13 @@ final class Clash extends Base
     }
 
     /**
-     * Put real node names first in select groups so ClashMi does not default to
-     * url-test "Tự động chọn". Failed url-test probes on mobile 4G switch nodes and
-     * look like intermittent disconnects.
+     * Put real node names first in the *primary* select group only so ClashMi
+     * does not default to url-test ("Tự động chọn"). Failed url-test probes on
+     * mobile 4G switch nodes and look like intermittent disconnects.
+     *
+     * Must NOT reorder secondary/policy groups (MATCH / Netflix / Telegram / …).
+     * Those keep "Chọn thủ công" first so changing the main selector actually
+     * changes the outbound server ClashMi shows and uses.
      *
      * @param list<string> $nodeNames
      */
@@ -284,27 +288,36 @@ final class Clash extends Base
             return $groupConfig;
         }
 
-        $nodeSet = array_fill_keys($nodeNames, true);
-
-        foreach ($groupConfig['proxy-groups'] as &$group) {
-            if (($group['type'] ?? '') !== 'select' || ! isset($group['proxies']) || ! is_array($group['proxies'])) {
-                continue;
+        $primaryIndex = null;
+        foreach ($groupConfig['proxy-groups'] as $index => $group) {
+            if (($group['type'] ?? '') === 'select') {
+                $primaryIndex = (int) $index;
+                break;
             }
-
-            $nodes = [];
-            $other = [];
-            foreach ($group['proxies'] as $name) {
-                $name = (string) $name;
-                if (isset($nodeSet[$name])) {
-                    $nodes[] = $name;
-                } else {
-                    $other[] = $name;
-                }
-            }
-
-            $group['proxies'] = array_values(array_merge($nodes, $other));
         }
-        unset($group);
+
+        if ($primaryIndex === null) {
+            return $groupConfig;
+        }
+
+        $proxies = $groupConfig['proxy-groups'][$primaryIndex]['proxies'] ?? null;
+        if (! is_array($proxies)) {
+            return $groupConfig;
+        }
+
+        $nodeSet = array_fill_keys($nodeNames, true);
+        $nodes = [];
+        $other = [];
+        foreach ($proxies as $name) {
+            $name = (string) $name;
+            if (isset($nodeSet[$name])) {
+                $nodes[] = $name;
+            } else {
+                $other[] = $name;
+            }
+        }
+
+        $groupConfig['proxy-groups'][$primaryIndex]['proxies'] = array_values(array_merge($nodes, $other));
 
         return $groupConfig;
     }

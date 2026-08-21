@@ -117,6 +117,73 @@ final class NodeConfigAndHiddifyTest extends TestCase
         $this->assertSame(['JP-01', 'VN-01'], $out['proxy-groups'][1]['proxies']);
     }
 
+    public function testClashPolicyGroupsKeepManualSelectFirst(): void
+    {
+        $clash = new Clash();
+        $ref = new \ReflectionClass(Clash::class);
+        $method = $ref->getMethod('prioritizeNodesInSelectGroups');
+        $method->setAccessible(true);
+
+        // Mimics runtime: nodes appended to primary + MATCH-style groups.
+        $groups = [
+            'proxy-groups' => [
+                [
+                    'name' => '🔰 Chọn thủ công',
+                    'type' => 'select',
+                    'proxies' => [
+                        '🎯 Kết nối trực tiếp',
+                        '♻️ Tự động chọn',
+                        'JP-01',
+                        'VN-01',
+                    ],
+                ],
+                [
+                    'name' => '♻️ Tự động chọn',
+                    'type' => 'url-test',
+                    'proxies' => ['JP-01', 'VN-01'],
+                ],
+                [
+                    'name' => '📲 Telegram',
+                    'type' => 'select',
+                    'proxies' => [
+                        '🔰 Chọn thủ công',
+                        '♻️ Tự động chọn',
+                        '🎯 Kết nối trực tiếp',
+                        'JP-01',
+                        'VN-01',
+                    ],
+                ],
+                [
+                    'name' => '🐟 Lưu lượng khác',
+                    'type' => 'select',
+                    'proxies' => [
+                        '🔰 Chọn thủ công',
+                        '♻️ Tự động chọn',
+                        '🎯 Kết nối trực tiếp',
+                        'JP-01',
+                        'VN-01',
+                    ],
+                ],
+            ],
+        ];
+
+        $out = $method->invoke($clash, $groups, ['JP-01', 'VN-01']);
+
+        // Primary selector: nodes first so ClashMi does not land on url-test.
+        $this->assertSame(
+            ['JP-01', 'VN-01', '🎯 Kết nối trực tiếp', '♻️ Tự động chọn'],
+            $out['proxy-groups'][0]['proxies']
+        );
+        // Policy groups must keep "Chọn thủ công" first — otherwise user picks a
+        // node in the main selector but MATCH/Telegram still egress via another node.
+        $this->assertSame('🔰 Chọn thủ công', $out['proxy-groups'][2]['proxies'][0]);
+        $this->assertSame('🔰 Chọn thủ công', $out['proxy-groups'][3]['proxies'][0]);
+        $this->assertSame(
+            ['🔰 Chọn thủ công', '♻️ Tự động chọn', '🎯 Kết nối trực tiếp', 'JP-01', 'VN-01'],
+            $out['proxy-groups'][3]['proxies']
+        );
+    }
+
     public function testClashSubscriptionYamlUsesMixedPortOnly(): void
     {
         $clash = new Clash();
