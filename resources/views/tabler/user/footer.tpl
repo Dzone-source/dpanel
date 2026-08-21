@@ -279,7 +279,7 @@
     <span class="gopass-zalo-fab-label">Zalo</span>
 </a>
 
-<script src="/assets/js/sakura.js?v=20260821trungthu2" defer></script>
+<script src="/assets/js/sakura.js?v=20260802sakura2" defer></script>
 
 </body>
 </html>

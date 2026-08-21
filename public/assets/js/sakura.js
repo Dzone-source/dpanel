@@ -1,4 +1,4 @@
-/*! Trung thu Việt Nam — rơi lồng đèn ông sao */
+/*! Lightweight cherry-blossom (sakura) fall effect */
 (function () {
     'use strict';
 
@@ -9,6 +9,10 @@
         return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
+    function isMobile() {
+        return window.matchMedia && window.matchMedia('(max-width: 767.98px)').matches;
+    }
+
     function start() {
         if (prefersReducedMotion()) return;
 
@@ -16,6 +20,8 @@
         canvas.id = 'gopass-sakura';
         canvas.className = 'gopass-sakura-canvas';
         canvas.setAttribute('aria-hidden', 'true');
+        // Inline overlay styles so the canvas never expands document height
+        // even when gopass.css is not loaded (e.g. admin pages).
         canvas.style.cssText = [
             'position:fixed',
             'top:0',
@@ -39,23 +45,17 @@
         var ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        var items = [];
+        var petals = [];
         var running = true;
         var last = 0;
         var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-        var palettes = [
-            ['#f0d78c', '#c73e2e', '#e8b84a'],
-            ['#e8c547', '#c9a227', '#fff6d6'],
-            ['#3d8b4f', '#2f6b3c', '#c8f0d0']
-        ];
-
         function countForViewport() {
             var w = window.innerWidth || 360;
-            if (w < 480) return 8;
-            if (w < 768) return 12;
-            if (w < 1200) return 16;
-            return 20;
+            if (w < 480) return 14;
+            if (w < 768) return 20;
+            if (w < 1200) return 28;
+            return 36;
         }
 
         function resize() {
@@ -66,90 +66,68 @@
             canvas.height = Math.floor(h * dpr);
             canvas.style.width = w + 'px';
             canvas.style.height = h + 'px';
+            // Keep overlay out of document flow after style width/height updates.
             canvas.style.position = 'fixed';
             canvas.style.pointerEvents = 'none';
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            syncCount();
+            syncPetalCount();
         }
 
-        function makeItem(randomY) {
+        function makePetal(randomY) {
             var w = window.innerWidth;
             var h = window.innerHeight;
             return {
                 x: Math.random() * (w + 80) - 40,
-                y: randomY ? Math.random() * h : -40 - Math.random() * h * 0.25,
-                size: 14 + Math.random() * 18,
-                speedY: 0.28 + Math.random() * 0.55,
-                speedX: 0.08 + Math.random() * 0.28,
-                swing: 0.4 + Math.random() * 1.0,
-                swingSpeed: 0.008 + Math.random() * 0.014,
-                angle: (Math.random() - 0.5) * 0.35,
-                spin: (Math.random() - 0.5) * 0.012,
-                opacity: 0.35 + Math.random() * 0.45,
-                palette: Math.floor(Math.random() * palettes.length)
+                y: randomY ? Math.random() * h : -20 - Math.random() * h * 0.3,
+                size: 7 + Math.random() * 9,
+                speedY: 0.45 + Math.random() * 0.9,
+                speedX: 0.25 + Math.random() * 0.55,
+                swing: 0.6 + Math.random() * 1.4,
+                swingSpeed: 0.01 + Math.random() * 0.02,
+                angle: Math.random() * Math.PI * 2,
+                spin: (Math.random() - 0.5) * 0.04,
+                opacity: 0.45 + Math.random() * 0.4,
+                hue: Math.random() > 0.55 ? 0 : 1
             };
         }
 
-        function syncCount() {
+        function syncPetalCount() {
             var target = countForViewport();
-            while (items.length < target) items.push(makeItem(true));
-            if (items.length > target) items.length = target;
+            while (petals.length < target) petals.push(makePetal(true));
+            if (petals.length > target) petals.length = target;
         }
 
-        function drawStarLantern(p) {
-            var colors = palettes[p.palette];
-            var s = p.size;
+        function drawPetal(p) {
             ctx.save();
             ctx.translate(p.x, p.y);
             ctx.rotate(p.angle);
+            ctx.scale(p.size / 12, p.size / 12);
             ctx.globalAlpha = p.opacity;
 
-            // stick
-            ctx.beginPath();
-            ctx.moveTo(0, s * 0.15);
-            ctx.lineTo(0, s * 0.95);
-            ctx.strokeStyle = '#8b5a2b';
-            ctx.lineWidth = Math.max(1.2, s * 0.06);
-            ctx.lineCap = 'round';
-            ctx.stroke();
-
-            // tassels
-            ctx.beginPath();
-            ctx.moveTo(-s * 0.22, s * 0.95);
-            ctx.quadraticCurveTo(0, s * 0.78, s * 0.22, s * 0.95);
-            ctx.strokeStyle = colors[1];
-            ctx.lineWidth = Math.max(1, s * 0.045);
-            ctx.stroke();
-
-            // 5-point star
-            ctx.beginPath();
-            for (var i = 0; i < 5; i++) {
-                var a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
-                var r = s * 0.42;
-                var x = Math.cos(a) * r;
-                var y = Math.sin(a) * r - s * 0.05;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-                var a2 = a + Math.PI / 5;
-                var r2 = s * 0.17;
-                ctx.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2 - s * 0.05);
+            var grad = ctx.createLinearGradient(-6, -4, 6, 6);
+            if (p.hue === 0) {
+                grad.addColorStop(0, '#ffe4ec');
+                grad.addColorStop(0.45, '#ff9aab');
+                grad.addColorStop(1, '#ef4056');
+            } else {
+                grad.addColorStop(0, '#fff5f7');
+                grad.addColorStop(0.5, '#f48291');
+                grad.addColorStop(1, '#ff6b81');
             }
-            ctx.closePath();
-            var grad = ctx.createLinearGradient(-s * 0.4, -s * 0.4, s * 0.4, s * 0.3);
-            grad.addColorStop(0, colors[0]);
-            grad.addColorStop(0.55, colors[1]);
-            grad.addColorStop(1, colors[2]);
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(4, -8, 10, -2, 0, 10);
+            ctx.bezierCurveTo(-10, -2, -4, -8, 0, 0);
             ctx.fillStyle = grad;
             ctx.fill();
-            ctx.strokeStyle = 'rgba(255, 246, 214, 0.65)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
 
-            // center glow
             ctx.beginPath();
-            ctx.arc(0, -s * 0.05, s * 0.08, 0, Math.PI * 2);
-            ctx.fillStyle = '#fff6d6';
-            ctx.fill();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(0, 5, 0, 9);
+            ctx.strokeStyle = 'rgba(201, 31, 58, 0.28)';
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
 
             ctx.restore();
         }
@@ -164,17 +142,17 @@
             var h = window.innerHeight;
             ctx.clearRect(0, 0, w, h);
 
-            for (var i = 0; i < items.length; i++) {
-                var p = items[i];
+            for (var i = 0; i < petals.length; i++) {
+                var p = petals[i];
                 p.angle += p.spin * dt;
                 p.y += p.speedY * dt;
                 p.x += (Math.sin(p.y * p.swingSpeed) * p.swing + p.speedX * 0.35) * dt;
 
-                if (p.y > h + 40 || p.x < -70 || p.x > w + 70) {
-                    items[i] = makeItem(false);
+                if (p.y > h + 30 || p.x < -60 || p.x > w + 60) {
+                    petals[i] = makePetal(false);
                     continue;
                 }
-                drawStarLantern(p);
+                drawPetal(p);
             }
 
             requestAnimationFrame(tick);
