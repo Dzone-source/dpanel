@@ -273,7 +273,7 @@ final class Clash extends Base
 
     /**
      * Put real node names first in select groups so ClashMi does not default to
-     * url-test "自动选择". Failed url-test probes on mobile 4G switch nodes and
+     * url-test "Tự động chọn". Failed url-test probes on mobile 4G switch nodes and
      * look like intermittent disconnects.
      *
      * @param list<string> $nodeNames

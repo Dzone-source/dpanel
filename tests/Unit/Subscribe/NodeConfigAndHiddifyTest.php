@@ -99,12 +99,12 @@ final class NodeConfigAndHiddifyTest extends TestCase
         $groups = [
             'proxy-groups' => [
                 [
-                    'name' => '手动选择',
+                    'name' => 'Chọn thủ công',
                     'type' => 'select',
-                    'proxies' => ['♻️ 自动选择', '🎯 Direct', 'JP-01', 'VN-01'],
+                    'proxies' => ['♻️ Tự động chọn', '🎯 Kết nối trực tiếp', 'JP-01', 'VN-01'],
                 ],
                 [
-                    'name' => '自动选择',
+                    'name' => 'Tự động chọn',
                     'type' => 'url-test',
                     'proxies' => ['JP-01', 'VN-01'],
                 ],
@@ -112,7 +112,7 @@ final class NodeConfigAndHiddifyTest extends TestCase
         ];
 
         $out = $method->invoke($clash, $groups, ['JP-01', 'VN-01']);
-        $this->assertSame(['JP-01', 'VN-01', '♻️ 自动选择', '🎯 Direct'], $out['proxy-groups'][0]['proxies']);
+        $this->assertSame(['JP-01', 'VN-01', '♻️ Tự động chọn', '🎯 Kết nối trực tiếp'], $out['proxy-groups'][0]['proxies']);
         // url-test group unchanged
         $this->assertSame(['JP-01', 'VN-01'], $out['proxy-groups'][1]['proxies']);
     }
