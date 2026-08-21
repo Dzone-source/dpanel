@@ -1,9 +1,9 @@
-/* DPanel GoPass UI — Mid-Autumn Festival (中秋) theme */
+/* DPanel GoPass UI — Trung thu Việt Nam (ông sao) */
 
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,500&display=swap');
 
 :root {
-    /* Moon gold + lantern vermillion on night indigo */
+    /* Vàng trăng + đỏ đèn ông sao trên nền đêm */
     --gopass-primary: #c9a227;
     --gopass-primary-dark: #9a7a1a;
     --gopass-primary-light: #e0c45a;
@@ -24,7 +24,7 @@
     --gopass-shadow-lg: 0 18px 50px rgba(15, 26, 46, 0.16);
     --gopass-topbar-h: 60px;
     --gopass-font: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --gopass-display: "Noto Serif", "Noto Serif SC", "Be Vietnam Pro", serif;
+    --gopass-display: "Noto Serif", "Be Vietnam Pro", serif;
     --tblr-primary: #c9a227;
     --tblr-primary-rgb: 201, 162, 39;
     --tblr-primary-fg: #1a1520;
@@ -490,18 +490,17 @@ body.gopass-auth .border-top-wide {
 }
 
 .gopass-theme .page-header::after {
-    content: "中秋";
+    content: "";
     position: absolute;
-    right: 1.1rem;
+    right: 0.85rem;
     top: 50%;
     transform: translateY(-50%);
-    font-family: "Noto Serif SC", "Noto Serif", serif;
-    font-size: clamp(2.4rem, 8vw, 3.6rem);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: rgba(245, 230, 184, 0.12);
+    width: clamp(3rem, 10vw, 4.5rem);
+    height: clamp(3.8rem, 12vw, 5.6rem);
     pointer-events: none;
-    line-height: 1;
+    opacity: 0.7;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 88'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23f0d78c'/%3E%3Cstop offset='55%25' stop-color='%23c73e2e'/%3E%3Cstop offset='100%25' stop-color='%23e8b84a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon fill='url(%23g)' stroke='%23fff6d6' stroke-width='1.2' points='32,4 39.2,22.5 58,22.5 42.8,34.2 48.8,53 32,41.5 15.2,53 21.2,34.2 6,22.5 24.8,22.5'/%3E%3Ccircle cx='32' cy='30' r='3.2' fill='%23fff6d6'/%3E%3Crect x='30.2' y='50' width='3.6' height='28' rx='1' fill='%238b5a2b'/%3E%3Cpath d='M22 80 Q32 70 42 80' stroke='%23c73e2e' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Cpath d='M26 82 Q32 74 38 82' stroke='%23e8b84a' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    filter: drop-shadow(0 0 10px rgba(232, 184, 74, 0.45));
 }
 
 .gopass-theme .page-header .row {
@@ -2473,7 +2472,7 @@ button.is-gopass-busy {
     }
 }
 
-/* Sakura → Mid-Autumn osmanthus canvas (must stay out of document flow) */
+/* Ông sao canvas overlay (must stay out of document flow) */
 .gopass-sakura-canvas {
     position: fixed !important;
     inset: 0;
@@ -2498,23 +2497,57 @@ button.is-gopass-busy {
     }
 }
 
-/* Mid-Autumn festival accents */
+/* Trung thu Việt Nam — lồng đèn ông sao */
 @keyframes gopass-twinkle {
     from { opacity: 0.55; }
     to { opacity: 1; }
 }
 
 @keyframes gopass-lantern-glow {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(232, 184, 74, 0.35); }
-    50% { box-shadow: 0 0 18px 2px rgba(232, 184, 74, 0.55); }
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(232, 184, 74, 0.35)); }
+    50% { filter: drop-shadow(0 0 10px rgba(232, 184, 74, 0.7)); }
+}
+
+@keyframes gopass-ong-sao-sway {
+    0%, 100% { transform: rotate(-4deg); }
+    50% { transform: rotate(4deg); }
+}
+
+.gopass-ong-sao {
+    display: inline-block;
+    width: 1.15rem;
+    height: 1.45rem;
+    flex-shrink: 0;
+    vertical-align: middle;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 88'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23f0d78c'/%3E%3Cstop offset='50%25' stop-color='%23c73e2e'/%3E%3Cstop offset='100%25' stop-color='%23e8b84a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpolygon fill='url(%23g)' stroke='%23fff6d6' stroke-width='1.2' points='32,4 39.2,22.5 58,22.5 42.8,34.2 48.8,53 32,41.5 15.2,53 21.2,34.2 6,22.5 24.8,22.5'/%3E%3Ccircle cx='32' cy='30' r='3' fill='%23fff6d6'/%3E%3Crect x='30.2' y='50' width='3.6' height='28' rx='1' fill='%238b5a2b'/%3E%3Cpath d='M22 80 Q32 70 42 80' stroke='%23c73e2e' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+    animation: gopass-lantern-glow 3.2s ease-in-out infinite, gopass-ong-sao-sway 4.5s ease-in-out infinite;
+    transform-origin: 50% 100%;
+}
+
+.gopass-ong-sao--lg {
+    width: 2.75rem;
+    height: 3.5rem;
+}
+
+.gopass-ong-sao--xl {
+    width: 4.5rem;
+    height: 5.8rem;
+}
+
+.gopass-ong-sao--gold {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 88'%3E%3Cpolygon fill='%23e8c547' stroke='%23fff6d6' stroke-width='1.2' points='32,4 39.2,22.5 58,22.5 42.8,34.2 48.8,53 32,41.5 15.2,53 21.2,34.2 6,22.5 24.8,22.5'/%3E%3Ccircle cx='32' cy='30' r='3' fill='%23fff6d6'/%3E%3Crect x='30.2' y='50' width='3.6' height='28' rx='1' fill='%238b5a2b'/%3E%3Cpath d='M22 80 Q32 70 42 80' stroke='%23c9a227' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.gopass-ong-sao--green {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 88'%3E%3Cpolygon fill='%233d8b4f' stroke='%23c8f0d0' stroke-width='1.2' points='32,4 39.2,22.5 58,22.5 42.8,34.2 48.8,53 32,41.5 15.2,53 21.2,34.2 6,22.5 24.8,22.5'/%3E%3Ccircle cx='32' cy='30' r='3' fill='%23fff6d6'/%3E%3Crect x='30.2' y='50' width='3.6' height='28' rx='1' fill='%238b5a2b'/%3E%3Cpath d='M22 80 Q32 70 42 80' stroke='%23e8b84a' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
 }
 
 .gopass-festival-chip {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
     margin-top: 0.45rem;
-    padding: 0.22rem 0.55rem;
+    padding: 0.28rem 0.6rem;
     border-radius: 999px;
     font-size: 0.68rem;
     font-weight: 700;
@@ -2522,16 +2555,6 @@ button.is-gopass-busy {
     color: #1a1520;
     background: linear-gradient(105deg, #e0c45a, #f0d78c);
     border: 1px solid rgba(245, 230, 184, 0.45);
-    animation: gopass-lantern-glow 3.2s ease-in-out infinite;
-}
-
-.gopass-festival-chip .gopass-festival-moon {
-    width: 0.7rem;
-    height: 0.7rem;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #fff9e8, #e8c547 70%);
-    box-shadow: inset -2px 0 0 rgba(154, 122, 26, 0.35);
-    flex-shrink: 0;
 }
 
 .gopass-sidebar-brand {
@@ -2556,26 +2579,53 @@ button.is-gopass-busy {
     white-space: nowrap;
 }
 
-.gopass-topbar-festival::before {
-    content: "";
-    width: 0.85rem;
-    height: 0.85rem;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, #fff9e8, #c9a227);
-    box-shadow: 0 0 10px rgba(201, 162, 39, 0.45);
-}
-
 @media (min-width: 768px) {
     .gopass-topbar-festival {
         display: inline-flex;
     }
 }
 
+/* Floating ông sao décor (auth / app corners) */
+.gopass-ong-sao-decor {
+    position: fixed;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.55;
+}
+
+.gopass-ong-sao-decor--tl {
+    top: max(1rem, env(safe-area-inset-top));
+    left: 1rem;
+    animation-delay: 0.2s;
+}
+
+.gopass-ong-sao-decor--tr {
+    top: max(1.5rem, env(safe-area-inset-top));
+    right: 1.25rem;
+    animation-delay: 0.8s;
+}
+
+.gopass-ong-sao-decor--bl {
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    left: 1.25rem;
+    animation-delay: 1.2s;
+}
+
+body.gopass-auth .gopass-ong-sao-decor {
+    z-index: 1;
+    opacity: 0.75;
+}
+
 @media (max-width: 575.98px) {
     .gopass-theme .page-header::after {
-        font-size: 2rem;
-        right: 0.65rem;
-        opacity: 0.85;
+        width: 2.4rem;
+        height: 3rem;
+        right: 0.55rem;
+        opacity: 0.55;
+    }
+
+    .gopass-ong-sao-decor--bl {
+        display: none;
     }
 }
 

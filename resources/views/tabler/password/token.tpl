@@ -1,6 +1,8 @@
 {include file='header.tpl'}
 
 <body class="gopass-auth border-top-wide border-primary d-flex flex-column">
+<span class="gopass-ong-sao gopass-ong-sao--xl gopass-ong-sao-decor gopass-ong-sao-decor--tl" aria-hidden="true"></span>
+<span class="gopass-ong-sao gopass-ong-sao--lg gopass-ong-sao--gold gopass-ong-sao-decor gopass-ong-sao-decor--tr" aria-hidden="true"></span>
 <div class="page page-center">
     <div class="container-tight my-auto">
         <div class="text-center mb-4">

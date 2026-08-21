@@ -9,10 +9,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="referrer" content="never">
     <title>{$config['appName']}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet"/>
     <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-    <link href="/assets/css/gopass.css?v=20260821zhongqiu" rel="stylesheet"/>
+    <link href="/assets/css/gopass.css?v=20260821trungthu2" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
@@ -62,14 +62,16 @@
 
 <div id="gopass-sidebar-overlay" class="gopass-sidebar-overlay"></div>
 
+<span class="gopass-ong-sao gopass-ong-sao--lg gopass-ong-sao--gold gopass-ong-sao-decor gopass-ong-sao-decor--tr d-none d-lg-inline-block" aria-hidden="true"></span>
+
 <div class="gopass-app">
     <aside id="gopass-sidebar" class="gopass-sidebar">
         <div class="gopass-sidebar-brand">
             <img src="/images/uim-logo-round_48x48.png" height="36" width="36" alt="{$config['appName']}">
             <span>{$config['appName']}</span>
-            <span class="gopass-festival-chip" title="中秋快乐">
-                <span class="gopass-festival-moon" aria-hidden="true"></span>
-                中秋快乐 · Trung thu
+            <span class="gopass-festival-chip" title="Trung thu vui vẻ">
+                <span class="gopass-ong-sao" aria-hidden="true"></span>
+                Trung thu vui vẻ
             </span>
         </div>
 
@@ -169,7 +171,10 @@
                     <span class="text-secondary d-none d-md-inline" style="font-size:0.85rem">
                         Xin chào, <strong>{$user->user_name}</strong>
                     </span>
-                    <span class="gopass-topbar-festival" aria-hidden="true">月圆人团圆</span>
+                    <span class="gopass-topbar-festival" aria-hidden="true">
+                        <span class="gopass-ong-sao"></span>
+                        Rước đèn ông sao
+                    </span>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">

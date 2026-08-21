@@ -139,7 +139,7 @@
 
 {include file='telemetry.tpl'}
 
-<script src="/assets/js/sakura.js?v=20260821zhongqiu" defer></script>
+<script src="/assets/js/sakura.js?v=20260821trungthu2" defer></script>
 
 </body>
 
