@@ -75,15 +75,46 @@ final class NodeConfigAndHiddifyTest extends TestCase
         $this->assertArrayNotHasKey('port', $normalized);
         $this->assertArrayNotHasKey('socks-port', $normalized);
         $this->assertFalse($normalized['allow-lan']);
+        $this->assertFalse($normalized['ipv6']);
 
         $alreadyMixed = $method->invoke($clash, [
             'mixed-port' => 7897,
             'port' => 7890,
             'socks-port' => 7891,
+            'ipv6' => true,
         ]);
         $this->assertSame(7897, $alreadyMixed['mixed-port']);
         $this->assertArrayNotHasKey('port', $alreadyMixed);
         $this->assertArrayNotHasKey('socks-port', $alreadyMixed);
+        $this->assertTrue($alreadyMixed['ipv6']);
+    }
+
+    public function testClashSelectGroupDefaultsToNodeNotUrlTest(): void
+    {
+        $clash = new Clash();
+        $ref = new \ReflectionClass(Clash::class);
+        $method = $ref->getMethod('prioritizeNodesInSelectGroups');
+        $method->setAccessible(true);
+
+        $groups = [
+            'proxy-groups' => [
+                [
+                    'name' => '手动选择',
+                    'type' => 'select',
+                    'proxies' => ['♻️ 自动选择', '🎯 Direct', 'JP-01', 'VN-01'],
+                ],
+                [
+                    'name' => '自动选择',
+                    'type' => 'url-test',
+                    'proxies' => ['JP-01', 'VN-01'],
+                ],
+            ],
+        ];
+
+        $out = $method->invoke($clash, $groups, ['JP-01', 'VN-01']);
+        $this->assertSame(['JP-01', 'VN-01', '♻️ 自动选择', '🎯 Direct'], $out['proxy-groups'][0]['proxies']);
+        // url-test group unchanged
+        $this->assertSame(['JP-01', 'VN-01'], $out['proxy-groups'][1]['proxies']);
     }
 
     public function testClashSubscriptionYamlUsesMixedPortOnly(): void

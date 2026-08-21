@@ -116,6 +116,16 @@ curl -sL "https://PANEL/sub/TOKEN/clash" | head -n 20
 
 Url-test auto group dùng `lazy: true` + interval 600s để tránh probe fail đổi node giữa phiên.
 
+### ClashMi mobile (Android/iOS) bị rớt mạng gián đoạn
+
+Nguyên nhân thường gặp trên 4G (SoftBank/Linemo/Y!mobile):
+
+1. **Select mặc định vào url-test** → probe fail đổi node giữa phiên. Fix: node thật đứng đầu select group.
+2. **`ipv6: true`** → Happy Eyeballs race trên carrier IPv6 hỏng. Fix: `ipv6: false` + DNS TCP/IPv4.
+3. **Fake-SNI** (cert host ≠ IP node) → TLS fail. Fix: tự `skip-cert-verify` khi SNI ≠ server.
+
+Sau deploy: trong ClashMi bấm **Update profile**, chọn node cụ thể (không dùng 自动选择) nếu vẫn còn rớt.
+
 ## Kiểm tra nhanh
 
 ```bash

@@ -450,10 +450,24 @@ $_ENV['Clash_Config'] = [
     'mixed-port' => 7890,
     'allow-lan' => false,
     'mode' => 'Rule',
-    'ipv6' => true,
+    // Mobile 4G (SoftBank/Linemo/Y!mobile) often has broken IPv6 — dual-stack
+    // Happy Eyeballs races cause intermittent timeouts in ClashMi TUN.
+    'ipv6' => false,
     'log-level' => 'error',
     'tcp-concurrent' => $_ENV['tcp_concurrent'],
     'external-controller' => '127.0.0.1:9090',
+    'dns' => [
+        'enable' => true,
+        'ipv6' => false,
+        'enhanced-mode' => 'fake-ip',
+        'fake-ip-range' => '198.18.0.1/16',
+        'default-nameserver' => ['8.8.8.8', '1.1.1.1'],
+        // TCP DNS avoids UDP/53 drops on carrier CGNAT.
+        'nameserver' => [
+            'tcp://8.8.8.8',
+            'tcp://1.1.1.1',
+        ],
+    ],
 ];
 
 // Clash group indexes to be inserted node names
@@ -464,10 +478,11 @@ $_ENV['Clash_Group_Config'] = [
         [
             'name' => '🔰 手动选择',
             'type' => 'select',
-            // 插入节点名称
+            // Nodes are inserted first at runtime so ClashMi defaults to a real
+            // node — not url-test (failed 4G probes caused mid-session switches).
             'proxies' => [
-                '♻️ 自动选择',
                 '🎯 Direct',
+                '♻️ 自动选择',
             ],
         ],
         [

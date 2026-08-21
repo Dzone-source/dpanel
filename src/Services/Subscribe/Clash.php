@@ -6,9 +6,14 @@ namespace App\Services\Subscribe;
 
 use App\Services\Subscribe;
 use App\Utils\Tools;
+use function array_fill_keys;
 use function array_filter;
+use function array_key_exists;
 use function array_merge;
+use function array_values;
 use function in_array;
+use function is_array;
+use function strcasecmp;
 use function yaml_emit;
 use const YAML_UTF8_ENCODING;
 
@@ -17,6 +22,7 @@ final class Clash extends Base
     public function getContent($user): string
     {
         $nodes = [];
+        $node_names = [];
         $clash_config = $this->normalizeLocalPorts($_ENV['Clash_Config'] ?? []);
         $clash_group_indexes = $_ENV['Clash_Group_Indexes'];
         $clash_group_config = $_ENV['Clash_Group_Config'];
@@ -105,6 +111,9 @@ final class Clash extends Base
                     $security = NodeConfig::security($node_custom_config);
                     $flow = NodeConfig::flow($node_custom_config);
                     $allow_insecure = NodeConfig::allowInsecure($node_custom_config);
+                    if (! $allow_insecure && $host !== '' && strcasecmp($host, (string) $node_raw->server) !== 0) {
+                        $allow_insecure = true;
+                    }
                     $udp = $node_custom_config['udp'] ?? true;
                     $service_name = NodeConfig::serviceName($node_custom_config);
                     $ws_opts = $node_custom_config['ws-opts'] ?? $node_custom_config['ws_opts'] ?? null;
@@ -218,11 +227,14 @@ final class Clash extends Base
             }
 
             $nodes[] = $node;
+            $node_names[] = (string) $node_raw->name;
 
             foreach ($clash_group_indexes as $index) {
                 $clash_group_config['proxy-groups'][$index]['proxies'][] = $node_raw->name;
             }
         }
+
+        $clash_group_config = $this->prioritizeNodesInSelectGroups($clash_group_config, $node_names);
 
         $clash_nodes = [
             'proxies' => $nodes,
@@ -251,7 +263,50 @@ final class Clash extends Base
 
         unset($clash_config['port'], $clash_config['socks-port']);
 
+        // Prefer IPv4 on mobile carriers with broken IPv6 paths.
+        if (! array_key_exists('ipv6', $clash_config)) {
+            $clash_config['ipv6'] = false;
+        }
+
         return $clash_config;
+    }
+
+    /**
+     * Put real node names first in select groups so ClashMi does not default to
+     * url-test "自动选择". Failed url-test probes on mobile 4G switch nodes and
+     * look like intermittent disconnects.
+     *
+     * @param list<string> $nodeNames
+     */
+    private function prioritizeNodesInSelectGroups(array $groupConfig, array $nodeNames): array
+    {
+        if ($nodeNames === [] || ! isset($groupConfig['proxy-groups']) || ! is_array($groupConfig['proxy-groups'])) {
+            return $groupConfig;
+        }
+
+        $nodeSet = array_fill_keys($nodeNames, true);
+
+        foreach ($groupConfig['proxy-groups'] as &$group) {
+            if (($group['type'] ?? '') !== 'select' || ! isset($group['proxies']) || ! is_array($group['proxies'])) {
+                continue;
+            }
+
+            $nodes = [];
+            $other = [];
+            foreach ($group['proxies'] as $name) {
+                $name = (string) $name;
+                if (isset($nodeSet[$name])) {
+                    $nodes[] = $name;
+                } else {
+                    $other[] = $name;
+                }
+            }
+
+            $group['proxies'] = array_values(array_merge($nodes, $other));
+        }
+        unset($group);
+
+        return $groupConfig;
     }
 
     /**
@@ -339,6 +394,10 @@ final class Clash extends Base
             ];
         } elseif ($security === 'tls' || $security === 'xtls') {
             $node['tls'] = true;
+            // Fake-SNI: enable skip-verify when SNI host ≠ node server (common SoftBank unlock).
+            if (! $allow_insecure && $host !== '' && strcasecmp($host, (string) $node_raw->server) !== 0) {
+                $allow_insecure = true;
+            }
             $node['skip-cert-verify'] = $allow_insecure;
             $node['servername'] = $host;
             $node['client-fingerprint'] = NodeConfig::fingerprint($cfg);
@@ -365,6 +424,10 @@ final class Clash extends Base
         $network = $rawNetwork === '' ? 'tcp' : $rawNetwork;
         $sni = NodeConfig::sni($cfg, (string) $node_raw->server);
         $allow_insecure = NodeConfig::allowInsecure($cfg);
+        // Fake-SNI / SoftBank unlock: cert host ≠ connect IP → ClashMi TLS fails mid-session.
+        if (! $allow_insecure && $sni !== '' && strcasecmp($sni, (string) $node_raw->server) !== 0) {
+            $allow_insecure = true;
+        }
         $udp = $cfg['udp'] ?? true;
         $ws_opts = $cfg['ws-opts'] ?? $cfg['ws_opts'] ?? null;
         $grpc_opts = $cfg['grpc-opts'] ?? $cfg['grpc_opts'] ?? null;
