@@ -9,23 +9,23 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet"/>
 
     <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.8.2/css/all.min.css"/>
     <link rel="stylesheet" href="https://fastly.jsdelivr.net/npm/swiper@4.5.0/dist/css/swiper.min.css"/>
 
-    <link rel="stylesheet" href="/assets/landing/cool/css/style.css?v=20260728primaryred"/>
-    <link rel="stylesheet" href="/assets/landing/cool/css/bootstrap.min.css?v=20260728primaryred"/>
-    <link rel="stylesheet" href="/assets/css/landing.css?v=20260728primaryred"/>
+    <link rel="stylesheet" href="/assets/landing/cool/css/style.css?v=20260821zhongqiu"/>
+    <link rel="stylesheet" href="/assets/landing/cool/css/bootstrap.min.css?v=20260821zhongqiu"/>
+    <link rel="stylesheet" href="/assets/css/landing.css?v=20260821zhongqiu"/>
 </head>
-<body>
+<body class="landing-zhongqiu">
 
 <nav class="navbar navbar-expand-lg fixed-top" id="navbar">
     <div class="container">
         <a class="navbar-brand logo" href="/">
-            <h2 class="logo-dark"><i class="fa fa-globe"></i>&nbsp;{$config['appName']}</h2>
-            <h2 class="logo-light" style="color:#dee2e6;font-weight:400;"><i class="fa fa-globe"></i>&nbsp;{$config['appName']}</h2>
+            <h2 class="logo-dark"><i class="fa fa-moon"></i>&nbsp;{$config['appName']}</h2>
+            <h2 class="logo-light" style="color:#f2e9d0;font-weight:400;"><i class="fa fa-moon"></i>&nbsp;{$config['appName']}</h2>
         </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
                 aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,22 +51,21 @@
     </div>
 </nav>
 
-<section class="hero-1 bg-center bg-primary position-relative"
-         style="background-image: url(/assets/landing/cool/img/hero-g-bg.png);" id="home">
+<section class="hero-1 bg-center position-relative landing-hero-zhongqiu" id="home">
+    <div class="landing-hero-moon" aria-hidden="true"></div>
     <div class="container">
         <div class="row align-items-center hero-content">
             <div class="col-lg-5 reveal reveal-left reveal-hero">
+                <p class="landing-festival-eyebrow">中秋快乐 · Trung thu đoàn viên</p>
                 <h1 class="text-white display-4 font-weight-bold mb-4 hero-1-title">
-                    Nâng cấp tốc độ không giới hạn — SoftBank / LINEMO / Y!mobile
+                    {$config['appName']}
                 </h1>
                 <p class="text-white-70 mb-4">
-                    Khi SIM Nhật bị giới hạn tốc độ sau khi hết data, {$config['appName']} giúp bạn
-                    lấy lại trải nghiệm cao tốc ổn định trên SoftBank, LINEMO, Y!mobile và các mạng tương tự.
-                    Node tối ưu cho mạng di động Nhật, tương thích Hiddify / Clash / Sing-box;
-                    dùng được trên điện thoại, máy tính và tablet — mọi lúc, mọi nơi.
+                    Nâng cấp tốc độ SoftBank / LINEMO / Y!mobile — ổn định dưới ánh trăng Trung thu,
+                    node tối ưu mạng Nhật, dùng Hiddify / Clash / Sing-box trên mọi thiết bị.
                 </p>
-                <a class="btn btn-lg btn-light rounded-pill mb-2" href="/auth/login">
-                    <strong>Bắt đầu sử dụng</strong> <i class="fa fa-plane" aria-hidden="true"></i>
+                <a class="btn btn-lg btn-light rounded-pill mb-2 landing-cta-gold" href="/auth/login">
+                    <strong>Bắt đầu sử dụng</strong> <i class="fa fa-moon" aria-hidden="true"></i>
                 </a>
             </div>
 
@@ -408,6 +407,6 @@ var mySwiper = new Swiper('.swiper-container', {
 })();
 {/literal}
 </script>
-<script src="/assets/js/sakura.js?v=20260802sakura2" defer></script>
+<script src="/assets/js/sakura.js?v=20260821zhongqiu" defer></script>
 </body>
 </html>

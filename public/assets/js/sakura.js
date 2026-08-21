@@ -1,4 +1,4 @@
-/*! Lightweight cherry-blossom (sakura) fall effect */
+/*! Mid-Autumn Festival — falling osmanthus (桂花) petals */
 (function () {
     'use strict';
 
@@ -9,10 +9,6 @@
         return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     }
 
-    function isMobile() {
-        return window.matchMedia && window.matchMedia('(max-width: 767.98px)').matches;
-    }
-
     function start() {
         if (prefersReducedMotion()) return;
 
@@ -20,8 +16,6 @@
         canvas.id = 'gopass-sakura';
         canvas.className = 'gopass-sakura-canvas';
         canvas.setAttribute('aria-hidden', 'true');
-        // Inline overlay styles so the canvas never expands document height
-        // even when gopass.css is not loaded (e.g. admin pages).
         canvas.style.cssText = [
             'position:fixed',
             'top:0',
@@ -52,10 +46,10 @@
 
         function countForViewport() {
             var w = window.innerWidth || 360;
-            if (w < 480) return 14;
-            if (w < 768) return 20;
-            if (w < 1200) return 28;
-            return 36;
+            if (w < 480) return 12;
+            if (w < 768) return 18;
+            if (w < 1200) return 24;
+            return 30;
         }
 
         function resize() {
@@ -66,7 +60,6 @@
             canvas.height = Math.floor(h * dpr);
             canvas.style.width = w + 'px';
             canvas.style.height = h + 'px';
-            // Keep overlay out of document flow after style width/height updates.
             canvas.style.position = 'fixed';
             canvas.style.pointerEvents = 'none';
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -79,15 +72,15 @@
             return {
                 x: Math.random() * (w + 80) - 40,
                 y: randomY ? Math.random() * h : -20 - Math.random() * h * 0.3,
-                size: 7 + Math.random() * 9,
-                speedY: 0.45 + Math.random() * 0.9,
-                speedX: 0.25 + Math.random() * 0.55,
-                swing: 0.6 + Math.random() * 1.4,
-                swingSpeed: 0.01 + Math.random() * 0.02,
+                size: 5 + Math.random() * 7,
+                speedY: 0.35 + Math.random() * 0.7,
+                speedX: 0.15 + Math.random() * 0.4,
+                swing: 0.5 + Math.random() * 1.2,
+                swingSpeed: 0.01 + Math.random() * 0.018,
                 angle: Math.random() * Math.PI * 2,
-                spin: (Math.random() - 0.5) * 0.04,
-                opacity: 0.45 + Math.random() * 0.4,
-                hue: Math.random() > 0.55 ? 0 : 1
+                spin: (Math.random() - 0.5) * 0.03,
+                opacity: 0.4 + Math.random() * 0.45,
+                hue: Math.floor(Math.random() * 3)
             };
         }
 
@@ -101,33 +94,39 @@
             ctx.save();
             ctx.translate(p.x, p.y);
             ctx.rotate(p.angle);
-            ctx.scale(p.size / 12, p.size / 12);
+            ctx.scale(p.size / 10, p.size / 10);
             ctx.globalAlpha = p.opacity;
 
-            var grad = ctx.createLinearGradient(-6, -4, 6, 6);
+            var grad = ctx.createRadialGradient(0, 0, 0.5, 0, 0, 7);
             if (p.hue === 0) {
-                grad.addColorStop(0, '#ffe4ec');
-                grad.addColorStop(0.45, '#ff9aab');
-                grad.addColorStop(1, '#ef4056');
+                grad.addColorStop(0, '#fff6d6');
+                grad.addColorStop(0.45, '#e8c547');
+                grad.addColorStop(1, '#c9a227');
+            } else if (p.hue === 1) {
+                grad.addColorStop(0, '#fff9e8');
+                grad.addColorStop(0.5, '#f0d78c');
+                grad.addColorStop(1, '#b8860b');
             } else {
-                grad.addColorStop(0, '#fff5f7');
-                grad.addColorStop(0.5, '#f48291');
-                grad.addColorStop(1, '#ff6b81');
+                grad.addColorStop(0, '#ffe8d6');
+                grad.addColorStop(0.5, '#e8b84a');
+                grad.addColorStop(1, '#c73e2e');
+            }
+
+            // Osmanthus-like 4-petal bloom
+            for (var i = 0; i < 4; i++) {
+                ctx.save();
+                ctx.rotate((Math.PI / 2) * i);
+                ctx.beginPath();
+                ctx.ellipse(0, -3.2, 2.1, 3.4, 0, 0, Math.PI * 2);
+                ctx.fillStyle = grad;
+                ctx.fill();
+                ctx.restore();
             }
 
             ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.bezierCurveTo(4, -8, 10, -2, 0, 10);
-            ctx.bezierCurveTo(-10, -2, -4, -8, 0, 0);
-            ctx.fillStyle = grad;
+            ctx.arc(0, 0, 1.4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(154, 122, 26, 0.85)';
             ctx.fill();
-
-            ctx.beginPath();
-            ctx.moveTo(0, 0);
-            ctx.quadraticCurveTo(0, 5, 0, 9);
-            ctx.strokeStyle = 'rgba(201, 31, 58, 0.28)';
-            ctx.lineWidth = 0.7;
-            ctx.stroke();
 
             ctx.restore();
         }

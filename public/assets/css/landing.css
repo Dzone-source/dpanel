@@ -222,3 +222,157 @@ h1, h2, h3, h4, h5, h6,
     }
 }
 
+
+/* ========== Mid-Autumn Festival (中秋) landing ========== */
+.landing-zhongqiu {
+    --zq-gold: #c9a227;
+    --zq-gold-light: #e0c45a;
+    --zq-lantern: #c73e2e;
+    --zq-night: #0b1424;
+    --zq-moon: #f5e6b8;
+}
+
+.landing-zhongqiu body,
+.landing-zhongqiu,
+.landing-zhongqiu h1,
+.landing-zhongqiu h2,
+.landing-zhongqiu h3,
+.landing-zhongqiu h4,
+.landing-zhongqiu .btn,
+.landing-zhongqiu .nav-link,
+.landing-zhongqiu .navbar-brand {
+    font-family: "Be Vietnam Pro", "Noto Serif", "Noto Sans", system-ui, sans-serif !important;
+}
+
+.landing-zhongqiu .hero-1-title,
+.landing-zhongqiu .logo h2 {
+    font-family: "Noto Serif", "Noto Serif SC", "Be Vietnam Pro", serif !important;
+}
+
+.landing-zhongqiu a:hover {
+    color: var(--zq-gold);
+}
+
+.landing-hero-zhongqiu {
+    background-color: #0b1424 !important;
+    background-image:
+        radial-gradient(380px 380px at 88% 18%, rgba(245, 230, 184, 0.45), transparent 58%),
+        radial-gradient(260px 260px at 84% 14%, rgba(255, 252, 235, 0.28), transparent 48%),
+        radial-gradient(900px 480px at 8% 88%, rgba(199, 62, 46, 0.22), transparent 55%),
+        linear-gradient(165deg, #070e1c 0%, #122038 40%, #1a3358 72%, #243a28 100%) !important;
+    overflow: hidden;
+}
+
+.landing-hero-zhongqiu::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        radial-gradient(1.5px 1.5px at 14% 24%, rgba(255, 255, 255, 0.65), transparent),
+        radial-gradient(1px 1px at 32% 52%, rgba(255, 255, 255, 0.5), transparent),
+        radial-gradient(1.5px 1.5px at 52% 16%, rgba(255, 255, 255, 0.6), transparent),
+        radial-gradient(1px 1px at 70% 66%, rgba(255, 255, 255, 0.4), transparent),
+        radial-gradient(1px 1px at 90% 40%, rgba(255, 255, 255, 0.55), transparent);
+    animation: landing-twinkle 7s ease-in-out infinite alternate;
+}
+
+.landing-hero-moon {
+    position: absolute;
+    right: 8%;
+    top: 12%;
+    width: min(220px, 38vw);
+    height: min(220px, 38vw);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 32% 30%, #fff9e8 0%, #f5e6b8 38%, #e0c45a 78%, #b8860b 100%);
+    box-shadow:
+        0 0 60px rgba(245, 230, 184, 0.45),
+        0 0 120px rgba(201, 162, 39, 0.25);
+    opacity: 0.55;
+    pointer-events: none;
+    z-index: 0;
+    animation: landing-moon-pulse 5s ease-in-out infinite;
+}
+
+.landing-hero-zhongqiu .container {
+    position: relative;
+    z-index: 1;
+}
+
+.landing-festival-eyebrow {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    padding: 0.28rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #1a1520;
+    background: linear-gradient(105deg, #e0c45a, #f0d78c);
+}
+
+.landing-cta-gold {
+    background: linear-gradient(105deg, #e0c45a, #f5e6b8) !important;
+    color: #1a1520 !important;
+    border: none !important;
+    box-shadow: 0 12px 28px rgba(201, 162, 39, 0.35);
+    font-weight: 700;
+}
+
+.landing-cta-gold:hover {
+    filter: brightness(1.05);
+    color: #1a1520 !important;
+}
+
+.landing-zhongqiu .bg-primary,
+.landing-zhongqiu .btn-primary,
+.landing-zhongqiu .nav-btn {
+    background-color: var(--zq-gold) !important;
+    border-color: var(--zq-gold) !important;
+}
+
+.landing-zhongqiu .nav-btn {
+    color: #1a1520 !important;
+    font-weight: 700;
+}
+
+.landing-zhongqiu .nav-sticky {
+    background: rgba(11, 20, 36, 0.92) !important;
+    box-shadow: 0 8px 24px rgba(7, 14, 28, 0.35);
+}
+
+.landing-zhongqiu .nav-sticky .nav-link,
+.landing-zhongqiu .nav-sticky .logo-dark {
+    color: var(--zq-moon) !important;
+}
+
+.landing-zhongqiu .nav-sticky .navbar-toggler {
+    color: var(--zq-moon);
+}
+
+.landing-zhongqiu .service-icon,
+.landing-zhongqiu .icon-dual-primary {
+    color: var(--zq-gold) !important;
+}
+
+.landing-zhongqiu .section h2 {
+    font-family: "Noto Serif", "Noto Serif SC", serif !important;
+}
+
+@keyframes landing-twinkle {
+    from { opacity: 0.5; }
+    to { opacity: 1; }
+}
+
+@keyframes landing-moon-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.04); opacity: 0.62; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .landing-hero-zhongqiu::before,
+    .landing-hero-moon {
+        animation: none !important;
+    }
+}

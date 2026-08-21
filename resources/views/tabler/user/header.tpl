@@ -4,15 +4,15 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-    <meta name="theme-color" content="#ef4056"/>
+    <meta name="theme-color" content="#c9a227"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="referrer" content="never">
     <title>{$config['appName']}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Serif:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
     <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
-    <link href="/assets/css/gopass.css?v=20260818devicechip1" rel="stylesheet"/>
+    <link href="/assets/css/gopass.css?v=20260821zhongqiu" rel="stylesheet"/>
     <script src="/assets/js/fuck.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="https://{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
@@ -29,7 +29,7 @@
                 var theme = resolveTheme();
                 document.documentElement.setAttribute('data-bs-theme', theme);
                 var meta = document.querySelector('meta[name="theme-color"]');
-                if (meta) meta.setAttribute('content', theme === 'dark' ? '#140c0e' : '#ef4056');
+                if (meta) meta.setAttribute('content', theme === 'dark' ? '#0a1220' : '#c9a227');
             }
             applyTheme();
             if (mode === 2) {
@@ -67,6 +67,10 @@
         <div class="gopass-sidebar-brand">
             <img src="/images/uim-logo-round_48x48.png" height="36" width="36" alt="{$config['appName']}">
             <span>{$config['appName']}</span>
+            <span class="gopass-festival-chip" title="中秋快乐">
+                <span class="gopass-festival-moon" aria-hidden="true"></span>
+                中秋快乐 · Trung thu
+            </span>
         </div>
 
         <div class="gopass-sidebar-user">
@@ -158,13 +162,14 @@
                 <button id="gopass-sidebar-toggle" class="gopass-sidebar-toggle" type="button" aria-label="Menu">
                     <i class="ti ti-menu-2"></i>
                 </button>
-                <div class="min-w-0">
+                <div class="min-w-0 d-flex align-items-center flex-wrap">
                     <div class="fw-bold text-truncate d-md-none" style="font-size:0.95rem;letter-spacing:-0.02em">
                         {$config['appName']}
                     </div>
                     <span class="text-secondary d-none d-md-inline" style="font-size:0.85rem">
                         Xin chào, <strong>{$user->user_name}</strong>
                     </span>
+                    <span class="gopass-topbar-festival" aria-hidden="true">月圆人团圆</span>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-1 gap-sm-2 flex-shrink-0">
