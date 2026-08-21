@@ -17,7 +17,7 @@ final class Clash extends Base
     public function getContent($user): string
     {
         $nodes = [];
-        $clash_config = $_ENV['Clash_Config'];
+        $clash_config = $this->normalizeLocalPorts($_ENV['Clash_Config'] ?? []);
         $clash_group_indexes = $_ENV['Clash_Group_Indexes'];
         $clash_group_config = $_ENV['Clash_Group_Config'];
         $nodes_raw = Subscribe::getUserNodes($user);
@@ -97,6 +97,9 @@ final class Clash extends Base
                     // VLESS (+ optional Reality) — Clash.Meta / mihomo
                     $vless_port = NodeConfig::port($node_custom_config);
                     $network = NodeConfig::network($node_custom_config, 'tcp');
+                    if ($network === '' || $network === 'none') {
+                        $network = 'tcp';
+                    }
                     $host = NodeConfig::host($node_custom_config);
                     $path = NodeConfig::path($node_custom_config);
                     $security = NodeConfig::security($node_custom_config);
@@ -232,6 +235,26 @@ final class Clash extends Base
     }
 
     /**
+     * ClashMi / Clash Meta already bind mixed-port (default 7890). Legacy profiles
+     * that also emit port + socks-port cause a second HTTP listen on the same
+     * address and fail with: listen tcp 127.0.0.1:7890: bind: Only one usage of
+     * each socket address (protocol/network address/port) is normally permitted.
+     * That restart loop looks like intermittent disconnects for ClashMi users.
+     */
+    private function normalizeLocalPorts(array $clash_config): array
+    {
+        if (! isset($clash_config['mixed-port'])) {
+            $clash_config['mixed-port'] = isset($clash_config['port'])
+                ? (int) $clash_config['port']
+                : 7890;
+        }
+
+        unset($clash_config['port'], $clash_config['socks-port']);
+
+        return $clash_config;
+    }
+
+    /**
      * Build Clash Meta VMess / VLESS (+ TLS / REALITY) entry for sort=11 nodes.
      * Hiddify imports /clash and requires correct type + reality-opts when the node is VLESS.
      */
@@ -241,6 +264,9 @@ final class Clash extends Base
         $security = NodeConfig::security($cfg);
         $encryption = $cfg['encryption'] ?? 'auto';
         $network = $cfg['network'] ?? 'tcp';
+        if ($network === '' || $network === 'none') {
+            $network = 'tcp';
+        }
         $host = NodeConfig::host($cfg);
         $allow_insecure = NodeConfig::allowInsecure($cfg);
         $udp = $cfg['udp'] ?? true;

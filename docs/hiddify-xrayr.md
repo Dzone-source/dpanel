@@ -103,6 +103,19 @@ Kiểm tra API user list: mọi `node_speedlimit` phải là `0` khi `disable_xr
 
 GoPass UI ưu tiên ClashMi ở “Cấu hình nhanh”. Hiddify nằm trong app khác — upload trên Hiddify có thể kém hơn ClashMi cùng node Trojan/XrayR.
 
+### ClashMi bị ngắt gián đoạn (Windows)
+
+Subscription **không** được emit `port` + `socks-port` cùng lúc với ClashMi `mixed-port` (7890). Profile cũ gây `WSAEADDRINUSE` → `clashmiservice.exe` restart liên tục. DPanel `/clash` đã normalize sang `mixed-port` only. Sau deploy, user cần **cập nhật subscription** trong ClashMi (không chỉ reconnect).
+
+Kiểm tra nhanh:
+
+```bash
+curl -sL "https://PANEL/sub/TOKEN/clash" | head -n 20
+# Kỳ vọng: mixed-port: 7890 — KHÔNG có dòng "port:" hay "socks-port:"
+```
+
+Url-test auto group dùng `lazy: true` + interval 600s để tránh probe fail đổi node giữa phiên.
+
 ## Kiểm tra nhanh
 
 ```bash

@@ -443,15 +443,17 @@ $_ENV['SingBox_Config'] = [
     ],
 ];
 
+// Use mixed-port only. Emitting port + socks-port alongside ClashMi's default
+// mixed-port (7890) double-binds and fails to start clashmiservice.exe on Windows
+// (WSAEADDRINUSE) — looks like intermittent disconnects when the service restarts.
 $_ENV['Clash_Config'] = [
-    'port' => 7890,
-    'socks-port' => 7891,
+    'mixed-port' => 7890,
     'allow-lan' => false,
     'mode' => 'Rule',
     'ipv6' => true,
     'log-level' => 'error',
     'tcp-concurrent' => $_ENV['tcp_concurrent'],
-    'external-controller' => '0.0.0.0:9091',
+    'external-controller' => '127.0.0.1:9090',
 ];
 
 // Clash group indexes to be inserted node names
@@ -472,7 +474,11 @@ $_ENV['Clash_Group_Config'] = [
             'name' => '♻️ 自动选择',
             'type' => 'url-test',
             'url' => 'http://cp.cloudflare.com/generate_204',
-            'interval' => 300,
+            'interval' => 600,
+            // Only probe when this group is selected — failed background probes
+            // on mobile/NAT caused ClashMi to switch nodes mid-session (disconnect).
+            'lazy' => true,
+            'tolerance' => 150,
             // 插入节点名称
             'proxies' => [
             ],
