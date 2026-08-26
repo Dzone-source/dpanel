@@ -3,28 +3,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 :root {
-    --gopass-primary: #ef4056;
-    --gopass-primary-dark: #c91f3a;
-    --gopass-primary-light: #f48291;
-    --gopass-accent: #ff6b81;
-    --gopass-sidebar-bg: #1a1012;
+    --gopass-primary: #e11d2e;
+    --gopass-primary-dark: #b81422;
+    --gopass-primary-light: #f04555;
+    --gopass-accent: #e11d2e;
+    --gopass-sidebar-bg: #111111;
     --gopass-sidebar-width: 272px;
     --gopass-sidebar-hover: rgba(255, 255, 255, 0.07);
     --gopass-surface: #ffffff;
     --gopass-surface-elevated: #ffffff;
-    --gopass-text: #1a1214;
-    --gopass-muted: #74656a;
-    --gopass-border: rgba(239, 64, 86, 0.12);
+    --gopass-text: #111111;
+    --gopass-muted: #555555;
+    --gopass-border: rgba(225, 29, 46, 0.16);
     --gopass-radius: 1rem;
     --gopass-radius-sm: 0.75rem;
-    --gopass-shadow: 0 8px 28px rgba(239, 64, 86, 0.08);
-    --gopass-shadow-lg: 0 18px 50px rgba(239, 64, 86, 0.14);
+    --gopass-shadow: 0 8px 24px rgba(17, 17, 17, 0.06);
+    --gopass-shadow-lg: 0 16px 40px rgba(17, 17, 17, 0.1);
     --gopass-topbar-h: 60px;
     --gopass-font: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     --gopass-display: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --tblr-primary: #ef4056;
-    --tblr-primary-rgb: 239, 64, 86;
+    --tblr-primary: #e11d2e;
+    --tblr-primary-rgb: 225, 29, 46;
     --tblr-primary-fg: #fff;
+    --tblr-body-bg: #ffffff;
+    --tblr-body-color: #111111;
     --tblr-font-sans-serif: var(--gopass-font);
     --tblr-body-font-family: var(--gopass-font);
 }
@@ -65,7 +67,7 @@ html {
 
 body.gopass-theme {
     font-family: var(--gopass-font);
-    color: var(--gopass-text);
+    color: #111111;
     background: #ffffff;
     margin: 0;
     min-height: 100dvh;
@@ -75,22 +77,16 @@ body.gopass-theme {
 
 body.gopass-auth {
     font-family: var(--gopass-font);
-    color: var(--gopass-text);
-    background: var(--gopass-surface);
+    color: #111111;
+    background: #ffffff;
     margin: 0;
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+    padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
 }
 
 /* ===================== Auth ===================== */
-body.gopass-auth {
-    background:
-        radial-gradient(1200px 600px at 10% -10%, rgba(244, 120, 136, 0.45), transparent 55%),
-        radial-gradient(900px 500px at 100% 0%, rgba(236, 72, 153, 0.28), transparent 50%),
-        linear-gradient(160deg, #1a0c0f 0%, #5c1822 48%, #c91f3a 100%);
-    padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
-}
 
 body.gopass-auth .page {
     min-height: calc(100dvh - 2rem);
@@ -150,9 +146,10 @@ body.gopass-auth .btn {
 }
 
 body.gopass-auth .btn-primary {
-    background: linear-gradient(105deg, #d92b45, #ef4056 45%, #f47888);
+    background: #e11d2e;
     border: none;
-    box-shadow: 0 10px 24px rgba(239, 64, 86, 0.35);
+    box-shadow: 0 8px 20px rgba(225, 29, 46, 0.25);
+    color: #fff;
 }
 
 body.gopass-auth .btn-outline-primary {
@@ -340,8 +337,8 @@ body.gopass-auth .border-top-wide {
 
 .gopass-nav-link.active {
     color: #fff;
-    background: linear-gradient(105deg, rgba(239, 64, 86, 0.55), rgba(244, 120, 136, 0.25));
-    box-shadow: inset 0 0 0 1px rgba(167, 139, 250, 0.25);
+    background: #e11d2e;
+    box-shadow: none;
 }
 
 .gopass-nav-link .ti {
@@ -389,8 +386,8 @@ body.gopass-auth .border-top-wide {
     min-height: var(--gopass-topbar-h);
     padding: 0.65rem 1.25rem;
     padding-top: max(0.65rem, env(safe-area-inset-top));
-    background: color-mix(in srgb, var(--gopass-surface-elevated) 86%, transparent);
-    backdrop-filter: blur(14px) saturate(1.2);
+    background: #ffffff;
+    backdrop-filter: none;
     border-bottom: 1px solid var(--gopass-border);
     position: sticky;
     top: 0;
@@ -449,15 +446,13 @@ body.gopass-auth .border-top-wide {
 }
 
 .gopass-theme .page-header {
-    background:
-        radial-gradient(800px 240px at 90% 0%, rgba(255, 255, 255, 0.18), transparent 55%),
-        linear-gradient(125deg, #83232f 0%, #ef4056 52%, #ff5c7a 100%);
+    background: #e11d2e;
     border-radius: 1rem;
     padding: 1.25rem 1.25rem !important;
     margin: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
-    box-shadow: 0 12px 32px rgba(76, 29, 149, 0.22);
+    box-shadow: 0 10px 28px rgba(225, 29, 46, 0.22);
     overflow: hidden;
 }
 
@@ -620,10 +615,10 @@ body.gopass-auth .border-top-wide {
     -moz-osx-font-smoothing: grayscale;
 }
 
-.gopass-gradient-1 { background: linear-gradient(135deg, #ef4056, #f47888); }
-.gopass-gradient-2 { background: linear-gradient(135deg, #ff6b81, #ff9aab); }
-.gopass-gradient-3 { background: linear-gradient(135deg, #2563eb, #60a5fa); }
-.gopass-gradient-4 { background: linear-gradient(135deg, #059669, #34d399); }
+.gopass-gradient-1,
+.gopass-gradient-2,
+.gopass-gradient-3,
+.gopass-gradient-4 { background: #e11d2e; }
 
 .gopass-stat-label {
     font-size: 0.65rem;
@@ -717,12 +712,12 @@ body.gopass-auth .border-top-wide {
 .gopass-device-chip:hover {
     color: inherit;
     text-decoration: none;
-    border-color: color-mix(in srgb, var(--gopass-accent, #ef4056) 45%, var(--gopass-border));
+    border-color: color-mix(in srgb, var(--gopass-accent, #e11d2e) 45%, var(--gopass-border));
 }
 
 .gopass-device-chip .ti {
     font-size: 0.95rem;
-    color: var(--gopass-accent, #ef4056);
+    color: var(--gopass-accent, #e11d2e);
 }
 
 .gopass-device-chip strong {
@@ -734,14 +729,14 @@ body.gopass-auth .border-top-wide {
     white-space: nowrap;
     font-weight: 700 !important;
     background: transparent !important;
-    color: var(--gopass-accent, #ef4056) !important;
-    border: 1.5px solid color-mix(in srgb, var(--gopass-accent, #ef4056) 55%, transparent) !important;
+    color: var(--gopass-accent, #e11d2e) !important;
+    border: 1.5px solid color-mix(in srgb, var(--gopass-accent, #e11d2e) 55%, transparent) !important;
     box-shadow: none !important;
 }
 
 .gopass-stat-buy-new:hover {
-    background: color-mix(in srgb, var(--gopass-accent, #ef4056) 12%, transparent) !important;
-    color: var(--gopass-accent, #ef4056) !important;
+    background: color-mix(in srgb, var(--gopass-accent, #e11d2e) 12%, transparent) !important;
+    color: var(--gopass-accent, #e11d2e) !important;
 }
 
 [data-bs-theme="dark"] .gopass-stat-buy-new {
@@ -896,13 +891,15 @@ body.gopass-auth .border-top-wide {
 }
 
 .gopass-theme .btn-primary {
-    background: linear-gradient(105deg, #d92b45, #ef4056 50%, #f2556a);
+    background: #e11d2e;
     border: none;
     font-weight: 700;
+    color: #fff;
 }
 
 .gopass-theme .btn-primary:hover {
-    background: linear-gradient(105deg, #c91f3a, #ef4056);
+    background: #b81422;
+    color: #fff;
 }
 
 .gopass-sub-rows {
@@ -1161,7 +1158,7 @@ body.gopass-auth .border-top-wide {
 }
 
 .gopass-theme .progress-bar.bg-primary {
-    background: linear-gradient(90deg, #ef4056, #f47888) !important;
+    background: linear-gradient(90deg, #e11d2e, #f47888) !important;
 }
 
 /* ===================== Traffic usage card ===================== */
@@ -1219,7 +1216,7 @@ body.gopass-auth .border-top-wide {
 }
 
 .gopass-traffic-bar-used {
-    background: linear-gradient(90deg, #d92b45, #ef4056) !important;
+    background: linear-gradient(90deg, #e11d2e, #e11d2e) !important;
 }
 
 .gopass-traffic-bar-today {
@@ -1262,7 +1259,7 @@ body.gopass-auth .border-top-wide {
 }
 
 .gopass-traffic-stat--used .gopass-traffic-dot {
-    background: linear-gradient(135deg, #d92b45, #ef4056);
+    background: linear-gradient(135deg, #e11d2e, #e11d2e);
 }
 
 .gopass-traffic-stat--today .gopass-traffic-dot {
@@ -2012,7 +2009,7 @@ button.is-gopass-busy {
 }
 
 .gopass-shop-tab.active {
-    background: linear-gradient(105deg, #d92b45, #ef4056 55%, #f2556a);
+    background: linear-gradient(105deg, #e11d2e, #e11d2e 55%, #f04555);
     color: #fff !important;
     box-shadow: 0 8px 18px rgba(109, 40, 217, 0.22);
 }
@@ -2036,7 +2033,7 @@ button.is-gopass-busy {
 
 .gopass-product-card-accent {
     height: 4px;
-    background: linear-gradient(90deg, #d92b45, #ff6b81 70%, #ff9aab);
+    background: #e11d2e;
 }
 
 .gopass-product-card-body {
@@ -2100,15 +2097,15 @@ button.is-gopass-busy {
     width: 2rem;
     height: 2rem;
     border-radius: 0.65rem;
-    background: linear-gradient(135deg, var(--gopass-primary-dark), var(--gopass-primary));
-    box-shadow: 0 4px 10px color-mix(in srgb, var(--gopass-primary) 35%, transparent);
+    background: #e11d2e;
+    box-shadow: 0 4px 10px rgba(225, 29, 46, 0.28);
     color: #fff;
     flex-shrink: 0;
 }
 
 .gopass-product-feature-icon i {
     font-size: 1rem;
-    color: #fff;
+    color: #fff !important;
 }
 
 .gopass-product-feature-text {
@@ -2461,4 +2458,108 @@ button.is-gopass-busy {
         animation: none !important;
         transition: none !important;
     }
+}
+
+
+/* ===== Clean light theme: black text, white bg, red blocks/icons ===== */
+body.gopass-theme[data-bs-theme="light"],
+body.gopass-theme:not([data-bs-theme="dark"]) {
+    background: #ffffff !important;
+    color: #111111 !important;
+}
+
+body.gopass-theme[data-bs-theme="light"] .gopass-content,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-content,
+body.gopass-theme[data-bs-theme="light"] .gopass-main,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-main,
+body.gopass-theme[data-bs-theme="light"] .gopass-topbar,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-topbar {
+    background: #ffffff !important;
+    color: #111111;
+}
+
+body.gopass-theme[data-bs-theme="light"] .card,
+body.gopass-theme:not([data-bs-theme="dark"]) .card,
+body.gopass-theme[data-bs-theme="light"] .gopass-stat-card,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-stat-card {
+    background: #ffffff !important;
+    color: #111111;
+}
+
+body.gopass-theme[data-bs-theme="light"] .text-secondary,
+body.gopass-theme:not([data-bs-theme="dark"]) .text-secondary,
+body.gopass-theme[data-bs-theme="light"] .gopass-muted,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-stat-label,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-stat-hint {
+    color: #555555 !important;
+}
+
+body.gopass-theme[data-bs-theme="light"] .gopass-stat-value,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-stat-value,
+body.gopass-theme[data-bs-theme="light"] .card-title,
+body.gopass-theme:not([data-bs-theme="dark"]) .card-title,
+body.gopass-theme[data-bs-theme="light"] h1,
+body.gopass-theme[data-bs-theme="light"] h2,
+body.gopass-theme[data-bs-theme="light"] h3,
+body.gopass-theme:not([data-bs-theme="dark"]) h1,
+body.gopass-theme:not([data-bs-theme="dark"]) h2,
+body.gopass-theme:not([data-bs-theme="dark"]) h3 {
+    color: #111111 !important;
+}
+
+/* Icons on white surfaces → red (standalone), white on red blocks */
+body.gopass-theme[data-bs-theme="light"] .gopass-product-feature-icon,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-product-feature-icon {
+    background: #e11d2e !important;
+    color: #fff !important;
+}
+
+body.gopass-theme[data-bs-theme="light"] .gopass-product-feature-icon .ti,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-product-feature-icon .ti,
+body.gopass-theme[data-bs-theme="light"] .gopass-product-feature-icon i,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-product-feature-icon i {
+    color: #fff !important;
+}
+
+body.gopass-theme[data-bs-theme="light"] .gopass-stat-icon,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-stat-icon {
+    background: #e11d2e !important;
+    color: #fff !important;
+}
+
+body.gopass-theme[data-bs-theme="light"] .gopass-stat-icon .ti,
+body.gopass-theme:not([data-bs-theme="dark"]) .gopass-stat-icon .ti {
+    color: #fff !important;
+}
+
+/* Accent bars / product cards */
+body.gopass-theme .gopass-product-card-accent {
+    background: #e11d2e !important;
+}
+
+body.gopass-auth .card {
+    background: #ffffff;
+    border: 1px solid rgba(225, 29, 46, 0.14);
+    box-shadow: 0 12px 32px rgba(17, 17, 17, 0.08);
+}
+
+body.gopass-auth .card-title,
+body.gopass-auth .form-label,
+body.gopass-auth {
+    color: #111111;
+}
+
+body.gopass-auth .text-secondary {
+    color: #555555 !important;
+}
+
+/* Kill sakura / hoa đào overlay completely */
+#gopass-sakura,
+.gopass-sakura-canvas {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
 }
