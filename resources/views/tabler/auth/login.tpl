@@ -76,7 +76,7 @@
 
 {include file='footer.tpl'}
 
-<script src="/assets/js/login-wallpaper.js?v=20260903pexels"></script>
+<script src="/assets/js/login-wallpaper.js?v=20260903pexels2"></script>
 
 <script>
 (function () {
