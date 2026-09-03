@@ -120,6 +120,8 @@ $_ENV['geoip_locale'] = 'en';
 $_ENV['trust_proxy'] = true;
 // ClientDownload 命令解决 API 访问频率高而被限制使用的 Github access token
 $_ENV['github_access_token'] = '';
+// Optional Pexels API key: live random 4K wallpapers on the login page (https://www.pexels.com/api/)
+$_ENV['pexels_api_key'] = '';
 // use Cloudflare R2 for clients download
 $_ENV['enable_r2_client_download'] = false;
 $_ENV['r2_bucket_name'] = '';
