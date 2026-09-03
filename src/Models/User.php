@@ -48,8 +48,6 @@ use const PHP_EOL;
  * @property int    $class 等级
  * @property string $class_expire 等级过期时间
  * @property string $theme 网站主题
- * @property string $ga_token GA密钥
- * @property int    $ga_enable GA开关
  * @property string $remark 备注
  * @property int    $node_group 节点分组
  * @property int    $is_banned 是否封禁
@@ -88,6 +86,8 @@ final class User extends Model
         'port' => 'int',
         'daily_mail_enable' => 'int',
         'ref_by' => 'int',
+        'node_iplimit' => 'int',
+        'node_speedlimit' => 'float',
     ];
 
     /**
@@ -123,7 +123,7 @@ final class User extends Model
      */
     public function lastUseTime(): string
     {
-        return $this->last_use_time === 0 ? '从未使用' : Tools::toDateTime($this->last_use_time);
+        return $this->last_use_time === 0 ? 'Chưa từng sử dụng' : Tools::toDateTime($this->last_use_time);
     }
 
     /**
@@ -131,7 +131,7 @@ final class User extends Model
      */
     public function lastCheckInTime(): string
     {
-        return $this->last_check_in_time === 0 ? '从未签到' : Tools::toDateTime($this->last_check_in_time);
+        return $this->last_check_in_time === 0 ? 'Chưa từng điểm danh' : Tools::toDateTime($this->last_check_in_time);
     }
 
     /*
@@ -140,6 +140,11 @@ final class User extends Model
     public function enableTraffic(): string
     {
         return Tools::autoBytes($this->transfer_enable);
+    }
+
+    public function displayMoney(): string
+    {
+        return Tools::formatVnd((float) $this->money);
     }
 
     /*
@@ -291,11 +296,11 @@ final class User extends Model
 
             (new EmailQueue())->add(
                 $this->email,
-                $_ENV['appName'] . '-每日流量报告以及公告',
+                $_ENV['appName'] . '- Báo cáo lưu lượng hàng ngày và thông báo',
                 'traffic_report.tpl',
                 [
                     'user' => $this,
-                    'text' => '站点公告:<br><br>' . $ann . '<br><br>晚安！',
+                    'text' => 'Thông báo trang web:<br><br>' . $ann . '<br><br>Chúc ngủ ngon!',
                     'lastday_traffic' => $lastday_traffic,
                     'enable_traffic' => $enable_traffic,
                     'used_traffic' => $used_traffic,
@@ -305,11 +310,11 @@ final class User extends Model
         } elseif ($this->daily_mail_enable === 2 && $this->im_value !== '') {
             echo 'Sending daily IM message to user: ' . $this->id . PHP_EOL;
 
-            $text = date('Y-m-d') . ' 流量使用报告' . PHP_EOL . PHP_EOL;
-            $text .= '流量总计：' . $enable_traffic . PHP_EOL;
-            $text .= '已用流量：' . $used_traffic . PHP_EOL;
-            $text .= '剩余流量：' . $unused_traffic . PHP_EOL;
-            $text .= '今日使用：' . $lastday_traffic;
+            $text = date('Y-m-d') . ' Báo cáo sử dụng lưu lượng' . PHP_EOL . PHP_EOL;
+            $text .= 'Tổng lưu lượng: ' . $enable_traffic . PHP_EOL;
+            $text .= 'Đã dùng: ' . $used_traffic . PHP_EOL;
+            $text .= 'Còn lại: ' . $unused_traffic . PHP_EOL;
+            $text .= 'Hôm nay: ' . $lastday_traffic;
 
             try {
                 IM::send((int) $this->im_value, $text, $this->im_type);

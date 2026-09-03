@@ -102,13 +102,13 @@
     }
 }
 
-/* 手风琴样式 */
+/* Kiểu accordion */
 .accordion-button:not(.collapsed) {
     background: var(--tblr-primary-lt);
     color: var(--tblr-primary);
 }
 
-/* 敏感信息模糊效果 */
+/* Hiệu ứng làm mờ thông tin nhạy cảm */
 .spoiler {
     filter: blur(5px);
     transition: filter 0.3s;
@@ -120,107 +120,116 @@
 </style>
 
 <div class="page-wrapper">
-    <div class="container-xl">
-        <div class="page-header d-print-none text-white">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="page-title">
-                        <span class="home-title">用户中心</span>
-                    </h2>
-                    <div class="page-pretitle my-3">
-                        <span class="home-subtitle">在这里查看账户信息和最新公告</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-cards">
                 <div class="col-12">
-                    <div class="row row-cards">
-                        {foreach $info_cards as $card}
-                        <div class="col-sm-6 col-lg-3">
-                            <div class="card card-sm">
+                    <div class="row row-cards gopass-info-grid">
+                        <div class="col-12">
+                            <div class="card gopass-stat-card{if $plan_card.cta} gopass-stat-card--cta{/if}{if $plan_card.buy_new} gopass-stat-card--buy{/if}">
                                 <div class="card-body">
-                                    <div class="row align-items-center">
-                                        <div class="col-auto">
-                                            <span class="bg-{$card.color} text-white avatar">
-                                                <i class="ti {$card.icon} icon"></i>
-                                            </span>
-                                        </div>
-                                        <div class="col">
-                                            <div class="font-weight-medium">
-                                                {$card.title}
-                                            </div>
-                                            <div class="text-secondary">
-                                                {$card.value}
+                                    <div class="gopass-stat-tile">
+                                        <div class="gopass-stat-tile-top">
+                                            <div class="gopass-stat-icon {$plan_card.gradient}">
+                                                <i class="ti {$plan_card.icon}"></i>
                                             </div>
                                         </div>
-                                        {if isset($card.action_url)}
-                                        <div class="col-auto">
-                                            <a href="{$card.action_url}" class="btn btn-primary btn-icon">
-                                                <i class="ti ti-plus icon"></i>
+                                        <div class="gopass-stat-main">
+                                            <div class="gopass-stat-text">
+                                                <div class="gopass-stat-value">{$plan_card.value}</div>
+                                                {if $plan_card.subvalue ne ''}
+                                                <div class="gopass-stat-subvalue">{$plan_card.subvalue}</div>
+                                                {/if}
+                                            </div>
+                                            {if $plan_card.cta}
+                                            <a href="{$plan_card.action_url}" class="btn btn-primary gopass-stat-tile-btn">
+                                                <i class="ti ti-shopping-cart"></i>
+                                                <span>{$plan_card.cta_label}</span>
                                             </a>
+                                            {elseif $plan_card.buy_new}
+                                            <a href="{$plan_card.action_url}" class="btn gopass-stat-buy-new gopass-stat-tile-btn">
+                                                <i class="ti ti-shopping-cart"></i>
+                                                <span>{$plan_card.buy_new_label}</span>
+                                            </a>
+                                            {/if}
                                         </div>
-                                        {/if}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {/foreach}
                     </div>
                 </div>
                 
                 <div class="col-lg-6 col-sm-12">
                     <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">快速配置</h3>
+                        <div class="card-header gopass-quick-header">
+                            <h3 class="card-title">Cấu hình nhanh</h3>
+                            <a href="{$device_info.action_url}" class="gopass-device-chip" aria-label="{$device_info.title}">
+                                <i class="ti ti-devices"></i>
+                                <span class="gopass-device-chip-label">Thiết bị</span>
+                                <strong id="live-online-devices" data-live="online-devices">{$device_info.value}</strong>
+                            </a>
                         </div>
                         <div class="card-body">
-                            <div class="mb-4">
-                                <h4 class="mb-3">
-                                    <i class="ti ti-link"></i> 您的专属订阅地址
+                            <div class="mb-4 gopass-sub-block">
+                                <h4 class="mb-2">
+                                    <i class="ti ti-link"></i> Link đăng ký
                                 </h4>
-                                <div class="input-group mb-2">
-                                    <input type="text" class="form-control" value="{$UniversalSub}" readonly id="universal-sub-link">
-                                    <button class="btn btn-primary copy" data-clipboard-text="{$UniversalSub}">
-                                        <i class="ti ti-copy"></i> 复制
-                                    </button>
+                                <div class="gopass-sub-rows">
+                                    <div class="gopass-sub-row gopass-sub-row--primary">
+                                        <div class="gopass-sub-row-head">
+                                            <strong>ClashMi</strong>
+                                            <span>Clash Meta — ổn định nhất (khuyến nghị)</span>
+                                        </div>
+                                        <div class="gopass-sub-row-controls">
+                                            <input type="text" class="form-control" value="{$UniversalSub}/clash" readonly id="sub-link-clashmi">
+                                            <div class="gopass-sub-row-btns">
+                                                <button class="btn btn-primary copy" type="button" data-clipboard-text="{$UniversalSub}/clash">
+                                                    <i class="ti ti-copy"></i> Sao chép
+                                                </button>
+                                                <a class="btn btn-success" id="sub-open-clashmi" href="#" rel="noopener">
+                                                    <i class="ti ti-external-link"></i> Mở app
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <p class="text-muted mb-0">
-                                    <small>此订阅地址适用于所有客户端，请妥善保管</small>
-                                </p>
-                            </div>
-
-                            <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
-                                <h4 class="mb-3">
-                                    <i class="ti ti-rocket"></i> 
-                                    为您推荐的 <span id="detected-os" class="text-primary">Windows</span> 客户端
-                                </h4>
-                                <div class="row g-3" id="recommended-clients">
-                                </div>
+                                <p class="text-muted small mt-2 mb-0">Sao chép rồi dán vào <strong>ClashMi</strong>, hoặc bấm <strong>Mở app</strong>. Hiddify và app khác nằm trong phần bên dưới.</p>
                             </div>
 
                             <div class="text-center">
-                                <button class="btn btn-ghost-primary" type="button" data-bs-toggle="collapse" 
-                                        data-bs-target="#all-platforms" aria-expanded="false">
-                                    <i class="ti ti-package"></i> 
-                                    查看其他平台客户端
-                                    <i class="ti ti-chevron-down ms-1"></i>
+                                <button class="btn btn-ghost-primary gopass-advanced-toggle" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#all-platforms" aria-expanded="false" aria-controls="all-platforms">
+                                    <i class="ti ti-package"></i>
+                                    App khác & định dạng nâng cao
+                                    <i class="ti ti-chevron-down ms-1 gopass-advanced-chevron"></i>
                                 </button>
                             </div>
-                            
+
                             <div class="collapse mt-3" id="all-platforms">
+                                <div class="recommended-section p-3 bg-primary-lt rounded mb-3">
+                                    <h4 class="mb-1">
+                                        App đề xuất cho <span id="detected-os" class="text-primary">Windows</span>
+                                    </h4>
+                                    <p class="text-muted small mb-3">Tải app → dán link đã sao chép, hoặc bấm Mở app</p>
+                                    <div class="row g-3" id="format-clients">
+                                    </div>
+                                    <div class="row g-3 mt-1" id="recommended-clients">
+                                    </div>
+                                </div>
+
                                 <div class="accordion" id="platform-accordion">
                                 </div>
                                 
                                 <div class="mt-3 p-3 bg-secondary-lt rounded">
-                                    <h5 class="mb-2">高级订阅格式</h5>
-                                    <div class="small text-muted mb-2">如果您需要特定格式的订阅链接：</div>
+                                    <h5 class="mb-2">Định dạng đăng ký nâng cao</h5>
+                                    <div class="small text-muted mb-2">Nếu bạn cần liên kết đăng ký theo định dạng cụ thể:</div>
                                     <div class="btn-group btn-group-sm flex-wrap">
+                                        <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/general">
+                                            General (base64)
+                                        </button>
                                         <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/json">
-                                            JSON 格式
+                                            Định dạng JSON
                                         </button>
                                         <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/v2rayjson">
                                             V2Ray JSON
@@ -243,6 +252,15 @@
                                             Trojan
                                         </button>
                                         {/if}
+                                        <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/clash">
+                                            Clash / Meta
+                                        </button>
+                                        <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/singbox">
+                                            Sing-box
+                                        </button>
+                                        <button class="btn btn-outline-secondary copy" data-clipboard-text="{$UniversalSub}/uri">
+                                            URI (VLESS/Hy2/AnyTLS)
+                                        </button>
                                     </div>
                                 </div>
                                 
@@ -250,7 +268,7 @@
                                     <button class="btn btn-ghost-secondary w-100" type="button" data-bs-toggle="collapse" 
                                             data-bs-target="#connection-info" aria-expanded="false">
                                         <i class="ti ti-info-circle"></i> 
-                                        查看连接信息
+                                        Xem thông tin kết nối
                                         <i class="ti ti-chevron-down ms-1"></i>
                                     </button>
                                     <div class="collapse mt-2" id="connection-info">
@@ -259,11 +277,11 @@
                                                 <table class="table table-sm mb-0">
                                                     <tbody>
                                                     <tr>
-                                                        <td class="text-muted" style="width: 100px;">端口</td>
+                                                        <td class="text-muted" style="width: 100px;">Cổng</td>
                                                         <td><code>{$user->port}</code></td>
                                                     </tr>
                                                     <tr>
-                                                        <td class="text-muted">连接密码</td>
+                                                        <td class="text-muted">Mật khẩu kết nối</td>
                                                         <td><code class="spoiler">{$user->passwd}</code></td>
                                                     </tr>
                                                     <tr>
@@ -271,7 +289,7 @@
                                                         <td><code class="spoiler" style="font-size: 0.8em;">{$user->uuid}</code></td>
                                                     </tr>
                                                     <tr>
-                                                        <td class="text-muted">加密方式</td>
+                                                        <td class="text-muted">Phương thức mã hóa</td>
                                                         <td><code>{$user->method}</code></td>
                                                     </tr>
                                                     </tbody>
@@ -287,54 +305,97 @@
                 </div>
 
                 <div class="col-lg-6 col-sm-12">
-                    <div class="vstack">
-                        <div class="card">
+                    <div class="vstack gap-3">
+                        <div class="card gopass-traffic-card">
                             <div class="card-body">
-                                <h3 class="card-title">流量用量</h3>
-                                <div class="progress progress-separated mb-3">
-                                    {if $user->LastusedTrafficPercent() < '1'}
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 1%"></div>
-                                    {else}
-                                    <div class="progress-bar bg-primary" role="progressbar"
-                                         style="width: {$user->LastusedTrafficPercent()}%">
+                                <div class="gopass-traffic-head">
+                                    <div>
+                                        <h3 class="card-title mb-1">Sử dụng lưu lượng</h3>
+                                        <div class="gopass-traffic-sub">
+                                            {if $user->transfer_enable > 0}
+                                            Tổng gói: <strong>{$user->enableTraffic()}</strong>
+                                            {else}
+                                            Chưa có gói lưu lượng
+                                            {/if}
+                                        </div>
                                     </div>
-                                    {/if}
-                                    {if $user->TodayusedTrafficPercent() < '1'}
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 1%"></div>
+                                    {if $user->transfer_enable > 0}
+                                    <div class="gopass-traffic-remain-badge">
+                                        {$user->unusedTrafficPercent()|string_format:"%.0f"}% còn lại
+                                    </div>
                                     {else}
-                                    <div class="progress-bar bg-success" role="progressbar"
-                                         style="width: {$user->TodayusedTrafficPercent()}%"></div>
+                                    <div class="gopass-traffic-remain-badge gopass-traffic-remain-badge--empty">
+                                        Chưa kích hoạt
+                                    </div>
                                     {/if}
                                 </div>
-                                <div class="row">
-                                    <div class="col-auto d-flex align-items-center pe-2">
-                                        <span class="legend me-2 bg-primary"></span>
-                                        <span>过去用量 {$user->LastusedTraffic()}</span>
+
+                                {if $user->transfer_enable > 0}
+                                {assign var=last_pct value=$user->lastUsedTrafficPercent()}
+                                {assign var=today_pct value=$user->todayUsedTrafficPercent()}
+                                <div class="gopass-traffic-bar progress" role="progressbar"
+                                     aria-label="Tiến độ lưu lượng"
+                                     aria-valuenow="{math equation='a+b' a=$last_pct b=$today_pct}"
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    {if $last_pct > 0}
+                                    <div class="progress-bar gopass-traffic-bar-used"
+                                         style="width: {$last_pct}%"></div>
+                                    {/if}
+                                    {if $today_pct > 0}
+                                    <div class="progress-bar gopass-traffic-bar-today"
+                                         style="width: {$today_pct}%"></div>
+                                    {/if}
+                                    {if $last_pct == 0 && $today_pct == 0}
+                                    <div style="width:100%"></div>
+                                    {/if}
+                                </div>
+                                {/if}
+
+                                <div class="gopass-traffic-stats">
+                                    <div class="gopass-traffic-stat gopass-traffic-stat--used">
+                                        <div class="gopass-traffic-stat-label">
+                                            <span class="gopass-traffic-dot"></span>
+                                            Đã dùng
+                                        </div>
+                                        <div class="gopass-traffic-stat-value">{$user->usedTraffic()}</div>
                                     </div>
-                                    <div class="col-auto d-flex align-items-center px-2">
-                                        <span class="legend me-2 bg-success"></span>
-                                        <span>今日用量 {$user->TodayusedTraffic()}</span>
+                                    <div class="gopass-traffic-stat gopass-traffic-stat--today">
+                                        <div class="gopass-traffic-stat-label">
+                                            <span class="gopass-traffic-dot"></span>
+                                            Hôm nay
+                                        </div>
+                                        <div class="gopass-traffic-stat-value">{$user->todayUsedTraffic()}</div>
                                     </div>
-                                    <div class="col-auto d-flex align-items-center ps-2">
-                                        <span class="legend me-2"></span>
-                                        <span>剩余流量 {$user->unusedTraffic()}</span>
+                                    <div class="gopass-traffic-stat gopass-traffic-stat--left">
+                                        <div class="gopass-traffic-stat-label">
+                                            <span class="gopass-traffic-dot"></span>
+                                            Còn lại
+                                        </div>
+                                        <div class="gopass-traffic-stat-value">{$user->unusedTraffic()}</div>
                                     </div>
                                 </div>
-                                <p class="my-3">
-                                    {if $user->class === 0}
-                                    前往
-                                    <a href="/user/product">商店</a>
-                                    购买套餐
-                                    {else}
-                                    你的 LV. {$user->class} 账户会在 {$class_expire_days} 天后到期（{$user->class_expire}）
-                                    {/if}
-                                </p>
+
+                                {if $user->class === 0}
+                                <a href="/user/product" class="btn btn-primary w-100 gopass-traffic-cta">
+                                    <i class="ti ti-shopping-cart"></i>
+                                    Đến cửa hàng mua gói dịch vụ
+                                </a>
+                                {else}
+                                <div class="gopass-traffic-expire">
+                                    <i class="ti ti-calendar-event"></i>
+                                    <span>
+                                        Gói <strong>LV. {$user->class}</strong> hết hạn sau
+                                        <strong>{$class_expire_days} ngày</strong>
+                                        <span class="gopass-traffic-expire-date">({$user->class_expire})</span>
+                                    </span>
+                                </div>
+                                {/if}
                             </div>
                         </div>
                         {if $public_setting['traffic_log']}
-                        <div class="card my-3 mb-0">
+                        <div class="card mb-0">
                             <div class="card-body">
-                                <h3 class="card-title">每小时用量</h3>
+                                <h3 class="card-title">Lưu lượng theo giờ</h3>
                                 <div id="traffic-log"></div>
                             </div>
                         </div>
@@ -350,27 +411,26 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <h3 class="card-title">每日签到</h3>
+                            <h3 class="card-title">Điểm danh hàng ngày</h3>
                             <p>
-                                签到可领取
+                                Điểm danh để nhận lưu lượng trong khoảng
                                 {if $public_setting['checkin_min'] !== $public_setting['checkin_max']}
                                 &nbsp;
                                 <code>{$public_setting['checkin_min']} MB</code>
-                                至
+                                đến
                                 <code>{$public_setting['checkin_max']} MB</code>
-                                范围内的流量
                                 {else}
                                 <code>{$public_setting['checkin_min']} MB</code>
                                 {/if}
                             </p>
                             <p>
-                                上次签到时间：<code id="last-checkin-time">{$user->lastCheckInTime()}</code>
+                                Lần điểm danh gần nhất: <code id="last-checkin-time">{$user->lastCheckInTime()}</code>
                             </p>
                         </div>
                         <div class="card-footer">
                             <div class="d-flex">
                                 {if !$user->isAbleToCheckin()}
-                                <button id="check-in" class="btn btn-primary ms-auto" disabled>已签到</button>
+                                <button id="check-in" class="btn btn-primary ms-auto" disabled>Đã điểm danh</button>
                                 {else}
                                 {if $public_setting['enable_checkin_captcha']}
                                 {include file='captcha/div.tpl'}
@@ -381,7 +441,7 @@
                                     {include file='captcha/ajax.tpl'}
                                     {/if}
                                     }'>
-                                    签到
+                                    Điểm danh
                                 </button>
                                 {/if}
                             </div>
@@ -396,7 +456,7 @@
                         </div>
                         <div class="card-body">
                             <h3 class="card-title">
-                                置顶公告
+                                Thông báo ghim
                                 {if $ann !== null}
                                 <span class="card-subtitle">{$ann->date}</span>
                                 {/if}
@@ -405,7 +465,7 @@
                                 {if $ann !== null}
                                 {$ann->content}
                                 {else}
-                                暂无公告
+                                Chưa có thông báo
                                 {/if}
                             </p>
                         </div>
@@ -418,6 +478,36 @@
     {if $public_setting['enable_checkin_captcha'] && $user->isAbleToCheckin()}
         {include file='captcha/js.tpl'}
     {/if}
+
+    <script>
+        (function () {
+            const el = document.getElementById('live-online-devices');
+            if (!el) {
+                return;
+            }
+
+            const refreshOnlineDevices = () => {
+                fetch('/user/online-devices', {
+                    credentials: 'same-origin',
+                    headers: { 'Accept': 'application/json' }
+                })
+                    .then((res) => res.ok ? res.json() : null)
+                    .then((payload) => {
+                        if (payload && payload.ret === 1 && payload.data && payload.data.display) {
+                            el.textContent = payload.data.display;
+                        }
+                    })
+                    .catch(() => {});
+            };
+
+            setInterval(refreshOnlineDevices, 15000);
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    refreshOnlineDevices();
+                }
+            });
+        })();
+    </script>
 
     {if $public_setting['traffic_log']}
     <script src="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/libs/apexcharts/dist/apexcharts.min.js"></script>
@@ -444,7 +534,7 @@
                 },
                 series: [
                     {
-                        name: "使用流量（MB）",
+                        name: "Lưu lượng sử dụng (MB)",
                         data: trafficData
                     }
                 ],
@@ -462,7 +552,7 @@
                 },
                 xaxis: {
                     title: {
-                        text: "小时"
+                        text: "Giờ"
                     },
                     labels: {
                         padding: 0
@@ -480,7 +570,7 @@
                 },
                 yaxis: {
                     title: {
-                        text: "使用流量（MB）",
+                        text: "Lưu lượng sử dụng (MB)",
                         rotate: -90
                     },
                     labels: {
@@ -502,7 +592,7 @@
                 const chart = new ApexCharts(chartElement, getTrafficChartConfig({$traffic_logs}));
                 chart.render();
             } catch (error) {
-                console.error('流量图表初始化失败:', error);
+                console.error('Khởi tạo biểu đồ lưu lượng thất bại:', error);
             }
         }
         
@@ -539,10 +629,10 @@
     
 
     const CONFIG = {
-        ANIMATION_DURATION: 350,        // 动画持续时间（毫秒）
-        FEEDBACK_TIMEOUT: 2000,         // 反馈提示持续时间（毫秒）
-        CLIPBOARD_SUCCESS_TEXT: '已复制',
-        CLIPBOARD_ERROR_TEXT: '复制失败，请手动选择并复制',
+        ANIMATION_DURATION: 350,        // Thời gian hiệu ứng (ms)
+        FEEDBACK_TIMEOUT: 2000,         // Thời gian hiển thị phản hồi (ms)
+        CLIPBOARD_SUCCESS_TEXT: 'Đã sao chép',
+        CLIPBOARD_ERROR_TEXT: 'Sao chép thất bại, vui lòng chọn và sao chép thủ công',
         CLASSES: {
             BTN_GROUP_MOBILE: 'btn-group-vertical',
             BTN_GROUP_DESKTOP: 'btn-group btn-group-sm', 
@@ -552,19 +642,27 @@
             DESKTOP_SM: 'd-none d-sm-flex'
         },
         BUTTONS: {
-            download: { icon: 'ti-download', text: '下载', class: 'btn-primary' },
+            download: { icon: 'ti-download', text: 'Tải app', class: 'btn-primary' },
             downloadAppStore: { icon: 'ti-brand-appstore', text: 'App Store', class: 'btn-primary' },
-            copy: { icon: 'ti-copy', text: '复制订阅', class: 'btn-info copy' },
-            import: { icon: 'ti-link', text: '一键导入', class: 'btn-success' },
-            importRecommended: { icon: 'ti-rocket', text: '一键导入', class: 'btn-success' }
+            copy: { icon: 'ti-copy', text: 'Sao chép', class: 'btn-primary copy' },
+            import: { icon: 'ti-external-link', text: 'Mở app', class: 'btn-success' },
+            importRecommended: { icon: 'ti-external-link', text: 'Mở app', class: 'btn-success' }
+        },
+        // App chính trên dashboard — ưu tiên ClashMi (ổn định hơn Hiddify trên Trojan/XrayR)
+        PREFERRED_CLIENTS: {
+            Windows: ['ClashMi', 'Clash Verge Rev'],
+            macOS: ['ClashMi', 'Clash Verge Rev'],
+            Android: ['ClashMi', 'CMFA'],
+            iOS: ['ClashMi', 'SFI'],
+            Linux: ['ClashMi', 'Clash Verge Rev']
         }
     };
-    
+
     function safeInit(fn, name) {
         try {
             fn();
         } catch (error) {
-            console.error(`${name} 初始化失败:`, error);
+            console.error(`${name} khởi tạo thất bại:`, error);
         }
     }
     
@@ -611,12 +709,24 @@
     function createResponsiveButtonGroups(client, urls, isRecommended = false) {
         const { downloadUrl, subUrl, importUrl } = urls;
         const buttons = [];
-        
-        const buttonConfigs = [
-            { type: 'download', url: downloadUrl, needsClient: true },
-            { type: 'copy', url: subUrl },
-            { type: 'import', url: importUrl }
-        ];
+
+        // format cards: Sao chép + Mở app (same look as recommended)
+        // recommended cards: Tải app + Mở app
+        const buttonConfigs = client?.formatOnly
+            ? [
+                { type: 'copy', url: subUrl },
+                { type: 'import', url: importUrl }
+            ]
+            : isRecommended
+            ? [
+                { type: 'download', url: downloadUrl, needsClient: true },
+                { type: 'import', url: importUrl }
+            ]
+            : [
+                { type: 'download', url: downloadUrl, needsClient: true },
+                { type: 'copy', url: subUrl },
+                { type: 'import', url: importUrl }
+            ];
         
         const variants = [
             { 
@@ -637,11 +747,13 @@
             const group = createElement('div', variant.classes);
             
             buttonConfigs.forEach(btnConfig => {
+                if (btnConfig.type === 'import' && !btnConfig.url) return;
+                if (btnConfig.type === 'download' && !btnConfig.url) return;
                 const options = {
                     client: btnConfig.needsClient ? client : null,
                     url: btnConfig.url,
                     isMobile: variant.isMobile,
-                    isRecommended
+                    isRecommended: isRecommended || !!client?.formatOnly
                 };
                 group.appendChild(createButton(btnConfig.type, options));
             });
@@ -715,37 +827,118 @@
         return container.outerHTML;
     }
     
+    function pickPreferredClients(os, clients) {
+        const preferred = CONFIG.PREFERRED_CLIENTS[os] || CONFIG.PREFERRED_CLIENTS.Windows;
+        const picked = preferred
+            .map((name) => clients.find((c) => c.name === name))
+            .filter(Boolean);
+        return picked.length ? picked : clients.slice(0, 2);
+    }
+
+    function findClientByNames(clients, names) {
+        for (let i = 0; i < names.length; i++) {
+            const found = clients.find((c) => c.name === names[i]);
+            if (found) return found;
+        }
+        return null;
+    }
+
+    function setQuickOpenLinks(os) {
+        const clients = clientRecommendations[os] || clientRecommendations.Windows || [];
+        const clashMi = findClientByNames(clients, ['ClashMi'])
+            || findClientByNames(clientRecommendations.Windows || [], ['ClashMi'])
+            || findClientByNames(clientRecommendations.Android || [], ['ClashMi'])
+            || clients.find((c) => c.format === 'clash');
+
+        const openClashMi = document.getElementById('sub-open-clashmi');
+        if (openClashMi && clashMi && clashMi.importUrl) {
+            openClashMi.href = clashMi.importUrl;
+            openClashMi.title = 'Mở ' + clashMi.name;
+        }
+    }
+
+    function buildFormatClients(os) {
+        const config = window.APP_CONFIG;
+        const base = (config.universalSubUrl || '').replace(/\/$/, '');
+        const clients = clientRecommendations[os] || clientRecommendations.Windows || [];
+        const appName = config.appName || 'GoPass';
+
+        const singClient = findClientByNames(clients, ['SFA', 'SFM', 'SFI'])
+            || findClientByNames(clientRecommendations.Android || [], ['SFA'])
+            || findClientByNames(clientRecommendations.macOS || [], ['SFM']);
+        const hiddify = findClientByNames(clients, ['Hiddify'])
+            || findClientByNames(clientRecommendations.Windows || [], ['Hiddify'])
+            || clients.find((c) => c.format === 'hiddify');
+
+        const singSub = base + '/singbox';
+        const hiddifySub = base + '/hiddify';
+
+        return [
+            {
+                name: 'Hiddify',
+                description: 'Base64 share links (dự phòng)',
+                format: 'hiddify',
+                formatOnly: true,
+                downloadUrl: hiddify?.downloadUrl || '',
+                importUrl: hiddify?.importUrl
+                    || ('hiddify://import/?url=' + encodeURIComponent(hiddifySub) + '&name=' + encodeURIComponent(appName)),
+                isAppStore: !!hiddify?.isAppStore
+            },
+            {
+                name: 'Sing-box',
+                description: 'SFA / SFM — client sing-box chính thức',
+                format: 'singbox',
+                formatOnly: true,
+                downloadUrl: singClient?.downloadUrl || '',
+                importUrl: singClient?.importUrl
+                    || ('sing-box://import-remote-profile?url=' + encodeURIComponent(singSub) + '#' + encodeURIComponent(appName)),
+                isAppStore: !!singClient?.isAppStore
+            }
+        ];
+    }
+
     function initClientSelector() {
         const os = detectOS();
-        document.getElementById('detected-os').textContent = os;
-        
-        const recommendations = clientRecommendations[os] || clientRecommendations["Windows"];
+        const detectedOs = document.getElementById('detected-os');
+        if (detectedOs) detectedOs.textContent = os;
+
+        setQuickOpenLinks(os);
+
+        const allForOs = clientRecommendations[os] || clientRecommendations["Windows"] || [];
+        const recommendations = pickPreferredClients(os, allForOs);
+        const formatContainer = document.getElementById('format-clients');
         const recommendedContainer = document.getElementById('recommended-clients');
-        
+
+        if (formatContainer) {
+            buildFormatClients(os).forEach(function(client) {
+                formatContainer.insertAdjacentHTML('beforeend', generateClientHtml(client, true));
+            });
+        }
+
         if (recommendedContainer) {
             recommendations.forEach(function(client) {
                 const clientHtml = generateClientHtml(client, true);
-            recommendedContainer.insertAdjacentHTML('beforeend', clientHtml);
+                recommendedContainer.insertAdjacentHTML('beforeend', clientHtml);
             });
         }
-        
+
         const accordionContainer = document.getElementById('platform-accordion');
-        
+
         if (accordionContainer) {
             Object.keys(clientRecommendations).forEach(function(platform) {
                 const clients = clientRecommendations[platform];
                 const platformId = 'platform-' + platform.toLowerCase();
                 const icon = platformIcons[platform] || CONFIG.BUTTONS.download.icon.replace('ti-', 'ti-device-');
-                
+
                 const accordionHtml = `
                     <div class="accordion-item">
                         <h2 class="accordion-header">
-                            <button class="accordion-button collapsed" type="button" 
+                            <button class="accordion-button collapsed" type="button"
                                     data-bs-toggle="collapse" data-bs-target="#${platformId}">
                                 <i class="ti ${icon} me-2"></i> ${platform}
                             </button>
                         </h2>
-                        <div id="${platformId}" class="accordion-collapse collapse" 
+                        <div id="${platformId}" class="accordion-collapse collapse"
                              data-bs-parent="#platform-accordion">
                             <div class="accordion-body">
                                 <div class="row g-3">
@@ -754,20 +947,20 @@
                             </div>
                         </div>
                     </div>`;
-                    
+
                 accordionContainer.insertAdjacentHTML('beforeend', accordionHtml.trim());
             });
         }
     }
-    
+
     function initClipboard() {
         if (typeof ClipboardJS === 'undefined') {
-            console.warn('ClipboardJS 未加载');
+            console.warn('ClipboardJS chưa được tải');
             return;
         }
-        
+
         const clipboard = new ClipboardJS('.copy');
-        
+
         clipboard.on('success', function(e) {
             e.clearSelection();
             const originalText = e.trigger.innerHTML;
@@ -779,39 +972,35 @@
                 e.trigger.innerHTML = originalText;
             }, CONFIG.FEEDBACK_TIMEOUT);
         });
-        
+
         clipboard.on('error', function(e) {
-            console.error('复制失败:', e.action);
+            console.error('Sao chép thất bại:', e.action);
             alert(CONFIG.CLIPBOARD_ERROR_TEXT);
         });
     }
-    
-    function initCollapseAnimations() {
-        const allPlatforms = document.getElementById('all-platforms');
-        const recommendedSection = document.querySelector('.recommended-section');
-        
-        if (!allPlatforms || !recommendedSection) return;
-        
-        recommendedSection.classList.add('collapsible-section');
-        
-        allPlatforms.addEventListener('show.bs.collapse', function (e) {
-            if (e.target !== allPlatforms) return;
-            recommendedSection.classList.add('collapsing');
+
+    function initAdvancedCollapse() {
+        const panel = document.getElementById('all-platforms');
+        const toggle = document.querySelector('.gopass-advanced-toggle');
+        if (!panel || !toggle) return;
+
+        panel.addEventListener('show.bs.collapse', function (e) {
+            if (e.target !== panel) return;
+            toggle.setAttribute('aria-expanded', 'true');
+            toggle.classList.add('is-open');
         });
-        
-        allPlatforms.addEventListener('hide.bs.collapse', function (e) {
-            if (e.target !== allPlatforms) return;
-            recommendedSection.classList.remove('collapsing');
-            setTimeout(function() {
-                recommendedSection.classList.add('expanded');
-            }, CONFIG.ANIMATION_DURATION);
+
+        panel.addEventListener('hide.bs.collapse', function (e) {
+            if (e.target !== panel) return;
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.classList.remove('is-open');
         });
     }
-    
+
     document.addEventListener('DOMContentLoaded', function() {
-        safeInit(initClientSelector, '客户端选择器');
-        safeInit(initClipboard, '剪贴板功能');
-        safeInit(initCollapseAnimations, '折叠动画');
+        safeInit(initClientSelector, 'Bộ chọn ứng dụng khách');
+        safeInit(initClipboard, 'Chức năng clipboard');
+        safeInit(initAdvancedCollapse, 'Thu gọn app nâng cao');
     });
     {/literal}
     </script>

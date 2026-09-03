@@ -1,0 +1,362 @@
+/*
+ * DPanel admin theme.
+ * Loaded after Tabler so it can correct layout metrics Tabler assumes for
+ * short Latin labels but that break with longer Vietnamese ones.
+ */
+
+:root {
+    --dp-admin-primary: #ef4056;
+    --dp-admin-radius: 0.9rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Page header                                                         */
+/* ------------------------------------------------------------------ */
+
+.page-header {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+/*
+ * Tabler pins .page-title to a 1.75rem line box. The 36px .home-title used by
+ * every admin page overflowed it and collided with .page-pretitle underneath.
+ */
+.page-header .page-title {
+    display: block;
+    font-size: inherit;
+    line-height: inherit;
+    margin-bottom: 0;
+    white-space: normal;
+}
+
+.home-title {
+    display: block;
+    /* Pages mix `home-title` with `my-3`; normalise so spacing comes from here. */
+    margin: 0 !important;
+    font-size: clamp(1.5rem, 1.1rem + 2vw, 2.25rem);
+    line-height: 1.2;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+    overflow-wrap: anywhere;
+}
+
+.page-header .page-pretitle {
+    margin-top: 0.35rem !important;
+    margin-bottom: 0 !important;
+    line-height: 1.4;
+}
+
+.home-subtitle {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.page-header.text-white .page-pretitle,
+.page-header.text-white .home-subtitle {
+    color: rgba(255, 255, 255, 0.86);
+}
+
+/* The overlap gradient must never capture clicks meant for the content below. */
+.navbar-overlap:after {
+    pointer-events: none;
+}
+
+/* A primary button on the primary gradient is invisible; invert it instead. */
+.page-header.text-white .btn-primary {
+    background-color: #fff !important;
+    border-color: #fff !important;
+    color: var(--dp-admin-primary) !important;
+    font-weight: 650;
+}
+
+.page-header.text-white .btn-primary:hover,
+.page-header.text-white .btn-primary:focus {
+    background-color: rgba(255, 255, 255, 0.88) !important;
+    border-color: rgba(255, 255, 255, 0.88) !important;
+    color: var(--dp-admin-primary) !important;
+}
+
+/* Header action buttons: full width and below the title on small screens. */
+@media (max-width: 767.98px) {
+    .page-header .row.align-items-center > .col-auto {
+        width: 100%;
+        margin-top: 0.85rem;
+    }
+
+    .page-header .btn-list {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .page-header .btn-list > .btn {
+        flex: 1 1 auto;
+        min-height: 2.5rem;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Navbar                                                              */
+/* ------------------------------------------------------------------ */
+
+/*
+ * The navbar stays in flow on purpose: `.navbar-overlap::after` paints a 9rem
+ * gradient below the bar, and giving the navbar a stacking context lifts that
+ * gradient over the page header, hiding the title.
+ */
+.navbar .nav-link-title {
+    white-space: nowrap;
+}
+
+.navbar-nav .nav-link {
+    border-radius: 0.6rem;
+}
+
+.navbar-nav .nav-item.is-active > .nav-link {
+    background: rgba(255, 255, 255, 0.16);
+    font-weight: 650;
+}
+
+.dropdown-menu .dropdown-item.is-active {
+    background: color-mix(in srgb, var(--dp-admin-primary) 12%, transparent);
+    font-weight: 650;
+}
+
+.dropdown-menu {
+    border-radius: var(--dp-admin-radius);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+}
+
+.dropdown-menu .dropdown-item {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+/* Mobile: the collapsed menu is long, so make it scrollable with big targets. */
+@media (max-width: 767.98px) {
+    #navbar-menu {
+        max-height: calc(100vh - 4.5rem);
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding-bottom: 0.75rem;
+    }
+
+    #navbar-menu .navbar-nav > .nav-item + .nav-item {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    #navbar-menu .nav-link {
+        padding: 0.7rem 0.5rem;
+        font-size: 0.975rem;
+    }
+
+    #navbar-menu .dropdown-menu {
+        margin: 0 0 0.35rem 0.5rem;
+        padding-left: 0.35rem;
+        border-left: 2px solid rgba(255, 255, 255, 0.18);
+        box-shadow: none;
+    }
+
+    #navbar-menu .dropdown-item {
+        padding: 0.55rem 0.6rem;
+    }
+
+    /* Nested "Cài đặt" submenu reads as a flyout on desktop, a list on mobile. */
+    #navbar-menu .dropend .dropdown-menu {
+        position: static !important;
+        transform: none !important;
+        width: 100%;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Cards & stat tiles                                                  */
+/* ------------------------------------------------------------------ */
+
+.card {
+    border-radius: var(--dp-admin-radius);
+}
+
+.card-sm .card-body {
+    padding: 0.9rem 1rem;
+}
+
+.card-sm .font-weight-medium {
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.card-sm .text-secondary {
+    font-size: 0.8125rem;
+    line-height: 1.35;
+}
+
+.card-header .card-title {
+    font-size: 1rem;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+/* Stat tiles sit two-up on phones, so trim the chrome to keep numbers readable. */
+@media (max-width: 575.98px) {
+    .card-sm .card-body {
+        padding: 0.75rem;
+    }
+
+    .card-sm .avatar {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.8rem;
+    }
+
+    .card-sm .row.align-items-center {
+        --tblr-gutter-x: 0.75rem;
+    }
+
+    .card-sm .font-weight-medium {
+        font-size: 0.95rem;
+    }
+
+    .card-sm .text-secondary {
+        font-size: 0.75rem;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Tables                                                              */
+/* ------------------------------------------------------------------ */
+
+.table-responsive {
+    border-radius: var(--dp-admin-radius);
+}
+
+.card-table td,
+.card-table th {
+    vertical-align: middle;
+}
+
+.card-table .btn {
+    white-space: nowrap;
+}
+
+/* Actions rendered as several links per row wrap instead of stretching the table. */
+.card-table td .btn + .btn {
+    margin-left: 0.25rem;
+}
+
+.dt-search input {
+    min-width: 12rem;
+}
+
+.dt-paging .pagination {
+    margin-bottom: 0;
+}
+
+/* DataTables 2 controls stack instead of squeezing on small screens. */
+@media (max-width: 767.98px) {
+    .dt-length,
+    .dt-search,
+    .dt-info,
+    .dt-paging {
+        width: 100%;
+        text-align: left !important;
+    }
+
+    .dt-length,
+    .dt-search {
+        margin-bottom: 0.5rem;
+    }
+
+    .dt-search label {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        width: 100%;
+        margin-bottom: 0;
+    }
+
+    .dt-search input {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+        margin-left: 0;
+    }
+
+    .dt-paging .pagination {
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Forms                                                               */
+/* ------------------------------------------------------------------ */
+
+/*
+ * Admin forms use `col-3` labels. At phone widths that leaves ~80px, so
+ * Vietnamese labels wrapped into unreadable columns.
+ */
+@media (max-width: 767.98px) {
+    .form-group.row > .col-form-label,
+    .form-group.row > label.form-label {
+        width: 100%;
+        max-width: 100%;
+        flex: 0 0 100%;
+        padding-bottom: 0.15rem;
+        font-weight: 600;
+    }
+
+    .form-group.row > .col,
+    .form-group.row > .col-auto {
+        width: 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .form-group.row > .col-auto .form-check {
+        margin-top: 0.25rem;
+    }
+}
+
+.form-hint {
+    overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------------ */
+/* Modals                                                              */
+/* ------------------------------------------------------------------ */
+
+.modal-content {
+    border-radius: var(--dp-admin-radius);
+}
+
+@media (max-width: 575.98px) {
+    .modal-footer {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .modal-footer > .btn,
+    .modal-footer > .btn.me-auto {
+        width: 100%;
+        margin: 0 !important;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Misc                                                                */
+/* ------------------------------------------------------------------ */
+
+.badge {
+    white-space: nowrap;
+}
+
+.footer.footer-transparent {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}

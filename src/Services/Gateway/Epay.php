@@ -73,16 +73,24 @@ final class Epay extends Base
             ]);
         }
 
+        $user = Auth::getUser();
+
+        if ((int) $invoice->user_id !== (int) $user->id) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => '无权操作此账单',
+            ]);
+        }
+
         $price = $invoice->price;
 
         if ($price <= 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '非法的金额',
+                'msg' => 'Số tiền không hợp lệ',
             ]);
         }
 
-        $user = Auth::getUser();
         $pl = (new Paylist())->where('invoice_id', $invoice_id)->first();
 
         if ($pl === null) {
@@ -134,7 +142,7 @@ final class Epay extends Base
             if ($res['code'] !== 1 || ! isset($res['payurl'])) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '请求支付失败，网关错误',
+                    'msg' => 'Yêu cầu thanh toán thất bại, lỗi cổng thanh toán',
                     //TODO: use syslog to log this error
                 ]);
             }
@@ -143,7 +151,7 @@ final class Epay extends Base
         } catch (GuzzleException) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '请求支付失败，网关错误',
+                'msg' => 'Yêu cầu thanh toán thất bại, lỗi cổng thanh toán',
             ]);
         }
     }

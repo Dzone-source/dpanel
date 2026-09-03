@@ -6,6 +6,8 @@ namespace App\Controllers;
 
 use App\Models\Ann;
 use App\Models\Config;
+use App\Models\OnlineLog;
+use App\Models\Order;
 use App\Services\Analytics;
 use App\Services\Auth;
 use App\Services\Captcha;
@@ -18,7 +20,9 @@ use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use function date;
 use function json_encode;
+use function round;
 use function strtotime;
 use function time;
 
@@ -31,8 +35,10 @@ final class UserController extends BaseController
     {
         $captcha = [];
         $traffic_logs = [];
-        $class_expire_days = $this->user->class > 0 ?
-            round((strtotime($this->user->class_expire) - time()) / 86400) : 0;
+        $class_expire_ts = strtotime((string) $this->user->class_expire);
+        $class_expire_days = ($class_expire_ts !== false && $class_expire_ts > time())
+            ? (int) round(($class_expire_ts - time()) / 86400)
+            : 0;
         $ann = (new Ann())->where('status', '>', 0)
             ->orderBy('status', 'desc')
             ->orderBy('sort')
@@ -60,6 +66,58 @@ final class UserController extends BaseController
             $r2Enabled
         );
 
+        // Bandwidth-only packages may leave class at 0 while transfer_enable > 0.
+        $has_active_plan = $this->user->class > 0 || $this->user->transfer_enable > 0;
+        $expire_still_valid = $class_expire_ts !== false && $class_expire_ts > time();
+
+        $activated_order = (new Order())->where('user_id', $this->user->id)
+            ->where('status', 'activated')
+            ->whereIn('product_type', ['tabp', 'time', 'bandwidth'])
+            ->orderByDesc('id')
+            ->first();
+
+        $plan_name = $activated_order !== null
+            ? (string) $activated_order->product_name
+            : '';
+
+        if ($plan_name === '' && $has_active_plan) {
+            $plan_name = $this->user->class > 0
+                ? 'Gói LV.' . $this->user->class
+                : 'Gói đang dùng';
+        }
+
+        if ($has_active_plan && $expire_still_valid) {
+            $expire_date = date('d/m/Y', $class_expire_ts);
+            $class_value = $plan_name !== '' ? $plan_name : 'Đang dùng';
+            $class_subvalue = 'Hết hạn: ' . $expire_date
+                . ($class_expire_days > 0 ? ' (còn ' . (int) $class_expire_days . ' ngày)' : '');
+        } elseif ($has_active_plan) {
+            $class_value = $plan_name !== '' ? $plan_name : 'Đang dùng';
+            $class_subvalue = 'Đã hết hạn hoặc không có ngày hết hạn';
+        } else {
+            $class_value = 'Chưa kích hoạt';
+            $class_subvalue = 'Chưa có gói dịch vụ';
+        }
+
+        $plan_card = [
+            'title' => 'Gói dịch vụ',
+            'value' => $class_value,
+            'subvalue' => $class_subvalue,
+            'icon' => 'ti-crown',
+            'gradient' => 'gopass-gradient-1',
+            'action_url' => '/user/product',
+            'cta' => ! $has_active_plan,
+            'cta_label' => 'Mua hàng',
+            'buy_new' => $has_active_plan,
+            'buy_new_label' => 'Mua gói mới',
+        ];
+
+        $device_info = [
+            'title' => 'Thiết bị đồng thời',
+            'value' => $this->formatOnlineDevicesDisplay(),
+            'action_url' => '/user/profile',
+        ];
+
         return $response->write(
             $this->view()
                 ->assign('ann', $ann)
@@ -73,6 +131,8 @@ final class UserController extends BaseController
                 ->assign('user_money', $this->user->money)
                 ->assign('ip_limit', $this->user->node_iplimit)
                 ->assign('speed_limit', $this->user->node_speedlimit)
+                ->assign('plan_card', $plan_card)
+                ->assign('device_info', $device_info)
                 ->fetch('user/index.tpl')
         );
     }
@@ -94,29 +154,59 @@ final class UserController extends BaseController
         );
     }
 
+    /**
+     * Live online device count for the dashboard card (online / limit).
+     */
+    public function onlineDevices(ServerRequest $request, Response $response, array $args): ResponseInterface
+    {
+        return ResponseHelper::successWithData($response, '', $this->getOnlineDevicesData());
+    }
+
+    /**
+     * @return array{online: int, limit: int, display: string}
+     */
+    private function getOnlineDevicesData(): array
+    {
+        $online = (new OnlineLog())->where('user_id', $this->user->id)
+            ->where('last_time', '>', time() - 90)
+            ->count();
+        $limit = (int) $this->user->node_iplimit;
+
+        return [
+            'online' => $online,
+            'limit' => $limit,
+            'display' => $limit > 0 ? $online . '/' . $limit : $online . '/∞',
+        ];
+    }
+
+    private function formatOnlineDevicesDisplay(): string
+    {
+        return $this->getOnlineDevicesData()['display'];
+    }
+
     public function checkin(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
         if (! Config::obtain('enable_checkin') || ! $this->user->isAbleToCheckin()) {
-            return ResponseHelper::error($response, '暂时还不能签到');
+            return ResponseHelper::error($response, 'Chưa thể điểm danh');
         }
 
         if (Config::obtain('enable_checkin_captcha')) {
             $ret = Captcha::verify($request->getParams());
 
             if (! $ret) {
-                return ResponseHelper::error($response, '系统无法接受你的验证结果，请刷新页面后重试');
+                return ResponseHelper::error($response, 'Hệ thống không thể chấp nhận kết quả xác minh của bạn, vui lòng làm mới trang và thử lại');
             }
         }
 
         $traffic = Reward::issueCheckinReward($this->user->id);
 
         if (! $traffic) {
-            return ResponseHelper::error($response, '签到失败');
+            return ResponseHelper::error($response, 'Điểm danh thất bại');
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '获得了 ' . $traffic . 'MB 流量',
+            'msg' => 'Đã nhận được ' . $traffic . 'MB MB lưu lượng',
             'data' => [
                 'last-checkin-time' => Tools::toDateTime(time()),
             ],

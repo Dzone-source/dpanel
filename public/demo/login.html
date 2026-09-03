@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <meta name="theme-color" content="#7c3aed"/>
+  <title>DPanel — Đăng nhập</title>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+  <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
+  <link href="/assets/css/gopass.css?v=20260903pexels" rel="stylesheet"/>
+</head>
+<body class="gopass-auth gopass-auth--wallpaper d-flex flex-column">
+<div class="gopass-auth-wallpaper"></div>
+<div class="page page-center">
+  <div class="container-tight my-auto">
+    <div class="text-center mb-4">
+      <a href="home.html" class="navbar-brand navbar-brand-autodark">
+        <img src="/images/uim-logo-round_96x96.png" height="64" alt="DPanel Logo">
+      </a>
+    </div>
+    <div class="card card-md">
+      <div class="card-body">
+        <h2 class="card-title text-center mb-4">Đăng nhập</h2>
+        <p class="text-secondary text-center mb-4" style="margin-top:-0.75rem;font-size:0.9rem">
+          Trung tâm người dùng DPanel
+        </p>
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" value="admin@demo.local" readonly>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">
+            Mật khẩu đăng nhập
+            <span class="form-label-description"><a href="#">Quên mật khẩu</a></span>
+          </label>
+          <input type="password" class="form-control" value="••••••••" readonly>
+        </div>
+        <div class="mb-3">
+          <label class="form-check">
+            <input type="checkbox" class="form-check-input" checked/>
+            <span class="form-check-label">Ghi nhớ thiết bị</span>
+          </label>
+        </div>
+        <div class="form-footer">
+          <a href="dashboard.html" class="btn btn-primary w-100 mb-3">Đăng nhập</a>
+          <a href="dashboard.html" class="btn btn-outline-primary w-100">Đăng nhập bằng WebAuthn</a>
+        </div>
+      </div>
+    </div>
+    <div class="text-center gopass-auth-aside mt-3">
+      Chưa có tài khoản? <a href="#">Nhấn để đăng ký</a>
+      <div class="mt-2"><a href="dashboard.html">Xem dashboard demo →</a></div>
+    </div>
+  </div>
+</div>
+<a class="gopass-auth-pexels" href="https://www.pexels.com/search/4k%20wallpaper/" target="_blank" rel="noopener noreferrer">Ảnh: Pexels</a>
+<script src="/assets/js/login-wallpaper.js?v=20260903pexels2"></script>
+</body>
+</html>

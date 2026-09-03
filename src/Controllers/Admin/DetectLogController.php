@@ -17,13 +17,13 @@ final class DetectLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'user_id' => '用户ID',
-                'node_id' => '节点ID',
-                'node_name' => '节点名',
-                'list_id' => '规则ID',
-                'rule_name' => '规则名',
-                'datetime' => '时间',
+                'id' => 'ID sự kiện',
+                'user_id' => 'ID người dùng',
+                'node_id' => 'ID máy chủ',
+                'node_name' => 'Tên máy chủ',
+                'list_id' => 'ID quy tắc',
+                'rule_name' => 'Tên quy tắc',
+                'datetime' => 'Thời gian',
             ],
         ];
 
@@ -41,8 +41,8 @@ final class DetectLogController extends BaseController
 
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $length = $request->getParam('length');
-        $page = $request->getParam('start') / $length + 1;
+        $length = max(1, (int) $request->getParam('length'));
+        $page = (int) $request->getParam('start') / $length + 1;
         $draw = $request->getParam('draw');
 
         $detect_log = DetectLog::query();
@@ -50,9 +50,11 @@ final class DetectLogController extends BaseController
         $search = $request->getParam('search')['value'];
 
         if ($search !== '') {
-            $detect_log->where('user_id', '=', $search)
-                ->orWhere('list_id', '=', $search)
-                ->orWhere('node_id', '=', $search);
+            $detect_log->where(static function ($query) use ($search): void {
+                $query->where('user_id', '=', $search)
+                    ->orWhere('list_id', '=', $search)
+                    ->orWhere('node_id', '=', $search);
+            });
         }
 
         $order = $request->getParam('order')[0]['dir'];

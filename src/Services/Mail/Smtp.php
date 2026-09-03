@@ -6,6 +6,7 @@ namespace App\Services\Mail;
 
 use App\Models\Config;
 use Exception;
+use PHPMailer\PHPMailer\Exception as PhpMailerException;
 use PHPMailer\PHPMailer\PHPMailer;
 
 final class Smtp extends Base
@@ -14,43 +15,48 @@ final class Smtp extends Base
 
     /**
      * @throws Exception
+     * @throws PhpMailerException
      */
     public function __construct()
     {
         $configs = Config::getClass('email');
 
-        $mail = new PHPMailer();
+        $mail = new PHPMailer(true);
         $mail->isSMTP();
-        $mail->Host = $configs['smtp_host'];
-        $mail->Port = $configs['smtp_port'];
+        $mail->Host = (string) $configs['smtp_host'];
+        $mail->Port = (int) $configs['smtp_port'];
         $mail->SMTPAuth = ! ($configs['smtp_username'] === '' && $configs['smtp_password'] === '');
         $mail->CharSet = 'UTF-8';
-        $mail->Username = $configs['smtp_username'];
-        $mail->Password = $configs['smtp_password'];
-        $mail->setFrom($configs['smtp_sender'], $configs['smtp_name']);
+        $mail->Username = (string) $configs['smtp_username'];
+        $mail->Password = (string) $configs['smtp_password'];
+        $mail->setFrom((string) $configs['smtp_sender'], (string) $configs['smtp_name']);
 
         if ($configs['smtp_ssl']) {
-            $mail->SMTPSecure = ($configs['smtp_port'] === '587' ? 'tls' : 'ssl');
+            $mail->SMTPSecure = ((string) $configs['smtp_port'] === '587' ? PHPMailer::ENCRYPTION_STARTTLS : PHPMailer::ENCRYPTION_SMTPS);
         }
 
         if ($configs['smtp_bbc'] !== '') {
-            $mail->addBCC($configs['smtp_bbc']);
+            $mail->addBCC((string) $configs['smtp_bbc']);
         }
 
         $this->mail = $mail;
     }
 
     /**
-     * @throws Exception
+     * @throws PhpMailerException
      */
     public function send($to, $subject, $body): void
     {
         $mail = $this->mail;
-        $mail->addAddress($to);     // Add a recipient
+        $mail->clearAddresses();
+        $mail->clearAttachments();
+        $mail->addAddress($to);
         $mail->isHTML();
         $mail->Subject = $subject;
         $mail->Body = $body;
 
-        $mail->send();
+        if (! $mail->send()) {
+            throw new PhpMailerException($mail->ErrorInfo !== '' ? $mail->ErrorInfo : 'SMTP send failed');
+        }
     }
 }

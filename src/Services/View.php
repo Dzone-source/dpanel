@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Config;
+use App\Utils\Tools;
 use Illuminate\Database\DatabaseManager;
 use Smarty\Smarty;
 use Twig\Environment;
@@ -28,6 +29,13 @@ final class View
         $smarty->assign('config', self::getConfig());
         $smarty->assign('public_setting', Config::getPublicConfig());
         $smarty->assign('user', $user);
+        $smarty->registerPlugin(
+            Smarty::PLUGIN_MODIFIER,
+            'format_vnd',
+            static function ($amount, $decimals = 0) {
+                return Tools::formatVnd($amount, (int) $decimals);
+            }
+        );
 
         return $smarty;
     }

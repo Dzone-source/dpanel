@@ -22,12 +22,14 @@ return static function (Slim\App $app): void {
     // OAuth
     $app->post('/oauth/{type}', App\Controllers\OAuthController::class . ':index');
     $app->get('/oauth/{type}', App\Controllers\OAuthController::class . ':index');
-    // 通用订阅
-    $app->get('/sub/{token}/{subtype}', App\Controllers\SubController::class . ':index');
+    // Universal subscription (subtype optional — auto-detect from User-Agent)
+    $app->get('/sub/{token}[/{subtype}]', App\Controllers\SubController::class . ':index');
     // User
     $app->group('/user', static function (RouteCollectorProxy $group): void {
         $group->get('', App\Controllers\UserController::class . ':index');
         $group->get('/', App\Controllers\UserController::class . ':index');
+        // Live online device count for dashboard
+        $group->get('/online-devices', App\Controllers\UserController::class . ':onlineDevices');
         // 签到
         $group->post('/checkin', App\Controllers\UserController::class . ':checkin');
         // 公告
@@ -70,6 +72,7 @@ return static function (Slim\App $app): void {
         $group->post('/edit/contact_method', App\Controllers\User\InfoController::class . ':updateContactMethod');
         $group->post('/edit/theme', App\Controllers\User\InfoController::class . ':updateTheme');
         $group->post('/edit/theme_mode', App\Controllers\User\InfoController::class . ':updateThemeMode');
+        $group->post('/switch_theme_mode', App\Controllers\User\InfoController::class . ':switchThemeMode');
         $group->post('/edit/kill', App\Controllers\User\InfoController::class . ':sendToGulag');
         // 发送验证邮件
         $group->post('/edit/send', App\Controllers\AuthController::class . ':sendVerify');
@@ -97,6 +100,7 @@ return static function (Slim\App $app): void {
         // 账单页面
         $group->get('/invoice', App\Controllers\User\InvoiceController::class . ':index');
         $group->get('/invoice/{id:[0-9]+}/view', App\Controllers\User\InvoiceController::class . ':detail');
+        $group->get('/invoice/{id:[0-9]+}/status', App\Controllers\User\InvoiceController::class . ':status');
         $group->post('/invoice/pay_balance', App\Controllers\User\InvoiceController::class . ':payBalance');
         $group->post('/invoice/ajax', App\Controllers\User\InvoiceController::class . ':ajax');
         // 新优惠码系统
@@ -141,6 +145,8 @@ return static function (Slim\App $app): void {
     $app->group('/admin', static function (RouteCollectorProxy $group): void {
         $group->get('', App\Controllers\AdminController::class . ':index');
         $group->get('/', App\Controllers\AdminController::class . ':index');
+        // Live status polling for admin UI auto-refresh
+        $group->get('/live/status', App\Controllers\Admin\LiveController::class . ':status');
         // Node
         $group->get('/node', App\Controllers\Admin\NodeController::class . ':index');
         $group->get('/node/create', App\Controllers\Admin\NodeController::class . ':create');
@@ -200,6 +206,7 @@ return static function (Slim\App $app): void {
         $group->get('/user', App\Controllers\Admin\UserController::class . ':index');
         $group->get('/user/{id:[0-9]+}/edit', App\Controllers\Admin\UserController::class . ':edit');
         $group->put('/user/{id:[0-9]+}', App\Controllers\Admin\UserController::class . ':update');
+        $group->post('/user/{id:[0-9]+}', App\Controllers\Admin\UserController::class . ':update');
         $group->post('/user/create', App\Controllers\Admin\UserController::class . ':create');
         $group->delete('/user/{id}', App\Controllers\Admin\UserController::class . ':delete');
         $group->post('/user/ajax', App\Controllers\Admin\UserController::class . ':ajax');
@@ -302,6 +309,7 @@ return static function (Slim\App $app): void {
         $group->get('/product/{id:[0-9]+}/edit', App\Controllers\Admin\ProductController::class . ':edit');
         $group->post('/product/{id:[0-9]+}/copy', App\Controllers\Admin\ProductController::class . ':copy');
         $group->put('/product/{id:[0-9]+}', App\Controllers\Admin\ProductController::class . ':update');
+        $group->post('/product/{id:[0-9]+}', App\Controllers\Admin\ProductController::class . ':update');
         $group->delete('/product/{id:[0-9]+}', App\Controllers\Admin\ProductController::class . ':delete');
         $group->post('/product/ajax', App\Controllers\Admin\ProductController::class . ':ajax');
         // 订单

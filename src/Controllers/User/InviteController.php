@@ -48,7 +48,7 @@ final class InviteController extends BaseController
             $this->view()
                 ->assign('paybacks', $paybacks)
                 ->assign('invite_url', $invite_url)
-                ->assign('paybacks_sum', $paybacks_sum)
+                ->assign('paybacks_sum', Tools::formatVnd((float) $paybacks_sum, 0))
                 ->assign('invite_reward_rate', $invite_reward_rate)
                 ->fetch('user/invite.tpl')
         );
@@ -62,7 +62,7 @@ final class InviteController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '重置成功',
+            'msg' => 'Đặt lại thành công',
             'data' => [
                 'invite-url' => $_ENV['baseUrl'] . '/auth/register?code=' . $code,
             ],

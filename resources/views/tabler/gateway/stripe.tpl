@@ -6,14 +6,18 @@
         Stripe
     </h4>
     <p class="card-heading"></p>
-    <p>可以使用带有
+    <p>Có thể dùng thẻ tín dụng hoặc ghi nợ có biểu tượng
         <span class="payment payment-xs payment-provider-unionpay me-auto"></span>
         <span class="payment payment-xs payment-provider-mastercard me-auto"></span>
         <span class="payment payment-xs payment-provider-visa me-auto"></span>
-        等标识的信用卡或借记卡</p>
+        </p>
     <div class="form-group form-group-label">
-        <button class="btn btn-flat waves-attach"
+        <button class="btn btn-flat waves-attach gopass-busy-submit"
+            type="button"
             hx-post="/user/payment/purchase/stripe" hx-swap="none"
+            hx-disabled-elt="this"
+            data-gopass-busy-text="Đang chuyển..."
+            data-gopass-keep-busy="1"
             hx-vals='js:{
                 invoice_id: {$invoice->id},
             }'>

@@ -24,7 +24,7 @@ final class PingCommand extends Command
     /**
      * @var string Command Description
      */
-    protected string $description = '[群组/私聊] 获取我或者群组的唯一 ID';
+    protected string $description = '[Nhóm/Chat riêng] Lấy ID duy nhất của tôi hoặc nhóm';
 
     public function handle(): void
     {

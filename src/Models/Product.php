@@ -31,7 +31,7 @@ final class Product extends Model
      */
     public function status(): string
     {
-        return $this->status ? '正常' : '下架';
+        return $this->status ? 'Bình thường' : 'Ngừng bán';
     }
 
     /**
@@ -40,10 +40,10 @@ final class Product extends Model
     public function type(): string
     {
         return match ($this->type) {
-            'tabp' => '时间流量包',
-            'time' => '时间包',
-            'bandwidth' => '流量包',
-            default => '其他',
+            'tabp' => 'Gói thời gian + lưu lượng',
+            'time' => 'Gói thời gian',
+            'bandwidth' => 'Gói lưu lượng',
+            default => 'Khác',
         };
     }
 
@@ -52,6 +52,214 @@ final class Product extends Model
      */
     public function stock(): string|int
     {
-        return $this->stock < 0 ? '无限制' : $this->stock;
+        return $this->stock < 0 ? 'Không giới hạn' : $this->stock;
+    }
+
+    /**
+     * Short marketing blurb clarifying what a package is for, based on its name:
+     * JP mobile-network speed packages (SoftBank/LINEMO/Y!mobile) vs VN VPN packages.
+     */
+    public static function packageTagline(string $name): string
+    {
+        if (mb_stripos($name, 'vpn') !== false || mb_stripos($name, 'việt nam') !== false || mb_stripos($name, 'viet nam') !== false) {
+            return 'Fake IP, bảo mật thông tin — ẩn danh khi truy cập internet.';
+        }
+
+        return 'Nâng cấp tốc độ không giới hạn cho SIM SoftBank / LINEMO / Y!mobile.';
+    }
+
+    /**
+     * Normalize duration/price options from product content JSON.
+     *
+     * @return list<array{days: int, price: float, label: string}>
+     */
+    public static function normalizeOptions(mixed $content): array
+    {
+        if (\is_string($content)) {
+            $content = json_decode($content);
+        }
+
+        if (\is_array($content)) {
+            $content = (object) $content;
+        }
+
+        if (! \is_object($content) || ! isset($content->options) || ! \is_array($content->options)) {
+            return [];
+        }
+
+        $options = [];
+
+        foreach ($content->options as $option) {
+            if (\is_array($option)) {
+                $option = (object) $option;
+            }
+
+            if (! \is_object($option)) {
+                continue;
+            }
+
+            $days = (int) ($option->days ?? 0);
+            $price = (float) ($option->price ?? -1);
+
+            if ($days <= 0 || $price < 0) {
+                continue;
+            }
+
+            $label = trim((string) ($option->label ?? ''));
+            if ($label === '') {
+                $label = $days . ' ngày';
+            }
+
+            $options[] = [
+                'days' => $days,
+                'price' => $price,
+                'label' => $label,
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
+     * Parse duration/price options from either JSON string or parallel arrays.
+     *
+     * @return list<array{days: int, price: float, label: string}>|null
+     */
+    public static function parseOptionsPayload(mixed $raw): ?array
+    {
+        if ($raw === null || $raw === '') {
+            return [];
+        }
+
+        if (\is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            if (! \is_array($decoded)) {
+                return null;
+            }
+        } elseif (\is_array($raw)) {
+            $decoded = $raw;
+        } else {
+            return null;
+        }
+
+        $options = [];
+
+        foreach ($decoded as $row) {
+            if (! \is_array($row)) {
+                continue;
+            }
+
+            $days = (int) ($row['days'] ?? 0);
+            $price = (float) ($row['price'] ?? -1);
+            $label = trim((string) ($row['label'] ?? ''));
+
+            if ($days <= 0 || $price < 0) {
+                continue;
+            }
+
+            if ($label === '') {
+                $label = $days . ' ngày';
+            }
+
+            $options[] = [
+                'days' => $days,
+                'price' => $price,
+                'label' => $label,
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
+     * Build options list from parallel form arrays (option_days/prices/labels).
+     *
+     * @return list<array{days: int, price: float, label: string}>
+     */
+    public static function parseOptionsFromArrays(mixed $days, mixed $prices, mixed $labels): array
+    {
+        if (! \is_array($days)) {
+            $days = $days === null || $days === '' ? [] : [$days];
+        }
+        if (! \is_array($prices)) {
+            $prices = $prices === null || $prices === '' ? [] : [$prices];
+        }
+        if (! \is_array($labels)) {
+            $labels = $labels === null || $labels === '' ? [] : [$labels];
+        }
+
+        $count = max(\count($days), \count($prices), \count($labels));
+        $options = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $d = (int) ($days[$i] ?? 0);
+            $p = (float) ($prices[$i] ?? -1);
+            $l = trim((string) ($labels[$i] ?? ''));
+
+            if ($d <= 0 || $p < 0) {
+                continue;
+            }
+
+            if ($l === '') {
+                $l = $d . ' ngày';
+            }
+
+            $options[] = [
+                'days' => $d,
+                'price' => $p,
+                'label' => $l,
+            ];
+        }
+
+        return $options;
+    }
+
+    /**
+     * Resolve purchase price + flat content snapshot for a selected option index.
+     *
+     * @return array{price: float, content: array<string, mixed>, option: ?array{days: int, price: float, label: string}}|null
+     */
+    public function resolvePurchaseOption(?int $optionIndex): ?array
+    {
+        $base = json_decode($this->content, true);
+        if (! \is_array($base)) {
+            $base = [];
+        }
+
+        $options = self::normalizeOptions($this->content);
+
+        if ($options === []) {
+            return [
+                'price' => (float) $this->price,
+                'content' => $base,
+                'option' => null,
+            ];
+        }
+
+        if ($optionIndex === null) {
+            $optionIndex = 0;
+        }
+
+        if (! isset($options[$optionIndex])) {
+            return null;
+        }
+
+        $option = $options[$optionIndex];
+        $content = $base;
+        unset($content['options']);
+
+        if ($this->type === 'tabp' || $this->type === 'time') {
+            $content['time'] = $option['days'];
+            $content['class_time'] = $option['days'];
+        }
+
+        $content['option_label'] = $option['label'];
+        $content['option_days'] = $option['days'];
+
+        return [
+            'price' => (float) $option['price'],
+            'content' => $content,
+            'option' => $option,
+        ];
     }
 }

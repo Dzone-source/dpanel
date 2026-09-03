@@ -21,8 +21,8 @@ use Telegram\Bot\Exceptions\TelegramSDKException;
 
 final class ImController extends BaseController
 {
-    private static string $success_msg = '测试信息发送成功';
-    private static string $err_msg = '测试信息发送失败';
+    private static string $success_msg = 'Gửi tin nhắn thử nghiệm thành công';
+    private static string $err_msg = 'Gửi tin nhắn thử nghiệm thất bại';
     private array $update_field;
     private array $settings;
 
@@ -52,14 +52,14 @@ final class ImController extends BaseController
             if (! Config::set($item, $request->getParam($item))) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '保存 ' . $item . ' 时出错',
+                    'msg' => 'Lưu ' . $item . ' thất bại',
                 ]);
             }
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '保存成功',
+            'msg' => 'Lưu thành công',
         ]);
     }
 

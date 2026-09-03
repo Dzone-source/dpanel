@@ -34,6 +34,7 @@ final class Tool extends Command
 ├─=: php xcat Tool [选项]
 │ ├─ resetSetting        - 使用默认值覆盖数据库配置
 │ ├─ importSetting       - 导入数据库配置
+│ ├─ importMissingSetting - Chỉ thêm key cấu hình mới từ settings.json
 │ ├─ resetNodePassword   - 重置所有节点通讯密钥
 │ ├─ resetNodeBandwidth  - 重置所有节点流量
 │ ├─ resetPort           - 重置所有用户端口
@@ -77,6 +78,12 @@ EOL;
         echo '已使用默认值覆盖所有数据库设置' . PHP_EOL;
     }
 
+    public function importMissingSetting(): void
+    {
+        $added = Config::importMissingFromFile();
+        echo 'Đã thêm ' . $added . ' cấu hình mới từ settings.json' . PHP_EOL;
+    }
+
     public function importSetting(): void
     {
         $json_settings = file_get_contents('./config/settings.json');
@@ -103,15 +110,36 @@ EOL;
                 $new_item->mark = $item['mark'];
                 $new_item->save();
 
-                echo '添加新数据库设置：' . $item_name . PHP_EOL;
+                echo 'Thêm cài đặt DB mới: ' . $item_name . PHP_EOL;
                 $add_counter += 1;
                 continue;
             }
 
+            $dirty = false;
             if ($query->class !== $item['class']) {
                 $query->class = $item['class'];
+                $dirty = true;
+            }
+            if ((string) $query->is_public !== (string) $item['is_public']) {
+                $query->is_public = $item['is_public'];
+                $dirty = true;
+            }
+            if ($query->type !== $item['type']) {
+                $query->type = $item['type'];
+                $dirty = true;
+            }
+            if ($query->default !== $item['default']) {
+                $query->default = $item['default'];
+                $dirty = true;
+            }
+            if ((string) $query->mark !== (string) $item['mark']) {
+                $query->mark = $item['mark'];
+                $dirty = true;
+            }
+
+            if ($dirty) {
                 $query->save();
-                echo '更新数据库设置：' . $item_name . PHP_EOL;
+                echo 'Cập nhật cài đặt DB: ' . $item_name . PHP_EOL;
                 $update_counter += 1;
             }
         }
@@ -126,15 +154,15 @@ EOL;
         }
 
         if ($add_counter !== 0) {
-            echo '添加了 ' . $add_counter . ' 项新数据库设置' . PHP_EOL;
+            echo 'Đã thêm ' . $add_counter . ' mục cài đặt DB mới' . PHP_EOL;
         }
 
         if ($update_counter !== 0) {
-            echo '更新了 ' . $update_counter . ' 项数据库设置' . PHP_EOL;
+            echo 'Đã cập nhật ' . $update_counter . ' mục cài đặt DB' . PHP_EOL;
         }
 
         if ($del_counter !== 0) {
-            echo '移除了 ' . $del_counter . ' 项数据库设置' . PHP_EOL;
+            echo 'Đã gỡ ' . $del_counter . ' mục cài đặt DB' . PHP_EOL;
         }
     }
 
@@ -298,20 +326,18 @@ EOL;
     }
 
     /**
-     * Set locale for all users
+     * Set locale for all users (Vietnamese only)
      */
     public function setLocale(): void
     {
-        fwrite(STDOUT, 'Please input the new locale: ');
-        $locale = trim(fgets(STDIN));
         $users = ModelsUser::all();
 
         foreach ($users as $user) {
-            $user->locale = $locale;
+            $user->locale = 'vi_VN';
             $user->save();
         }
 
-        echo 'Set locale for all users successfully.' . PHP_EOL;
+        echo 'Đã đặt ngôn ngữ vi_VN cho tất cả người dùng.' . PHP_EOL;
     }
 
     /**

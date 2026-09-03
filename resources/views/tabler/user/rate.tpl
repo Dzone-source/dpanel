@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">流量倍率</span>
+                        <span class="home-title">Hệ số lưu lượng</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">查看节点的每小时流量倍率</span>
+                        <span class="home-subtitle">Xem hệ số lưu lượng theo giờ của máy chủ</span>
                     </div>
                 </div>
             </div>
@@ -22,7 +22,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex">
-                                <h3 class="card-title">流量倍率图表</h3>
+                                <h3 class="card-title">Biểu đồ hệ số lưu lượng</h3>
                                 <div class="ms-auto">
                                     <div class="dropdown">
                                         <a id="dropdown-toggle" class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown"
@@ -80,7 +80,7 @@
                     opacity: 1,
                 },
                 series: [{
-                    name: "倍率",
+                    name: "Hệ số",
                     data: []
                 }],
                 tooltip: {
@@ -97,7 +97,7 @@
                 },
                 xaxis: {
                     title: {
-                        text: '小时',
+                        text: 'Giờ',
                     },
                     labels: {
                         padding: 0,
@@ -113,7 +113,7 @@
                 },
                 yaxis: {
                     title: {
-                        text: '倍率',
+                        text: 'Hệ số',
                         rotate: 0,
                     },
                     labels: {
@@ -129,7 +129,7 @@
             chart.render();
             chart.updateOptions({
                 series: [{
-                    name: "倍率",
+                    name: "Hệ số",
                     data: evt.detail.data
                 }],
             });

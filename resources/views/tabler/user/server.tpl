@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">节点列表</span>
+                        <span class="home-title">Danh sách máy chủ</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">查看节点在线情况</span>
+                        <span class="home-subtitle">Xem trạng thái trực tuyến máy chủ</span>
                     </div>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                                         <div class="col-lg-4 col-md-6 col-sm-12">
                                             <div class="card">
                                                 {if $server['class'] === 0}
-                                                    <div class="ribbon bg-blue">免费</div>
+                                                    <div class="ribbon bg-blue">Miễn phí</div>
                                                 {else}
                                                     <div class="ribbon bg-blue">LV. {$server['class']}</div>
                                                 {/if}
@@ -50,14 +50,14 @@
                                                                 </span>
                                                             </h2>
                                                             <div class="text-secondary badges-list">
-                                                                <span class="badge bg-blue-lt">
+                                                                <span class="badge bg-blue-lt" title="Số IP online (~2 phút gần nhất)">
                                                                     <i class="ti ti-users"></i>
                                                                     {$server['online_user']}</span>
                                                                 <span class="badge bg-blue-lt">
                                                                     {if $server['is_dynamic_rate']}
-                                                                        动态倍率
+                                                                        Hệ số động
                                                                     {else}
-                                                                        {$server['traffic_rate']} 倍
+                                                                        {$server['traffic_rate']} lần
                                                                     {/if}
                                                                 </span>
                                                                 <span class="badge bg-blue-lt">{$server['sort']}</span>
@@ -65,9 +65,9 @@
                                                                 <span class="badge bg-blue-lt">IPv6</span>
                                                                 {/if}
                                                                 {if $user->class < $server['class']}
-                                                                <span class="badge bg-red-lt">无权限</span>
-                                                                <span class="badge bg-pink-lt">当前账户等级小于节点等级</span>
-                                                                <span class="badge bg-green-lt">前往 <a href="/user/product">商品页面</a> 订购时间流量包</span>
+                                                                <span class="badge bg-red-lt">Không có quyền</span>
+                                                                <span class="badge bg-pink-lt">Cấp tài khoản thấp hơn cấp máy chủ</span>
+                                                                <span class="badge bg-green-lt">Đến <a href="/user/product">trang sản phẩm</a> để mua gói thời gian và lưu lượng</span>
                                                                 {/if}
                                                             </div>
                                                         </div>

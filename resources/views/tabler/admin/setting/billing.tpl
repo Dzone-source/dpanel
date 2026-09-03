@@ -6,17 +6,17 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">财务设置</span>
+                        <span class="home-title">Cài đặt tài chính</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">设置站点的财务系统</span>
+                        <span class="home-subtitle">Cấu hình hệ thống tài chính của trang web</span>
                     </div>
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
                         <a id="save-setting" href="#" class="btn btn-primary">
                             <i class="icon ti ti-device-floppy"></i>
-                            保存
+                            Lưu
                         </a>
                     </div>
                 </div>
@@ -31,10 +31,10 @@
                         <div class="card-header">
                             <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
                                 <li class="nav-item">
-                                    <a href="#gateway" class="nav-link active" data-bs-toggle="tab">网关选择</a>
+                                    <a href="#gateway" class="nav-link active" data-bs-toggle="tab">Chọn cổng thanh toán</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#f2f" class="nav-link" data-bs-toggle="tab">支付宝当面付</a>
+                                    <a href="#f2f" class="nav-link" data-bs-toggle="tab">Alipay thanh toán trực tiếp</a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#stripe" class="nav-link" data-bs-toggle="tab">Stripe</a>
@@ -50,6 +50,9 @@
                                 </li>
                                 <li class="nav-item">
                                     <a href="#cryptomus" class="nav-link" data-bs-toggle="tab">Cryptomus</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#manualqr" class="nav-link" data-bs-toggle="tab">Manual QR</a>
                                 </li>
                             </ul>
                         </div>
@@ -85,21 +88,21 @@
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">支付宝公钥</label>
+                                            <label class="form-label col-3 col-form-label">Khóa công khai Alipay</label>
                                             <div class="col">
                                                 <input id="f2f_pay_public_key" type="text" class="form-control"
                                                        value="{$settings['f2f_pay_public_key']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">应用私钥</label>
+                                            <label class="form-label col-3 col-form-label">Khóa riêng ứng dụng</label>
                                             <div class="col">
                                                 <input id="f2f_pay_private_key" type="text" class="form-control"
                                                        value="{$settings['f2f_pay_private_key']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">自定义回调地址（可选）</label>
+                                            <label class="form-label col-3 col-form-label">URL callback tùy chỉnh (tùy chọn)</label>
                                             <div class="col">
                                                 <input id="f2f_pay_notify_url" type="text" class="form-control"
                                                        value="{$settings['f2f_pay_notify_url']}">
@@ -133,56 +136,56 @@
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">网关货币</label>
+                                            <label class="form-label col-3 col-form-label">Đơn vị tiền tệ cổng</label>
                                             <div class="col">
                                                 <input id="stripe_currency" type="text" class="form-control"
                                                        value="{$settings['stripe_currency']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">银行卡支付</label>
+                                            <label class="form-label col-3 col-form-label">Thanh toán thẻ ngân hàng</label>
                                             <div class="col">
                                                 <select id="stripe_card" class="col form-select"
                                                         value="{$settings['stripe_card']}">
-                                                    <option value="0">停用</option>
-                                                    <option value="1" {if $settings['stripe_card']}selected{/if}>启用
+                                                    <option value="0">Tắt</option>
+                                                    <option value="1" {if $settings['stripe_card']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">支付宝支付</label>
+                                            <label class="form-label col-3 col-form-label">Thanh toán Alipay</label>
                                             <div class="col">
                                                 <select id="stripe_alipay" class="col form-select"
                                                         value="{$settings['stripe_alipay']}">
-                                                    <option value="0">停用</option>
+                                                    <option value="0">Tắt</option>
                                                     <option value="1" {if $settings['stripe_alipay']}selected{/if}>
-                                                        启用
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">微信支付</label>
+                                            <label class="form-label col-3 col-form-label">Thanh toán WeChat Pay</label>
                                             <div class="col">
                                                 <select id="stripe_wechat" class="col form-select"
                                                         value="{$settings['stripe_wechat']}">
-                                                    <option value="0">停用</option>
+                                                    <option value="0">Tắt</option>
                                                     <option value="1" {if $settings['stripe_wechat']}selected{/if}>
-                                                        启用
+                                                        Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">最低充值限额（整数）</label>
+                                            <label class="form-label col-3 col-form-label">Hạn mức nạp tối thiểu (số nguyên)</label>
                                             <div class="col">
                                                 <input id="stripe_min_recharge" type="text" class="form-control"
                                                        value="{$settings['stripe_min_recharge']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">最高充值限额（整数）</label>
+                                            <label class="form-label col-3 col-form-label">Hạn mức nạp tối đa (số nguyên)</label>
                                             <div class="col">
                                                 <input id="stripe_max_recharge" type="text" class="form-control"
                                                        value="{$settings['stripe_max_recharge']}">
@@ -193,62 +196,62 @@
                                 <div class="tab-pane" id="epay">
                                     <div class="card-body">
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">网关地址</label>
+                                            <label class="form-label col-3 col-form-label">URL cổng thanh toán</label>
                                             <div class="col">
                                                 <input id="epay_url" type="text" class="form-control"
                                                        value="{$settings['epay_url']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">商户ID</label>
+                                            <label class="form-label col-3 col-form-label">ID thương nhân</label>
                                             <div class="col">
                                                 <input id="epay_pid" type="text" class="form-control"
                                                        value="{$settings['epay_pid']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">商户Key</label>
+                                            <label class="form-label col-3 col-form-label">Key thương nhân</label>
                                             <div class="col">
                                                 <input id="epay_key" type="text" class="form-control"
                                                        value="{$settings['epay_key']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">签名方式</label>
+                                            <label class="form-label col-3 col-form-label">Phương thức chữ ký</label>
                                             <div class="col">
                                                 <input id="epay_sign_type" type="text" class="form-control"
                                                        value="{$settings['epay_sign_type']}">
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">支付宝</label>
+                                            <label class="form-label col-3 col-form-label">Alipay</label>
                                             <div class="col">
                                                 <select id="epay_alipay" class="col form-select"
                                                         value="{$settings['epay_alipay']}">
-                                                    <option value="0">停用</option>
-                                                    <option value="1" {if $settings['epay_alipay']}selected{/if}>启用
+                                                    <option value="0">Tắt</option>
+                                                    <option value="1" {if $settings['epay_alipay']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">微信支付</label>
+                                            <label class="form-label col-3 col-form-label">Thanh toán WeChat Pay</label>
                                             <div class="col">
                                                 <select id="epay_wechat" class="col form-select"
                                                         value="{$settings['epay_wechat']}">
-                                                    <option value="0">停用</option>
-                                                    <option value="1" {if $settings['epay_wechat']}selected{/if}>启用
+                                                    <option value="0">Tắt</option>
+                                                    <option value="1" {if $settings['epay_wechat']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="form-group mb-3 row">
-                                            <label class="form-label col-3 col-form-label">QQ钱包</label>
+                                            <label class="form-label col-3 col-form-label">Ví QQ</label>
                                             <div class="col">
                                                 <select id="epay_qq" class="col form-select"
                                                         value="{$settings['epay_qq']}">
-                                                    <option value="0">停用</option>
-                                                    <option value="1" {if $settings['epay_qq']}selected{/if}>启用
+                                                    <option value="0">Tắt</option>
+                                                    <option value="1" {if $settings['epay_qq']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
@@ -258,8 +261,8 @@
                                             <div class="col">
                                                 <select id="epay_usdt" class="col form-select"
                                                         value="{$settings['epay_usdt']}">
-                                                    <option value="0">停用</option>
-                                                    <option value="1" {if $settings['epay_usdt']}selected{/if}>启用
+                                                    <option value="0">Tắt</option>
+                                                    <option value="1" {if $settings['epay_usdt']}selected{/if}>Bật
                                                     </option>
                                                 </select>
                                             </div>
@@ -381,6 +384,47 @@
 {*                                        </div>*}
                                     </div>
                                 </div>
+                                <div class="tab-pane" id="manualqr">
+                                    <div class="card-body">
+                                        <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">Mã ngân hàng VietQR</label>
+                                            <div class="col">
+                                                <input id="manual_qr_bank_bin" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_bank_bin']|default:''}">
+                                                <span>Ví dụ: MB, VCB, ACB, TCB...</span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">Tên ngân hàng</label>
+                                            <div class="col">
+                                                <input id="manual_qr_bank_name" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_bank_name']|default:''}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">Số tài khoản</label>
+                                            <div class="col">
+                                                <input id="manual_qr_account_number" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_account_number']|default:''}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">Tên chủ tài khoản</label>
+                                            <div class="col">
+                                                <input id="manual_qr_account_name" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_account_name']|default:''}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-3 row">
+                                            <label class="form-label col-3 col-form-label">URL ảnh QR (tùy chọn)</label>
+                                            <div class="col">
+                                                <input id="manual_qr_image_url" type="text" class="form-control"
+                                                       value="{$settings['manual_qr_image_url']|default:''}">
+                                                <span>Chỉ dùng khi không dùng VietQR. Có thể để trống.</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -390,18 +434,21 @@
 
         <script>
             $("#save-setting").click(function () {
+                const payload = {};
+                {foreach $update_field as $key}
+                {if $key !== 'payment_gateway'}
+                payload['{$key}'] = $('#{$key}').val();
+                {/if}
+                {/foreach}
+                {foreach $payment_gateways as $key => $value}
+                payload['{$value}'] = $("#{$value}_enable").is(":checked") ? 'true' : 'false';
+                {/foreach}
+
                 $.ajax({
                     url: '/admin/setting/billing',
                     type: 'POST',
                     dataType: "json",
-                    data: {
-                        {foreach $update_field as $key}
-                            {$key}: $('#{$key}').val(),
-                        {/foreach}
-                        {foreach $payment_gateways as $key => $value}
-                            {$value}: $("#{$value}_enable").is(":checked"),
-                        {/foreach}
-                    },
+                    data: payload,
                     success: function (data) {
                         if (data.ret === 1) {
                             $('#success-message').text(data.msg);

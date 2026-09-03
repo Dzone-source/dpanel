@@ -6,24 +6,24 @@ $_ENV['pwdMethod'] = 'bcrypt'; // 密码加密 可选 bcrypt, argon2i, argon2id
 $_ENV['salt'] = '';            // bcrypt/argon2i/argon2id 会忽略此项
 
 $_ENV['debug'] = false;                  // debug模式开关，生产环境请保持为false
-$_ENV['appName'] = 'SSPanel-UIM';         // 站点名称
+$_ENV['appName'] = 'DPanel';              // 站点名称
 $_ENV['baseUrl'] = 'https://example.com'; // 站点地址，必须以https://开头，不要以/结尾
 
 // WebAPI
 $_ENV['webAPI'] = true;                // 是否开启WebAPI功能
 $_ENV['webAPIUrl'] = $_ENV['baseUrl']; // WebAPI地址，如需和站点地址相同，请不要修改
 $_ENV['muKey'] = 'ChangeMe';           // WebAPI密钥，用于节点服务端与面板通信，请务必修改此key为随机字符串
-$_ENV['checkNodeIp'] = true;           // 是否webapi验证节点ip
+$_ENV['checkNodeIp'] = false;          // Docker/NAT: XrayR IP often ≠ node.server DNS — keep false to avoid mass disconnect
 
 //数据库设置--------------------------------------------------------------------------------------------------------------
 // db_host|db_socket 二选一，若设置 db_socket 则 db_host 会被忽略，不用请留空
 // db_host 例: localhost（可解析的主机名）, 127.0.0.1（IP 地址）
 // db_socket 例：/var/run/mysqld/mysqld.sock（需使用绝对地址）
-$_ENV['db_host'] = '';
+$_ENV['db_host'] = 'mariadb'; // Docker: mariadb | Manual: 127.0.0.1 or localhost
 $_ENV['db_socket'] = '';
-$_ENV['db_database'] = 'sspanel'; // 数据库名
-$_ENV['db_username'] = 'root';    // 数据库用户名
-$_ENV['db_password'] = 'sspanel'; // 用户密码
+$_ENV['db_database'] = 'dpanel';  // 数据库名
+$_ENV['db_username'] = 'dpanel';    // 数据库用户名
+$_ENV['db_password'] = 'dpanel'; // 用户密码
 $_ENV['db_port'] = '3306';        // 端口
 #读写分离相关配置
 $_ENV['enable_db_rw_split'] = false; // 是否开启读写分离
@@ -35,7 +35,7 @@ $_ENV['db_collation'] = 'utf8mb4_unicode_ci';
 $_ENV['db_prefix'] = '';
 
 //Redis设置--------------------------------------------------------------------------------------------------------------
-$_ENV['redis_host'] = '127.0.0.1';    // Redis地址，使用unix domain socket时填写文件路径
+$_ENV['redis_host'] = 'redis';    // Docker: redis | Manual: 127.0.0.1
 $_ENV['redis_port'] = 6379;           // Redis端口，使用unix domain socket时填写-1
 $_ENV['redis_db'] = 0;                // Redis数据库编号，留空则使用默认的0
 $_ENV['redis_connect_timeout'] = 2.0; // Redis连接超时时间，单位秒
@@ -47,10 +47,10 @@ $_ENV['redis_ssl_context'] = [];      // 使用SSL时的上下文选项，参考
 
 //Rate Limit 设置--------------------------------------------------------------------------------------------------------
 $_ENV['enable_rate_limit'] = true;     // 是否开启请求限制
-$_ENV['rate_limit_sub_ip'] = 10;       // 每分钟每个IP的订阅链接请求限制
-$_ENV['rate_limit_sub'] = 10;          // 每分钟每个用户的订阅链接请求限制
-$_ENV['rate_limit_webapi_ip'] = 120;   // 每分钟每个IP的WebAPI请求限制
-$_ENV['rate_limit_webapi'] = 1200;     // 每分钟WebAPI全局请求限制
+$_ENV['rate_limit_sub_ip'] = 60;       // 每分钟每个IP的订阅链接请求限制
+$_ENV['rate_limit_sub'] = 60;          // 每分钟每个用户的订阅链接请求限制
+$_ENV['rate_limit_webapi_ip'] = 600;   // 每分钟每个IP的WebAPI请求限制 (nhiều node chung 1 IP NAT)
+$_ENV['rate_limit_webapi'] = 6000;     // 每分钟WebAPI全局请求限制
 $_ENV['rate_limit_user_api_ip'] = 60;  // 每分钟每个IP的用户API请求限制
 $_ENV['rate_limit_user_api'] = 60;     // 每分钟每个用户的API请求限制
 $_ENV['rate_limit_admin_api_ip'] = 60; // 每分钟每个管理员的API请求限制
@@ -93,27 +93,35 @@ $_ENV['detect_gfw_url'] = 'https://example.com/v1/tcping?ip={ip}&port={port}'; /
 $_ENV['enable_detect_offline'] = true;
 
 //高级设置---------------------------------------------------------------------------------------------------------------
-$_ENV['enable_login_bind_ip'] = true;     //是否将登陆线程和IP绑定
-$_ENV['enable_login_bind_device'] = true; //是否将登陆线程和设备绑定
-$_ENV['rememberMeDuration'] = 7;          //登录时记住账号时长天数
-$_ENV['timeZone'] = 'Asia/Shanghai';        //需使用 PHP 兼容的时区格式
+$_ENV['enable_login_bind_ip'] = false;    // IP đổi (mobile/proxy) sẽ bị đăng xuất nếu bật
+$_ENV['enable_login_bind_device'] = true; // Gắn phiên đăng nhập với thiết bị (User-Agent)
+$_ENV['sessionDuration'] = 7;             // Thời gian phiên đăng nhập (ngày), không tick "Ghi nhớ"
+$_ENV['rememberMeDuration'] = 30;         // Thời gian khi tick "Ghi nhớ thiết bị" (ngày)
+$_ENV['timeZone'] = 'Asia/Ho_Chi_Minh';  //需使用 PHP 兼容的时区格式
 $_ENV['theme'] = 'tabler';                //默认主题
-$_ENV['locale'] = 'zh-CN';                //默认语言
+$_ENV['locale'] = 'vi_VN';
 $_ENV['jump_delay'] = 1000;               //跳转延时，单位ms
-$_ENV['keep_connect'] = false;            // 流量耗尽用户限速至 1Mbps
+$_ENV['keep_connect'] = true;             // Hết traffic: giữ kết nối + giảm tốc (tránh timeout)
+$_ENV['keep_connect_speedlimit'] = 100;   // Mbps khi keep_connect (5 Mbps quá thấp → Hiddify tưởng disconnect)
+$_ENV['disable_xrayr_speed_limit'] = true; // Không gửi node_speedlimit cho XrayR (tránh rate-limit cắt upload)
+$_ENV['disable_ip_online_limit'] = true;  // Tạm tắt limit IP online gửi XrayR (true = không giới hạn)
 
 //Other-----------------------------------------------------------------------------------------------------------------
 // cdn.jsdelivr.net / fastly.jsdelivr.net / testingcf.jsdelivr.net
 $_ENV['jsdelivr_url'] = 'fastly.jsdelivr.net';
 // https://sentry.io for production debugging
 $_ENV['sentry_dsn'] = '';
-// Maxmind GeoIP2 database
+// Maxmind GeoIP2 database (storage/GeoLite2-*.mmdb). License key chỉ cần cho lệnh php xcat Tool updateGeoIP2
 //TODO: move these settings to DB
 $_ENV['maxmind_account_id'] = '';
 $_ENV['maxmind_license_key'] = '';
 $_ENV['geoip_locale'] = 'en';
+// Behind Docker / Caddy: trust X-Forwarded-For and CF-Connecting-IP for login IP & GeoIP
+$_ENV['trust_proxy'] = true;
 // ClientDownload 命令解决 API 访问频率高而被限制使用的 Github access token
 $_ENV['github_access_token'] = '';
+// Optional Pexels API key: live random 4K wallpapers on the login page (https://www.pexels.com/api/)
+$_ENV['pexels_api_key'] = '';
 // use Cloudflare R2 for clients download
 $_ENV['enable_r2_client_download'] = false;
 $_ENV['r2_bucket_name'] = '';

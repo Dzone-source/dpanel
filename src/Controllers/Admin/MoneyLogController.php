@@ -17,18 +17,18 @@ final class MoneyLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'user_id' => '用户ID',
-                'before' => '变动前余额',
-                'after' => '变动后余额',
-                'amount' => '变动金额',
-                'remark' => '备注',
-                'create_time' => '变动时间',
+                'id' => 'ID sự kiện',
+                'user_id' => 'ID người dùng',
+                'before' => 'Số dư trước thay đổi',
+                'after' => 'Số dư sau thay đổi',
+                'amount' => 'Số tiền thay đổi',
+                'remark' => 'Ghi chú',
+                'create_time' => 'Thời gian thay đổi',
             ],
         ];
 
     /**
-     * 后台用户余额记录页面
+     * 后台用户Số dư记录页面
      *
      * @throws Exception
      */
@@ -42,7 +42,7 @@ final class MoneyLogController extends BaseController
     }
 
     /**
-     * 后台用户余额记录页面 AJAX
+     * 后台用户Số dư记录页面 AJAX
      */
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
@@ -50,6 +50,7 @@ final class MoneyLogController extends BaseController
 
         foreach ($money_logs as $money_log) {
             $money_log->create_time = Tools::toDateTime((int) $money_log->create_time);
+            Tools::formatVndOnObject($money_log, ['before', 'after', 'amount']);
         }
 
         return $response->withJson([

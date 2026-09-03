@@ -16,39 +16,39 @@ final class DetectRuleController extends BaseController
     private static array $details =
         [
             'field' => [
-                'op' => '操作',
-                'id' => '规则ID',
-                'name' => '规则名称',
-                'text' => '规则介绍',
-                'regex' => '正则表达式',
-                'type' => '规则类型',
+                'op' => 'Thao tác',
+                'id' => 'ID quy tắc',
+                'name' => 'Tên quy tắc',
+                'text' => 'Giới thiệu quy tắc',
+                'regex' => 'Biểu thức chính quy',
+                'type' => 'Loại quy tắc',
             ],
             'add_dialog' => [
                 [
                     'id' => 'name',
-                    'info' => '规则名称',
+                    'info' => 'Tên quy tắc',
                     'type' => 'input',
-                    'placeholder' => '审计规则名称',
+                    'placeholder' => 'Tên quy tắc kiểm toán',
                 ],
                 [
                     'id' => 'text',
-                    'info' => '规则介绍',
+                    'info' => 'Giới thiệu quy tắc',
                     'type' => 'input',
-                    'placeholder' => '简洁明了地描述审计规则',
+                    'placeholder' => 'Mô tả quy tắc kiểm toán một cách ngắn gọn và rõ ràng',
                 ],
                 [
                     'id' => 'regex',
-                    'info' => '正则表达式',
+                    'info' => 'Biểu thức chính quy',
                     'type' => 'input',
-                    'placeholder' => '用以匹配审计内容的正则表达式',
+                    'placeholder' => 'Biểu thức chính quy để khớp nội dung kiểm toán',
                 ],
                 [
                     'id' => 'type',
-                    'info' => '规则类型',
+                    'info' => 'Loại quy tắc',
                     'type' => 'select',
                     'select' => [
-                        '1' => '数据包明文匹配',
-                        '0' => '数据包十六进制匹配',
+                        '1' => 'Khớp gói dữ liệu dạng văn bản thuần',
+                        '0' => 'Khớp gói dữ liệu dạng thập lục phân',
                     ],
                 ],
             ],
@@ -77,13 +77,13 @@ final class DetectRuleController extends BaseController
         if (! $rule->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '添加失败',
+                'msg' => 'Thêm thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '添加成功',
+            'msg' => 'Thêm thành công',
         ]);
     }
 
@@ -95,13 +95,13 @@ final class DetectRuleController extends BaseController
         if (! $rule->delete()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '删除失败',
+                'msg' => 'Xóa thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '删除成功',
+            'msg' => 'Xóa thành công',
         ]);
     }
 
@@ -111,7 +111,7 @@ final class DetectRuleController extends BaseController
 
         foreach ($rules as $rule) {
             $rule->op = '<button class="btn btn-red" id="delete-rule-' . $rule->id .
-                '" onclick="deleteRule(' . $rule->id . ')">删除</button>';
+                '" onclick="deleteRule(' . $rule->id . ')">Xóa</button>';
             $rule->type = $rule->type();
         }
 

@@ -16,6 +16,8 @@ use Stripe\Exception\ApiErrorException;
 use Stripe\Stripe;
 use Stripe\WebhookEndpoint;
 use Throwable;
+use function in_array;
+use function trim;
 
 final class BillingController extends BaseController
 {
@@ -25,6 +27,7 @@ final class BillingController extends BaseController
     public function __construct()
     {
         parent::__construct();
+        Config::importMissingFromFile();
         $this->update_field = Config::getItemListByClass('billing');
         $this->settings = Config::getClass('billing');
     }
@@ -39,17 +42,21 @@ final class BillingController extends BaseController
                 ->assign('update_field', $this->update_field)
                 ->assign('settings', $this->settings)
                 ->assign('payment_gateways', $this->returnGatewaysList())
-                ->assign('active_payment_gateway', $this->returnActiveGateways())
+                ->assign('active_payment_gateway', $this->returnActiveGateways() ?? [])
                 ->fetch('admin/setting/billing.tpl')
         );
     }
 
     public function save(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
+        Config::importMissingFromFile();
+        $this->update_field = Config::getItemListByClass('billing');
+
         $active_gateway = [];
 
         foreach ($this->returnGatewaysList() as $key => $value) {
-            if ($request->getParam($value) === 'true') {
+            $enabled = $request->getParam($value);
+            if (in_array($enabled, [true, 1, '1', 'true', 'on', 'yes'], true)) {
                 $active_gateway[] = $value;
             }
         }
@@ -57,7 +64,7 @@ final class BillingController extends BaseController
         if (! Config::set('payment_gateway', $active_gateway)) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '保存支付网关时出错',
+                'msg' => 'Lỗi khi lưu cổng thanh toán',
             ]);
         }
 
@@ -66,17 +73,30 @@ final class BillingController extends BaseController
                 continue;
             }
 
-            if (! Config::set($item, $request->getParam($item))) {
+            $value = $request->getParam($item);
+            if ($value === null) {
+                continue;
+            }
+
+            if (! Config::set($item, $value)) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '保存 ' . $item . ' 时出错',
+                    'msg' => 'Lưu ' . $item . ' thất bại',
                 ]);
             }
         }
 
+        // If Manual QR bank details are filled, keep the gateway enabled for top-up invoices.
+        $bank_bin = trim((string) ($request->getParam('manual_qr_bank_bin') ?? Config::obtain('manual_qr_bank_bin')));
+        $account_number = trim((string) ($request->getParam('manual_qr_account_number') ?? Config::obtain('manual_qr_account_number')));
+        if ($bank_bin !== '' && $account_number !== '' && ! in_array('manualqr', $active_gateway, true)) {
+            $active_gateway[] = 'manualqr';
+            Config::set('payment_gateway', $active_gateway);
+        }
+
         return $response->withJson([
             'ret' => 1,
-            'msg' => '保存成功',
+            'msg' => 'Lưu thành công',
         ]);
     }
 
@@ -96,13 +116,13 @@ final class BillingController extends BaseController
         } catch (ApiErrorException) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '设置 Stripe Webhook 失败',
+                'msg' => 'Thiết lập Stripe Webhook thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '设置 Stripe Webhook 成功',
+            'msg' => 'Thiết lập Stripe Webhook thành công',
         ]);
     }
 
@@ -120,7 +140,7 @@ final class BillingController extends BaseController
             'payment_action' => 'Sale',
             'currency' => 'USD',
             'notify_url' => '',
-            'locale' => 'en_US',
+            'locale' => 'vi_VN',
             'validate_ssl' => true,
         ];
 
@@ -131,13 +151,13 @@ final class BillingController extends BaseController
         } catch (Throwable $e) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '设置 PayPal Webhook 失败',
+                'msg' => 'Thiết lập PayPal Webhook thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '设置 PayPal Webhook 成功',
+            'msg' => 'Thiết lập PayPal Webhook thành công',
         ]);
     }
 

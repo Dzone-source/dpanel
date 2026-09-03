@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">工单记录</span>
+                        <span class="home-title">Lịch sử phiếu hỗ trợ</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">你可以在这里查看工单消息并添加回复</span>
+                        <span class="home-subtitle">Xem tin nhắn phiếu hỗ trợ và thêm phản hồi tại đây</span>
                     </div>
                 </div>
                 {if $ticket->status !== 'closed'}
@@ -18,7 +18,7 @@
                         <a href="#" class="btn btn-primary" data-bs-toggle="modal"
                            data-bs-target="#add-reply">
                             <i class="icon ti ti-plus"></i>
-                            添加回复
+                            Thêm phản hồi
                         </a>
                     </div>
                 </div>
@@ -42,7 +42,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex align-items-center">
-                                <div class="subheader">工单状态</div>
+                                <div class="subheader">Trạng thái phiếu</div>
                             </div>
                             <div class="h1 mb-3">{$ticket->status}</div>
                         </div>
@@ -52,7 +52,7 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="d-flex align-items-center">
-                                <div class="subheader">工单类型</div>
+                                <div class="subheader">Loại phiếu</div>
                             </div>
                             <div class="h1 mb-3">{$ticket->type}</div>
                         </div>
@@ -63,7 +63,7 @@
                         <div class="card-body">
                             <div class="card-body">
                                 <div class="d-flex align-items-center">
-                                    <div class="subheader">工单开启时间</div>
+                                    <div class="subheader">Thời gian mở phiếu</div>
                                 </div>
                                 <div class="h1 mb-3">{$ticket->datetime}</div>
                             </div>
@@ -84,7 +84,7 @@
                                                 {$comment->comment}
                                             </div>
                                             <div class="text-secondary my-1">{$comment->commenter_name}
-                                                回复于 {$comment->datetime}</div>
+                                                phản hồi lúc {$comment->datetime}</div>
                                         </div>
                                         <div class="col-auto">
                                             <div>
@@ -106,20 +106,20 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">添加回复</h5>
+                    <h5 class="modal-title">Thêm phản hồi</h5>
                     <button class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <textarea id="reply-comment" class="form-control" rows="15" placeholder="请输入回复内容"></textarea>
+                        <textarea id="reply-comment" class="form-control" rows="15" placeholder="Nhập nội dung phản hồi"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
                     <button id="reply" class="btn btn-primary" data-bs-dismiss="modal"
                             hx-post="/user/ticket/{$ticket->id}" hx-swap="none"
                             hx-vals='js:{ comment: document.getElementById("reply-comment").value }'>
-                        回复
+                        Phản hồi
                     </button>
                 </div>
             </div>

@@ -7,9 +7,9 @@ namespace App\Controllers\Admin;
 use App\Controllers\AuthController;
 use App\Controllers\BaseController;
 use App\Models\Config;
+use App\Models\MFADevice;
 use App\Models\User;
 use App\Models\UserMoneyLog;
-use App\Services\I18n;
 use App\Utils\Hash;
 use App\Utils\Tools;
 use Exception;
@@ -21,45 +21,45 @@ final class UserController extends BaseController
 {
     private static array $details = [
         'field' => [
-            'op' => '操作',
-            'id' => '用户ID',
-            'user_name' => '昵称',
-            'email' => '邮箱',
-            'money' => '余额',
-            'ref_by' => '邀请人',
-            'transfer_enable' => '流量限制',
-            'transfer_used' => '当期用量',
-            'class' => '等级',
-            'is_admin' => '是否管理员',
-            'is_banned' => '是否封禁',
-            'is_inactive' => '是否闲置',
-            'reg_date' => '注册时间',
-            'class_expire' => '等级过期',
+            'op' => 'Thao tác',
+            'id' => 'ID người dùng',
+            'user_name' => 'Biệt danh',
+            'email' => 'Email',
+            'money' => 'Số dư',
+            'ref_by' => 'Người mời',
+            'transfer_enable' => 'Giới hạn lưu lượng',
+            'transfer_used' => 'Lưu lượng kỳ hiện tại',
+            'class' => 'Cấp',
+            'is_admin' => 'Là quản trị viên',
+            'is_banned' => 'Bị cấm',
+            'is_inactive' => 'Không hoạt động',
+            'reg_date' => 'Thời gian đăng ký',
+            'class_expire' => 'Hết hạn cấp',
         ],
         'create_dialog' => [
             [
                 'id' => 'email',
-                'info' => '登录邮箱',
+                'info' => 'Email đăng nhập',
                 'type' => 'input',
                 'placeholder' => '',
             ],
             [
                 'id' => 'password',
-                'info' => '登录密码',
+                'info' => 'Mật khẩu đăng nhập',
                 'type' => 'input',
-                'placeholder' => '留空则随机生成',
+                'placeholder' => 'Để trống sẽ tạo ngẫu nhiên',
             ],
             [
                 'id' => 'ref_by',
-                'info' => '邀请人',
+                'info' => 'Người mời',
                 'type' => 'input',
-                'placeholder' => '邀请人的用户id，可留空',
+                'placeholder' => 'ID người dùng người mời, có thể để trống',
             ],
             [
                 'id' => 'balance',
-                'info' => '账户余额',
+                'info' => 'Số dư tài khoản',
                 'type' => 'input',
-                'placeholder' => '-1为按默认设置，其他为指定值',
+                'placeholder' => '-1 là theo cài đặt mặc định, giá trị khác là chỉ định',
             ],
         ],
     ];
@@ -80,7 +80,6 @@ final class UserController extends BaseController
         'auto_reset_bandwidth',
         'node_speedlimit',
         'node_iplimit',
-        'locale',
         'banned_reason',
         'remark',
     ];
@@ -110,7 +109,7 @@ final class UserController extends BaseController
         if ($email === '') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '邮箱不能为空',
+                'msg' => 'Email không được để trống',
             ]);
         }
 
@@ -119,7 +118,7 @@ final class UserController extends BaseController
         if ($exist !== null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '邮箱已存在',
+                'msg' => 'Email đã tồn tại',
             ]);
         }
 
@@ -147,7 +146,7 @@ final class UserController extends BaseController
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '添加成功，用户邮箱：' . $email . ' 密码：'.$password,
+            'msg' => 'Thêm thành công, email người dùng: ' . $email . ' Mật khẩu: '.$password,
         ]);
     }
 
@@ -160,13 +159,14 @@ final class UserController extends BaseController
         $user->last_use_time = Tools::toDateTime($user->last_use_time);
         $user->last_check_in_time = Tools::toDateTime($user->last_check_in_time);
         $user->last_login_time = Tools::toDateTime($user->last_login_time);
+        $mfa_enabled = (new MFADevice())->where('userid', $user->id)->exists();
 
         return $response->write(
             $this->view()
                 ->assign('update_field', self::$update_field)
                 ->assign('edit_user', $user)
+                ->assign('mfa_enabled', $mfa_enabled)
                 ->assign('ss_methods', Tools::getSsMethod())
-                ->assign('locales', I18n::getLocaleList())
                 ->fetch('admin/user/edit.tpl')
         );
     }
@@ -190,7 +190,7 @@ final class UserController extends BaseController
         ) {
             $money = (float) $request->getParam('money');
             $diff = $money - $user->money;
-            $remark = ($diff > 0 ? '管理员添加余额' : '管理员扣除余额');
+            $remark = ($diff > 0 ? 'Quản trị viên thêm số dư' : 'Quản trị viên trừ số dư');
             (new UserMoneyLog())->add($id, (float) $user->money, $money, $diff, $remark);
             $user->money = $money;
         }
@@ -208,24 +208,29 @@ final class UserController extends BaseController
         $user->auto_reset_bandwidth = $request->getParam('auto_reset_bandwidth');
         $user->node_speedlimit = $request->getParam('node_speedlimit');
         $user->node_iplimit = $request->getParam('node_iplimit');
-        $user->locale = $request->getParam('locale');
+        $user->locale = 'vi_VN';
         $user->is_admin = $request->getParam('is_admin') === 'true' ? 1 : 0;
-        $user->ga_enable = $request->getParam('ga_enable') === 'true' ? 1 : 0;
         $user->is_shadow_banned = $request->getParam('is_shadow_banned') === 'true' ? 1 : 0;
         $user->is_banned = $request->getParam('is_banned') === 'true' ? 1 : 0;
         $user->banned_reason = $request->getParam('banned_reason');
         $user->remark = $request->getParam('remark');
 
+        // MFA moved to mfa_devices — clear devices when admin requests reset.
+        if ($request->getParam('clear_mfa') === 'true') {
+            (new MFADevice())->where('userid', $id)->delete();
+        }
+
         if (! $user->save()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '修改失败',
+                'msg' => 'Cập nhật thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '修改成功',
+            'msg' => 'Cập nhật thành công',
+            'redir' => '/admin/user/' . $id . '/edit?saved=1',
         ]);
     }
 
@@ -237,13 +242,13 @@ final class UserController extends BaseController
         if (! $user->kill()) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '删除失败',
+                'msg' => 'Xóa thất bại',
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '删除成功',
+            'msg' => 'Xóa thành công',
         ]);
     }
 
@@ -253,13 +258,14 @@ final class UserController extends BaseController
 
         foreach ($users as $user) {
             $user->op = '<button class="btn btn-red" id="delete-user-' . $user->id . '" 
-            onclick="deleteUser(' . $user->id . ')">删除</button>
-            <a class="btn btn-primary" href="/admin/user/' . $user->id . '/edit">编辑</a>';
+            onclick="deleteUser(' . $user->id . ')">Xóa</button>
+            <a class="btn btn-primary" href="/admin/user/' . $user->id . '/edit">Chỉnh sửa</a>';
             $user->transfer_enable = $user->enableTraffic();
             $user->transfer_used = $user->usedTraffic();
-            $user->is_admin = $user->is_admin === 1 ? '是' : '否';
-            $user->is_banned = $user->is_banned === 1 ? '是' : '否';
-            $user->is_inactive = $user->is_inactive === 1 ? '是' : '否';
+            $user->is_admin = $user->is_admin === 1 ? 'Có' : 'Không';
+            $user->is_banned = $user->is_banned === 1 ? 'Có' : 'Không';
+            $user->is_inactive = $user->is_inactive === 1 ? 'Có' : 'Không';
+            $user->money = Tools::formatVnd((float) $user->money);
         }
 
         return $response->withJson([

@@ -1,15 +1,47 @@
 {include file='user/header.tpl'}
 
+{function name=product_price price=0}
+    <div class="gopass-product-price">
+        <span class="gopass-product-amount">{$price|format_vnd:0}</span>
+        <span class="gopass-product-currency">VNĐ</span>
+    </div>
+{/function}
+
+{function name=product_feature icon='' value='' label=''}
+    <div class="gopass-product-feature">
+        <div class="gopass-product-feature-icon">
+            <i class="ti {$icon}"></i>
+        </div>
+        <div class="gopass-product-feature-text">
+            <div class="gopass-product-feature-label">{$label}</div>
+            <div class="gopass-product-feature-value">{$value}</div>
+        </div>
+    </div>
+{/function}
+
+{function name=product_buy_btn id=0 stock=0}
+    {if $stock == -1 || $stock > 0}
+        <a href="/user/order/create?product_id={$id}" class="btn btn-primary w-100 gopass-product-buy">
+            <i class="ti ti-shopping-cart"></i>
+            Mua ngay
+        </a>
+    {else}
+        <button type="button" class="btn btn-secondary w-100 gopass-product-buy" disabled>
+            Hết hàng
+        </button>
+    {/if}
+{/function}
+
 <div class="page-wrapper">
     <div class="container-xl">
         <div class="page-header d-print-none text-white">
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">商品列表</span>
+                        <span class="home-title">Cửa hàng</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">浏览你所需要的商品</span>
+                        <span class="home-subtitle">Chọn gói phù hợp và kích hoạt ngay</span>
                     </div>
                 </div>
             </div>
@@ -17,269 +49,140 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-            <div class="row row-cards">
-                <div class="col-12">
-                    <div class="card">
-                        <ul class="nav nav-tabs nav-fill" data-bs-toggle="tabs">
-                            <li class="nav-item">
-                                <a href="#tabp" class="nav-link active" data-bs-toggle="tab">
-                                    <i class="ti ti-rotate-360 icon"></i>
-                                    &nbsp;时间流量包
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#bandwidth" class="nav-link" data-bs-toggle="tab">
-                                    <i class="ti ti-arrows-down-up icon"></i>
-                                    &nbsp;流量包
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#time" class="nav-link" data-bs-toggle="tab">
-                                    <i class="ti ti-clock icon"></i>
-                                    &nbsp;时间包
-                                </a>
-                            </li>
-                        </ul>
-                        <div class="card-body">
-                            <div class="tab-content">
-                                <div class="tab-pane active show" id="tabp">
-                                    <div class="row">
-                                        {foreach $tabps as $tabp}
-                                            <div class="col-md-3 col-sm-12 my-3">
-                                                <div class="card card-md">
-                                                    <div class="card-body text-center">
-                                                        <div id="product-{$tabp->id}-name"
-                                                             class="text-uppercase text-secondary font-weight-medium">
-                                                            {$tabp->name}</div>
-                                                        <div id="product-{$tabp->id}-price"
-                                                             class="display-6 my-3">
-                                                            <p class="fw-bold">{$tabp->price}</p>
-                                                            <i class="ti ti-currency-yuan"></i>
-                                                        </div>
-                                                        <div class="list-group list-group-flush">
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        <div class="text-reset d-block">
-                                                                            Lv. {$tabp->content->class}</div>
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            等级
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        <div class="text-reset d-block">{$tabp->content->class_time}
-                                                                            天
-                                                                        </div>
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            等级时长
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        <div class="text-reset d-block">{$tabp->content->bandwidth}
-                                                                            GB
-                                                                        </div>
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            可用流量
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        {if $tabp->content->speed_limit === '0'}
-                                                                            <div class="text-reset d-block">不限制</div>
-                                                                        {else}
-                                                                            <div class="text-reset d-block">{$tabp->content->speed_limit}
-                                                                                Mbps
-                                                                            </div>
-                                                                        {/if}
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            连接速度
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        {if $tabp->content->ip_limit === '0'}
-                                                                            <div class="text-reset d-block">不限制</div>
-                                                                        {else}
-                                                                            <div class="text-reset d-block">{$tabp->content->ip_limit}</div>
-                                                                        {/if}
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            同时连接 IP 数
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row g-2">
-                                                            {if $tabp->stock === -1 || $tabp->stock > 0}
-                                                                <div class="col">
-                                                                    <a href="/user/order/create?product_id={$tabp->id}"
-                                                                       class="btn btn-primary w-100 my-3">购买</a>
-                                                                </div>
-                                                            {else}
-                                                                <div class="col">
-                                                                    <a href="" class="btn btn-primary w-100 my-3"
-                                                                       disabled>告罄</a>
-                                                                </div>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
+            <div class="gopass-shop">
+                <ul class="nav gopass-shop-tabs" data-bs-toggle="tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a href="#tabp" class="gopass-shop-tab active" data-bs-toggle="tab" role="tab" aria-selected="true">
+                            <i class="ti ti-package"></i>
+                            <span>Thời gian + lưu lượng</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="#bandwidth" class="gopass-shop-tab" data-bs-toggle="tab" role="tab" aria-selected="false">
+                            <i class="ti ti-database"></i>
+                            <span>Lưu lượng</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="#time" class="gopass-shop-tab" data-bs-toggle="tab" role="tab" aria-selected="false">
+                            <i class="ti ti-clock"></i>
+                            <span>Thời gian</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane active show" id="tabp" role="tabpanel">
+                        {if $tabps|@count > 0}
+                            <div class="row g-3 g-lg-4">
+                                {foreach $tabps as $tabp}
+                                    <div class="col-12 col-sm-6 col-xl-4 col-xxl-3">
+                                        <article class="gopass-product-card">
+                                            <div class="gopass-product-card-accent" aria-hidden="true"></div>
+                                            <div class="gopass-product-card-body">
+                                                <div class="gopass-product-name">{$tabp->name}</div>
+                                                {product_price price=$tabp->price_min}
+                                                <div class="gopass-product-features">
+                                                    {product_feature icon='ti-target' value=$tabp->tagline label='Công dụng'}
+                                                    {if $tabp->has_options}
+                                                        {product_feature icon='ti-calendar' value='Tùy chọn khi mua' label='Thời hạn'}
+                                                    {else}
+                                                        {product_feature icon='ti-calendar' value="`$tabp->content->class_time` ngày" label='Thời hạn'}
+                                                    {/if}
+                                                    {product_feature icon='ti-database' value="`$tabp->content->bandwidth` GB" label='Lưu lượng'}
+                                                    {if $tabp->content->speed_limit == '0'}
+                                                        {product_feature icon='ti-bolt' value='Không giới hạn' label='Tốc độ'}
+                                                    {else}
+                                                        {product_feature icon='ti-bolt' value="`$tabp->content->speed_limit` Mbps" label='Tốc độ'}
+                                                    {/if}
+                                                    {if $tabp->content->ip_limit == '0'}
+                                                        {product_feature icon='ti-device-mobile' value='Không giới hạn' label='Thiết bị đồng thời'}
+                                                    {else}
+                                                        {product_feature icon='ti-device-mobile' value="`$tabp->content->ip_limit` thiết bị" label='Thiết bị đồng thời'}
+                                                    {/if}
                                                 </div>
+                                                {product_buy_btn id=$tabp->id stock=$tabp->stock}
                                             </div>
-                                        {/foreach}
+                                        </article>
                                     </div>
-                                </div>
-                                <div class="tab-pane show" id="bandwidth">
-                                    <div class="row">
-                                        {foreach $bandwidths as $bandwidth}
-                                            <div class="col-md-3 col-sm-12 my-3">
-                                                <div class="card card-md">
-                                                    <div class="card-body text-center">
-                                                        <div id="product-{$bandwidth->id}-name"
-                                                             class="text-uppercase text-secondary font-weight-medium">
-                                                            {$bandwidth->name}</div>
-                                                        <div id="product-{$bandwidth->id}-price"
-                                                             class="display-6 my-3">
-                                                            <p class="fw-bold">{$bandwidth->price}</p>
-                                                            <i class="ti ti-currency-yuan"></i>
-                                                        </div>
-                                                        <div class="list-group list-group-flush">
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        <div class="text-reset d-block">{$bandwidth->content->bandwidth}
-                                                                            GB
-                                                                        </div>
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            可用流量
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row g-2">
-                                                            {if $bandwidth->stock === -1 || $bandwidth->stock > 0}
-                                                                <div class="col">
-                                                                    <a href="/user/order/create?product_id={$bandwidth->id}"
-                                                                       class="btn btn-primary w-100 my-3">购买</a>
-                                                                </div>
-                                                            {else}
-                                                                <div class="col">
-                                                                    <a href="" class="btn btn-primary w-100 my-3"
-                                                                       disabled>告罄</a>
-                                                                </div>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/foreach}
-                                    </div>
-                                </div>
-                                <div class="tab-pane show" id="time">
-                                    <div class="row">
-                                        {foreach $times as $time}
-                                            <div class="col-md-3 col-sm-12 my-3">
-                                                <div class="card card-md">
-                                                    <div class="card-body text-center">
-                                                        <div id="product-{$time->id}-name"
-                                                             class="text-uppercase text-secondary font-weight-medium">
-                                                            {$time->name}
-                                                        </div>
-                                                        <div id="product-{$time->id}-price"
-                                                             class="display-6 my-3"><p
-                                                                    class="fw-bold">{$time->price}</p>
-                                                            <i class="ti ti-currency-yuan"></i>
-                                                        </div>
-                                                        <div class="list-group list-group-flush">
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        <div class="text-reset d-block">
-                                                                            Lv. {$time->content->class}</div>
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            等级
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        <div class="text-reset d-block">{$time->content->class_time}
-                                                                            天
-                                                                        </div>
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            等级时长
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        {if $time->content->speed_limit === '0'}
-                                                                            <div class="text-reset d-block">不限制</div>
-                                                                        {else}
-                                                                            <div class="text-reset d-block">{$time->content->speed_limit}
-                                                                                Mbps
-                                                                            </div>
-                                                                        {/if}
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            连接速度
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="list-group-item">
-                                                                <div class="row align-items-center">
-                                                                    <div class="col text-truncate">
-                                                                        {if $time->content->ip_limit === '0'}
-                                                                            <div class="text-reset d-block">不限制</div>
-                                                                        {else}
-                                                                            <div class="text-reset d-block">{$time->content->ip_limit}</div>
-                                                                        {/if}
-                                                                        <div class="d-block text-secondary text-truncate mt-n1">
-                                                                            同时连接 IP 数
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row g-2">
-                                                            {if $time->stock === -1 || $time->stock > 0}
-                                                                <div class="col">
-                                                                    <a href="/user/order/create?product_id={$time->id}"
-                                                                       class="btn btn-primary w-100 my-3">购买</a>
-                                                                </div>
-                                                            {else}
-                                                                <div class="col">
-                                                                    <a href="" class="btn btn-primary w-100 my-3"
-                                                                       disabled>告罄</a>
-                                                                </div>
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/foreach}
-                                    </div>
-                                </div>
+                                {/foreach}
                             </div>
-                        </div>
+                        {else}
+                            <div class="gopass-shop-empty">
+                                <i class="ti ti-package-off"></i>
+                                <p>Chưa có gói trong danh mục này</p>
+                            </div>
+                        {/if}
+                    </div>
+
+                    <div class="tab-pane" id="bandwidth" role="tabpanel">
+                        {if $bandwidths|@count > 0}
+                            <div class="row g-3 g-lg-4">
+                                {foreach $bandwidths as $bandwidth}
+                                    <div class="col-12 col-sm-6 col-xl-4 col-xxl-3">
+                                        <article class="gopass-product-card">
+                                            <div class="gopass-product-card-accent" aria-hidden="true"></div>
+                                            <div class="gopass-product-card-body">
+                                                <div class="gopass-product-name">{$bandwidth->name}</div>
+                                                <div class="gopass-product-tagline text-secondary small mb-2">{$bandwidth->tagline}</div>
+                                                {product_price price=$bandwidth->price}
+                                                <div class="gopass-product-features">
+                                                    {product_feature icon='ti-database' value="`$bandwidth->content->bandwidth` GB" label='Lưu lượng khả dụng'}
+                                                </div>
+                                                {product_buy_btn id=$bandwidth->id stock=$bandwidth->stock}
+                                            </div>
+                                        </article>
+                                    </div>
+                                {/foreach}
+                            </div>
+                        {else}
+                            <div class="gopass-shop-empty">
+                                <i class="ti ti-database-off"></i>
+                                <p>Chưa có gói trong danh mục này</p>
+                            </div>
+                        {/if}
+                    </div>
+
+                    <div class="tab-pane" id="time" role="tabpanel">
+                        {if $times|@count > 0}
+                            <div class="row g-3 g-lg-4">
+                                {foreach $times as $time}
+                                    <div class="col-12 col-sm-6 col-xl-4 col-xxl-3">
+                                        <article class="gopass-product-card">
+                                            <div class="gopass-product-card-accent" aria-hidden="true"></div>
+                                            <div class="gopass-product-card-body">
+                                                <div class="gopass-product-name">{$time->name}</div>
+                                                {product_price price=$time->price_min}
+                                                <div class="gopass-product-features">
+                                                    {product_feature icon='ti-target' value=$time->tagline label='Công dụng'}
+                                                    {if $time->has_options}
+                                                        {product_feature icon='ti-calendar' value='Tùy chọn khi mua' label='Thời hạn'}
+                                                    {else}
+                                                        {product_feature icon='ti-calendar' value="`$time->content->class_time` ngày" label='Thời hạn'}
+                                                    {/if}
+                                                    {if $time->content->speed_limit == '0'}
+                                                        {product_feature icon='ti-bolt' value='Không giới hạn' label='Tốc độ'}
+                                                    {else}
+                                                        {product_feature icon='ti-bolt' value="`$time->content->speed_limit` Mbps" label='Tốc độ'}
+                                                    {/if}
+                                                    {if $time->content->ip_limit == '0'}
+                                                        {product_feature icon='ti-device-mobile' value='Không giới hạn' label='Thiết bị đồng thời'}
+                                                    {else}
+                                                        {product_feature icon='ti-device-mobile' value="`$time->content->ip_limit` thiết bị" label='Thiết bị đồng thời'}
+                                                    {/if}
+                                                </div>
+                                                {product_buy_btn id=$time->id stock=$time->stock}
+                                            </div>
+                                        </article>
+                                    </div>
+                                {/foreach}
+                            </div>
+                        {else}
+                            <div class="gopass-shop-empty">
+                                <i class="ti ti-clock-off"></i>
+                                <p>Chưa có gói trong danh mục này</p>
+                            </div>
+                        {/if}
                     </div>
                 </div>
             </div>

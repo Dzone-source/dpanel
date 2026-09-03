@@ -18,14 +18,14 @@ final class SysLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'op' => '操作',
-                'id' => '事件ID',
-                'user_id' => '触发用户',
-                'ip' => '触发IP',
-                'message' => '日志内容',
-                'level' => '日志等级',
-                'channel' => '日志类别',
-                'datetime' => '记录时间',
+                'op' => 'Thao tác',
+                'id' => 'ID sự kiện',
+                'user_id' => 'Người dùng kích hoạt',
+                'ip' => 'IP kích hoạt',
+                'message' => 'Nội dung nhật ký',
+                'level' => 'Cấp nhật ký',
+                'channel' => 'Loại nhật ký',
+                'datetime' => 'Thời gian ghi',
             ],
         ];
 
@@ -73,18 +73,20 @@ final class SysLogController extends BaseController
      */
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $length = $request->getParam('length');
-        $page = $request->getParam('start') / $length + 1;
+        $length = max(1, (int) $request->getParam('length'));
+        $page = (int) $request->getParam('start') / $length + 1;
         $draw = $request->getParam('draw');
         $syslog = SysLog::query();
         $search = $request->getParam('search')['value'];
 
         if ($search !== '') {
-            $syslog->where('user_id', '=', $search)
-                ->orWhere('ip', 'LIKE', "%{$search}%")
-                ->orWhere('message', 'LIKE', "%{$search}%")
-                ->orWhere('level', 'LIKE', "%{$search}%")
-                ->orWhere('channel', 'LIKE', "%{$search}%");
+            $syslog->where(static function ($query) use ($search): void {
+                $query->where('user_id', '=', $search)
+                    ->orWhere('ip', 'LIKE', "%{$search}%")
+                    ->orWhere('message', 'LIKE', "%{$search}%")
+                    ->orWhere('level', 'LIKE', "%{$search}%")
+                    ->orWhere('channel', 'LIKE', "%{$search}%");
+            });
         }
 
         $order = $request->getParam('order')[0]['dir'];
@@ -102,7 +104,7 @@ final class SysLogController extends BaseController
 
         foreach ($syslogs as $log) {
             $log->op =
-                '<a class="btn btn-primary" href="/admin/syslog/' . $log->id . '/view">查看</a>';
+                '<a class="btn btn-primary" href="/admin/syslog/' . $log->id . '/view">Xem</a>';
             $log->message = strlen($log->message) > 25 ?
                 substr($log->message, 0, 25) . '...' : $log->message;
             $log->level = $log->level();

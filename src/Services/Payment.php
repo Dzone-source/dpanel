@@ -4,19 +4,30 @@ declare(strict_types=1);
 
 namespace App\Services;
 
-use App\Utils\ClassHelper;
 use Psr\Http\Message\ResponseInterface;
+use function basename;
+use function class_exists;
+use function get_parent_class;
+use function glob;
 
 final class Payment
 {
     public static function getAllPaymentMap(): array
     {
         $payments = [];
+        $files = glob(__DIR__ . '/Gateway/*.php') ?: [];
 
-        $helper = new ClassHelper();
-        $class_list = $helper->getClassesByNamespace('\\App\\Services\\Gateway\\');
+        foreach ($files as $file) {
+            $class_name = basename($file, '.php');
+            if ($class_name === 'Base') {
+                continue;
+            }
 
-        foreach ($class_list as $class) {
+            $class = '\\App\\Services\\Gateway\\' . $class_name;
+            if (! class_exists($class)) {
+                continue;
+            }
+
             if (get_parent_class($class) === 'App\\Services\\Gateway\\Base') {
                 $payments[] = $class;
             }

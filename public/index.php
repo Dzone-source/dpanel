@@ -1,10 +1,9 @@
 <?php
 
 /**
- * SSPanel-Uim Public Entrance File
+ * DPanel Public Entrance File
  *
- * @license MIT(https://github.com/Anankke/SSPanel-Uim/blob/master/LICENSE)
- *          Addition: You shouldn't remove staff page or entrance of that page.
+ * @license MIT
  */
 
 declare(strict_types=1);
@@ -22,6 +21,9 @@ use Slim\Factory\AppFactory;
 use Slim\Http\Factory\DecoratedResponseFactory;
 
 Boot::setTime();
+if (method_exists(Boot::class, 'normalizeClientIp')) {
+    Boot::normalizeClientIp();
+}
 Boot::bootSentry();
 Boot::bootDb();
 
@@ -29,6 +31,7 @@ $guzzle_factory = new HttpFactory();
 $response_factory = new DecoratedResponseFactory($guzzle_factory, $guzzle_factory);
 $app = AppFactory::create($response_factory);
 
+$app->addBodyParsingMiddleware();
 $app->add(new ErrorHandler());
 
 $routes = require __DIR__ . '/../app/routes.php';

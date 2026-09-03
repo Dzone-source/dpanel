@@ -71,7 +71,7 @@ final class Reward
                 (float) $money_before,
                 (float) $ref_user->money,
                 $ref_get,
-                '邀请用户 #' . $user_id . ' 返利',
+                'Hoàn tiền từ người dùng được mời #' . $user_id,
             );
             // 添加返利记录
             (new Payback())->add(
@@ -107,7 +107,7 @@ final class Reward
                     (float) $money_before,
                     (float) $user->money,
                     $invite_reg_money_reward,
-                    '被用户 #' . $ref_user_id . ' 邀请注册奖励',
+                    'Phần thưởng đăng ký qua lời mời từ người dùng #' . $ref_user_id,
                 );
             }
 

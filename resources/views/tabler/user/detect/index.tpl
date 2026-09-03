@@ -1,16 +1,16 @@
 {include file='user/header.tpl'}
 
-<!-- 审计规则是用来防止 DMCA 和邮件 Spam，不是用来给用户建墙用的，不要以为你在中国开机场同时把“违法网站”墙了，被抓了能少判哪怕一天的刑期 -->
+<!-- Quy tắc kiểm duyệt dùng để ngăn DMCA và spam email, không phải để chặn người dùng -->
 <div class="page-wrapper">
     <div class="container-xl">
         <div class="page-header d-print-none text-white">
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">审计规则</span>
+                        <span class="home-title">Quy tắc kiểm duyệt</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">目前站点中所使用的审计规则</span>
+                        <span class="home-subtitle">Các quy tắc kiểm duyệt đang dùng trên trang web</span>
                     </div>
                 </div>
             </div>
@@ -26,10 +26,10 @@
                                 <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>名称</th>
-                                    <th>描述</th>
-                                    <th>正则表达式</th>
-                                    <th>类型</th>
+                                    <th>Tên</th>
+                                    <th>Mô tả</th>
+                                    <th>Biểu thức chính quy</th>
+                                    <th>Loại</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -40,10 +40,10 @@
                                         <td>{$rule->text}</td>
                                         <td>{$rule->regex}</td>
                                         {if $rule->type === 1}
-                                            <td>数据包明文匹配</td>
+                                            <td>Khớp văn bản gói dữ liệu</td>
                                         {/if}
                                         {if $rule->type === 2}
-                                            <td>数据包 hex 匹配</td>
+                                            <td>Khớp hex gói dữ liệu</td>
                                         {/if}
                                     </tr>
                                 {/foreach}

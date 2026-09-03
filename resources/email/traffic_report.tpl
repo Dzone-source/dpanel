@@ -9,24 +9,24 @@
                         <div border="0" cellpadding="0" cellspacing="0" width="100%">
                             <div align="center" valign="middle" style="padding-top:60px;padding-bottom:60px;">
                                 <h2 class="bigTitle">
-                                    每日流量报告
+                                    Báo cáo lưu lượng hàng ngày
                                 </h2>
                             </div>
                         </div>
                         <div border="0" cellpadding="0" cellspacing="0" style="background-color:#FFFFFF" width="100%">
                             <div align="center" valign="top" style="padding-bottom:60px;padding-left:20px;padding-right:20px;">
                                 <p class="midText">
-                                    用户名: {$user->user_name}
+                                    Tên người dùng: {$user->user_name}
                                     <br>
                                     Email: {$user->email}
                                     <br><br>
-                                    总流量: {$enable_traffic}
+                                    Tổng lưu lượng: {$enable_traffic}
                                     <br>
-                                    已用流量: {$used_traffic}
+                                    Lưu lượng đã dùng: {$used_traffic}
                                     <br>
-                                    剩余流量: {$unused_traffic}
+                                    Lưu lượng còn lại: {$unused_traffic}
                                     <br>
-                                    今日使用流量: {$lastday_traffic}
+                                    Lưu lượng sử dụng hôm nay: {$lastday_traffic}
                                     <br><br>
                                 </p>
                                 <p class="midText">

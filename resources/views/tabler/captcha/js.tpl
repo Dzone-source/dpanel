@@ -15,7 +15,7 @@
         initGeetest4({
             captchaId: '{$captcha['geetest_id']}',
             product: 'float',
-            language: "zho",
+            language: "vie",
             riskType: 'slide'
         }, function (geetest) {
             geetest.appendTo("#geetest");

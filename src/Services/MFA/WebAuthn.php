@@ -68,7 +68,7 @@ final class WebAuthn
         } catch (Exception $e) {
             return [
                 'ret' => 0,
-                'msg' => '请求失败: ' . $e->getMessage(),
+                'msg' => 'Yêu cầu thất bại: ' . $e->getMessage(),
             ];
         }
     }
@@ -127,7 +127,7 @@ final class WebAuthn
         } catch (Exception $e) {
             return [
                 'ret' => 0,
-                'msg' => '请求失败: ' . $e->getMessage(),
+                'msg' => 'Yêu cầu thất bại: ' . $e->getMessage(),
             ];
         }
     }
@@ -147,18 +147,18 @@ final class WebAuthn
         $serializer = self::getSerializer();
         $publicKeyCredential = $serializer->deserialize(json_encode($data), PublicKeyCredential::class, 'json');
         if (! $publicKeyCredential->response instanceof AuthenticatorAssertionResponse) {
-            return ['ret' => 0, 'msg' => '验证失败'];
+            return ['ret' => 0, 'msg' => 'Xác minh thất bại'];
         }
         $publicKeyCredentialSource = (new MFADevice())
             ->where('rawid', $data['id'])
             ->where('type', 'passkey')
             ->first();
         if ($publicKeyCredentialSource === null) {
-            return ['ret' => 0, 'msg' => '设备未注册'];
+            return ['ret' => 0, 'msg' => 'Thiết bị chưa đăng ký'];
         }
         $user = (new User())->where('id', $publicKeyCredentialSource->userid)->first();
         if ($user === null) {
-            return ['ret' => 0, 'msg' => '用户不存在'];
+            return ['ret' => 0, 'msg' => 'Người dùng không tồn tại'];
         }
         $redis = (new Cache())->initRedis();
         try {
@@ -183,7 +183,7 @@ final class WebAuthn
         $publicKeyCredentialSource->used_at = date('Y-m-d H:i:s');
         $publicKeyCredentialSource->save();
         $redis->del('webauthn_assertion_' . session_id());
-        return ['ret' => 1, 'msg' => '验证成功', 'user' => $user];
+        return ['ret' => 1, 'msg' => 'Xác minh thành công', 'user' => $user];
     }
 
     public static function getAuthenticatorAssertionResponseValidator(): AuthenticatorAssertionResponseValidator
@@ -209,7 +209,7 @@ final class WebAuthn
                 return ['ret' => 0, 'msg' => $e->getMessage()];
             }
             if (! isset($publicKeyCredential->response) || ! $publicKeyCredential->response instanceof AuthenticatorAttestationResponse) {
-                return ['ret' => 0, 'msg' => '密钥类型错误'];
+                return ['ret' => 0, 'msg' => 'Loại khóa không đúng'];
             }
             $redis = (new Cache())->initRedis();
             $publicKeyCredentialCreationOptions = $serializer->deserialize(
@@ -226,7 +226,7 @@ final class WebAuthn
                     Tools::getSiteDomain(),
                 );
             } catch (Exception) {
-                return ['ret' => 0, 'msg' => '验证失败'];
+                return ['ret' => 0, 'msg' => 'Xác minh thất bại'];
             }
             // save public key credential source
             $jsonStr = self::getSerializer()->serialize($publicKeyCredentialSource, 'json');
@@ -241,9 +241,9 @@ final class WebAuthn
             $webauthn->type = 'passkey';
             $webauthn->save();
             $redis->del('webauthn_register_' . session_id());
-            return ['ret' => 1, 'msg' => '注册成功'];
+            return ['ret' => 1, 'msg' => 'Đăng ký thành công'];
         } catch (Exception $e) {
-            return ['ret' => 0, 'msg' => '请求失败: ' . $e->getMessage()];
+            return ['ret' => 0, 'msg' => 'Yêu cầu thất bại: ' . $e->getMessage()];
         }
     }
 

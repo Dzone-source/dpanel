@@ -26,16 +26,16 @@ final class OrderController extends BaseController
 {
     private static array $details = [
         'field' => [
-            'op' => '操作',
-            'id' => '订单ID',
-            'product_id' => '商品ID',
-            'product_type' => '商品类型',
-            'product_name' => '商品名称',
-            'coupon' => '优惠码',
-            'price' => '金额',
-            'status' => '状态',
-            'create_time' => '创建时间',
-            'update_time' => '更新时间',
+            'op' => 'Thao tác',
+            'id' => 'ID đơn hàng',
+            'product_id' => 'ID sản phẩm',
+            'product_type' => 'Loại sản phẩm',
+            'product_name' => 'Tên sản phẩm',
+            'coupon' => 'Mã giảm giá',
+            'price' => 'Số tiền',
+            'status' => 'Trạng thái',
+            'create_time' => 'Thời gian tạo',
+            'update_time' => 'Thời gian cập nhật',
         ],
     ];
 
@@ -68,12 +68,28 @@ final class OrderController extends BaseController
         }
 
         $product = (new Product())->where('id', $product_id)->first();
+        if ($product === null) {
+            return $response->withRedirect('/user/product');
+        }
+
         $product->type_text = $product->type();
-        $product->content = json_decode($product->content);
+        $content = json_decode($product->content);
+        if (! \is_object($content)) {
+            $content = (object) [];
+        }
+        $product->content = $content;
+        $product_options = Product::normalizeOptions($content);
+        foreach ($product_options as $i => &$opt) {
+            $opt['index'] = $i;
+        }
+        unset($opt);
+        $product->has_options = $product_options !== [];
+        $product->options = $product_options;
 
         return $response->write(
             $this->view()
                 ->assign('product', $product)
+                ->assign('product_options', $product_options)
                 ->fetch('user/order/create.tpl')
         );
     }
@@ -98,6 +114,11 @@ final class OrderController extends BaseController
         $order->content = json_decode($order->product_content);
 
         $invoice = (new Invoice())->where('order_id', $id)->first();
+
+        if ($invoice === null) {
+            return $response->withRedirect('/user/order');
+        }
+
         $invoice->status = $invoice->status();
         $invoice->create_time = Tools::toDateTime($invoice->create_time);
         $invoice->update_time = Tools::toDateTime($invoice->update_time);
@@ -119,7 +140,7 @@ final class OrderController extends BaseController
             'topup' => $this->topup($request, $response, $args),
             default => $response->withJson([
                 'ret' => 0,
-                'msg' => '未知订单类型',
+                'msg' => 'Loại đơn hàng không xác định',
             ]),
         };
     }
@@ -128,27 +149,70 @@ final class OrderController extends BaseController
     {
         $coupon_raw = $this->antiXss->xss_clean($request->getParam('coupon'));
         $product_id = $this->antiXss->xss_clean($request->getParam('product_id'));
+        $option_index_raw = $this->antiXss->xss_clean($request->getParam('option_index'));
+        $option_days_raw = $this->antiXss->xss_clean($request->getParam('option_days'));
+        $option_index = ($option_index_raw === null || $option_index_raw === '')
+            ? null
+            : (int) $option_index_raw;
+        $option_days = ($option_days_raw === null || $option_days_raw === '')
+            ? null
+            : (int) $option_days_raw;
 
         $product = (new Product())->find($product_id);
 
         if ($product === null || $product->stock === 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '商品不存在或库存不足',
+                'msg' => 'Sản phẩm không tồn tại hoặc hết hàng',
             ]);
         }
 
-        $buy_price = $product->price;
+        $resolved = $product->resolvePurchaseOption($option_index);
+
+        // Prefer matching by selected days when provided (more reliable than index alone).
+        if ($option_days !== null && $option_days > 0) {
+            $options = Product::normalizeOptions($product->content);
+            foreach ($options as $i => $opt) {
+                if ((int) $opt['days'] === $option_days) {
+                    $byDays = $product->resolvePurchaseOption($i);
+                    if ($byDays !== null) {
+                        $resolved = $byDays;
+                    }
+                    break;
+                }
+            }
+        }
+
+        if ($resolved === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Vui lòng chọn thời hạn gói hợp lệ',
+            ]);
+        }
+
+        // Final safety: force snapshot days/price from resolved option.
+        if ($resolved['option'] !== null) {
+            $resolved['content']['time'] = (int) $resolved['option']['days'];
+            $resolved['content']['class_time'] = (int) $resolved['option']['days'];
+            $resolved['content']['option_days'] = (int) $resolved['option']['days'];
+            $resolved['content']['option_label'] = (string) $resolved['option']['label'];
+            $resolved['price'] = (float) $resolved['option']['price'];
+        }
+
+        $buy_price = $resolved['price'];
+        $product_content = $resolved['content'];
+        $base_price = $resolved['price'];
         $user = $this->user;
 
         if ($user->is_shadow_banned) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '商品不存在或库存不足',
+                'msg' => 'Sản phẩm không tồn tại hoặc hết hàng',
             ]);
         }
 
         $coupon = null;
+        $discount = 0;
 
         if ($coupon_raw !== '') {
             $coupon = (new UserCoupon())->where('code', $coupon_raw)->first();
@@ -156,7 +220,7 @@ final class OrderController extends BaseController
             if ($coupon === null || ($coupon->expire_time !== 0 && $coupon->expire_time < time())) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '优惠码不存在或已过期',
+                    'msg' => 'Mã giảm giá không tồn tại hoặc đã hết hạn',
                 ]);
             }
 
@@ -165,14 +229,14 @@ final class OrderController extends BaseController
             if ($coupon_limit->disabled) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '优惠码已被禁用',
+                    'msg' => 'Mã giảm giá đã bị vô hiệu hóa',
                 ]);
             }
 
             if ($coupon_limit->product_id !== '' && ! in_array($product_id, explode(',', $coupon_limit->product_id))) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '优惠码不适用于此商品',
+                    'msg' => 'Mã giảm giá không áp dụng cho sản phẩm này',
                 ]);
             }
 
@@ -183,7 +247,7 @@ final class OrderController extends BaseController
                 if ($user_use_count >= $coupon_use_limit) {
                     return $response->withJson([
                         'ret' => 0,
-                        'msg' => '优惠码使用次数已达上限',
+                        'msg' => 'Mã giảm giá đã đạt giới hạn sử dụng',
                     ]);
                 }
             }
@@ -197,19 +261,19 @@ final class OrderController extends BaseController
             if ($coupon_total_use_limit > 0 && $coupon->use_count >= $coupon_total_use_limit) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '优惠码使用次数已达上限',
+                    'msg' => 'Mã giảm giá đã đạt giới hạn sử dụng',
                 ]);
             }
 
             $content = json_decode($coupon->content);
 
             if ($content->type === 'percentage') {
-                $discount = $product->price * $content->value / 100;
+                $discount = $base_price * $content->value / 100;
             } else {
                 $discount = $content->value;
             }
 
-            $buy_price = $product->price - $discount;
+            $buy_price = $base_price - $discount;
         }
 
         $product_limit = json_decode($product->limit);
@@ -217,7 +281,7 @@ final class OrderController extends BaseController
         if ($product_limit->class_required !== '' && $user->class < (int) $product_limit->class_required) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '你的账户等级不足，无法购买此商品',
+                'msg' => 'Cấp tài khoản của bạn không đủ, không thể mua sản phẩm này',
             ]);
         }
 
@@ -225,7 +289,7 @@ final class OrderController extends BaseController
             && $user->node_group !== (int) $product_limit->node_group_required) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '你所在的用户组无法购买此商品',
+                'msg' => 'Nhóm người dùng của bạn không thể mua sản phẩm này',
             ]);
         }
 
@@ -234,20 +298,29 @@ final class OrderController extends BaseController
             if ($order_count > 0) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '此商品仅限新用户购买',
+                    'msg' => 'Sản phẩm này chỉ dành cho người dùng mới',
                 ]);
             }
+        }
+
+        if ($buy_price < 0) {
+            $buy_price = 0;
+        }
+
+        $order_name = $product->name;
+        if ($resolved['option'] !== null) {
+            $order_name .= ' · ' . $resolved['option']['label'];
         }
 
         $order = new Order();
         $order->user_id = $user->id;
         $order->product_id = $product->id;
         $order->product_type = $product->type;
-        $order->product_name = $product->name;
-        $order->product_content = $product->content;
+        $order->product_name = $order_name;
+        $order->product_content = json_encode($product_content);
         $order->coupon = $coupon_raw;
         $order->price = $buy_price;
-        $order->status = $buy_price === 0 ? 'pending_activation' : 'pending_payment';
+        $order->status = $buy_price <= 0 ? 'pending_activation' : 'pending_payment';
         $order->create_time = time();
         $order->update_time = time();
         $order->save();
@@ -255,14 +328,14 @@ final class OrderController extends BaseController
         $invoice_content = [];
         $invoice_content[] = [
             'content_id' => 0,
-            'name' => $product->name,
-            'price' => $product->price,
+            'name' => $order_name,
+            'price' => $base_price,
         ];
 
         if ($coupon_raw !== '') {
             $invoice_content[] = [
                 'content_id' => 1,
-                'name' => '优惠码 ' . $coupon_raw,
+                'name' => 'Mã giảm giá ' . $coupon_raw,
                 'price' => '-' . $discount,
             ];
         }
@@ -272,7 +345,7 @@ final class OrderController extends BaseController
         $invoice->order_id = $order->id;
         $invoice->content = json_encode($invoice_content);
         $invoice->price = $buy_price;
-        $invoice->status = $buy_price === 0 ? 'paid_gateway' : 'unpaid';
+        $invoice->status = $buy_price <= 0 ? 'paid_gateway' : 'unpaid';
         $invoice->create_time = time();
         $invoice->update_time = time();
         $invoice->pay_time = 0;
@@ -302,7 +375,7 @@ final class OrderController extends BaseController
         if ($amount === null || $amount <= 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '充值金额无效',
+                'msg' => 'Số tiền nạp không hợp lệ',
             ]);
         }
 
@@ -310,7 +383,7 @@ final class OrderController extends BaseController
         $order->user_id = $this->user->id;
         $order->product_id = 0;
         $order->product_type = 'topup';
-        $order->product_name = '余额充值';
+        $order->product_name = 'Nạp số dư';
         $order->product_content = json_encode(['amount' => $amount]);
         $order->coupon = '';
         $order->price = $amount;
@@ -322,7 +395,7 @@ final class OrderController extends BaseController
         $invoice_content = [];
         $invoice_content[] = [
             'content_id' => 0,
-            'name' => '余额充值',
+            'name' => 'Nạp số dư',
             'price' => $amount,
         ];
 
@@ -346,18 +419,21 @@ final class OrderController extends BaseController
         $orders = (new Order())->orderBy('id', 'desc')->where('user_id', $this->user->id)->get();
 
         foreach ($orders as $order) {
-            $order->op = '<a class="btn btn-primary" href="/user/order/' . $order->id . '/view">查看</a>';
+            $order->op = '<a class="btn btn-primary" href="/user/order/' . $order->id . '/view">Xem</a>';
 
             if ($order->status === 'pending_payment') {
-                $invoice_id = (new Invoice())->where('order_id', $order->id)->first()->id;
-                $order->op .= '
-                <a class="btn btn-red" href="/user/invoice/' . $invoice_id . '/view">支付</a>';
+                $invoice_row = (new Invoice())->where('order_id', $order->id)->first();
+                if ($invoice_row !== null) {
+                    $order->op .= '
+                <a class="btn btn-red" href="/user/invoice/' . $invoice_row->id . '/view">Thanh toán</a>';
+                }
             }
 
             $order->product_type = $order->productType();
             $order->status = $order->status();
             $order->create_time = Tools::toDateTime($order->create_time);
             $order->update_time = Tools::toDateTime($order->update_time);
+            $order->price = Tools::formatVnd((float) $order->price, 0);
         }
 
         return $response->withJson([

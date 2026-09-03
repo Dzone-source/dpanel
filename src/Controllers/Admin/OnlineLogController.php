@@ -19,14 +19,14 @@ final class OnlineLogController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'user_id' => '用户ID',
-                'node_id' => '节点ID',
-                'node_name' => '节点名',
+                'id' => 'ID sự kiện',
+                'user_id' => 'ID người dùng',
+                'node_id' => 'ID máy chủ',
+                'node_name' => 'Tên máy chủ',
                 'ip' => 'IP',
-                'location' => 'IP归属地',
-                'first_time' => '首次连接',
-                'last_time' => '最后连接',
+                'location' => 'Vị trí IP',
+                'first_time' => 'Kết nối lần đầu',
+                'last_time' => 'Kết nối cuối',
             ],
         ];
 
@@ -51,8 +51,8 @@ final class OnlineLogController extends BaseController
      */
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $length = $request->getParam('length');
-        $page = $request->getParam('start') / $length + 1;
+        $length = max(1, (int) $request->getParam('length'));
+        $page = (int) $request->getParam('start') / $length + 1;
         $draw = $request->getParam('draw');
 
         $online_log = OnlineLog::query()->where('last_time', '>', time() - 90);
@@ -60,9 +60,11 @@ final class OnlineLogController extends BaseController
         $search = $request->getParam('search')['value'];
 
         if ($search !== '') {
-            $online_log->where('user_id', '=', $search)
-                ->orWhere('ip', 'LIKE', "%{$search}%")
-                ->orWhere('node_id', '=', $search);
+            $online_log->where(static function ($query) use ($search): void {
+                $query->where('user_id', '=', $search)
+                    ->orWhere('ip', 'LIKE', "%{$search}%")
+                    ->orWhere('node_id', '=', $search);
+            });
         }
 
         $order = $request->getParam('order')[0]['dir'];

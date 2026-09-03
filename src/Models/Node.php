@@ -8,6 +8,7 @@ use App\Utils\Tools;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use function dns_get_record;
+use function is_array;
 use function time;
 use const DNS_A;
 use const DNS_AAAA;
@@ -72,7 +73,7 @@ final class Node extends Model
      */
     public function type(): string
     {
-        return $this->type ? '显示' : '隐藏';
+        return $this->type ? 'Hiển thị' : 'Ẩn';
     }
 
     /**
@@ -86,14 +87,17 @@ final class Node extends Model
             2 => 'TUIC',
             3 => 'WireGuard',
             11 => 'Vmess',
+            12 => 'VLESS',
+            13 => 'Hysteria2',
             14 => 'Trojan',
-            default => '未知',
+            15 => 'AnyTLS',
+            default => 'Không xác định',
         };
     }
 
     public function isDynamicRate(): string
     {
-        return $this->is_dynamic_rate ? '是' : '否';
+        return $this->is_dynamic_rate ? 'Có' : 'Không';
     }
 
     public function dynamicRateType(): string
@@ -101,7 +105,7 @@ final class Node extends Model
         return match ($this->dynamic_rate_type) {
             0 => 'Logistic',
             1 => 'Linear',
-            default => '未知',
+            default => 'Không xác định',
         };
     }
 
@@ -117,24 +121,47 @@ final class Node extends Model
 
     /**
      * 更新节点 IP
+     *
+     * Resolve by record type — dns_get_record order is not guaranteed (AAAA may be first),
+     * which previously stored 127.0.0.1 as ipv4 and broke checkNodeIp / online status.
      */
     public function updateNodeIp(): void
     {
         if (Tools::isIPv4($this->server)) {
             $this->ipv4 = $this->server;
             $this->ipv6 = '::1';
-        } elseif (Tools::isIPv6($this->server)) {
+
+            return;
+        }
+
+        if (Tools::isIPv6($this->server)) {
             $this->ipv4 = '127.0.0.1';
             $this->ipv6 = $this->server;
-        } else {
-            try {
-                $result = dns_get_record($this->server, DNS_A + DNS_AAAA);
-                $this->ipv4 = $result[0]['ip'] ?? '127.0.0.1';
-                $this->ipv6 = $result[1]['ipv6'] ?? '::1';
-            } catch (Exception) {
-                $this->ipv4 = '127.0.0.1';
-                $this->ipv6 = '::1';
+
+            return;
+        }
+
+        $this->ipv4 = '127.0.0.1';
+        $this->ipv6 = '::1';
+
+        try {
+            $host = Tools::getNodeServerHost((string) $this->server);
+            $records = @dns_get_record($host, DNS_A + DNS_AAAA);
+            if (! is_array($records)) {
+                return;
             }
+
+            foreach ($records as $rec) {
+                $type = $rec['type'] ?? '';
+                if ($type === 'A' && ! empty($rec['ip'])) {
+                    $this->ipv4 = $rec['ip'];
+                }
+                if ($type === 'AAAA' && ! empty($rec['ipv6'])) {
+                    $this->ipv6 = $rec['ipv6'];
+                }
+            }
+        } catch (Exception) {
+            // keep defaults
         }
     }
 }

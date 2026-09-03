@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">余额记录</span>
+                        <span class="home-title">Lịch sử số dư</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">查看账户余额变动记录</span>
+                        <span class="home-subtitle">Xem lịch sử thay đổi số dư</span>
                     </div>
                 </div>
                 <div class="col-auto">
@@ -17,12 +17,12 @@
                         <a href="#" class="btn btn-primary" data-bs-toggle="modal"
                            data-bs-target="#topup">
                             <i class="icon ti ti-plus"></i>
-                            余额充值
+                            Nạp số dư
                         </a>
                         <a href="#" class="btn btn-primary" data-bs-toggle="modal"
                            data-bs-target="#apply-giftcard-dialog">
                             <i class="icon ti ti-cash-banknote"></i>
-                            兑换礼品卡
+                            Đổi thẻ quà tặng
                         </a>
                     </div>
                 </div>
@@ -38,21 +38,21 @@
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
                                 <tr>
-                                    <th>事件ID</th>
-                                    <th>变动前余额</th>
-                                    <th>变动后余额</th>
-                                    <th>变动金额</th>
-                                    <th>备注</th>
-                                    <th>变动时间</th>
+                                    <th>ID sự kiện</th>
+                                    <th>Số dư trước</th>
+                                    <th>Số dư sau</th>
+                                    <th>Số tiền thay đổi</th>
+                                    <th>Ghi chú</th>
+                                    <th>Thời gian thay đổi</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 {foreach $moneylogs as $moneylog}
                                     <tr>
                                         <td>{$moneylog->id}</td>
-                                        <td>{$moneylog->before}</td>
-                                        <td>{$moneylog->after}</td>
-                                        <td>{$moneylog->amount}</td>
+                                        <td>{$moneylog->before|format_vnd:0}</td>
+                                        <td>{$moneylog->after|format_vnd:0}</td>
+                                        <td>{$moneylog->amount|format_vnd:0}</td>
                                         <td>{$moneylog->remark}</td>
                                         <td>{$moneylog->create_time}</td>
                                     </tr>
@@ -70,23 +70,23 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">兑换礼品卡</h5>
+                    <h5 class="modal-title">Đổi thẻ quà tặng</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group mb-3 row">
                         <div class="col">
                             <input id="giftcard" type="text" class="form-control"
-                                   placeholder="输入礼品卡卡号并点击兑换">
+                                   placeholder="Nhập mã thẻ quà tặng và nhấn đổi">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
                     <button id="apply-giftcard" class="btn btn-primary" data-bs-dismiss="modal"
                             hx-post="/user/giftcard" hx-swap="none"
                             hx-vals='js:{ giftcard: document.getElementById("giftcard").value }'>
-                        兑换
+                        Đổi
                     </button>
                 </div>
             </div>
@@ -97,26 +97,29 @@
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">余额充值</h5>
+                    <h5 class="modal-title">Nạp số dư</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group mb-3 row">
                         <div class="col">
                             <input id="topup_amount" type="number" step="10" class="form-control"
-                                   placeholder="请输入要充值的金额">
+                                   placeholder="Nhập số tiền muốn nạp">
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">取消</button>
-                    <button id="apply-topup" class="btn btn-primary" data-bs-dismiss="modal"
+                    <button type="button" class="btn me-auto" data-bs-dismiss="modal">Hủy</button>
+                    <button id="apply-topup" class="btn btn-primary gopass-busy-submit" type="button"
                             hx-post="/user/order/create" hx-swap="none"
+                            hx-disabled-elt="this"
+                            data-gopass-busy-text="Đang tạo đơn..."
+                            data-gopass-keep-busy="1"
                             hx-vals='js:{
                                 amount: document.getElementById("topup_amount").value,
                                 type: "topup"
                             }'>
-                        充值
+                        Nạp tiền
                     </button>
                 </div>
             </div>

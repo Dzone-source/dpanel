@@ -44,14 +44,14 @@ final class EmailController extends BaseController
             if (! Config::set($item, $request->getParam($item))) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '保存 ' . $item . ' 时出错',
+                    'msg' => 'Lưu ' . $item . ' thất bại',
                 ]);
             }
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '保存成功',
+            'msg' => 'Lưu thành công',
         ]);
     }
 
@@ -62,19 +62,19 @@ final class EmailController extends BaseController
         try {
             Mail::send(
                 $to,
-                '测试邮件',
+                'Email thử nghiệm',
                 'test.tpl'
             );
         } catch (Throwable $e) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '测试邮件发送失败 ' . $e->getMessage(),
+                'msg' => 'Gửi email thử nghiệm thất bại ' . $e->getMessage(),
             ]);
         }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '测试邮件发送成功',
+            'msg' => 'Gửi email thử nghiệm thành công',
         ]);
     }
 }

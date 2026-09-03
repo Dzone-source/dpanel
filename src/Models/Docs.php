@@ -24,9 +24,9 @@ final class Docs extends Model
     public function status(): string
     {
         return match ($this->status) {
-            0 => '未发布',
-            1 => '已发布',
-            default => '未知',
+            0 => 'Chưa xuất bản',
+            1 => 'Đã xuất bản',
+            default => 'Không xác định',
         };
     }
 }

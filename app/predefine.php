@@ -6,5 +6,5 @@ declare(strict_types=1);
 if (! defined('BASE_PATH')) {
     define('BASE_PATH', __DIR__ . '/..');
 }
-const VERSION = '25.1.0';
-const VERSION_CODENAME = 'The Restoration';
+const VERSION = '1.0.0';
+const VERSION_CODENAME = 'Docker Edition';

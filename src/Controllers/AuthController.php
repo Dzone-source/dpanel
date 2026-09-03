@@ -12,6 +12,7 @@ use App\Services\Auth;
 use App\Services\Cache;
 use App\Services\Captcha;
 use App\Services\Filter;
+use App\Services\LoginWallpaper;
 use App\Services\Mail;
 use App\Services\MFA\FIDO;
 use App\Services\MFA\TOTP;
@@ -29,6 +30,7 @@ use Ramsey\Uuid\Uuid;
 use RedisException;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use Throwable;
 use function array_rand;
 use function date;
 use function explode;
@@ -53,70 +55,105 @@ final class AuthController extends BaseController
         return $response->write($this->view()
             ->assign('base_url', $_ENV['baseUrl'])
             ->assign('captcha', $captcha)
+            ->assign('login_wallpaper', LoginWallpaper::random())
             ->fetch('auth/login.tpl'));
     }
 
     public function loginHandle(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        if (Config::obtain('enable_login_captcha') && ! Captcha::verify($request->getParams())) {
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => '系统无法接受你的验证结果，请刷新页面后重试。',
-            ]);
-        }
+        try {
+            if (Config::obtain('enable_login_captcha') && ! Captcha::verify($request->getParams())) {
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Hệ thống không thể chấp nhận kết quả xác minh của bạn, vui lòng làm mới trang và thử lại.',
+                ]);
+            }
 
-        $password = $request->getParam('password');
-        $rememberMe = $request->getParam('remember_me') === 'true' ? 1 : 0;
-        $email = strtolower(trim($this->antiXss->xss_clean($request->getParam('email'))));
-        $redir = $this->antiXss->xss_clean(Cookie::get('redir')) ?? '/user';
-        $user = (new User())->where('email', $email)->first();
-        $loginIp = new LoginIp();
+            $password = (string) ($request->getParam('password') ?? '');
+            $rememberMe = $request->getParam('remember_me') === 'true' ? 1 : 0;
+            $email = strtolower(trim($this->antiXss->xss_clean((string) ($request->getParam('email') ?? ''))));
+            $redirRaw = $this->antiXss->xss_clean(Cookie::get('redir'));
+            $redir = (is_string($redirRaw) && $redirRaw !== '') ? $redirRaw : '/user';
+            $user = (new User())->where('email', $email)->first();
+            $loginIp = new LoginIp();
+            $clientIp = (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
 
-        if ($user === null) {
-            $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 1);
+            if ($user === null) {
+                try {
+                    $loginIp->collectLoginIP($clientIp, 1);
+                } catch (Throwable) {
+                    // ignore logging errors
+                }
 
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => '邮箱或者密码错误',
-            ]);
-        }
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Email hoặc mật khẩu không đúng',
+                ]);
+            }
 
-        if (! Hash::checkPassword($user->pass, $password)) {
-            $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 1, $user->id);
+            if ($password === '' || ! Hash::checkPassword($user->pass, $password)) {
+                try {
+                    $loginIp->collectLoginIP($clientIp, 1, $user->id);
+                } catch (Throwable) {
+                    // ignore logging errors
+                }
 
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => '邮箱或者密码错误',
-            ]);
-        }
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Email hoặc mật khẩu không đúng',
+                ]);
+            }
 
-        $mfaStatus = $user->checkMfaStatus();
-        if ($mfaStatus['require']) {
-            $redis = (new Cache())->initRedis();
-            $redis->setex('mfa_login_' . session_id(), 300, json_encode([
-                'userid' => $user->id,
-                'method' => $mfaStatus,
-                'redir' => $redir,
-                'remember_me' => $rememberMe,
-            ]));
+            try {
+                $mfaStatus = $user->checkMfaStatus();
+            } catch (Throwable) {
+                $mfaStatus = ['require' => false];
+            }
+
+            if (! empty($mfaStatus['require'])) {
+                $redis = (new Cache())->initRedis();
+                $redis->setex('mfa_login_' . session_id(), 300, json_encode([
+                    'userid' => $user->id,
+                    'method' => $mfaStatus,
+                    'redir' => $redir,
+                    'remember_me' => $rememberMe,
+                ]));
+
+                return $response
+                    ->withHeader('HX-Redirect', '/auth/mfa')
+                    ->withJson([
+                        'ret' => 1,
+                        'msg' => 'Vui lòng hoàn tất xác thực hai bước',
+                        'redir' => '/auth/mfa',
+                    ]);
+            }
+
+            $time = self::loginCookieLifetime((bool) $rememberMe);
+
+            Auth::login($user->id, $time);
+
+            try {
+                $loginIp->collectLoginIP($clientIp, 0, $user->id);
+            } catch (Throwable) {
+                // ignore logging errors
+            }
+
+            $user->last_login_time = time();
+            $user->save();
 
             return $response
-                ->withHeader('HX-Redirect', '/auth/mfa')
+                ->withHeader('HX-Redirect', $redir)
                 ->withJson([
                     'ret' => 1,
-                    'msg' => '请完成二步认证',
+                    'msg' => 'Đăng nhập thành công',
+                    'redir' => $redir,
                 ]);
+        } catch (Throwable $e) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Lỗi đăng nhập: ' . $e->getMessage(),
+            ]);
         }
-
-        $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600; // Cookie 过期时间
-
-        Auth::login($user->id, $time);
-        // 记录登录成功
-        $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
-        $user->last_login_time = time();
-        $user->save();
-
-        return $response->withHeader('HX-Redirect', $redir);
     }
 
     public function mfaPage(ServerRequest $request, Response $response, $next): ResponseInterface
@@ -166,26 +203,26 @@ final class AuthController extends BaseController
             $email = strtolower(trim($this->antiXss->xss_clean($request->getParam('email'))));
 
             if ($email === '') {
-                return ResponseHelper::error($response, '未填写邮箱');
+                return ResponseHelper::error($response, 'Chưa nhập email');
             }
 
             // check email format
             $email_check = Filter::checkEmailFilter($email);
 
             if (! $email_check) {
-                return ResponseHelper::error($response, '无效的邮箱');
+                return ResponseHelper::error($response, 'Email không hợp lệ');
             }
 
             if (! (new RateLimit())->checkRateLimit('email_request_ip', $request->getServerParam('REMOTE_ADDR')) ||
                 ! (new RateLimit())->checkRateLimit('email_request_address', $email)
             ) {
-                return ResponseHelper::error($response, '你的请求过于频繁，请稍后再试');
+                return ResponseHelper::error($response, 'Yêu cầu của bạn quá thường xuyên, vui lòng thử lại sau');
             }
 
             $user = (new User())->where('email', $email)->first();
 
             if ($user !== null) {
-                return ResponseHelper::error($response, '此邮箱已经注册');
+                return ResponseHelper::error($response, 'Email này đã được đăng ký');
             }
 
             $email_code = Tools::genRandomChar(6);
@@ -195,21 +232,21 @@ final class AuthController extends BaseController
             try {
                 Mail::send(
                     $email,
-                    $_ENV['appName'] . '- 验证邮件',
+                    $_ENV['appName'] . '- Email xác minh',
                     'verify_code.tpl',
                     [
                         'code' => $email_code,
                         'expire' => date('Y-m-d H:i:s', time() + Config::obtain('email_verify_code_ttl')),
                     ]
                 );
-            } catch (Exception|ClientExceptionInterface) {
-                return ResponseHelper::error($response, '邮件发送失败，请联系网站管理员。');
+            } catch (Throwable $e) {
+                return ResponseHelper::error($response, 'Gửi email thất bại: ' . $e->getMessage());
             }
 
-            return ResponseHelper::success($response, '验证码发送成功，请查收邮件。');
+            return ResponseHelper::success($response, 'Mã xác minh đã được gửi, vui lòng kiểm tra email.');
         }
 
-        return ResponseHelper::error($response, '站点未启用邮件验证');
+        return ResponseHelper::error($response, 'Trang web chưa bật xác minh email');
     }
 
     /**
@@ -226,7 +263,8 @@ final class AuthController extends BaseController
         $money,
         $is_admin_reg
     ): ResponseInterface {
-        $redir = $this->antiXss->xss_clean(Cookie::get('redir')) ?? '/user';
+        $redirRaw = $this->antiXss->xss_clean(Cookie::get('redir'));
+        $redir = (is_string($redirRaw) && $redirRaw !== '') ? $redirRaw : '/user';
         $configs = Config::getClass('reg');
         // do reg user
         $user = new User();
@@ -236,7 +274,7 @@ final class AuthController extends BaseController
         $user->remark = '';
         $user->pass = Hash::passwordHash($password);
         $user->passwd = Tools::genRandomChar(16);
-        $user->uuid = Uuid::uuid4();
+        $user->uuid = Uuid::uuid4()->toString();
         $user->api_token = Tools::genRandomChar(32);
         $user->port = Tools::getSsPort();
         $user->u = 0;
@@ -248,6 +286,9 @@ final class AuthController extends BaseController
         $user->auto_reset_day = Config::obtain('free_user_reset_day');
         $user->auto_reset_bandwidth = Config::obtain('free_user_reset_bandwidth');
         $user->daily_mail_enable = $configs['reg_daily_report'];
+        $user->is_banned = 0;
+        $user->is_shadow_banned = 0;
+        $user->is_inactive = 0;
 
         if ($money > 0) {
             $user->money = $money;
@@ -288,13 +329,23 @@ final class AuthController extends BaseController
                 Reward::issueRegReward($user->id, $user->ref_by);
             }
 
-            Auth::login($user->id, 3600);
+            Auth::login($user->id, self::loginCookieLifetime(false));
             (new LoginIp())->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
 
-            return $response->withHeader('HX-Redirect', $redir);
+            return $response
+                ->withHeader('HX-Redirect', $redir)
+                ->withJson([
+                    'ret' => 1,
+                    'msg' => 'Đăng ký thành công',
+                    'redir' => $redir,
+                ]);
         }
 
-        return ResponseHelper::error($response, '未知错误');
+        if ($user->id > 0 && $is_admin_reg) {
+            return ResponseHelper::success($response, 'Tạo tài khoản thành công');
+        }
+
+        return ResponseHelper::error($response, 'Lỗi không xác định');
     }
 
     /**
@@ -304,11 +355,11 @@ final class AuthController extends BaseController
     public function registerHandle(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
         if (Config::obtain('reg_mode') === 'close') {
-            return ResponseHelper::error($response, '未开放注册。');
+            return ResponseHelper::error($response, 'Chưa mở đăng ký.');
         }
 
         if (Config::obtain('enable_reg_captcha') && ! Captcha::verify($request->getParams())) {
-            return ResponseHelper::error($response, '系统无法接受你的验证结果，请刷新页面后重试。');
+            return ResponseHelper::error($response, 'Hệ thống không thể chấp nhận kết quả xác minh của bạn, vui lòng làm mới trang và thử lại.');
         }
 
         $tos = $request->getParam('tos') === 'true' ? 1 : 0;
@@ -319,32 +370,40 @@ final class AuthController extends BaseController
         $invite_code = $this->antiXss->xss_clean(trim($request->getParam('invite_code')));
 
         if (! $tos) {
-            return ResponseHelper::error($response, '请同意服务条款');
+            return ResponseHelper::error($response, 'Vui lòng đồng ý với Điều khoản dịch vụ và Chính sách bảo mật');
         }
 
-        if (strlen($password) < 8) {
-            return ResponseHelper::error($response, '密码请大于8位');
+        if ($name === null || trim((string) $name) === '') {
+            return ResponseHelper::error($response, 'Vui lòng nhập biệt danh');
         }
 
-        if ($password !== $confirm_password) {
-            return ResponseHelper::error($response, '两次密码输入不符');
+        if ($password === null || $password === '') {
+            return ResponseHelper::error($response, 'Vui lòng nhập mật khẩu');
+        }
+
+        if (strlen((string) $password) < 8) {
+            return ResponseHelper::error($response, 'Mật khẩu phải có ít nhất 8 ký tự');
+        }
+
+        if ((string) $password !== (string) $confirm_password) {
+            return ResponseHelper::error($response, 'Hai lần nhập mật khẩu không khớp');
         }
 
         if ($invite_code === '' && Config::obtain('reg_mode') === 'invite') {
-            return ResponseHelper::error($response, '邀请码不能为空');
+            return ResponseHelper::error($response, 'Mã mời không được để trống');
         }
 
         if ($invite_code !== '') {
             $invite = (new InviteCode())->where('code', $invite_code)->first();
 
             if ($invite === null) {
-                return ResponseHelper::error($response, '邀请码无效');
+                return ResponseHelper::error($response, 'Mã mời không hợp lệ');
             }
 
             $ref_user = (new User())->where('id', $invite->user_id)->first();
 
             if ($ref_user === null) {
-                return ResponseHelper::error($response, '邀请码无效');
+                return ResponseHelper::error($response, 'Mã mời không hợp lệ');
             }
         }
 
@@ -355,13 +414,13 @@ final class AuthController extends BaseController
         $email_check = Filter::checkEmailFilter($email);
 
         if (! $email_check) {
-            return ResponseHelper::error($response, '无效的邮箱');
+            return ResponseHelper::error($response, 'Email không hợp lệ');
         }
         // check email
         $user = (new User())->where('email', $email)->first();
 
         if ($user !== null) {
-            return ResponseHelper::error($response, '无效的邮箱');
+            return ResponseHelper::error($response, 'Email không hợp lệ');
         }
 
         if (Config::obtain('reg_email_verify')) {
@@ -370,7 +429,7 @@ final class AuthController extends BaseController
             $email_verify = $redis->get('email_verify:' . $email_verify_code);
 
             if (! $email_verify) {
-                return ResponseHelper::error($response, '你的邮箱验证码不正确');
+                return ResponseHelper::error($response, 'Mã xác minh email của bạn không đúng');
             }
 
             $redis->del('email_verify:' . $email_verify_code);
@@ -394,18 +453,19 @@ final class AuthController extends BaseController
     public function webauthnHandle(ServerRequest $request, Response $response, $next): ResponseInterface
     {
         $data = $this->antiXss->xss_clean((array) $request->getParsedBody());
-        $redir = $this->antiXss->xss_clean(Cookie::get('redir')) ?? '/user';
+        $redirRaw = $this->antiXss->xss_clean(Cookie::get('redir'));
+        $redir = (is_string($redirRaw) && $redirRaw !== '') ? $redirRaw : '/user';
         $result = WebAuthn::assertHandle($data);
         if ($result['ret'] === 1) {
             $user = $result['user'];
             if ($user === null) {
                 return $response->withJson([
                     'ret' => 0,
-                    'msg' => '用户不存在',
+                    'msg' => 'Người dùng không tồn tại',
                 ]);
             }
             $rememberMe = $request->getParam('remember_me') === 'true';
-            $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600;
+            $time = self::loginCookieLifetime($rememberMe);
             Auth::login($user->id, $time);
             $loginIp = new LoginIp();
             $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
@@ -413,7 +473,7 @@ final class AuthController extends BaseController
             $user->save();
             return $response->withJson([
                 'ret' => 1,
-                'msg' => '登录成功',
+                'msg' => 'Đăng nhập thành công',
                 'redir' => $redir,
             ]);
         }
@@ -425,19 +485,19 @@ final class AuthController extends BaseController
         $redis = (new Cache())->initRedis();
         $login_session = $redis->get('mfa_login_' . session_id());
         if ($login_session === false) {
-            return $response->withJson(['ret' => 0, 'msg' => '登录会话已过期'])->withHeader('HX-Redirect', '/auth/login');
+            return $response->withJson(['ret' => 0, 'msg' => 'Phiên đăng nhập đã hết hạn'])->withHeader('HX-Redirect', '/auth/login');
         }
         $login_session = json_decode($login_session, true);
         $code = $this->antiXss->xss_clean($request->getParam('code'));
         $user = (new User())->where('id', $login_session['userid'])->first();
         if ($user === null) {
-            return $response->withJson(['ret' => 0, 'msg' => '用户不存在'])->withHeader('HX-Redirect', '/auth/login');
+            return $response->withJson(['ret' => 0, 'msg' => 'Người dùng không tồn tại'])->withHeader('HX-Redirect', '/auth/login');
         }
         $result = TOTP::assertHandle($user, $code);
         if ($result['ret'] === 1) {
             $redis->del('mfa_login_' . session_id());
             $rememberMe = $login_session['remember_me'];
-            $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600;
+            $time = self::loginCookieLifetime((bool) $rememberMe);
             Auth::login($user->id, $time);
             $loginIp = new LoginIp();
             $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
@@ -445,7 +505,7 @@ final class AuthController extends BaseController
             $user->save();
             return $response
                 ->withHeader('HX-Redirect', $login_session['redir'])
-                ->withJson(['ret' => 1, 'msg' => '登录成功']);
+                ->withJson(['ret' => 1, 'msg' => 'Đăng nhập thành công']);
         }
         return $response->withJson($result);
     }
@@ -455,12 +515,12 @@ final class AuthController extends BaseController
         $redis = (new Cache())->initRedis();
         $login_session = $redis->get('mfa_login_' . session_id());
         if ($login_session === false) {
-            return $response->withJson(['ret' => 0, 'msg' => '登录会话已过期'])->withHeader('HX-Redirect', '/auth/login');
+            return $response->withJson(['ret' => 0, 'msg' => 'Phiên đăng nhập đã hết hạn'])->withHeader('HX-Redirect', '/auth/login');
         }
         $login_session = json_decode($login_session, true);
         $user = (new User())->where('id', $login_session['userid'])->first();
         if ($user === null) {
-            return $response->withJson(['ret' => 0, 'msg' => '用户不存在'])->withHeader('HX-Redirect', '/auth/login');
+            return $response->withJson(['ret' => 0, 'msg' => 'Người dùng không tồn tại'])->withHeader('HX-Redirect', '/auth/login');
         }
         return $response->withJson(FIDO::assertRequest($user));
     }
@@ -470,26 +530,43 @@ final class AuthController extends BaseController
         $redis = (new Cache())->initRedis();
         $login_session = $redis->get('mfa_login_' . session_id());
         if ($login_session === false) {
-            return $response->withJson(['ret' => 0, 'msg' => '登录会话已过期'])->withHeader('HX-Redirect', '/auth/login');
+            return $response->withJson(['ret' => 0, 'msg' => 'Phiên đăng nhập đã hết hạn'])->withHeader('HX-Redirect', '/auth/login');
         }
         $login_session = json_decode($login_session, true);
         $data = $this->antiXss->xss_clean((array) $request->getParsedBody());
         $user = (new User())->where('id', $login_session['userid'])->first();
         if ($user === null) {
-            return $response->withJson(['ret' => 0, 'msg' => '用户不存在'])->withHeader('HX-Redirect', '/auth/login');
+            return $response->withJson(['ret' => 0, 'msg' => 'Người dùng không tồn tại'])->withHeader('HX-Redirect', '/auth/login');
         }
         $result = FIDO::assertHandle($user, $data);
         if ($result['ret'] === 1) {
             $redis->del('mfa_login_' . session_id());
             $rememberMe = $login_session['remember_me'];
-            $time = $rememberMe ? 86400 * ($_ENV['rememberMeDuration'] ?? 7) : 3600;
+            $time = self::loginCookieLifetime((bool) $rememberMe);
             Auth::login($user->id, $time);
             $loginIp = new LoginIp();
             $loginIp->collectLoginIP($_SERVER['REMOTE_ADDR'], 0, $user->id);
             $user->last_login_time = time();
             $user->save();
-            return $response->withJson(['ret' => 1, 'msg' => '登录成功', 'redir' => $login_session['redir']]);
+            return $response->withJson(['ret' => 1, 'msg' => 'Đăng nhập thành công', 'redir' => $login_session['redir']]);
         }
         return $response->withJson($result);
+    }
+
+    /**
+     * Cookie login lifetime in seconds.
+     * Default session: 7 days. Remember-me: 30 days (configurable).
+     */
+    private static function loginCookieLifetime(bool $rememberMe): int
+    {
+        $days = $rememberMe
+            ? (int) ($_ENV['rememberMeDuration'] ?? 30)
+            : (int) ($_ENV['sessionDuration'] ?? 7);
+
+        if ($days < 1) {
+            $days = 1;
+        }
+
+        return 86400 * $days;
     }
 }

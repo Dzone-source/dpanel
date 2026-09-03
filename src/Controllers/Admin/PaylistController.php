@@ -17,14 +17,14 @@ final class PaylistController extends BaseController
     private static array $details =
         [
             'field' => [
-                'id' => '事件ID',
-                'userid' => '用户ID',
-                'total' => '金额',
-                'status' => '状态',
-                'gateway' => '支付网关',
-                'tradeno' => '网关单号',
-                'datetime' => '支付时间',
-                'invoice_id' => '关联账单ID',
+                'id' => 'ID sự kiện',
+                'userid' => 'ID người dùng',
+                'total' => 'Số tiền',
+                'status' => 'Trạng thái',
+                'gateway' => 'Cổng thanh toán',
+                'tradeno' => 'Mã giao dịch cổng',
+                'datetime' => 'Thời gian thanh toán',
+                'invoice_id' => 'ID hóa đơn liên quan',
             ],
         ];
 
@@ -52,6 +52,7 @@ final class PaylistController extends BaseController
         foreach ($paylists as $paylist) {
             $paylist->status = $paylist->status();
             $paylist->datetime = Tools::toDateTime((int) $paylist->datetime);
+            $paylist->total = Tools::formatVnd((float) $paylist->total);
         }
 
         return $response->withJson([

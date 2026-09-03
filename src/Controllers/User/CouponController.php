@@ -8,6 +8,7 @@ use App\Controllers\BaseController;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\UserCoupon;
+use App\Utils\Tools;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
@@ -22,7 +23,15 @@ final class CouponController extends BaseController
     {
         $coupon_raw = $this->antiXss->xss_clean($request->getParam('coupon'));
         $product_id = $this->antiXss->xss_clean($request->getParam('product_id'));
-        $invalid_coupon_msg = '优惠码无效';
+        $option_index_raw = $this->antiXss->xss_clean($request->getParam('option_index'));
+        $option_days_raw = $this->antiXss->xss_clean($request->getParam('option_days'));
+        $option_index = ($option_index_raw === null || $option_index_raw === '')
+            ? null
+            : (int) $option_index_raw;
+        $option_days = ($option_days_raw === null || $option_days_raw === '')
+            ? null
+            : (int) $option_days_raw;
+        $invalid_coupon_msg = 'Mã giảm giá không hợp lệ';
 
         if ($coupon_raw === '') {
             return $response->withJson([
@@ -48,6 +57,28 @@ final class CouponController extends BaseController
                 'msg' => $invalid_coupon_msg,
             ]);
         }
+
+        $resolved = $product->resolvePurchaseOption($option_index);
+        if ($option_days !== null && $option_days > 0) {
+            $options = Product::normalizeOptions($product->content);
+            foreach ($options as $i => $opt) {
+                if ((int) $opt['days'] === $option_days) {
+                    $byDays = $product->resolvePurchaseOption($i);
+                    if ($byDays !== null) {
+                        $resolved = $byDays;
+                    }
+                    break;
+                }
+            }
+        }
+        if ($resolved === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Vui lòng chọn thời hạn gói hợp lệ',
+            ]);
+        }
+
+        $base_price = $resolved['price'];
 
         $limit = json_decode($coupon->limit);
 
@@ -90,20 +121,23 @@ final class CouponController extends BaseController
         $content = json_decode($coupon->content);
 
         if ($content->type === 'percentage') {
-            $discount = $product->price * $content->value / 100;
+            $discount = $base_price * $content->value / 100;
         } else {
             $discount = $content->value;
         }
 
-        $buy_price = $product->price - $discount;
+        $buy_price = $base_price - $discount;
+        if ($buy_price < 0) {
+            $buy_price = 0;
+        }
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '优惠码可用',
+            'msg' => 'Mã giảm giá khả dụng',
             'data' => [
                 'coupon-code' => $coupon->code,
-                'product-buy-discount' => $discount,
-                'product-buy-total' => $buy_price,
+                'product-buy-discount' => Tools::formatVnd((float) $discount, 0, true),
+                'product-buy-total' => Tools::formatVnd((float) $buy_price, 0, true),
             ],
         ]);
     }

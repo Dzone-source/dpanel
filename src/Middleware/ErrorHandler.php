@@ -57,6 +57,20 @@ final class ErrorHandler implements MiddlewareInterface
                 captureException($e);
             }
 
+            $wantsJson = str_contains((string) $request->getHeaderLine('Accept'), 'application/json')
+                || $request->getHeaderLine('HX-Request') === 'true'
+                || $request->getHeaderLine('X-Requested-With') === 'XMLHttpRequest';
+
+            if ($wantsJson) {
+                $response = $response_factory->createResponse(500);
+                $response->getBody()->write(json_encode([
+                    'ret' => 0,
+                    'msg' => 'Lỗi máy chủ: ' . $e->getMessage(),
+                ], JSON_UNESCAPED_UNICODE));
+
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
             if ($_ENV['debug']) {
                 $callable_resolver = new CallableResolver(null);
                 $error_handler = new SlimErrorHandler($callable_resolver, $response_factory);

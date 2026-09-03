@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Services\GeoIP2;
 use App\Utils\Tools;
 
 beforeEach(function () {
@@ -15,16 +16,29 @@ afterEach(function () {
 });
 
 describe('Tools::getIpLocation', function () {
-    it('returns error message when maxmind service is not configured', function () {
-        $_ENV['maxmind_license_key'] = '';
-        
-        $msg = Tools::getIpLocation('8.8.8.8');
-        
-        expect($msg)
-            ->toBeString()
-            ->toBe('GeoIP2 service not configured');
+    it('returns a message when GeoIP database is not available', function () {
+        if (GeoIP2::isAvailable()) {
+            expect(Tools::getIpLocation('8.8.8.8'))->not->toContain('Chưa có database GeoIP');
+
+            return;
+        }
+
+        expect(Tools::getIpLocation('8.8.8.8'))->toContain('Chưa có database GeoIP');
     });
 });
+
+describe('Tools::formatVnd', function () {
+    it('formats thousands with commas as whole VND', function () {
+        expect(Tools::formatVnd(109999))->toBe('109,999')
+            ->and(Tools::formatVnd(100000.5))->toBe('100,001')
+            ->and(Tools::formatVnd(0))->toBe('0');
+    });
+
+    it('can append VNĐ suffix', function () {
+        expect(Tools::formatVnd(1000, 0, true))->toBe('1,000 VNĐ');
+    });
+});
+
 
 describe('Tools::autoBytes', function () {
     it('converts bytes to human readable format', function () {

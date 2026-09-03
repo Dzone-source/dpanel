@@ -18,6 +18,7 @@ use function ceil;
 use function closedir;
 use function count;
 use function date;
+use function explode;
 use function filter_var;
 use function floor;
 use function hash;
@@ -27,6 +28,7 @@ use function json_decode;
 use function log;
 use function max;
 use function mb_strcut;
+use function number_format;
 use function opendir;
 use function pow;
 use function random_bytes;
@@ -37,8 +39,11 @@ use function shuffle;
 use function strlen;
 use function strpos;
 use function substr;
+use function trim;
 use const FILTER_FLAG_IPV4;
 use const FILTER_FLAG_IPV6;
+use const FILTER_FLAG_NO_PRIV_RANGE;
+use const FILTER_FLAG_NO_RES_RANGE;
 use const FILTER_VALIDATE_EMAIL;
 use const FILTER_VALIDATE_INT;
 use const FILTER_VALIDATE_IP;
@@ -47,43 +52,114 @@ use const PHP_INT_MAX;
 final class Tools
 {
     /**
+     * Resolve the client IP (respects reverse-proxy headers when trust_proxy is enabled).
+     */
+    public static function getClientIp(): string
+    {
+        $remote = (string) ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+        $trustProxy = filter_var($_ENV['trust_proxy'] ?? true, FILTER_VALIDATE_BOOLEAN);
+
+        if (! $trustProxy) {
+            return $remote;
+        }
+
+        $candidates = [];
+
+        if (! empty($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            $candidates[] = (string) $_SERVER['HTTP_CF_CONNECTING_IP'];
+        }
+
+        if (! empty($_SERVER['HTTP_X_REAL_IP'])) {
+            $candidates[] = (string) $_SERVER['HTTP_X_REAL_IP'];
+        }
+
+        if (! empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            foreach (explode(',', (string) $_SERVER['HTTP_X_FORWARDED_FOR']) as $part) {
+                $candidates[] = trim($part);
+            }
+        }
+
+        foreach ($candidates as $ip) {
+            if (self::isPublicIp($ip)) {
+                return $ip;
+            }
+        }
+
+        return $remote;
+    }
+
+    public static function isPublicIp(string $ip): bool
+    {
+        return filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        ) !== false;
+    }
+
+    /**
      * Get IP location
      */
     public static function getIpLocation(string $ip): string
     {
-        $data = 'GeoIP2 service not configured';
+        if ($ip === '' || $ip === '0.0.0.0' || ! self::isPublicIp($ip)) {
+            return 'IP nội bộ / không tra cứu GeoIP';
+        }
+        if (! GeoIP2::isAvailable()) {
+            return 'Chưa có database GeoIP (cần file .mmdb trong storage/GeoLite2-*)';
+        }
+
         $city = null;
         $country = null;
 
-        if ($_ENV['maxmind_license_key'] !== '') {
-            try {
-                $geoip = new GeoIP2();
-            } catch (InvalidDatabaseException) {
-                return $data;
-            }
-
-            try {
-                $city = $geoip->getCity($ip);
-            } catch (AddressNotFoundException|InvalidDatabaseException) {
-                $city = 'Unknown city';
-            }
-
-            try {
-                $country = $geoip->getCountry($ip);
-            } catch (AddressNotFoundException|InvalidDatabaseException) {
-                $country = 'Unknown country';
-            }
+        try {
+            $geoip = new GeoIP2();
+        } catch (InvalidDatabaseException) {
+            return 'Database GeoIP không đọc được (file hỏng hoặc sai phiên bản)';
         }
 
-        if ($country !== null) {
-            $data = $country;
+        try {
+            $city = $geoip->getCity($ip);
+        } catch (AddressNotFoundException|InvalidDatabaseException) {
+            $city = 'Unknown city';
         }
+
+        try {
+            $country = $geoip->getCountry($ip);
+        } catch (AddressNotFoundException|InvalidDatabaseException) {
+            $country = 'Unknown country';
+        }
+
+        $data = $country ?? 'Không xác định';
 
         if ($city !== null) {
             $data = $city . ', ' . $country;
         }
 
         return $data;
+    }
+
+    /**
+     * Format currency (VND): thousands "," — always whole đồng, e.g. 109999 → 109,999
+     */
+    public static function formatVnd(float|int|string $amount, int $decimals = 0, bool $with_suffix = false): string
+    {
+        unset($decimals);
+        $formatted = number_format(round((float) $amount), 0, '.', ',');
+
+        return $with_suffix ? $formatted . ' VNĐ' : $formatted;
+    }
+
+    /**
+     * @param list<string> $fields
+     */
+    public static function formatVndOnObject(object $row, array $fields): void
+    {
+        foreach ($fields as $field) {
+            if (isset($row->{$field})) {
+                $row->{$field} = self::formatVnd($row->{$field});
+            }
+        }
     }
 
     /**
@@ -190,6 +266,44 @@ final class Tools
     public static function genSubToken(): string
     {
         return self::genRandomChar(max($_ENV['sub_token_len'], 8));
+    }
+
+    /**
+     * Parse legacy SSPanel node server strings used by some backends:
+     *   vn.example.com;port=443|host=www.example.jp
+     *
+     * @return array{server: string, params: array<string, string>}
+     */
+    public static function parseNodeServer(string $raw): array
+    {
+        $raw = trim($raw);
+        $params = [];
+        $server = $raw;
+
+        if (str_contains($raw, ';')) {
+            [$server, $extra] = explode(';', $raw, 2);
+            $server = trim($server);
+
+            foreach (explode('|', $extra) as $pair) {
+                $pair = trim($pair);
+                if ($pair === '' || ! str_contains($pair, '=')) {
+                    continue;
+                }
+
+                [$key, $value] = explode('=', $pair, 2);
+                $params[strtolower(trim($key))] = trim($value);
+            }
+        }
+
+        return [
+            'server' => $server,
+            'params' => $params,
+        ];
+    }
+
+    public static function getNodeServerHost(string $raw): string
+    {
+        return self::parseNodeServer($raw)['server'];
     }
 
     public static function genRandomChar(int $length = 8): string|false

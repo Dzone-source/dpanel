@@ -16,6 +16,14 @@ final class Boot
     {
         date_default_timezone_set($_ENV['timeZone']);
         View::$beginTime = microtime(true);
+
+        if (! empty($_ENV['debug'])) {
+            error_reporting(E_ALL);
+            ini_set('display_errors', '1');
+        } else {
+            error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING & ~E_DEPRECATED);
+            ini_set('display_errors', '0');
+        }
     }
 
     public static function bootDb(): void
@@ -38,5 +46,10 @@ final class Boot
                 'dsn' => $_ENV['sentry_dsn'],
             ]);
         }
+    }
+
+    public static function normalizeClientIp(): void
+    {
+        $_SERVER['REMOTE_ADDR'] = \App\Utils\Tools::getClientIp();
     }
 }

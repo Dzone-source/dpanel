@@ -62,7 +62,7 @@ class UserFactory
             'is_banned' => 0,
             'is_shadow_banned' => 0,
             'theme' => 'tabler',
-            'locale' => 'zh-CN',
+            'locale' => 'vi_VN',
             'reg_date' => date('Y-m-d H:i:s'),
             'method' => 'aes-256-gcm',
             'port' => rand(10000, 60000),
@@ -76,8 +76,6 @@ class UserFactory
             'node_group' => 0,
             'class' => 0,
             'class_expire' => date('Y-m-d H:i:s', strtotime('+1 month')),
-            'ga_token' => '',
-            'ga_enable' => 0,
         ];
     }
     

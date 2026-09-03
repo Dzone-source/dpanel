@@ -1,0 +1,19 @@
+# Example Caddyfile for DPanel behind HTTPS
+# 1) Set HTTP_PORT=8080 in .env and docker compose up -d
+# 2) Copy to /etc/caddy/Caddyfile and: systemctl reload caddy
+#
+# IMPORTANT: header_up Host {host} so login cookies use co2.vn, not 127.0.0.1:8080
+
+co2.vn {
+	encode gzip
+	reverse_proxy 127.0.0.1:8080 {
+		header_up Host {host}
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+	}
+}
+
+www.co2.vn {
+	redir https://co2.vn{uri} permanent
+}

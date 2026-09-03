@@ -26,6 +26,7 @@ final class MoneyController extends BaseController
 
         foreach ($moneylogs as $moneylog) {
             $moneylog->create_time = Tools::toDateTime($moneylog->create_time);
+            Tools::formatVndOnObject($moneylog, ['before', 'after', 'amount']);
         }
 
         $moneylog_count = $moneylogs->count();
@@ -46,7 +47,7 @@ final class MoneyController extends BaseController
         if ($giftcard === null || $giftcard->status !== 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '礼品卡无效',
+                'msg' => 'Thẻ quà tặng không hợp lệ',
             ]);
         }
 
@@ -55,7 +56,7 @@ final class MoneyController extends BaseController
         if ($user->is_shadow_banned) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '礼品卡无效',
+                'msg' => 'Thẻ quà tặng không hợp lệ',
             ]);
         }
 
@@ -73,12 +74,12 @@ final class MoneyController extends BaseController
             $money_before,
             (float) $user->money,
             $giftcard->balance,
-            '礼品卡充值 ' . $giftcard->card
+            'Nạp thẻ quà tặng ' . $giftcard->card
         );
 
         return $response->withJson([
             'ret' => 1,
-            'msg' => '充值成功',
+            'msg' => 'Nạp tiền thành công',
         ]);
     }
 }

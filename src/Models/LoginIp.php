@@ -10,6 +10,7 @@ use Illuminate\Database\Query\Builder;
 use Psr\Http\Client\ClientExceptionInterface;
 use Telegram\Bot\Exceptions\TelegramSDKException;
 use function date;
+use function error_log;
 use function time;
 
 /**
@@ -39,7 +40,7 @@ final class LoginIp extends Model
      */
     public function type(): string
     {
-        return $this->type === 0 ? '成功' : '失败';
+        return $this->type === 0 ? 'Thành công' : 'Thất bại';
     }
 
     /**
@@ -64,11 +65,12 @@ final class LoginIp extends Model
                 try {
                     Notification::notifyUser(
                         (new User())->where('id', $user_id)->first(),
-                        $_ENV['appName'] . '-新登录通知',
-                        '你的账号于 ' . date('Y-m-d H:i:s') . ' 通过 ' . $this->ip . ' 地址登录了用户面板',
+                        $_ENV['appName'] . '- Thông báo đăng nhập mới',
+                        'Tài khoản của bạn đã đăng nhập bảng điều khiển lúc ' . date('Y-m-d H:i:s') . ' từ địa chỉ ' . $this->ip,
                     );
                 } catch (GuzzleException|ClientExceptionInterface|TelegramSDKException $e) {
-                    echo $e->getMessage();
+                    // Echoing here would land in the login response body.
+                    error_log('Login notification failed: ' . $e->getMessage());
                 }
             }
 

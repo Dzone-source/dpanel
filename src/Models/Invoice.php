@@ -35,23 +35,23 @@ final class Invoice extends Model
     public function status(): string
     {
         return match ($this->status) {
-            'unpaid' => '未支付',
-            'paid_gateway' => '已支付（支付网关）',
-            'paid_balance' => '已支付（账户余额）',
-            'paid_admin' => '已支付（管理员）',
-            'cancelled' => '已取消',
-            'refunded_balance' => '已退款（账户余额）',
-            'partially_paid' => '部分支付',
-            default => '未知',
+            'unpaid' => 'Chưa thanh toán',
+            'paid_gateway' => 'Đã thanh toán (cổng thanh toán)',
+            'paid_balance' => 'Đã thanh toán (số dư tài khoản)',
+            'paid_admin' => 'Đã thanh toán (quản trị viên)',
+            'cancelled' => 'Đã hủy',
+            'refunded_balance' => 'Đã hoàn tiền (số dư tài khoản)',
+            'partially_paid' => 'Thanh toán một phần',
+            default => 'Không xác định',
         };
     }
 
     public function type(): string
     {
         return match ($this->type) {
-            'product' => '商品',
-            'topup' => '充值',
-            default => '未知',
+            'product' => 'Sản phẩm',
+            'topup' => 'Nạp tiền',
+            default => 'Không xác định',
         };
     }
 
@@ -67,13 +67,13 @@ final class Invoice extends Model
                 $user->money - $this->price,
                 $user->money,
                 $this->price,
-                '账单 #' . $this->id . ' 退款至账户余额'
+                'Hóa đơn #' . $this->id . ' hoàn tiền vào số dư tài khoản'
             );
 
             $content = json_decode($this->content, true);
             $content[] = [
                 'content_id' => count($content),
-                'name' => '退款至账户余额',
+                'name' => 'Hoàn tiền vào số dư tài khoản',
                 'price' => '-' . $this->price,
             ];
 

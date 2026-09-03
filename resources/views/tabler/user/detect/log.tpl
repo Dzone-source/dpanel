@@ -6,10 +6,10 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h2 class="page-title">
-                        <span class="home-title">审计记录</span>
+                        <span class="home-title">Nhật ký kiểm duyệt</span>
                     </h2>
                     <div class="page-pretitle my-3">
-                        <span class="home-subtitle">系统中所有审计记录</span>
+                        <span class="home-subtitle">Tất cả nhật ký kiểm duyệt trong hệ thống</span>
                     </div>
                 </div>
             </div>
@@ -24,15 +24,15 @@
                             <table class="table table-vcenter card-table">
                                 <thead>
                                 <tr>
-                                    <th>事件ID</th>
-                                    <th>节点ID</th>
-                                    <th>节点名称</th>
-                                    <th>规则ID</th>
-                                    <th>名称</th>
-                                    <th>描述</th>
-                                    <th>正则表达式</th>
-                                    <th>类型</th>
-                                    <th>时间</th>
+                                    <th>ID sự kiện</th>
+                                    <th>ID máy chủ</th>
+                                    <th>Tên máy chủ</th>
+                                    <th>ID quy tắc</th>
+                                    <th>Tên</th>
+                                    <th>Mô tả</th>
+                                    <th>Biểu thức chính quy</th>
+                                    <th>Loại</th>
+                                    <th>Thời gian</th>
                                 </tr>
                                 </thead>
                                 <tbody>

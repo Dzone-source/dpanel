@@ -6,30 +6,42 @@ namespace App\Controllers\User;
 
 use App\Controllers\BaseController;
 use App\Models\Invoice;
+use App\Models\Order;
 use App\Models\Paylist;
+use App\Models\User;
 use App\Models\UserMoneyLog;
+use App\Services\Cron as CronService;
+use App\Services\DB;
+use App\Services\Gateway\ManualQr;
 use App\Services\Payment;
 use App\Utils\Tools;
 use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+use Throwable;
+use function array_values;
+use function count;
+use function in_array;
+use function is_array;
 use function json_decode;
 use function json_encode;
+use function ltrim;
+use function round;
 use function time;
 
 final class InvoiceController extends BaseController
 {
     private static array $details = [
         'field' => [
-            'op' => '操作',
-            'id' => '账单ID',
-            'order_id' => '订单ID',
-            'price' => '账单金额',
-            'status' => '账单状态',
-            'create_time' => '创建时间',
-            'update_time' => '更新时间',
-            'pay_time' => '支付时间',
+            'op' => 'Thao tác',
+            'id' => 'ID hóa đơn',
+            'order_id' => 'ID đơn hàng',
+            'price' => 'Số tiền hóa đơn',
+            'status' => 'Trạng thái hóa đơn',
+            'create_time' => 'Thời gian tạo',
+            'update_time' => 'Thời gian cập nhật',
+            'pay_time' => 'Thời gian thanh toán',
         ],
     ];
 
@@ -70,12 +82,27 @@ final class InvoiceController extends BaseController
         $invoice->pay_time = Tools::toDateTime($invoice->pay_time);
         $invoice_content = json_decode($invoice->content);
 
+        $payments = Payment::getPaymentsEnabled();
+        // Hard guarantee + de-dupe by class name (avoid "\App\..." vs "App\..." duplicates).
+        $normalized = [];
+        foreach ($payments as $payment) {
+            $class = '\\' . ltrim((string) $payment, '\\');
+            $normalized[$class] = $class;
+        }
+        if (ManualQr::_enable()) {
+            $manual = '\\' . ltrim(ManualQr::class, '\\');
+            $normalized[$manual] = $manual;
+        }
+        $payments = array_values($normalized);
+
         return $response->write(
             $this->view()
                 ->assign('invoice', $invoice)
                 ->assign('invoice_content', $invoice_content)
                 ->assign('paylist', $paylist)
-                ->assign('payments', Payment::getPaymentsEnabled())
+                ->assign('payments', $payments)
+                ->assign('invoice_price_vnd', Tools::formatVnd((float) $invoice->price, 0, true))
+                ->assign('invoice_price_qr', (string) (int) round((float) $invoice->price))
                 ->fetch('user/invoice/view.tpl')
         );
     }
@@ -84,12 +111,10 @@ final class InvoiceController extends BaseController
     {
         $invoice_id = $this->antiXss->xss_clean($request->getParam('invoice_id'));
 
-        $invoice = (new Invoice())->where('user_id', $this->user->id)->where('id', $invoice_id)->first();
-
-        if ($invoice === null) {
+        if ($invoice_id === null || $invoice_id === '') {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '账单不存在',
+                'msg' => 'Hóa đơn không tồn tại',
             ]);
         }
 
@@ -98,64 +123,166 @@ final class InvoiceController extends BaseController
         if ($user->is_shadow_banned) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '支付失败，请稍后再试',
+                'msg' => 'Thanh toán thất bại, vui lòng thử lại sau',
             ]);
         }
 
-        // 账单是否为充值
-        if ($invoice->type === 'topup') {
-            return $response->withJson([
-                'ret' => 0,
-                'msg' => '该账单不支持使用余额支付',
-            ]);
-        }
+        try {
+            DB::beginTransaction();
 
-        // 组合支付
-        if ($user->money > 0) {
-            $money_before = $user->money;
+            $invoice = (new Invoice())
+                ->where('user_id', $user->id)
+                ->where('id', $invoice_id)
+                ->lockForUpdate()
+                ->first();
 
-            if ($user->money >= $invoice->price) {
-                $paid = $invoice->price;
+            if ($invoice === null) {
+                DB::rollBack();
+
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Hóa đơn không tồn tại',
+                ]);
+            }
+
+            if (! in_array($invoice->status, ['unpaid', 'partially_paid'], true)) {
+                DB::rollBack();
+
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Hóa đơn này đã được thanh toán',
+                    'redir' => '/user/invoice/' . $invoice->id . '/view',
+                ])->withHeader('HX-Redirect', '/user/invoice/' . $invoice->id . '/view');
+            }
+
+            if ($invoice->type === 'topup') {
+                DB::rollBack();
+
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Hóa đơn này không hỗ trợ thanh toán bằng số dư',
+                ]);
+            }
+
+            $freshUser = (new User())
+                ->where('id', $user->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($freshUser === null || (float) $freshUser->money <= 0) {
+                DB::rollBack();
+
+                return $response->withJson([
+                    'ret' => 0,
+                    'msg' => 'Số dư không đủ',
+                ]);
+            }
+
+            $money_before = (float) $freshUser->money;
+            $invoice_price = (float) $invoice->price;
+
+            if ($money_before >= $invoice_price) {
+                $paid = $invoice_price;
                 $invoice->status = 'paid_balance';
             } else {
-                $paid = $user->money;
+                $paid = $money_before;
                 $invoice->status = 'partially_paid';
-                $invoice->price -= $paid;
+                $invoice->price = $invoice_price - $paid;
                 $invoice_content = json_decode($invoice->content);
+                if (! is_array($invoice_content)) {
+                    $invoice_content = [];
+                }
                 $invoice_content[] = [
                     'content_id' => count($invoice_content),
-                    'name' => '余额部分支付',
+                    'name' => 'Thanh toán một phần bằng số dư',
                     'price' => '-' . $paid,
                 ];
                 $invoice->content = json_encode($invoice_content);
             }
 
-            $user->money -= $paid;
-            $user->save();
+            $freshUser->money = $money_before - $paid;
+            $freshUser->save();
 
             (new UserMoneyLog())->add(
-                $user->id,
+                $freshUser->id,
                 $money_before,
-                (float) $user->money,
+                (float) $freshUser->money,
                 -$paid,
-                '支付账单 #' . $invoice->id
+                'Thanh toán hóa đơn #' . $invoice->id
             );
 
             $invoice->update_time = time();
             $invoice->pay_time = time();
             $invoice->save();
-        } else {
+
+            DB::commit();
+
+            // Keep in-memory user in sync for this request.
+            $this->user->money = $freshUser->money;
+        } catch (Exception $e) {
+            try {
+                DB::rollBack();
+            } catch (Exception) {
+                // ignore rollback errors
+            }
+
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '余额不足',
+                'msg' => 'Thanh toán thất bại, vui lòng thử lại',
             ]);
         }
 
         if ($invoice->status === 'paid_balance') {
-            return $response->withHeader('HX-Redirect', '/user/invoice');
+            try {
+                $order = (new Order())->find($invoice->order_id);
+                if ($order !== null && $order->status === 'pending_payment') {
+                    $order->status = 'pending_activation';
+                    $order->update_time = time();
+                    $order->save();
+                }
+                CronService::processShopOrdersNow();
+            } catch (Throwable) {
+                // Cron will retry if immediate activation fails. The payment is
+                // already committed, so this must never surface as a failure.
+            }
+
+            return $response->withJson([
+                'ret' => 1,
+                'msg' => 'Thanh toán thành công',
+                'redir' => '/user/invoice',
+            ])->withHeader('HX-Redirect', '/user/invoice');
         }
 
-        return $response->withHeader('HX-Refresh', 'true');
+        return $response->withJson([
+            'ret' => 1,
+            'msg' => 'Đã thanh toán một phần bằng số dư',
+            'redir' => '/user/invoice/' . $invoice->id . '/view',
+        ])->withHeader('HX-Redirect', '/user/invoice/' . $invoice->id . '/view');
+    }
+
+    public function status(ServerRequest $request, Response $response, array $args): ResponseInterface
+    {
+        $id = $args['id'];
+        $invoice = (new Invoice())->where('user_id', $this->user->id)->where('id', $id)->first();
+
+        if ($invoice === null) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Hóa đơn không tồn tại',
+            ]);
+        }
+
+        $paid = in_array($invoice->status, ['paid_gateway', 'paid_balance', 'paid_admin'], true);
+
+        return $response->withJson([
+            'ret' => 1,
+            'id' => (int) $invoice->id,
+            'status' => (string) $invoice->status,
+            'status_text' => $invoice->status(),
+            'paid' => $paid,
+            'update_time' => (int) $invoice->update_time,
+            'pay_time' => (int) $invoice->pay_time,
+        ]);
     }
 
     public function ajax(ServerRequest $request, Response $response, array $args): ResponseInterface
@@ -163,11 +290,12 @@ final class InvoiceController extends BaseController
         $invoices = (new Invoice())->orderBy('id', 'desc')->where('user_id', $this->user->id)->get();
 
         foreach ($invoices as $invoice) {
-            $invoice->op = '<a class="btn btn-primary" href="/user/invoice/' . $invoice->id . '/view">查看</a>';
+            $invoice->op = '<a class="btn btn-primary" href="/user/invoice/' . $invoice->id . '/view">Xem</a>';
             $invoice->status = $invoice->status();
             $invoice->create_time = Tools::toDateTime($invoice->create_time);
             $invoice->update_time = Tools::toDateTime($invoice->update_time);
             $invoice->pay_time = Tools::toDateTime($invoice->pay_time);
+            $invoice->price = Tools::formatVnd((float) $invoice->price, 0);
         }
 
         return $response->withJson([

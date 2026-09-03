@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Gateway;
 
 use App\Models\Config;
+use App\Models\Invoice;
 use App\Models\Paylist;
 use App\Services\Auth;
 use App\Services\View;
@@ -27,7 +28,7 @@ final class Smogate extends Base
 
     public static function _readableName(): string
     {
-        return '支付宝在线充值';
+        return 'Nạp tiền qua Alipay trực tuyến';
     }
 
     public function post($data)
@@ -67,22 +68,44 @@ final class Smogate extends Base
 
     public function purchase(ServerRequest $request, Response $response, array $args): ResponseInterface
     {
-        $amount = $this->antiXss->xss_clean($request->getParam('amount'));
         $invoice_id = $this->antiXss->xss_clean($request->getParam('invoice_id'));
+        $invoice = (new Invoice())->find($invoice_id);
 
-        $user = Auth::getUser();
-        if ($amount === '') {
+        if ($invoice === null) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '订单金额错误：' . $amount,
+                'msg' => 'Invoice not found',
             ]);
         }
 
-        $pl = new Paylist();
-        $pl->userid = $user->id;
+        $user = Auth::getUser();
+
+        if ((int) $invoice->user_id !== (int) $user->id) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => '无权操作此账单',
+            ]);
+        }
+
+        $amount = $invoice->price;
+
+        if ($amount <= 0) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => 'Số tiền đơn hàng không đúng',
+            ]);
+        }
+
+        $pl = (new Paylist())->where('invoice_id', $invoice_id)->first();
+
+        if ($pl === null) {
+            $pl = new Paylist();
+            $pl->userid = $user->id;
+            $pl->invoice_id = $invoice_id;
+            $pl->tradeno = self::generateGuid();
+        }
+
         $pl->total = $amount;
-        $pl->invoice_id = $invoice_id;
-        $pl->tradeno = self::generateGuid();
         $pl->gateway = self::_readableName();
         $pl->save();
 

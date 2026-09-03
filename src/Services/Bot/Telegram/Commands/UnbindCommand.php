@@ -28,7 +28,7 @@ final class UnbindCommand extends Command
     /**
      * @var string Command Description
      */
-    protected string $description = '[私聊] 解除账户绑定';
+    protected string $description = '[Chat riêng] Hủy liên kết tài khoản';
 
     /**
      * @throws TelegramSDKException
@@ -63,9 +63,9 @@ final class UnbindCommand extends Command
 
             if ($message_key === $user->email) {
                 if ($user->unbindIM()) {
-                    $text = '账户解绑成功。';
+                    $text = 'Hủy liên kết tài khoản thành công.';
                 } else {
-                    $text = '账户解绑失败。';
+                    $text = 'Hủy liên kết tài khoản thất bại.';
                 }
                 // 回送信息
                 $this->replyWithMessage(
@@ -79,7 +79,7 @@ final class UnbindCommand extends Command
             }
 
             if ($message_key !== '') {
-                $text = '键入的 Email 地址与你的账户不匹配.';
+                $text = 'Email nhập vào không khớp với tài khoản của bạn.';
             }
 
             if ($message_key === '/unbind') {
@@ -98,10 +98,10 @@ final class UnbindCommand extends Command
 
     private function sendText(): string
     {
-        $text = '以 `/unbind example@gmail.com` 的形式发送进行解绑。';
+        $text = 'Gửi theo dạng `/unbind example@gmail.com` để hủy liên kết.';
 
         if (Config::obtain('telegram_unbind_kick_member')) {
-            $text .= PHP_EOL . PHP_EOL . '根据管理员的设定，你解绑账户将会被自动移出用户群。';
+            $text .= PHP_EOL . PHP_EOL . 'Theo cài đặt của quản trị viên, khi hủy liên kết bạn sẽ tự động bị loại khỏi nhóm người dùng.';
         }
 
         return $text;

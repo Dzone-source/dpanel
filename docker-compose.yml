@@ -1,0 +1,127 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    volumes:
+      - ./public:/var/www/html/public:ro
+      - ./storage:/var/www/html/storage
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      php:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - dpanel
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    environment:
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+      DB_HOST: ${DB_HOST:-mariadb}
+      DB_PORT: ${DB_PORT:-3306}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+    volumes:
+      - ./config/.config.php:/var/www/html/config/.config.php
+      - ./config/appprofile.php:/var/www/html/config/appprofile.php
+      - ./app:/var/www/html/app:ro
+      - ./src:/var/www/html/src:ro
+      - ./resources:/var/www/html/resources:ro
+      - ./public:/var/www/html/public:ro
+      - ./storage:/var/www/html/storage
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dpanel
+
+  cron:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    entrypoint: ["/usr/local/bin/dpanel-cron-entrypoint.sh"]
+    environment:
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+      DB_HOST: ${DB_HOST:-mariadb}
+      DB_PORT: ${DB_PORT:-3306}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+    volumes:
+      - ./config/.config.php:/var/www/html/config/.config.php
+      - ./config/appprofile.php:/var/www/html/config/appprofile.php
+      - ./app:/var/www/html/app:ro
+      - ./src:/var/www/html/src:ro
+      - ./resources:/var/www/html/resources:ro
+      - ./public:/var/www/html/public:ro
+      - ./storage:/var/www/html/storage
+    depends_on:
+      php:
+        condition: service_started
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - dpanel
+
+  mariadb:
+    image: mariadb:11.8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./docker/mariadb/my.cnf:/etc/mysql/conf.d/99-dpanel.cnf:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - dpanel
+
+  redis:
+    image: redis:7-alpine
+    command: >
+      sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then
+        exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD";
+      else
+        exec redis-server --appendonly yes;
+      fi'
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: >
+        sh -c 'if [ -n "$$REDIS_PASSWORD" ]; then
+          redis-cli -a "$$REDIS_PASSWORD" ping;
+        else
+          redis-cli ping;
+        fi'
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - dpanel
+
+volumes:
+  mariadb_data:
+  redis_data:
+
+networks:
+  dpanel:
+    driver: bridge

@@ -43,30 +43,23 @@ final class UserController extends BaseController
 
         $node->update(['node_heartbeat' => time()]);
 
-        if ($node->node_bandwidth_limit !== 0 && $node->node_bandwidth_limit <= $node->node_bandwidth) {
-            return ResponseHelper::error($response, 'Node out of bandwidth.');
-        }
+        // Soft-offline: keep serving users but apply a floor speed limit.
+        // Returning [] made XrayR delete every Trojan account → "not a valid user".
+        $nodeOverBandwidth = $node->node_bandwidth_limit !== 0
+            && $node->node_bandwidth_limit <= $node->node_bandwidth;
 
-        $users_raw = (new User())->where(
-            'is_banned',
-            0
-        )->where(
-            'class_expire',
-            '>',
-            date('Y-m-d H:i:s')
-        )->where(
-            static function ($query) use ($node): void {
-                $query->where('class', '>=', $node->node_class)
-                    ->where(static function ($query) use ($node): void {
-                        if ($node->node_group !== 0) {
-                            $query->where('node_group', $node->node_group);
-                        }
-                    });
-            }
-        )->orWhere(
-            'is_admin',
-            1
-        )->get([
+        $users_raw = (new User())->where('is_banned', 0)
+            ->where(static function ($query) use ($node): void {
+                $query->where(static function ($eligible) use ($node): void {
+                    $eligible->where('class_expire', '>', date('Y-m-d H:i:s'))
+                        ->where('class', '>=', $node->node_class)
+                        ->where(static function ($groupQuery) use ($node): void {
+                            if ($node->node_group !== 0) {
+                                $groupQuery->where('node_group', $node->node_group);
+                            }
+                        });
+                })->orWhere('is_admin', 1);
+            })->get([
             'id',
             'u',
             'd',
@@ -79,34 +72,62 @@ final class UserController extends BaseController
             'uuid',
         ]);
 
+        // Keep uuid + passwd for Trojan so XrayR can accept either password.
+        // V2 family (sort 11) only needs uuid; SS keeps passwd.
         $keys_unset = match ($node->sort) {
-            14, 11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd', 'node_iplimit'],
-            2 => ['u', 'd', 'transfer_enable', 'method', 'port', 'node_iplimit'],
-            1 => ['u', 'd', 'transfer_enable', 'method', 'port', 'uuid', 'node_iplimit'],
-            default => ['u', 'd', 'transfer_enable', 'uuid', 'node_iplimit']
+            14 => ['u', 'd', 'transfer_enable', 'method', 'port'],
+            12, 13, 15, 11 => ['u', 'd', 'transfer_enable', 'method', 'port', 'passwd'],
+            2 => ['u', 'd', 'transfer_enable', 'method', 'port'],
+            1 => ['u', 'd', 'transfer_enable', 'method', 'port', 'uuid'],
+            default => ['u', 'd', 'transfer_enable', 'uuid']
         };
 
+        // Do not send live alive_ip counts to XrayR: ParseUserListResponse removes users when
+        // alive_ip >= DeviceLimit (panel limit OR XrayR config DeviceLimit override) → trojan
+        // "not a valid user". Panel still tracks IPs via /aliveip for the user dashboard.
         $users = [];
+
+        // XrayR shared rate-limit buckets historically made Hiddify upload
+        // speedtests look "disconnected". Default: do not send Mbps caps to XrayR.
+        $disableXrayrSpeedLimit = (bool) ($_ENV['disable_xrayr_speed_limit'] ?? true);
+        // Floor when keep_connect / node bandwidth soft-throttle is active.
+        // 5 Mbps is too low — apps abort mid upload. Prefer 100+.
+        $keepConnectFloor = (float) ($_ENV['keep_connect_speedlimit'] ?? 100);
 
         foreach ($users_raw as $user_raw) {
             if ($user_raw->transfer_enable <= $user_raw->u + $user_raw->d) {
-                if ($_ENV['keep_connect']) {
-                    // 流量耗尽用户限速至 1Mbps
-                    $user_raw->node_speedlimit = 1;
-                } else {
+                // Hard-removing exhausted users causes client timeouts. Prefer keep_connect
+                // throttle; if keep_connect is off, still omit (policy), but default is on.
+                if (! ($_ENV['keep_connect'] ?? true)) {
                     continue;
+                }
+                if (! $disableXrayrSpeedLimit) {
+                    $user_raw->node_speedlimit = max($keepConnectFloor, (float) $user_raw->node_speedlimit);
+                    if ($user_raw->node_speedlimit <= 0) {
+                        $user_raw->node_speedlimit = $keepConnectFloor;
+                    }
                 }
             }
 
-            if ($user_raw->node_iplimit !== 0 &&
-                $user_raw->node_iplimit <
-                (new OnlineLog())
-                    ->where('user_id', $user_raw->id)
-                    ->where('last_time', '>', time() - 90)
-                    ->count()
-            ) {
-                continue;
+            if ($nodeOverBandwidth && ! $disableXrayrSpeedLimit) {
+                $user_raw->node_speedlimit = max($keepConnectFloor, (float) $user_raw->node_speedlimit);
+                if ($user_raw->node_speedlimit <= 0) {
+                    $user_raw->node_speedlimit = $keepConnectFloor;
+                }
             }
+
+            // Cap by node-level Mbps when speed limits are enabled for XrayR.
+            if (! $disableXrayrSpeedLimit) {
+                $nodeLimit = (float) $node->node_speedlimit;
+                $userLimit = (float) $user_raw->node_speedlimit;
+                if ($nodeLimit > 0) {
+                    $user_raw->node_speedlimit = $userLimit > 0 ? min($userLimit, $nodeLimit) : $nodeLimit;
+                }
+            }
+
+            $ip_limit = (int) $user_raw->node_iplimit;
+
+            // Do NOT hard-remove users from this list when over IP limit.
 
             if ($node->sort === 1) {
                 $method = json_decode($node->custom_config)->method ?? '2022-blake3-aes-128-gcm';
@@ -121,6 +142,16 @@ final class UserController extends BaseController
 
             foreach ($keys_unset as $key) {
                 unset($user_raw->$key);
+            }
+
+            // Temporarily disable IP online limit for XrayR (node_iplimit=0 = unlimited).
+            // Set $_ENV['disable_ip_online_limit'] = false to restore panel ip_limit.
+            $disable_ip_limit = (bool) ($_ENV['disable_ip_online_limit'] ?? true);
+            $user_raw->node_iplimit = $disable_ip_limit ? 0 : $ip_limit;
+            $user_raw->alive_ip = self::reportedAliveIpForXrayR();
+
+            if ($disableXrayrSpeedLimit) {
+                $user_raw->node_speedlimit = 0;
             }
 
             $users[] = $user_raw;
@@ -176,6 +207,7 @@ final class UserController extends BaseController
 
         $sum = 0;
         $is_traffic_log = Config::obtain('traffic_log');
+        $activeUserIds = [];
 
         foreach ($data as $log) {
             $u = $log?->u;
@@ -188,16 +220,22 @@ final class UserController extends BaseController
 
                 $user = (new User())->find($user_id);
 
-                $user->update([
-                    'last_use_time' => time(),
-                    'u' => $user->u + $billed_u,
-                    'd' => $user->d + $billed_d,
-                    'transfer_total' => $user->transfer_total + $u + $d,
-                    'transfer_today' => $user->transfer_today + $billed_u + $billed_d,
-                ]);
+                if ($user === null) {
+                    continue;
+                }
+
+                (new User())->where('id', $user_id)->update(['last_use_time' => time()]);
+                (new User())->where('id', $user_id)->increment('u', $billed_u);
+                (new User())->where('id', $user_id)->increment('d', $billed_d);
+                (new User())->where('id', $user_id)->increment('transfer_total', $u + $d);
+                (new User())->where('id', $user_id)->increment('transfer_today', $billed_u + $billed_d);
+
+                if (((int) $u) + ((int) $d) > 0) {
+                    $activeUserIds[(int) $user_id] = true;
+                }
             }
 
-            if ($is_traffic_log) {
+            if ($is_traffic_log && $user_id) {
                 (new HourlyUsage())->add((int) $user_id, (int) ($u + $d));
             }
 
@@ -206,7 +244,8 @@ final class UserController extends BaseController
 
         $node->update([
             'node_bandwidth' => $node->node_bandwidth + $sum,
-            'online_user' => count($data) - 1,
+            // Unique users with traffic in this push (legacy used count($data)-1 and was often wrong).
+            'online_user' => count($activeUserIds),
         ]);
 
         return ResponseHelper::success($response, 'ok');
@@ -260,6 +299,15 @@ final class UserController extends BaseController
             );
         }
 
+        // Refresh cached online_user from distinct IPs in the recent window.
+        $onlineIps = (int) (new OnlineLog())
+            ->newQuery()
+            ->where('node_id', $node_id)
+            ->where('last_time', '>', time() - 120)
+            ->selectRaw('COUNT(DISTINCT ip) AS c')
+            ->value('c');
+        $node->update(['online_user' => $onlineIps]);
+
         return ResponseHelper::success($response, 'ok');
     }
 
@@ -299,5 +347,15 @@ final class UserController extends BaseController
         }
 
         return ResponseHelper::success($response, 'ok');
+    }
+
+    /**
+     * XrayR drops users from its trojan list when alive_ip >= DeviceLimit (see
+     * api/sspanel ParseUserListResponse). Any non-zero value risks "not a valid user"
+     * when XrayR config DeviceLimit differs from panel node_iplimit or after NAT rebind.
+     */
+    private static function reportedAliveIpForXrayR(): int
+    {
+        return 0;
     }
 }

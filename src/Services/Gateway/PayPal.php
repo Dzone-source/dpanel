@@ -76,16 +76,24 @@ final class PayPal extends Base
             ]);
         }
 
+        $user = Auth::getUser();
+
+        if ((int) $invoice->user_id !== (int) $user->id) {
+            return $response->withJson([
+                'ret' => 0,
+                'msg' => '无权操作此账单',
+            ]);
+        }
+
         $price = $invoice->price;
 
         if ($price <= 0) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '非法的金额',
+                'msg' => 'Số tiền không hợp lệ',
             ]);
         }
 
-        $user = Auth::getUser();
         $pl = (new Paylist())->where('invoice_id', $invoice_id)->first();
 
         if ($pl === null) {
@@ -108,7 +116,7 @@ final class PayPal extends Base
         } catch (GuzzleException|RedisException) {
             return $response->withJson([
                 'ret' => 0,
-                'msg' => '汇率获取失败',
+                'msg' => 'Không thể lấy tỷ giá',
             ]);
         }
 

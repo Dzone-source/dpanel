@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8"/>
@@ -8,28 +8,97 @@
     <meta name="format-detection" content="telephone=no"/>
     <title>{$config['appName']}</title>
     <!-- CSS files -->
-    <link href="//{$config['jsdelivr_url']}/npm/@tabler/core@latest/dist/css/tabler.min.css" rel="stylesheet"/>
-    <link href="//{$config['jsdelivr_url']}/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Noto+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+    <link href="//{$config['jsdelivr_url']}/npm/@tabler/core@1.0.0-beta20/dist/css/tabler.min.css" rel="stylesheet"/>
+    <link href="/assets/css/tabler-icons.min.css?v=3.31.0" rel="stylesheet"/>
+    <link href="/assets/css/admin.css?v=20260818admin1" rel="stylesheet"/>
     <!-- JS files -->
     <script src="//{$config['jsdelivr_url']}/npm/qrcode_js@latest/qrcode.min.js"></script>
     <script src="//{$config['jsdelivr_url']}/npm/clipboard@latest/dist/clipboard.min.js"></script>
     <script src="//{$config['jsdelivr_url']}/npm/jquery/dist/jquery.min.js"></script>
-    <script src="//{$config['jsdelivr_url']}/npm/htmx.org@latest/dist/htmx.min.js"></script>
+    <script src="//{$config['jsdelivr_url']}/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
     <style>
-        .home-subtitle {
-            font-size: 14px;
+        :root {
+            --tblr-font-sans-serif: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+            --tblr-body-font-family: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+            --tblr-primary: #ef4056;
+            --tblr-primary-rgb: 239, 64, 86;
+            --tblr-primary-fg: #fff;
+            --gopass-primary: #ef4056;
+            --gopass-primary-dark: #c91f3a;
+            --gopass-primary-light: #f48291;
+            --gopass-accent: #ff6b81;
         }
 
-        .home-title {
-            font-size: 36px;
+        body {
+            font-family: "Be Vietnam Pro", "Noto Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+
+        .btn-primary,
+        .bg-primary,
+        .badge.bg-primary,
+        .nav-pills .nav-link.active,
+        .page-item.active .page-link,
+        .form-check-input:checked {
+            background-color: #ef4056 !important;
+            border-color: #ef4056 !important;
+        }
+
+        .text-primary {
+            color: #ef4056 !important;
+        }
+
+        .page-header,
+        .navbar-overlap:after {
+            background: linear-gradient(125deg, #83232f 0%, #ef4056 52%, #ff5c7a 100%) !important;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #c91f3a !important;
+            border-color: #c91f3a !important;
+        }
+
+        /* Admin: avoid Tabler/sakura leftover scroll height under footer */
+        html, body {
+            height: auto;
+            min-height: 0;
+        }
+
+        .page {
+            min-height: 0;
+        }
+
+        #gopass-sakura,
+        .gopass-sakura-canvas {
+            display: none !important;
+            position: fixed !important;
+            inset: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            pointer-events: none !important;
         }
     </style>
 </head>
 
-{if $user->is_dark_mode}
+{if $user->is_dark_mode == 1}
 <body data-bs-theme="dark">
+{elseif $user->is_dark_mode == 2}
+<body data-bs-theme="auto">
+<script>
+(function () {
+    function apply() {
+        document.body.setAttribute(
+            'data-bs-theme',
+            window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        );
+    }
+    apply();
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', apply);
+})();
+</script>
 {else}
-<body>
+<body data-bs-theme="light">
 {/if}
 <div class="page">
     <header class="navbar navbar-expand-md navbar-overlap d-print-none" data-bs-theme="dark">
@@ -38,10 +107,18 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-                <img src="/images/uim-logo-round_48x48.png" height="32" alt="SSPanel-UIM Logo"
+                <img src="/images/uim-logo-round_48x48.png" height="32" alt="DPanel Logo"
                      class="navbar-brand-image" style="filter: none;">
             </h1>
             <div class="navbar-nav flex-row order-md-last">
+                <div class="nav-item d-none d-md-flex me-2">
+                    <a href="/admin/ticket" class="nav-link px-2 position-relative" id="gopass-live-bell"
+                       title="Cập nhật trực tiếp" aria-label="Thông báo trực tiếp">
+                        <i class="ti ti-bell" style="font-size:1.25rem;"></i>
+                        <span id="gopass-live-badge" class="badge bg-red text-red-fg badge-notification badge-pill"
+                              style="display:none;">0</span>
+                    </a>
+                </div>
                 <div class="nav-item dropdown">
                     <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
                        aria-label="Open user menu">
@@ -53,16 +130,18 @@
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                        {if $user->is_dark_mode}
-                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none">
-                                浅色模式
+                        {if $user->is_dark_mode == 1}
+                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none"
+                               hx-vals='js:{ prefers_dark: "1" }'>
+                                Chế độ sáng
                             </a>
                         {else}
-                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none">
-                                深色模式
+                            <a class="dropdown-item" hx-post="/user/switch_theme_mode" hx-swap="none"
+                               hx-vals='js:{ prefers_dark: window.matchMedia("(prefers-color-scheme: dark)").matches ? "1" : "0" }'>
+                                Chế độ tối
                             </a>
                         {/if}
-                        <a href="/user/logout" class="dropdown-item">登出</a>
+                        <a href="/user/logout" class="dropdown-item">Đăng xuất</a>
                     </div>
                 </div>
             </div>
@@ -75,7 +154,7 @@
                                         <i class="ti ti-home icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        概况
+                                        Tổng quan
                                     </span>
                             </a>
                         </li>
@@ -86,7 +165,7 @@
                                         <i class="ti ti-settings icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        管理
+                                        Quản lý
                                     </span>
                             </a>
                             <div class="dropdown-menu">
@@ -96,52 +175,52 @@
                                             <a class="dropdown-item dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                                data-bs-auto-close="outside" role="button" aria-expanded="false">
                                                 <i class="ti ti-settings"></i>&nbsp;
-                                                设置
+                                                Cài đặt
                                             </a>
                                             <div class="dropdown-menu">
                                                 <a href="/admin/setting/billing" class="dropdown-item">
-                                                    财务
+                                                    Tài chính
                                                 </a>
                                                 <a href="/admin/setting/email" class="dropdown-item">
-                                                    邮件
+                                                    Email
                                                 </a>
                                                 <a href="/admin/setting/support" class="dropdown-item">
-                                                    客服
+                                                    Hỗ trợ khách hàng
                                                 </a>
                                                 <a href="/admin/setting/captcha" class="dropdown-item">
-                                                    验证
+                                                    Xác minh
                                                 </a>
                                                 <a href="/admin/setting/reg" class="dropdown-item">
-                                                    注册
+                                                    Đăng ký
                                                 </a>
                                                 <a href="/admin/setting/ref" class="dropdown-item">
-                                                    邀请
+                                                    Mời bạn
                                                 </a>
                                                 <a href="/admin/setting/im" class="dropdown-item">
                                                     IM
                                                 </a>
                                                 <a href="/admin/setting/sub" class="dropdown-item">
-                                                    订阅
+                                                    Đăng ký node
                                                 </a>
                                                 <a href="/admin/setting/cron" class="dropdown-item">
-                                                    定时任务
+                                                    Tác vụ định kỳ
                                                 </a>
                                                 <a href="/admin/setting/feature" class="dropdown-item">
-                                                    其他设置
+                                                    Cài đặt khác
                                                 </a>
                                             </div>
                                         </div>
                                         <a class="dropdown-item" href="/admin/user">
                                             <i class="ti ti-users"></i>&nbsp;
-                                            用户
+                                            Người dùng
                                         </a>
                                         <a class="dropdown-item" href="/admin/node">
                                             <i class="ti ti-server-2"></i>&nbsp;
-                                            节点
+                                            Máy chủ
                                         </a>
                                         <a class="dropdown-item" href="/admin/system">
                                             <i class="ti ti-tool"></i>&nbsp;
-                                            系统
+                                            Hệ thống
                                         </a>
                                     </div>
                                 </div>
@@ -154,21 +233,22 @@
                                         <i class="ti ti-brand-hipchat icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        运营
+                                        Vận hành
                                     </span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="/admin/announcement">
                                     <i class="ti ti-speakerphone"></i>&nbsp;
-                                    公告
+                                    Thông báo
                                 </a>
                                 <a class="dropdown-item" href="/admin/ticket">
                                     <i class="ti ti-messages"></i>&nbsp;
-                                    工单
+                                    Phiếu hỗ trợ
+                                    <span id="gopass-live-ticket-badge" class="badge bg-red ms-1" style="display:none;">0</span>
                                 </a>
                                 <a class="dropdown-item" href="/admin/docs">
                                     <i class="ti ti-notes"></i>&nbsp;
-                                    文档
+                                    Tài liệu
                                 </a>
                             </div>
                         </li>
@@ -179,33 +259,33 @@
                                         <i class="ti ti-address-book icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        日志
+                                        Nhật ký
                                     </span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="/admin/login">
                                     <i class="ti ti-login"></i>&nbsp;
-                                    登录
+                                    Đăng nhập
                                 </a>
                                 <a class="dropdown-item" href="/admin/subscribe">
                                     <i class="ti ti-rss"></i>&nbsp;
-                                    订阅
+                                    Đăng ký
                                 </a>
                                 <a class="dropdown-item" href="/admin/payback">
                                     <i class="ti ti-friends"></i>&nbsp;
-                                    返利
+                                    Hoa hồng
                                 </a>
                                 <a class="dropdown-item" href="/admin/money">
                                     <i class="ti ti-coin"></i>&nbsp;
-                                    余额
+                                    Số dư
                                 </a>
                                 <a class="dropdown-item" href="/admin/gateway">
                                     <i class="ti ti-torii"></i>&nbsp;
-                                    支付网关
+                                    Cổng thanh toán
                                 </a>
                                 <a class="dropdown-item" href="/admin/online">
                                     <i class="ti ti-router"></i>&nbsp;
-                                    在线IP
+                                    IP trực tuyến
                                 </a>
                             </div>
                         </li>
@@ -216,21 +296,21 @@
                                         <i class="ti ti-shield-check icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        审计
+                                        Kiểm toán
                                     </span>
                             </a>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" href="/admin/detect">
                                     <i class="ti ti-barrier-block"></i>&nbsp;
-                                    规则
+                                    Quy tắc
                                 </a>
                                 <a class="dropdown-item" href="/admin/detect/log">
                                     <i class="ti ti-notes"></i>&nbsp;
-                                    碰撞记录
+                                    Nhật ký vi phạm
                                 </a>
                                 <a class="dropdown-item" href="/admin/detect/ban">
                                     <i class="ti ti-notes"></i>&nbsp;
-                                    封禁记录
+                                    Nhật ký khóa
                                 </a>
                             </div>
                         </li>
@@ -241,7 +321,7 @@
                                         <i class="ti ti-coin icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        财务
+                                        Tài chính
                                     </span>
                             </a>
                             <div class="dropdown-menu">
@@ -249,23 +329,23 @@
                                     <div class="dropdown-menu-column">
                                         <a class="dropdown-item" href="/admin/product">
                                             <i class="ti ti-list-details"></i>&nbsp;
-                                            商品
+                                            Sản phẩm
                                         </a>
                                         <a class="dropdown-item" href="/admin/order">
                                             <i class="ti ti-receipt"></i>&nbsp;
-                                            订单
+                                            Đơn hàng
                                         </a>
                                         <a class="dropdown-item" href="/admin/invoice">
                                             <i class="ti ti-file-dollar"></i>&nbsp;
-                                            账单
+                                            Hóa đơn
                                         </a>
                                         <a class="dropdown-item" href="/admin/coupon">
                                             <i class="ti ti-ticket"></i>&nbsp;
-                                            优惠码
+                                            Mã giảm giá
                                         </a>
                                         <a class="dropdown-item" href="/admin/giftcard">
                                             <i class="ti ti-gift"></i>&nbsp;
-                                            礼品卡
+                                            Thẻ quà tặng
                                         </a>
                                     </div>
                                 </div>
@@ -277,7 +357,7 @@
                                         <i class="ti ti-arrow-back-up icon"></i>
                                     </span>
                                 <span class="nav-link-title">
-                                        返回用户中心
+                                        Về trang người dùng
                                     </span>
                             </a>
                         </li>

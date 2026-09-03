@@ -19,7 +19,7 @@
                     ["reg_email", "{$user->email}"],
                     ["class_expire_time", "{$user->class_expire}"],
                     ["available_traffic", "{$user->unusedTraffic()}"],
-                    ["balance", "{$user->money}"]
+                    ["balance", "{$user->displayMoney()}"]
                 ]]
             ]);
     </script>
@@ -32,22 +32,22 @@
         window.__lc.license = "{$public_setting['livechat_license']}";
         window.__lc.params = [
             {
-                name: '用户编号', value: '{$user->id}'
+                name: 'Mã người dùng', value: '{$user->id}'
             },
             {
-                name: '用户类别', value: '{$user->class}'
+                name: 'Loại người dùng', value: '{$user->class}'
             },
             {
-                name: '注册邮箱', value: '{$user->email}'
+                name: 'Email đăng ký', value: '{$user->email}'
             },
             {
-                name: '等级时间', value: '{$user->class_expire}'
+                name: 'Thời hạn cấp độ', value: '{$user->class_expire}'
             },
             {
-                name: '剩余流量', value: '{$user->unusedTraffic()}'
+                name: 'Lưu lượng còn lại', value: '{$user->unusedTraffic()}'
             },
             {
-                name: '账户余额', value: '{$user->money}'
+                name: 'Số dư tài khoản', value: '{$user->displayMoney()}'
             }
         ];
 
