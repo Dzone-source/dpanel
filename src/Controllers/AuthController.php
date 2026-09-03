@@ -12,6 +12,7 @@ use App\Services\Auth;
 use App\Services\Cache;
 use App\Services\Captcha;
 use App\Services\Filter;
+use App\Services\LoginWallpaper;
 use App\Services\Mail;
 use App\Services\MFA\FIDO;
 use App\Services\MFA\TOTP;
@@ -54,6 +55,7 @@ final class AuthController extends BaseController
         return $response->write($this->view()
             ->assign('base_url', $_ENV['baseUrl'])
             ->assign('captcha', $captcha)
+            ->assign('login_wallpaper', LoginWallpaper::random())
             ->fetch('auth/login.tpl'));
     }
 

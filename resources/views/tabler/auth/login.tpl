@@ -1,6 +1,12 @@
 {include file='header.tpl'}
 
-<body class="gopass-auth border-top-wide border-primary d-flex flex-column">
+<body class="gopass-auth gopass-auth--wallpaper border-top-wide border-primary d-flex flex-column">
+{if $login_wallpaper.url|default:'' ne ''}
+<div class="gopass-auth-wallpaper"
+     data-wallpaper-url="{$login_wallpaper.url|escape:'html'}"
+     data-wallpaper-page="{$login_wallpaper.page_url|escape:'html'}"
+     data-wallpaper-credit="{$login_wallpaper.credit|escape:'html'}"></div>
+{/if}
 <div class="page page-center">
     <div class="container-tight my-auto">
         <div class="text-center mb-4">
@@ -55,17 +61,22 @@
                 </form>
             </div>
         </div>
-        <div class="text-center text-secondary mt-3">
+        <div class="text-center gopass-auth-aside mt-3">
             Chưa có tài khoản? <a href="/auth/register" tabindex="-1">Nhấn để đăng ký</a>
         </div>
     </div>
 </div>
+<a class="gopass-auth-pexels" href="{$login_wallpaper.page_url|default:'https://www.pexels.com/search/4k%20wallpaper/'|escape:'html'}" target="_blank" rel="noopener noreferrer">
+    Ảnh: {$login_wallpaper.credit|default:'Pexels'|escape:'html'}
+</a>
 
 {if $public_setting['enable_login_captcha']|default:false}
     {include file='captcha/js.tpl'}
 {/if}
 
 {include file='footer.tpl'}
+
+<script src="/assets/js/login-wallpaper.js?v=20260903pexels"></script>
 
 <script>
 (function () {
