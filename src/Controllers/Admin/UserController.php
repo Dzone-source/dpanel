@@ -179,6 +179,14 @@ final class UserController extends BaseController
         $id = (int) $args['id'];
         $user = (new User())->find($id);
 
+        if ($request->getParam('device_limit') !== null) {
+            $limit = filter_var($request->getParam('device_limit'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1000]]);
+            if ($limit === false) {
+                return $response->withJson(['ret' => 0, 'msg' => 'Giới hạn profile cần từ 0 đến 1000.']);
+            }
+            $user->device_limit = $limit;
+        }
+
         if ($request->getParam('pass') !== '' && $request->getParam('pass') !== null) {
             $user->pass = Hash::passwordHash($request->getParam('pass'));
 
@@ -211,13 +219,6 @@ final class UserController extends BaseController
         $user->auto_reset_bandwidth = $request->getParam('auto_reset_bandwidth');
         $user->node_speedlimit = $request->getParam('node_speedlimit');
         $user->node_iplimit = $request->getParam('node_iplimit');
-        if ($request->getParam('device_limit') !== null) {
-            $limit = filter_var($request->getParam('device_limit'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1000]]);
-            if ($limit === false) {
-                return $response->withJson(['ret' => 0, 'msg' => 'Giới hạn profile cần từ 0 đến 1000.']);
-            }
-            $user->device_limit = $limit;
-        }
         $user->locale = 'vi_VN';
         $user->is_admin = $request->getParam('is_admin') === 'true' ? 1 : 0;
         $user->is_shadow_banned = $request->getParam('is_shadow_banned') === 'true' ? 1 : 0;

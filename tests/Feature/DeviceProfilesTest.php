@@ -281,4 +281,12 @@ final class DeviceProfilesTest extends TestCase
         self::assertSame([0, 10], $codes);
         self::assertSame(1, UserDevice::where('user_id', $this->owner->id)->whereNull('revoked_at')->count());
     }
+    public function testInvalidAdminDeviceLimitIsRejectedBeforeOtherChanges(): void
+    {
+        $request = $this->request('POST', [], ['device_limit' => -1, 'money' => 100]);
+        $r = (new \App\Controllers\Admin\UserController())->update($request, $this->response(), ['id' => $this->owner->id]);
+        self::assertSame(0, json_decode((string) $r->getBody(), true)['ret']);
+        self::assertSame(2, (int) $this->owner->fresh()->device_limit);
+    }
+
 }
