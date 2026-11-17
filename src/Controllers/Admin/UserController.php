@@ -80,6 +80,7 @@ final class UserController extends BaseController
         'auto_reset_bandwidth',
         'node_speedlimit',
         'node_iplimit',
+        'device_limit',
         'banned_reason',
         'remark',
     ];
@@ -166,6 +167,8 @@ final class UserController extends BaseController
                 ->assign('update_field', self::$update_field)
                 ->assign('edit_user', $user)
                 ->assign('mfa_enabled', $mfa_enabled)
+                ->assign('profile_devices', \App\Models\UserDevice::where('user_id', $user->id)->whereNull('revoked_at')->get())
+                ->assign('device_csrf', \App\Services\DeviceProfiles::csrf($this->user))
                 ->assign('ss_methods', Tools::getSsMethod())
                 ->fetch('admin/user/edit.tpl')
         );
@@ -208,6 +211,13 @@ final class UserController extends BaseController
         $user->auto_reset_bandwidth = $request->getParam('auto_reset_bandwidth');
         $user->node_speedlimit = $request->getParam('node_speedlimit');
         $user->node_iplimit = $request->getParam('node_iplimit');
+        if ($request->getParam('device_limit') !== null) {
+            $limit = filter_var($request->getParam('device_limit'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1000]]);
+            if ($limit === false) {
+                return $response->withJson(['ret' => 0, 'msg' => 'Giới hạn profile cần từ 0 đến 1000.']);
+            }
+            $user->device_limit = $limit;
+        }
         $user->locale = 'vi_VN';
         $user->is_admin = $request->getParam('is_admin') === 'true' ? 1 : 0;
         $user->is_shadow_banned = $request->getParam('is_shadow_banned') === 'true' ? 1 : 0;

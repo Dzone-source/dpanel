@@ -24,10 +24,13 @@ return static function (Slim\App $app): void {
     $app->get('/oauth/{type}', App\Controllers\OAuthController::class . ':index');
     // Universal subscription (subtype optional — auto-detect from User-Agent)
     $app->get('/sub/{token}[/{subtype}]', App\Controllers\SubController::class . ':index');
+    $app->get('/device-sub/{device_token}[/{subtype}]', App\Controllers\SubController::class . ':index');
     // User
     $app->group('/user', static function (RouteCollectorProxy $group): void {
         $group->get('', App\Controllers\UserController::class . ':index');
         $group->get('/', App\Controllers\UserController::class . ':index');
+        $group->get('/devices', App\Controllers\DeviceController::class . ':index');
+        $group->post('/devices', App\Controllers\DeviceController::class . ':change');
         // Live online device count for dashboard
         $group->get('/online-devices', App\Controllers\UserController::class . ':onlineDevices');
         // 签到
@@ -143,6 +146,7 @@ return static function (Slim\App $app): void {
     })->add(new Guest());
     // Admin
     $app->group('/admin', static function (RouteCollectorProxy $group): void {
+        $group->post('/user/{id:[0-9]+}/devices/{device_id:[0-9]+}/revoke', App\Controllers\DeviceController::class . ':adminRevoke');
         $group->get('', App\Controllers\AdminController::class . ':index');
         $group->get('/', App\Controllers\AdminController::class . ':index');
         // Live status polling for admin UI auto-refresh

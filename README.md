@@ -125,3 +125,7 @@ Sau đó nút **Tải xuống** trên trang chủ user sẽ trỏ tới `/client
 ## Giấy phép
 
 MIT — dựa trên SSPanel-UIM. Xem [LICENSE](LICENSE).
+
+## Quản lý profile thiết bị
+
+Nhánh này bổ sung profile/khóa riêng cho từng thiết bị, thu hồi quyền trên node và giữ tương thích account cũ. Xem [hướng dẫn triển khai phối hợp web/node](docs/device-profiles.md) trước khi chạy migration hoặc bật chế độ này cho user.

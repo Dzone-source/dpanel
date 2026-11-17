@@ -113,9 +113,9 @@ final class UserController extends BaseController
         ];
 
         $device_info = [
-            'title' => 'Thiết bị đồng thời',
+            'title' => $this->user->device_profiles_enabled ? 'Profile online' : 'IP hoạt động',
             'value' => $this->formatOnlineDevicesDisplay(),
-            'action_url' => '/user/profile',
+            'action_url' => '/user/devices',
         ];
 
         return $response->write(
@@ -167,6 +167,13 @@ final class UserController extends BaseController
      */
     private function getOnlineDevicesData(): array
     {
+        if ($this->user->device_profiles_enabled) {
+            $online = (int) \App\Services\DB::table('user_device_presence')->join('user_device', 'user_device.id', '=', 'user_device_presence.device_id')
+                ->where('user_device.user_id', $this->user->id)->whereNull('user_device.revoked_at')
+                ->where('user_device_presence.last_seen_at', '>', time() - 180)->distinct()->count('device_id');
+            $limit = (int) $this->user->device_limit;
+            return ['online' => $online, 'limit' => $limit, 'display' => $limit > 0 ? $online . '/' . $limit : $online . '/∞'];
+        }
         $online = (new OnlineLog())->where('user_id', $this->user->id)
             ->where('last_time', '>', time() - 90)
             ->count();

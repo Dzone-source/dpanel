@@ -171,6 +171,10 @@
                             </a>
                         </div>
                         <div class="card-body">
+                            {if $user->device_profiles_enabled}
+                            <p>Tài khoản đang dùng profile riêng cho từng thiết bị. Profile chung cũ không còn được cấp quyền.</p>
+                            <a href="/user/devices" class="btn btn-primary">Quản lý và lấy profile thiết bị</a>
+                            {else}
                             <div class="mb-4 gopass-sub-block">
                                 <h4 class="mb-2">
                                     <i class="ti ti-link"></i> Link đăng ký
@@ -300,6 +304,8 @@
                                 </div>
                                 
                             </div>
+                            {/if}
+
                         </div>
                     </div>
                 </div>

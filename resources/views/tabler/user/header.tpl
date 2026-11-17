@@ -90,6 +90,7 @@
             </a>
 
             <div class="gopass-nav-section">Tài khoản</div>
+            <a class="gopass-nav-link" href="/user/devices"><i class="ti ti-devices"></i> Thiết bị</a>
             <a class="gopass-nav-link" href="/user/profile">
                 <i class="ti ti-user"></i> Thông tin
             </a>

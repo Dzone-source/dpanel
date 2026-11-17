@@ -11,12 +11,16 @@ use App\Models\HourlyUsage;
 use App\Models\Node;
 use App\Models\OnlineLog;
 use App\Models\User;
+use App\Models\UserDevice;
+use App\Services\DB;
+use App\Services\DeviceProfiles;
 use App\Services\DynamicRate;
 use App\Utils\ResponseHelper;
 use App\Utils\Tools;
 use Psr\Http\Message\ResponseInterface;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest;
+
 use function count;
 use function date;
 use function is_array;
@@ -70,6 +74,7 @@ final class UserController extends BaseController
             'port',
             'passwd',
             'uuid',
+            'device_profiles_enabled',
         ]);
 
         // Keep uuid + passwd for Trojan so XrayR can accept either password.
@@ -93,6 +98,11 @@ final class UserController extends BaseController
         // Floor when keep_connect / node bandwidth soft-throttle is active.
         // 5 Mbps is too low — apps abort mid upload. Prefer 100+.
         $keepConnectFloor = (float) ($_ENV['keep_connect_speedlimit'] ?? 100);
+
+        $capable = $request->getQueryParam('device_profiles') === '1';
+        $devicePool = $capable && in_array((int) $node->sort, [11, 12, 14], true)
+            ? UserDevice::whereIn('user_id', $users_raw->modelKeys())->whereNull('revoked_at')->get()->groupBy('user_id')
+            : collect();
 
         foreach ($users_raw as $user_raw) {
             if ($user_raw->transfer_enable <= $user_raw->u + $user_raw->d) {
@@ -154,10 +164,13 @@ final class UserController extends BaseController
                 $user_raw->node_speedlimit = 0;
             }
 
-            $users[] = $user_raw;
+            foreach (DeviceProfiles::nodeCredentials($user_raw, $capable, (int) $node->sort, $devicePool->get($user_raw->id, [])) as $credential) {
+                unset($credential->device_profiles_enabled);
+                $users[] = $credential;
+            }
         }
 
-        return ResponseHelper::successWithDataEtag($request, $response, $users);
+        return ResponseHelper::successWithDataEtag($request, $response->withHeader('Cache-Control', 'private, no-cache'), $users);
     }
 
     /**
@@ -214,6 +227,10 @@ final class UserController extends BaseController
             $d = $log?->d;
             $user_id = $log?->user_id;
 
+            $device_id = (int) ($log->device_id ?? 0);
+            if ($device_id > 0 && ! UserDevice::where('id', $device_id)->where('user_id', $user_id)->exists()) {
+                continue;
+            }
             if ($user_id) {
                 $billed_u = $u * $rate;
                 $billed_d = $d * $rate;
@@ -274,39 +291,53 @@ final class UserController extends BaseController
             return ResponseHelper::error($response, 'Node is not enabled.');
         }
 
-        foreach ($data as $log) {
-            $ip = (string) $log?->ip;
-            $user_id = (int) $log?->user_id;
-
-            if (Tools::isIPv4($ip)) {
-                // convert IPv4 Address to IPv4-mapped IPv6 Address
-                $ip = '::ffff:' . $ip;
-            } elseif (! Tools::isIPv6($ip)) {
-                // either IPv4 or IPv6 Address
-                continue;
+        DB::connection()->transaction(function () use ($request, $data, $node_id): void {
+            $deviceSnapshot = $request->getQueryParam('device_profiles') === '1';
+            if ($deviceSnapshot) {
+                DB::table('user_device_presence')->where('node_id', $node_id)->delete();
             }
+            foreach ($data as $log) {
+                $ip = (string) ($log->ip ?? '');
+                $user_id = (int) ($log->user_id ?? 0);
+                $device_id = (int) ($log->device_id ?? 0);
+                if (! filter_var($ip, FILTER_VALIDATE_IP) || $user_id <= 0) {
+                    continue;
+                }
+                if ($device_id > 0) {
+                    $device = UserDevice::where('id', $device_id)->where('user_id', $user_id)->whereNull('revoked_at')->first();
+                    if (! $deviceSnapshot || $device === null) {
+                        continue;
+                    }
+                    DB::table('user_device_presence')->upsert([
+                    'device_id' => $device_id, 'node_id' => $node_id, 'ip' => $ip,
+                    'last_seen_at' => time(), 'connections' => min(1000000, max(1, (int) ($log->connections ?? 1))),
+                    ], ['device_id', 'node_id', 'ip'], ['last_seen_at', 'connections']);
+                    $device->update(['last_seen_at' => time()]);
+                    continue;
+                }
+                if (Tools::isIPv4($ip)) {
+                    $ip = '::ffff:' . $ip;
+                }
+                (new OnlineLog())->upsert([
+                'user_id' => $user_id, 'ip' => $ip, 'node_id' => $node_id,
+                'first_time' => time(), 'last_time' => time(),
+                ], ['user_id', 'ip'], ['node_id', 'last_time']);
+            }
+        });
 
-            (new OnlineLog())->upsert(
-                [
-                    'user_id' => $user_id,
-                    'ip' => $ip,
-                    'node_id' => $node_id,
-                    'first_time' => time(),
-                    'last_time' => time(),
-                ],
-                ['user_id', 'ip'],
-                ['node_id', 'last_time']
-            );
-        }
-
-        // Refresh cached online_user from distinct IPs in the recent window.
+        // Node online_user counts accounts; device counts are displayed separately.
         $onlineIps = (int) (new OnlineLog())
             ->newQuery()
+            ->join('user', 'user.id', '=', 'online_log.user_id')
+            ->where('user.device_profiles_enabled', 0)
             ->where('node_id', $node_id)
             ->where('last_time', '>', time() - 120)
-            ->selectRaw('COUNT(DISTINCT ip) AS c')
+            ->selectRaw('COUNT(DISTINCT user_id) AS c')
             ->value('c');
-        $node->update(['online_user' => $onlineIps]);
+        $managedUsers = (int) DB::table('user_device_presence')->join('user_device', 'user_device.id', '=', 'user_device_presence.device_id')
+            ->where('node_id', $node_id)->whereNull('user_device.revoked_at')
+            ->where('user_device_presence.last_seen_at', '>', time() - 180)->distinct()->count('user_device.user_id');
+        $node->update(['online_user' => $onlineIps + $managedUsers]);
 
         return ResponseHelper::success($response, 'ok');
     }

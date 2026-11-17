@@ -187,6 +187,18 @@
                                            value="{$edit_user->node_speedlimit}">
                                 </div>
                             </div>
+                            <div class="mb-3"><strong>Profile thiết bị đang được cấp</strong>
+                            {foreach $profile_devices as $profile_device}
+                                <form method="post" action="/admin/user/{$edit_user->id}/devices/{$profile_device->id}/revoke" class="d-flex gap-2 my-2">
+                                <input type="hidden" name="csrf" value="{$device_csrf|escape}">
+                                <span>{$profile_device->name|escape}</span><button type="submit" class="btn btn-sm btn-outline-danger">Thu hồi</button>
+                                </form>
+                            {foreachelse}<p>Chưa có profile.</p>{/foreach}
+                            </div>
+                            <div class="form-group mb-3 row">
+                                <label class="form-label col-4 col-form-label">Giới hạn profile thiết bị</label>
+                                <div class="col"><input id="device_limit" type="number" min="0" max="1000" class="form-control" value="{$edit_user->device_limit}"><small>0 = không giới hạn profile được cấp. Hạ giới hạn không tự thu hồi profile đã có.</small></div>
+                            </div>
                             <div class="form-group mb-3 row">
                                 <label class="form-label col-4 col-form-label">Giới hạn IP kết nối đồng thời</label>
                                 <div class="col">

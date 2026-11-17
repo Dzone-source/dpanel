@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Models\Config;
 use App\Models\Link;
+use App\Services\DeviceProfiles;
 use App\Models\SubscribeLog;
 use App\Services\RateLimit;
 use App\Services\Subscribe;
@@ -51,7 +52,7 @@ final class SubController extends BaseController
             return ResponseHelper::error($response, $err_msg);
         }
 
-        $token = $this->antiXss->xss_clean($args['token']);
+        $token = $this->antiXss->xss_clean(($args['device_token'] ?? $args['token'] ?? ''));
 
         if ($_ENV['enable_rate_limit'] &&
             (! (new RateLimit())->checkRateLimit('sub_ip', $request->getServerParam('REMOTE_ADDR')) ||
@@ -60,13 +61,22 @@ final class SubController extends BaseController
             return ResponseHelper::error($response, $err_msg);
         }
 
-        $link = (new Link())->where('token', $token)->first();
-
-        if ($link === null || ! $link->isValid()) {
-            return ResponseHelper::error($response, $err_msg);
+        if (isset($args['device_token'])) {
+            $user = DeviceProfiles::subscription($token);
+            if ($user === null) {
+                return ResponseHelper::error($response, 'Profile đã thu hồi hoặc tài khoản không còn quyền.', 403);
+            }
+        } else {
+            $link = (new Link())->where('token', $token)->first();
+            if ($link === null || ! $link->isValid()) {
+                return ResponseHelper::error($response, $err_msg);
+            }
+            $user = $link->user();
+            if ($user->device_profiles_enabled) {
+                return ResponseHelper::error($response, 'Hãy dùng profile riêng từ trang Thiết bị.', 403);
+            }
         }
-
-        $user = $link->user();
+        $response = $response->withHeader('Cache-Control', 'private, no-store');
         $ua = $this->antiXss->xss_clean($request->getHeaderLine('User-Agent'));
 
         // Auto profile for Hiddify-app (empty subtype / json / generic).

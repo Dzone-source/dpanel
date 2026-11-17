@@ -25,6 +25,9 @@ final class Subscribe
 {
     public static function getUniversalSubLink($user): string
     {
+        if ($user->device_subscription_url) {
+            return (string) $user->device_subscription_url;
+        }
         $userid = $user->id;
         $token = (new Link())->where('userid', $userid)->first();
 
@@ -42,6 +45,9 @@ final class Subscribe
     {
         $query = Node::query();
         $query->where('type', 1);
+        if ($user->device_profiles_enabled) {
+            $query->whereIn('sort', [11, 12, 14]);
+        }
 
         if (! $show_all_nodes) {
             $query->where('node_class', '<=', $user->class);

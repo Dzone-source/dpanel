@@ -87,6 +87,8 @@ final class User extends Model
         'daily_mail_enable' => 'int',
         'ref_by' => 'int',
         'node_iplimit' => 'int',
+        'device_profiles_enabled' => 'bool',
+        'device_limit' => 'int',
         'node_speedlimit' => 'float',
     ];
 
